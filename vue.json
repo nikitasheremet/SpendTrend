@@ -1,0 +1,34 @@
+{
+	"New Vue Component": {
+		"prefix": "vue-component",
+		"body": [
+			"<template>",
+			"  <div>",
+			"    $1",
+			"  </div>",
+			"</template>",
+			"",
+			"<script>",
+			"export default {",
+			"  name: '${2:ComponentName}',",
+			"  props: {",
+			"    $3",
+			"  },",
+			"  data() {",
+			"    return {",
+			"      $4",
+			"    };",
+			"  },",
+			"  methods: {",
+			"    $5",
+			"  }",
+			"};",
+			"</script>",
+			"",
+			"<style scoped>",
+			"  $6",
+			"</style>"
+		],
+		"description": "Create a new Vue component template"
+	}
+}
