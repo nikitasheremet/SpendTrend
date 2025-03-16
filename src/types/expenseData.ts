@@ -20,3 +20,8 @@ export interface NewExpense {
   category: string
   subCategory: string
 }
+
+export interface Category {
+  name: string
+  subCategories: string[]
+}

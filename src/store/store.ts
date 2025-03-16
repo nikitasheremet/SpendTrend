@@ -1,21 +1,15 @@
-import type { Expense, NewExpense } from '@/types/expenseData'
+import type { Category, Expense, NewExpense } from '@/types/expenseData'
 import { reactive } from 'vue'
 import { fakeExpenseData } from './fakeData'
 import type { Store } from './storeInterface'
 
 function createStore() {
   let expenses: Expense[] = fakeExpenseData
-  let categories: string[] = ['Food', 'Home Core', 'Subscription', 'Car', 'Gift', 'Service']
-  let subcategories: string[] = [
-    'Groceries',
-    'Mortgage',
-    'Netflix',
-    'Phone',
-    'Loan',
-    'Parking',
-    'Insurance',
-    'Massage',
-    'Chiropractor',
+  let categories: Category[] = [
+    { name: 'Food', subCategories: ['N + N', 'Groceries'] },
+    { name: 'Home Core', subCategories: ['Mortgage', 'Taxes'] },
+    { name: 'Subscription', subCategories: ['Netflix', 'Prime'] },
+    { name: 'Car', subCategories: ['Loan', 'Parking'] },
   ]
 
   return reactive<Store>({
@@ -61,18 +55,60 @@ function createStore() {
       expenses[existingExpenseIndex] = updatedExpense
     },
     getCategories() {
-      return categories
+      const categoryNames = categories.map((category) => category.name)
+      return categoryNames
     },
     getSubcategories() {
+      const subcategories = categories.flatMap((category) => category.subCategories)
       return subcategories
     },
-    addCategories(newCategories: string[]): string[] {
+    addCategories(newCategoryNames: string[]): string[] {
+      const newCategories = newCategoryNames.map((categoryName) => ({
+        name: categoryName,
+        subCategories: [],
+      }))
       categories = [...categories, ...newCategories]
-      return categories
+      return this.getCategories()
     },
-    addSubcategories(newSubcategories): string[] {
-      subcategories = [...subcategories, ...newSubcategories]
-      return subcategories
+    addSubcategoriesToCategory(newSubcategories: string[], categoryToAddTo: string): string[] {
+      const categoryIndex = categories.findIndex((category) => category.name === categoryToAddTo)
+      if (categoryIndex === -1) {
+        throw new Error('Category not found')
+      }
+      const category = categories[categoryIndex]
+      const subcategories = category.subCategories
+      category.subCategories = [...subcategories, ...newSubcategories]
+
+      return this.getSubcategories()
+    },
+    getSubcategoriesForCategory(category: string) {
+      const categoryIndex = categories.findIndex((categoryData) => categoryData.name === category)
+      if (categoryIndex === -1) {
+        throw new Error('Category not found')
+      }
+      return categories[categoryIndex].subCategories
+    },
+    deleteCategory(categoryToDelete: string) {
+      const categoryIndex = categories.findIndex(
+        (categoryData) => categoryData.name === categoryToDelete,
+      )
+      if (categoryIndex === -1) {
+        throw new Error('Category not found')
+      }
+      categories.splice(categoryIndex, 1)
+    },
+    deleteSubcategory(subcategoryToDelete: string, category: string) {
+      const categoryIndex = categories.findIndex((categoryData) => categoryData.name === category)
+      if (categoryIndex === -1) {
+        throw new Error('Category not found')
+      }
+      const subcategoryIndex = categories[categoryIndex].subCategories.findIndex(
+        (subcategory) => subcategory === subcategoryToDelete,
+      )
+      if (subcategoryIndex === -1) {
+        throw new Error('Subcategory not found')
+      }
+      categories[categoryIndex].subCategories.splice(subcategoryIndex, 1)
     },
   })
 }

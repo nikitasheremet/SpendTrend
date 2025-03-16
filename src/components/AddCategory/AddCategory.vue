@@ -4,6 +4,14 @@ import { removeDuplicates } from '@/helpers/removeDuplicates'
 import { computed, ref } from 'vue'
 import { store } from '@/store/store'
 
+const emits = defineEmits<{
+  categoriesUpdated: []
+}>()
+
+function emitCategoriesUpdated() {
+  emits('categoriesUpdated')
+}
+
 const isAddCategoryModalOpen = ref(false)
 const newCategoryValue = ref('')
 const isSaveCategoryDisabled = computed(() => Boolean(!newCategoryValue.value))
@@ -24,6 +32,8 @@ function saveCategory() {
   store.addCategories(newCategories)
   newCategoryValue.value = ''
   closeAddCategoryModal()
+
+  emitCategoriesUpdated()
 }
 </script>
 
