@@ -6,6 +6,7 @@ export interface Store {
     dateRange: [number, number],
     filters?: {
       category?: string
+      subcategory?: string
     },
     options?: {
       inclusive: boolean

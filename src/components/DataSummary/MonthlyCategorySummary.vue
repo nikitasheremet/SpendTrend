@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { store } from '@/store/store'
 import { ref } from 'vue'
 import { useGetMonthlyExpenseSummary } from './helpers/useGetMonthlyExpenseSummary'
+import MonthlyCategorySummaryDetails from './MonthlyCategorySummaryDetails.vue'
 
 const thisMonth = ref(new Date().getUTCMonth())
 const thisYear = ref(new Date().getUTCFullYear())
@@ -10,24 +10,25 @@ const { summaryForSelectedMonthByCategory } = useGetMonthlyExpenseSummary(thisMo
 </script>
 
 <template>
-  <div id="category-grid">
-    <p>Category</p>
-    <p>Total</p>
-    <p>3 Month Average</p>
-    <p>Diff Value</p>
-    <p>Diff Percent</p>
-    <template v-for="categoryDetails in Object.entries(summaryForSelectedMonthByCategory)">
-      <span>{{ categoryDetails[0] }}: </span><span>{{ categoryDetails[1].totalAmount }}</span
-      ><span>{{ categoryDetails[1].threeMonthAverage }}</span
-      ><span>{{ categoryDetails[1].diffTotalToAverage }}</span
-      ><span>{{ categoryDetails[1].diffTotalToAverageAsPercent }}</span>
-    </template>
-  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Total</th>
+        <th>3 Month Average</th>
+        <th>Diff Value</th>
+        <th>Diff Percent</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template v-for="category in Object.entries(summaryForSelectedMonthByCategory)">
+        <MonthlyCategorySummaryDetails
+          :category="category[0]"
+          :monthSummaryForSelectedCategory="category[1]"
+        />
+      </template>
+    </tbody>
+  </table>
 </template>
 
-<style scoped>
-#category-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-}
-</style>
+<style scoped></style>

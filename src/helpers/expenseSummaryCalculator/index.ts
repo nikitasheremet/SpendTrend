@@ -1,6 +1,11 @@
 import { store } from '@/store/store'
 import type { Expense, ExpenseDate } from '@/types/expenseData'
-import type { ExpenseSummaryByCategory, ExpenseSummaryForMonth } from '@/types/expenseSummary'
+import type {
+  ExpenseSummaryByCategory,
+  ExpenseSummaryBySubcategory,
+  ExpenseSummaryForMonth,
+  MonthDetails,
+} from '@/types/expenseSummary'
 import { calculateTotalForListOfExpenses } from './helpers/calculateTotalForListOfExpenses'
 import { roundNumber } from './helpers/roundNumber'
 
@@ -30,7 +35,6 @@ export class ExpenseSummaryCalculator {
   }
 
   getExpenseSummaryByCategory(): ExpenseSummaryByCategory {
-    console.log('this.compileExpenseSummaryByCategory()', this.compileExpenseSummaryByCategory())
     return this.compileExpenseSummaryByCategory()
   }
 
@@ -47,24 +51,37 @@ export class ExpenseSummaryCalculator {
     const categories = store.getCategories()
     const expenseSummaryByCategory: ExpenseSummaryByCategory = {}
     categories.forEach((category) => {
-      const categoryTotal = this.categoryTotalForSelectedMonth(category)
-      const categoryThreeMonthAverage = this.categoryThreeMonthAverage(category)
-      const diffTotalToAverage = this.categoryDiffTotalToAverage(
-        categoryTotal,
-        categoryThreeMonthAverage,
-      )
-
       expenseSummaryByCategory[category] = {
-        totalAmount: categoryTotal,
-        threeMonthAverage: categoryThreeMonthAverage,
-        diffTotalToAverage: diffTotalToAverage,
-        diffTotalToAverageAsPercent: this.categoryDiffTotalToAverageAsPercent(
-          diffTotalToAverage,
-          categoryThreeMonthAverage,
-        ),
+        ...this.compileExpenseSummary(category),
+        subcategories: this.compileExpenseSummaryBySubcategory(category),
       }
     })
     return expenseSummaryByCategory
+  }
+
+  private compileExpenseSummaryBySubcategory(category: string): ExpenseSummaryBySubcategory {
+    const subcategories = store.getSubcategoriesForCategory(category)
+
+    const expenseSummaryBySubcategory: ExpenseSummaryBySubcategory = {}
+    subcategories.forEach((subcategory) => {
+      expenseSummaryBySubcategory[subcategory] = this.compileExpenseSummary(category, subcategory)
+    })
+    return expenseSummaryBySubcategory
+  }
+
+  private compileExpenseSummary(category: string, subcategory?: string): MonthDetails {
+    const total = this.categoryTotalForSelectedMonth(category, subcategory)
+    const threeMonthAverage = this.categoryThreeMonthAverage(category, subcategory)
+    const diffTotalToAverage = this.categoryDiffTotalToAverage(total, threeMonthAverage)
+    return {
+      totalAmount: total,
+      threeMonthAverage: threeMonthAverage,
+      diffTotalToAverage: diffTotalToAverage,
+      diffTotalToAverageAsPercent: this.categoryDiffTotalToAverageAsPercent(
+        diffTotalToAverage,
+        threeMonthAverage,
+      ),
+    }
   }
 
   private getExpensesForSelectedMonth(): Expense[] {
@@ -124,25 +141,28 @@ export class ExpenseSummaryCalculator {
     return roundNumber(numberToRound, 2)
   }
 
-  private categoryTotalForSelectedMonth(category: string): number {
+  private categoryTotalForSelectedMonth(category: string, subcategory?: string): number {
     const selectedMonthYearDate = new Date(this.selectedYear, this.selectedMonth, 1)
     const startEndDate = this.firstAndLastDayOfTheMonth(selectedMonthYearDate)
-    const expensesForMonth = store.getExpensesForDateRange(startEndDate, { category })
+    const expensesForMonth = store.getExpensesForDateRange(startEndDate, { category, subcategory })
     const numberToRound = calculateTotalForListOfExpenses(expensesForMonth)
     return roundNumber(numberToRound, 2)
   }
 
-  private categoryThreeMonthAverage(category: string): number {
-    const selectedMonthYearDate = new Date(this.selectedYear, this.selectedMonth, 0)
+  private categoryThreeMonthAverage(category: string, subcategory?: string): number {
+    const selectedMonthYearDate = new Date(this.selectedYear, this.selectedMonth, 15)
 
     const totalsForLastThreeMonths = [1, 2, 3].map((monthOffset) => {
       const expenseDate = new Date(
         selectedMonthYearDate.getUTCFullYear(),
         selectedMonthYearDate.getUTCMonth() - monthOffset,
-        1,
+        15,
       )
       const startEndDate = this.firstAndLastDayOfTheMonth(expenseDate)
-      const expensesForMonth = store.getExpensesForDateRange(startEndDate, { category })
+      const expensesForMonth = store.getExpensesForDateRange(startEndDate, {
+        category,
+        subcategory,
+      })
       return calculateTotalForListOfExpenses(expensesForMonth)
     })
 

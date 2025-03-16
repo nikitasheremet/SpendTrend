@@ -23,6 +23,13 @@ function createStore() {
       if (inclusive) {
         return expenses.filter((expense) => {
           const isWithinDateRange = expense.date >= startDate && expense.date <= endDate
+          if (filters?.category && filters?.subcategory) {
+            return (
+              isWithinDateRange &&
+              expense.subCategory === filters.subcategory &&
+              expense.category === filters.category
+            )
+          }
           if (filters?.category) {
             return isWithinDateRange && expense.category === filters.category
           }

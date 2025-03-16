@@ -53,12 +53,12 @@ export const fakeExpenseData = [
   {
     id: '7891',
     date: minusOneMonthExpenseDate,
-    name: 'Netflix',
+    name: 'Fortinos',
     netAmount: 20,
     amount: 20,
     paidBackAmount: 0,
-    category: 'Subscription',
-    subCategory: 'Netflix',
+    category: 'Food',
+    subCategory: 'Groceries',
   },
   {
     id: '7892',
