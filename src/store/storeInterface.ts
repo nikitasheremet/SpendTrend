@@ -1,7 +1,7 @@
 import type { Expense, NewExpense } from '@/types/expenseData'
 
 export interface Store {
-  getAllExpenses: () => Expense[]
+  getAllExpenses: (order?: 'asc' | 'desc') => Expense[]
   getExpensesForDateRange: (
     dateRange: [number, number],
     filters?: {

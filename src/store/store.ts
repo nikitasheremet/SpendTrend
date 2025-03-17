@@ -13,9 +13,13 @@ function createStore() {
   ]
 
   return reactive<Store>({
-    getAllExpenses() {
-      console.log('Getting all expenses', expenses)
-      return expenses
+    getAllExpenses(order: 'asc' | 'desc' = 'desc') {
+      if (order === 'asc') {
+        return expenses
+      }
+      const sortedDescExpenses = [...expenses]
+      sortedDescExpenses.sort((a, b) => b.date - a.date)
+      return sortedDescExpenses
     },
     getExpensesForDateRange(dateRange, filters, options) {
       const [startDate, endDate] = dateRange
