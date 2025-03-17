@@ -6,22 +6,26 @@ import { ref } from 'vue'
 
 const expenses = ref(store.getAllExpenses())
 
-function refreshExpenses() {
-  expenses.value = [...store.getAllExpenses()]
-}
-
 function updateData(
   valueToUpdate: string | number | undefined,
   valueName: keyof Expense,
   expenseId: string,
 ) {
   store.updateExpense({ [valueName]: valueToUpdate }, expenseId)
-  refreshExpenses()
+  expenses.value = expenses.value.map((expense) => {
+    if (expense.id === expenseId) {
+      return {
+        ...expense,
+        [valueName]: valueToUpdate,
+      }
+    }
+    return expense
+  })
 }
 
 function handleDelete(expenseId: string) {
   store.deleteExpense(expenseId)
-  refreshExpenses()
+  expenses.value = expenses.value.filter((expense) => expense.id !== expenseId)
 }
 </script>
 
