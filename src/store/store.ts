@@ -117,6 +117,13 @@ function createStore() {
       }
       categories[categoryIndex].subCategories.splice(subcategoryIndex, 1)
     },
+    deleteExpense(key: string) {
+      const expenseIndex = expenses.findIndex((expense) => expense.id === key)
+      if (expenseIndex === -1) {
+        throw new Error('Expense not found')
+      }
+      expenses.splice(expenseIndex, 1)
+    },
   })
 }
 

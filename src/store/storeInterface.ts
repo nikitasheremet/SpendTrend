@@ -21,4 +21,5 @@ export interface Store {
   getSubcategoriesForCategory: (category: string) => string[]
   deleteCategory: (categoryToDelete: string) => void
   deleteSubcategory: (subcategoryToDelete: string, category: string) => void
+  deleteExpense: (key: string) => void
 }
