@@ -2,6 +2,9 @@
 import type { Expense } from '@/types/expenseData'
 import { store } from '@/store/store'
 import ExpenseDataCell from '../EditableCell/ExpenseDataCell.vue'
+import { ref } from 'vue'
+
+const expenses = ref(store.getAllExpenses())
 
 function updateData(
   valueToUpdate: string | number | undefined,
@@ -9,11 +12,25 @@ function updateData(
   expenseId: string,
 ) {
   store.updateExpense({ [valueName]: valueToUpdate }, expenseId)
+  expenses.value = expenses.value.map((expense) => {
+    if (expense.id === expenseId) {
+      return {
+        ...expense,
+        [valueName]: valueToUpdate,
+      }
+    }
+    return expense
+  })
+}
+
+function handleDelete(expenseId: string) {
+  store.deleteExpense(expenseId)
+  expenses.value = expenses.value.filter((expense) => expense.id !== expenseId)
 }
 </script>
 
 <template>
-  <tr v-for="expense of store.getAllExpenses()">
+  <tr v-for="expense of expenses" class="expense-data-row" :key="expense.id">
     <ExpenseDataCell
       :data="expense.date!"
       type="date"
@@ -47,6 +64,7 @@ function updateData(
       subtype="subcategories"
       @on-save="(value) => updateData(value, 'subCategory', expense.id)"
     />
+    <button class="delete-expense-button" @click="handleDelete(expense.id)">Delete</button>
   </tr>
 </template>
 
@@ -54,5 +72,13 @@ function updateData(
 td {
   padding: 0 8px;
   border: grey 1px solid;
+}
+.delete-expense-button {
+  display: none;
+}
+.expense-data-row:hover {
+  .delete-expense-button {
+    display: block;
+  }
 }
 </style>
