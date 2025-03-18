@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import UpdateView from './UpdateView.vue'
 import { store } from '@/store/store'
+import { DateFormat, formatDate } from '@/helpers/date/formateDate'
 
 export type ComponentProps =
   | { type: 'date'; data?: number; subtype?: never }
@@ -46,7 +47,7 @@ function handleUpdateComplete(value: string | number) {
       :inputType="type"
       :inputCategories="dropdownCategories"
     />
-    <p v-else>{{ type === 'date' ? new Date(data as string) : data }}</p>
+    <p v-else>{{ type === 'date' ? formatDate(data!, DateFormat.DD_MMMM_YYYY) : data }}</p>
   </td>
 </template>
 
