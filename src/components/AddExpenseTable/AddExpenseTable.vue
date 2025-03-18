@@ -6,30 +6,41 @@ import AddNewExpenseRow from './AddNewExpenseRow.vue'
 import type { NewExpense } from '@/types/expenseData'
 
 export type NewExpenseData = {
-  date?: Date
+  date?: number
   name?: string
   netAmount?: number
   amount?: number
-  paidBack?: number
+  paidBackAmount?: number
   category?: string
   subCategory?: string
 }
 
-const newExpenseData = ref<NewExpense>({
-  date: new Date().getTime(),
-  name: '',
-  netAmount: 0,
-  amount: 0,
-  category: '',
-  subCategory: '',
-})
-function handleNewExpenseDataChanged(changedNewExpenseData: NewExpense) {
+function createNewEmptyExpenseData(): NewExpenseData {
+  return {
+    date: new Date().getTime(),
+    name: '',
+    netAmount: 0,
+    amount: 0,
+    paidBackAmount: 0,
+    category: '',
+    subCategory: '',
+  }
+}
+
+const newExpenseData = ref<NewExpenseData>(createNewEmptyExpenseData())
+function handleNewExpenseDataChanged(changedNewExpenseData: NewExpenseData) {
   newExpenseData.value = changedNewExpenseData
 }
 
 function saveExpenseData() {
-  console.log('New data to be saved:', newExpenseData.value)
-  store.addExpense(newExpenseData.value)
+  const { date } = newExpenseData.value
+  // verify that date is not undefined
+  if (!date) {
+    console.error('Date is required')
+    return
+  }
+  store.addExpense(newExpenseData.value as NewExpense)
+  newExpenseData.value = createNewEmptyExpenseData()
 }
 </script>
 

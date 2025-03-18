@@ -3,23 +3,28 @@ import type { NewExpense } from '@/types/expenseData'
 import AddExpenseCell from './AddExpenseCell.vue'
 import { store } from '@/store/store'
 import { computed, ref, watch } from 'vue'
+import type { NewExpenseData } from './AddExpenseTable.vue'
 
 const { newExpenseData } = defineProps<{
-  newExpenseData: NewExpense
+  newExpenseData: NewExpenseData
 }>()
 const emits = defineEmits<{
-  updatedNewExpenseData: [NewExpense]
+  updatedNewExpenseData: [NewExpenseData]
 }>()
 
-const localNewExpenseData = ref(newExpenseData)
+const localNewExpenseData = computed({
+  get: () => newExpenseData,
+  set: (value) => {
+    emits('updatedNewExpenseData', {
+      ...value,
+      netAmount: (value.amount || 0) - (value.paidBackAmount || 0),
+    })
+  },
+})
 
 const netAmount = computed(() => {
   const { amount, paidBackAmount } = localNewExpenseData.value
   return (amount || 0) - (paidBackAmount || 0)
-})
-
-watch(localNewExpenseData.value, (updatedValue) => {
-  emits('updatedNewExpenseData', { ...updatedValue, netAmount: netAmount.value })
 })
 </script>
 
