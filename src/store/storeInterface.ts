@@ -1,7 +1,7 @@
 import type { Expense, NewExpense } from '@/types/expenseData'
 
 export interface Store {
-  getAllExpenses: (order?: 'asc' | 'desc') => Expense[]
+  getAllExpenses: (order?: 'asc' | 'desc') => Promise<Expense[]>
   getExpensesForDateRange: (
     dateRange: [number, number],
     filters?: {
@@ -11,9 +11,9 @@ export interface Store {
     options?: {
       inclusive: boolean
     },
-  ) => Expense[]
-  addExpense: (newExpense: NewExpense) => Expense[]
-  updateExpense: (expenseDataToUpdate: Partial<Expense>, key: string) => void
+  ) => Promise<Expense[]>
+  addExpense: (newExpense: NewExpense) => Promise<Expense[]>
+  updateExpense: (expenseDataToUpdate: Partial<Expense>, key: string) => Promise<void>
   addCategories: (newCategories: string[]) => string[]
   addSubcategoriesToCategory: (newSubcategories: string[], categoryToAddTo: string) => string[]
   getCategories: () => string[]
@@ -21,5 +21,5 @@ export interface Store {
   getSubcategoriesForCategory: (category: string) => string[]
   deleteCategory: (categoryToDelete: string) => void
   deleteSubcategory: (subcategoryToDelete: string, category: string) => void
-  deleteExpense: (key: string) => void
+  deleteExpense: (key: string) => Promise<void>
 }

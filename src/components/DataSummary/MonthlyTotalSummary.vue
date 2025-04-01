@@ -2,10 +2,15 @@
 import { store } from '@/store/store'
 import { useGetMonthlyExpenseSummary } from './helpers/useGetMonthlyExpenseSummary'
 import { ref } from 'vue'
-
-const listOfYears = store.getAllExpenses().reduce((prev, expense) => {
-  return prev.add(new Date(expense.date).getUTCFullYear())
-}, new Set())
+async function getListOfYearsFromExpenses(): Promise<number[]> {
+  const allExpenses = await store.getAllExpenses()
+  return [
+    ...allExpenses.reduce((prev, expense) => {
+      return prev.add(new Date(expense.date).getUTCFullYear())
+    }, new Set<number>()),
+  ]
+}
+const listOfYears = await getListOfYearsFromExpenses()
 const listOfMonths = [
   ['Jan', 0],
   ['Feb', 1],
@@ -27,6 +32,7 @@ const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(
   currentSelectedMonth,
   currentSelectedYear,
 )
+console.log(summaryForSelectedMonth.value)
 </script>
 
 <template>

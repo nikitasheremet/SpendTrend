@@ -12,8 +12,8 @@ export async function openDB() {
       db = request.result
 
       try {
-        db.createObjectStore('universes', { keyPath: 'name' })
-        db.createObjectStore('tables', { keyPath: 'name' })
+        db.createObjectStore('expenses', { keyPath: 'id' })
+        db.createObjectStore('expenseCategories', { keyPath: 'name' })
       } catch (e) {
         console.error(e)
       }

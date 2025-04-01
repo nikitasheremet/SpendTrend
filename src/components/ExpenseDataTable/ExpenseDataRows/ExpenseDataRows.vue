@@ -2,16 +2,20 @@
 import type { Expense } from '@/types/expenseData'
 import { store } from '@/store/store'
 import ExpenseDataCell from '../EditableCell/ExpenseDataCell.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
-const expenses = ref(store.getAllExpenses())
+const expenses = ref<Expense[]>([])
 
-function updateData(
+onMounted(async () => {
+  expenses.value = await store.getAllExpenses()
+})
+
+async function updateData(
   valueToUpdate: string | number | undefined,
   valueName: keyof Expense,
   expenseId: string,
 ) {
-  store.updateExpense({ [valueName]: valueToUpdate }, expenseId)
+  await store.updateExpense({ [valueName]: valueToUpdate }, expenseId)
   expenses.value = expenses.value.map((expense) => {
     if (expense.id === expenseId) {
       return {
@@ -23,8 +27,8 @@ function updateData(
   })
 }
 
-function handleDelete(expenseId: string) {
-  store.deleteExpense(expenseId)
+async function handleDelete(expenseId: string) {
+  await store.deleteExpense(expenseId)
   expenses.value = expenses.value.filter((expense) => expense.id !== expenseId)
 }
 </script>
@@ -64,7 +68,9 @@ function handleDelete(expenseId: string) {
       subtype="subcategories"
       @on-save="(value) => updateData(value, 'subCategory', expense.id)"
     />
-    <button class="delete-expense-button" @click="handleDelete(expense.id)">Delete</button>
+    <td>
+      <button class="delete-expense-button" @click="handleDelete(expense.id)">Delete</button>
+    </td>
   </tr>
 </template>
 

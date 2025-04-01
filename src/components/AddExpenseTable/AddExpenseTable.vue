@@ -32,14 +32,14 @@ function handleNewExpenseDataChanged(changedNewExpenseData: NewExpenseData) {
   newExpenseData.value = changedNewExpenseData
 }
 
-function saveExpenseData() {
+async function saveExpenseData() {
   const { date } = newExpenseData.value
   // verify that date is not undefined
   if (!date) {
     console.error('Date is required')
     return
   }
-  store.addExpense(newExpenseData.value as NewExpense)
+  await store.addExpense(newExpenseData.value as NewExpense)
   newExpenseData.value = createNewEmptyExpenseData()
 }
 </script>
