@@ -1,3 +1,5 @@
+import { EXPENSE_CATEGORIES_OBJ_STORE, EXPENSES_OBJ_STORE } from './schema/types'
+
 export let db: IDBDatabase
 
 export async function openDB() {
@@ -12,8 +14,8 @@ export async function openDB() {
       db = request.result
 
       try {
-        db.createObjectStore('expenses', { keyPath: 'id' })
-        db.createObjectStore('expenseCategories', { keyPath: 'name' })
+        db.createObjectStore(EXPENSES_OBJ_STORE, { keyPath: 'id' })
+        db.createObjectStore(EXPENSE_CATEGORIES_OBJ_STORE, { keyPath: 'name' })
       } catch (e) {
         console.error(e)
       }

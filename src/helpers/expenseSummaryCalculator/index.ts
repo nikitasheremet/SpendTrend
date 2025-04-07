@@ -11,6 +11,7 @@ import { roundNumber } from './helpers/roundNumber'
 import type { ExpenseSummaryCalculatorI } from './interaface'
 import { getFirstAndLastDayForMonth } from './helpers/getFirstAndLastDayForMonth'
 import { getExpensesForDateRange } from '@/service/expenses/getExpensesForDateRange'
+import { getCategories } from '@/service/categories/getCategories'
 
 export class ExpenseSummaryCalculator implements ExpenseSummaryCalculatorI {
   private selectedMonth: number
@@ -43,19 +44,19 @@ export class ExpenseSummaryCalculator implements ExpenseSummaryCalculatorI {
   }
 
   private async compileExpenseSummaryByCategory(): Promise<ExpenseSummaryByCategory> {
-    const categories = store.getCategories()
+    const categories = await getCategories()
     const expenseSummaryByCategory: ExpenseSummaryByCategory = {}
     const categoriesExpenseSummaries = await Promise.all(
       categories.map(async (category) => {
-        const categoryExpenseCategory = await this.compileExpenseSummary(category)
+        const categoryExpenseCategory = await this.compileExpenseSummary(category.name)
         return {
           ...categoryExpenseCategory,
-          subcategories: await this.compileExpenseSummaryBySubcategory(category),
+          subcategories: await this.compileExpenseSummaryBySubcategory(category.name),
         }
       }),
     )
     categories.forEach((category, index) => {
-      expenseSummaryByCategory[category] = categoriesExpenseSummaries[index]
+      expenseSummaryByCategory[category.name] = categoriesExpenseSummaries[index]
     })
     return expenseSummaryByCategory
   }
