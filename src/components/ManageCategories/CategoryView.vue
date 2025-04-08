@@ -5,6 +5,9 @@ import { sleep } from '@/helpers/sleep'
 import { store } from '@/store/store'
 import type { Category } from '@/types/expenseData'
 import { useDeleteCategory } from './hooks/useDeleteCategory'
+import SubcategoryView from './SubcategoryView.vue'
+import { useManageSubcategories } from './hooks/useManageSubcategories'
+import { useControlModal } from '../DesignSystem/Modal/useControlModal'
 const { category } = defineProps<{
   category: Category
 }>()
@@ -12,23 +15,14 @@ const emits = defineEmits<{
   categoryDeleted: [Category]
 }>()
 
-const localSubcategories = ref(category.subcategories)
-
 function categoryDeleted() {
   emits('categoryDeleted', category)
 }
 
 const { deleteCategory, error: deleteCategoryError } = useDeleteCategory(category, categoryDeleted)
+const { subcategories, deleteSubcategory } = useManageSubcategories(category)
 
-const isAddSubcategoryModalOpen = ref(false)
-function handleAddSubcategoryClicked() {
-  isAddSubcategoryModalOpen.value = true
-}
-watch(isAddSubcategoryModalOpen, (newValue) => {
-  if (newValue === false) {
-    emits('categoriesUpdated')
-  }
-})
+const { isModalOpen, openModal, closeModal } = useControlModal()
 
 const showSubcategories = ref(false)
 function handleCategoryClick() {
@@ -44,21 +38,6 @@ async function closeCategoryOptions() {
   await sleep(ONE_HUNDRED_MS_TO_ALLOW_MODAL_TO_OPEN)
   await nextTick()
   isCategoryOptionsShown.value = false
-}
-
-function handleSubcategoryDelete(subcategoryToDelete: string) {
-  let isDeleteConfirmed = window.confirm(
-    'Are you sure you want to delete this subcategory? It will remove this subcategory from all expenses. You will need to manually re-categorize them if desired. This action cannot be undone.',
-  )
-  if (isDeleteConfirmed) {
-    store.deleteSubcategory(subcategoryToDelete, category.name)
-    localSubcategories.value = localSubcategories.value.filter(
-      (subcategory) => subcategory !== subcategoryToDelete,
-    )
-    emits('categoriesUpdated')
-  } else {
-    console.log('Deletion canceled.')
-  }
 }
 </script>
 
@@ -76,23 +55,17 @@ function handleSubcategoryDelete(subcategoryToDelete: string) {
           Options
         </button>
         <div class="category-options" v-if="isCategoryOptionsShown">
-          <button @click="handleAddSubcategoryClicked">Add Subcategory</button>
+          <button @click="openModal">Add Subcategory</button>
           <button @click="deleteCategory">Delete Category</button>
         </div>
       </span>
     </div>
-    <ul v-if="showSubcategories && Boolean(localSubcategories.length)">
-      <li v-for="subcategory in localSubcategories" :key="subcategory">
-        <div style="margin: 10px 0 10px 0">
-          <p style="display: inline; margin-right: 10px">{{ subcategory }}</p>
-          <button style="font-size: 8px" @click="() => handleSubcategoryDelete(subcategory)">
-            Delete
-          </button>
-        </div>
-      </li>
-    </ul>
+    <SubcategoryView
+      :subcategories="subcategories"
+      @subcategory-delete-clicked="deleteSubcategory"
+    />
   </div>
-  <AddSubcategoryModal :category-name="category.name" v-model="isAddSubcategoryModalOpen" />
+  <AddSubcategoryModal :category-name="category.name" v-model="isModalOpen" />
   <Error v-if="deleteCategoryError" :error="deleteCategoryError" />
 </template>
 

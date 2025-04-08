@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import Modal from '../Modal/Modal.vue'
+import Modal from '../DesignSystem/Modal/Modal.vue'
 import { store } from '@/store/store'
 import Input from '../DesignSystem/Input.vue'
 
