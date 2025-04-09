@@ -1,16 +1,17 @@
 import type { Category } from '@/types/expenseData'
 import { ref, type Ref } from 'vue'
+import { deleteSubcategory as serviceDeleteSubcategory } from '@/service/categories/deleteSubcategory'
 
 export function useManageSubcategories(category: Category): {
   subcategories: Ref<string[]>
-  subcategoryAdded: (newSubcategory: string) => void
+  subcategoriesAdded: (newSubcategory: string[]) => void
   deleteSubcategory: (subcategoryToDelete: string) => Promise<void>
   error: Ref<Error | undefined>
 } {
   const subcategories = ref<string[]>(category.subcategories)
   const error = ref<Error | undefined>(undefined)
-  const subcategoryAdded = (newSubcategory: string) => {
-    subcategories.value = [...subcategories.value, newSubcategory]
+  const subcategoriesAdded = (newSubcategories: string[]) => {
+    subcategories.value = [...subcategories.value, ...newSubcategories]
   }
   const deleteSubcategory = async (subcategoryToDelete: string) => {
     let isDeleteConfirmed = window.confirm(
@@ -30,7 +31,7 @@ export function useManageSubcategories(category: Category): {
   }
   return {
     subcategories,
-    subcategoryAdded,
+    subcategoriesAdded,
     deleteSubcategory,
     error,
   }

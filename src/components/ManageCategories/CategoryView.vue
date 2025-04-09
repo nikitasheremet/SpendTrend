@@ -1,44 +1,43 @@
 <script lang="ts" setup>
-import { nextTick, ref, watch } from 'vue'
+import { ref } from 'vue'
 import AddSubcategoryModal from '@/components/ManageCategories/AddSubcategoryModal.vue'
-import { sleep } from '@/helpers/sleep'
-import { store } from '@/store/store'
 import type { Category } from '@/types/expenseData'
 import { useDeleteCategory } from './hooks/useDeleteCategory'
 import SubcategoryView from './SubcategoryView.vue'
 import { useManageSubcategories } from './hooks/useManageSubcategories'
 import { useControlModal } from '../DesignSystem/Modal/useControlModal'
+import { useControlCategoryOptions } from './hooks/useControlCategoryOptions'
+import Error from '../DesignSystem/Error.vue'
+
 const { category } = defineProps<{
   category: Category
 }>()
+
 const emits = defineEmits<{
   categoryDeleted: [Category]
 }>()
-
 function categoryDeleted() {
   emits('categoryDeleted', category)
 }
-
 const { deleteCategory, error: deleteCategoryError } = useDeleteCategory(category, categoryDeleted)
-const { subcategories, deleteSubcategory } = useManageSubcategories(category)
 
-const { isModalOpen, openModal, closeModal } = useControlModal()
+const {
+  subcategories,
+  deleteSubcategory,
+  subcategoriesAdded,
+  error: deleteSubcategoryError,
+} = useManageSubcategories(category)
+const { isModalOpen: isAddSubcategoryModalOpen, openModal: openAddSubcategoryModal } =
+  useControlModal()
+
+const { isOptionsOpen, toggleOptions, closeOptions } = useControlCategoryOptions()
 
 const showSubcategories = ref(false)
 function handleCategoryClick() {
   showSubcategories.value = !showSubcategories.value
 }
 
-const isCategoryOptionsShown = ref(false)
-function showCategoryOptions() {
-  isCategoryOptionsShown.value = !isCategoryOptionsShown.value
-}
-async function closeCategoryOptions() {
-  const ONE_HUNDRED_MS_TO_ALLOW_MODAL_TO_OPEN = 100
-  await sleep(ONE_HUNDRED_MS_TO_ALLOW_MODAL_TO_OPEN)
-  await nextTick()
-  isCategoryOptionsShown.value = false
-}
+const error = deleteCategoryError || deleteSubcategoryError
 </script>
 
 <template>
@@ -51,11 +50,9 @@ async function closeCategoryOptions() {
         >
           {{ category.name }}
         </p>
-        <button style="font-size: 8px" @click="showCategoryOptions" @blur="closeCategoryOptions">
-          Options
-        </button>
-        <div class="category-options" v-if="isCategoryOptionsShown">
-          <button @click="openModal">Add Subcategory</button>
+        <button style="font-size: 8px" @click="toggleOptions" @blur="closeOptions">Options</button>
+        <div class="category-options" v-if="isOptionsOpen">
+          <button @click="openAddSubcategoryModal">Add Subcategory</button>
           <button @click="deleteCategory">Delete Category</button>
         </div>
       </span>
@@ -65,8 +62,12 @@ async function closeCategoryOptions() {
       @subcategory-delete-clicked="deleteSubcategory"
     />
   </div>
-  <AddSubcategoryModal :category-name="category.name" v-model="isModalOpen" />
-  <Error v-if="deleteCategoryError" :error="deleteCategoryError" />
+  <AddSubcategoryModal
+    :category="category"
+    v-model="isAddSubcategoryModalOpen"
+    @subcategories-added="subcategoriesAdded"
+  />
+  <Error v-if="error" :error="error" />
 </template>
 
 <style scoped>

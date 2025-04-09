@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import type { NewExpense } from '@/types/expenseData'
 import AddExpenseCell from './AddExpenseCell.vue'
 import { store } from '@/store/store'
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import type { NewExpenseData } from './AddExpenseTable.vue'
 
 const { newExpenseData } = defineProps<{
