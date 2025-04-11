@@ -14,17 +14,14 @@ export type NewExpenseData = {
   subCategory?: string
 }
 
-const { newExpenseData, expenseDataChanged, addExpense, error } = useAddExpense()
+const { newExpenseData, addExpense, error } = useAddExpense()
 </script>
 
 <template>
   <table>
     <ExpenseDataTableHead />
     <tbody>
-      <AddNewExpenseRow
-        :newExpenseData="newExpenseData"
-        @updatedNewExpenseData="expenseDataChanged"
-      />
+      <AddNewExpenseRow v-model="newExpenseData" />
     </tbody>
   </table>
   <button @click="addExpense">Save Expense</button>

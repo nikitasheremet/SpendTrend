@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue'
+import { ref, watchEffect, type Ref } from 'vue'
 import type { NewExpenseData } from '../AddExpenseTable.vue'
 import { addNewExpense } from '@/service/expenses/addNewExpense'
 
@@ -16,16 +16,16 @@ function createNewEmptyExpenseData(): NewExpenseData {
 
 export function useAddExpense(): {
   newExpenseData: Ref<NewExpenseData>
-  expenseDataChanged: (changedExpenseData: NewExpenseData) => void
   addExpense: () => Promise<void>
   error: Ref<Error | undefined>
 } {
   const newExpenseData = ref<NewExpenseData>(createNewEmptyExpenseData())
   const error = ref<Error | undefined>(undefined)
 
-  function expenseDataChanged(changedExpenseData: NewExpenseData): void {
-    newExpenseData.value = changedExpenseData
-  }
+  watchEffect(() => {
+    const { amount, paidBackAmount } = newExpenseData.value
+    newExpenseData.value.netAmount = (amount || 0) - (paidBackAmount || 0)
+  })
 
   async function addExpense() {
     try {
@@ -39,7 +39,6 @@ export function useAddExpense(): {
 
   return {
     newExpenseData,
-    expenseDataChanged,
     addExpense,
     error,
   }

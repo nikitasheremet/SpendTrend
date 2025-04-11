@@ -6,27 +6,7 @@ import type { NewExpenseData } from './AddExpenseTable.vue'
 import { getCategories } from '@/service/categories/getCategories'
 import type { Category } from '@/types/expenseData'
 
-const { newExpenseData } = defineProps<{
-  newExpenseData: NewExpenseData
-}>()
-const emits = defineEmits<{
-  updatedNewExpenseData: [NewExpenseData]
-}>()
-
-const localNewExpenseData = computed({
-  get: () => newExpenseData,
-  set: (value) => {
-    emits('updatedNewExpenseData', {
-      ...value,
-      netAmount: (value.amount || 0) - (value.paidBackAmount || 0),
-    })
-  },
-})
-
-const netAmount = computed(() => {
-  const { amount, paidBackAmount } = localNewExpenseData.value
-  return (amount || 0) - (paidBackAmount || 0)
-})
+const newExpenseData = defineModel<NewExpenseData>({ required: true })
 
 const categories = ref<Category[]>([])
 
@@ -35,11 +15,12 @@ onMounted(() => {
     categories.value = response
   })
 })
+
 const categoryNames = computed(() => {
   return categories.value.map((category) => category.name)
 })
 function getSubcategories() {
-  const selectedCategory = localNewExpenseData.value.category
+  const selectedCategory = newExpenseData.value.category
   const selectedCategoryObject = categories.value.find(
     (category) => category.name === selectedCategory,
   )
@@ -51,19 +32,19 @@ function getSubcategories() {
 </script>
 
 <template>
-  <AddExpenseCell type="date" v-model="localNewExpenseData.date" />
-  <AddExpenseCell v-model="localNewExpenseData.name" />
-  <td>{{ netAmount }}</td>
-  <AddExpenseCell type="number" v-model="localNewExpenseData.amount" />
-  <AddExpenseCell type="number" v-model="localNewExpenseData.paidBackAmount" />
+  <AddExpenseCell type="date" v-model="newExpenseData.date" />
+  <AddExpenseCell v-model="newExpenseData.name" />
+  <td>{{ newExpenseData.netAmount }}</td>
+  <AddExpenseCell type="number" v-model="newExpenseData.amount" />
+  <AddExpenseCell type="number" v-model="newExpenseData.paidBackAmount" />
   <AddExpenseCell
     type="dropdown"
-    v-model="localNewExpenseData.category"
+    v-model="newExpenseData.category"
     :dropdown-options="categoryNames"
   />
   <AddExpenseCell
     type="dropdown"
-    v-model="localNewExpenseData.subCategory"
+    v-model="newExpenseData.subCategory"
     :dropdown-options="getSubcategories()"
   />
 </template>
