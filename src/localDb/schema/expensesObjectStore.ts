@@ -12,10 +12,10 @@ export interface ExpensesObjectStoreSchemaV1 {
   subCategory: string
 }
 
-export function readTransaction(): IDBObjectStore {
+export function readExpenseTransaction(): IDBObjectStore {
   return db.transaction(EXPENSES_OBJ_STORE, READ).objectStore(EXPENSES_OBJ_STORE)
 }
 
-export function writeTransaction(): IDBObjectStore {
+export function writeExpenseTransaction(): IDBObjectStore {
   return db.transaction(EXPENSES_OBJ_STORE, WRITE).objectStore(EXPENSES_OBJ_STORE)
 }

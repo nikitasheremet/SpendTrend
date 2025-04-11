@@ -1,14 +1,11 @@
-<script lang="ts" setup>
+<!-- <script lang="ts" setup>
 import type { Expense } from '@/types/expenseData'
 import { store } from '@/store/store'
 import ExpenseDataCell from '../EditableCell/ExpenseDataCell.vue'
-import { onMounted, ref } from 'vue'
 
-const expenses = ref<Expense[]>([])
-
-onMounted(async () => {
-  expenses.value = await store.getAllExpenses()
-})
+const { expenses } = defineProps<{
+  expenses: Expense[]
+}>()
 
 async function updateData(
   valueToUpdate: string | number | undefined,
@@ -87,4 +84,4 @@ td {
     display: block;
   }
 }
-</style>
+</style> -->

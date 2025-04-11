@@ -11,8 +11,7 @@ export function saveExpense<T = NewExpense>(newExpense: T): Promise<T> {
       resolve(newExpenseToAdd)
     }
     request.onerror = () => {
-      console.error('Error adding expense', request.error)
-      reject()
+      reject(request.error)
     }
   })
 }
