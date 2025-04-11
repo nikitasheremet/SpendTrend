@@ -2,6 +2,7 @@
 import type { Expense } from '@/types/expenseData'
 import ExpenseDataCell from './EditableCell/ExpenseDataCell.vue'
 import { useManageExpense } from './hooks/useUpdateExpense'
+import { useCategoriesInExpenseData } from '@/helpers/hooks/useGetCategories'
 
 const { expense } = defineProps<{ expense: Expense }>()
 const emits = defineEmits<{
@@ -15,6 +16,8 @@ function onDeleted(deletedExpense: Expense) {
   emits('expenseDeleted', deletedExpense)
 }
 const { expenseData, updateExpense, deleteExpense } = useManageExpense(expense, onError, onDeleted)
+
+const { categoryNames, getSubcategories } = useCategoriesInExpenseData()
 </script>
 
 <template>
@@ -43,13 +46,13 @@ const { expenseData, updateExpense, deleteExpense } = useManageExpense(expense, 
     <ExpenseDataCell
       :data="expenseData.category"
       type="dropdown"
-      subtype="categories"
+      :options="categoryNames"
       @on-save="(value) => updateExpense(value, 'category')"
     />
     <ExpenseDataCell
       :data="expenseData.subCategory"
       type="dropdown"
-      subtype="subcategories"
+      :options="getSubcategories(expenseData.category)"
       @on-save="(value) => updateExpense(value, 'subCategory')"
     />
     <td>
