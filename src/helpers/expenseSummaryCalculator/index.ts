@@ -64,7 +64,9 @@ export class ExpenseSummaryCalculator implements ExpenseSummaryCalculatorI {
   private async compileExpenseSummaryBySubcategory(
     category: string,
   ): Promise<ExpenseSummaryBySubcategory> {
-    const subcategories = store.getSubcategoriesForCategory(category)
+    const categories = await getCategories()
+    const categoryData = categories.find((cat) => cat.name === category)
+    const subcategories = categoryData?.subcategories || []
 
     const expenseSummaryBySubcategory: ExpenseSummaryBySubcategory = {}
     const subcategoriesSummaries = await Promise.all(
