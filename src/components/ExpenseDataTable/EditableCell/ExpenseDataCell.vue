@@ -1,15 +1,14 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import UpdateView from './UpdateView.vue'
-import { store } from '@/store/store'
 import { DateFormat, formatDate } from '@/helpers/date/formateDate'
 
 export type ComponentProps =
-  | { type: 'date'; data?: number; subtype?: never }
-  | { type: 'text'; data?: string; subtype?: never }
-  | { type: 'number'; data?: number; subtype?: never }
-  | { type: 'dropdown'; subtype: 'categories' | 'subcategories'; data?: string }
-const { data, subtype, type = 'text' } = defineProps<ComponentProps>()
+  | { type: 'date'; data?: number; options?: never }
+  | { type: 'text'; data?: string; options?: never }
+  | { type: 'number'; data?: number; options?: never }
+  | { type: 'dropdown'; options: string[]; data?: string }
+const { data, options, type = 'text' } = defineProps<ComponentProps>()
 const emit = defineEmits<{
   onSave: [string | number | undefined]
 }>()
@@ -18,8 +17,7 @@ function onSave(value: string | number) {
 }
 
 const isEditMode = ref(false)
-const dropdownCategories =
-  subtype === 'categories' ? store.getCategories() : store.getSubcategories()
+
 async function turnOnEditMode() {
   if (!isEditMode.value) {
     isEditMode.value = true
@@ -45,7 +43,7 @@ function handleUpdateComplete(value: string | number) {
       @on-update-complete="handleUpdateComplete"
       :initialValue="data"
       :inputType="type"
-      :inputCategories="dropdownCategories"
+      :inputCategories="options"
     />
     <p v-else>{{ type === 'date' ? formatDate(data!, DateFormat.DD_MMMM_YYYY) : data }}</p>
   </td>

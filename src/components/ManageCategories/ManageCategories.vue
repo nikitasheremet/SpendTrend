@@ -1,29 +1,25 @@
 <script lang="ts" setup>
 import { store } from '@/store/store'
 import CategoryView from './CategoryView.vue'
-import AddCategory from '../AddCategory/AddCategory.vue'
+import AddCategory from './AddCategory.vue'
 import { ref } from 'vue'
+import type { Category } from '@/types/expenseData'
+import { useGetCategories } from './hooks/useGetCategories'
+import Error from '../DesignSystem/Error.vue'
 
-const categories = ref<string[]>(store.getCategories())
-
-function handleCategoriesUpdated() {
-  categories.value = store.getCategories()
-}
+const { categories, error, newCategoriesAdded, categoryDeleted } = useGetCategories()
 </script>
 
 <template>
   <div>
-    <AddCategory @categories-updated="handleCategoriesUpdated" />
+    <AddCategory @category-added="newCategoriesAdded" />
     <ul>
-      <li v-for="category in categories" :key="category">
-        <CategoryView
-          :category-name="category"
-          :subcategories="store.getSubcategoriesForCategory(category)"
-          @categories-updated="handleCategoriesUpdated"
-        />
+      <li v-for="category in categories" :key="category.name">
+        <CategoryView :category="category" @category-deleted="categoryDeleted" />
       </li>
     </ul>
   </div>
+  <Error v-if="error" :error="error" />
 </template>
 
 <style scoped></style>

@@ -16,10 +16,14 @@ export function useGetMonthlyExpenseSummary(
   const summaryForSelectedMonth = ref<ExpenseSummaryForMonth>(EMPTY_SUMMARY_FOR_SELECTED_MONTH)
   const summaryForSelectedMonthByCategory = ref<ExpenseSummaryByCategory>({})
 
-  function calculateSummaryValues(selectedMonth: number, selectedYear: number) {
+  async function calculateSummaryValues(selectedMonth: number, selectedYear: number) {
     const summaryCalculator = new ExpenseSummaryCalculator(selectedMonth, selectedYear)
-    summaryForSelectedMonth.value = summaryCalculator.getExpenseSummaryForSelectedMonth()
-    summaryForSelectedMonthByCategory.value = summaryCalculator.getExpenseSummaryByCategory()
+    summaryCalculator
+      .getExpenseSummaryForSelectedMonth()
+      .then((result) => (summaryForSelectedMonth.value = result))
+    summaryCalculator
+      .getExpenseSummaryByCategory()
+      .then((result) => (summaryForSelectedMonthByCategory.value = result))
   }
 
   watchEffect(() => {

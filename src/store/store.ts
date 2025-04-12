@@ -2,6 +2,10 @@ import type { Category, Expense, NewExpense } from '@/types/expenseData'
 import { reactive } from 'vue'
 import { fakeExpenseData } from './fakeData'
 import type { Store } from './storeInterface'
+import { saveExpense } from '@/repository/expenses/saveExpense'
+import { getExpenses } from '@/repository/expenses/getExpenses'
+import { updateExpense } from '@/repository/expenses/updateExpense'
+import { deleteExpense } from '@/repository/expenses/deleteExpense'
 
 function createStore() {
   let expenses: Expense[] = fakeExpenseData
@@ -13,19 +17,22 @@ function createStore() {
   ]
 
   return reactive<Store>({
-    getAllExpenses(order: 'asc' | 'desc' = 'desc') {
+    async getAllExpenses(order: 'asc' | 'desc' = 'desc') {
+      const savedExpenses = await getExpenses()
       if (order === 'asc') {
-        return expenses
+        return savedExpenses
       }
-      const sortedDescExpenses = [...expenses]
+      const sortedDescExpenses = [...savedExpenses]
       sortedDescExpenses.sort((a, b) => b.date - a.date)
       return sortedDescExpenses
     },
-    getExpensesForDateRange(dateRange, filters, options) {
+    async getExpensesForDateRange(dateRange, filters, options) {
+      const savedExpenses = await getExpenses()
       const [startDate, endDate] = dateRange
       const inclusive = options?.inclusive ?? true
+      // const savedExpenses = await getExpenses()
       if (inclusive) {
-        return expenses.filter((expense) => {
+        return savedExpenses.filter((expense) => {
           const isWithinDateRange = expense.date >= startDate && expense.date <= endDate
           if (filters?.category && filters?.subcategory) {
             return (
@@ -40,30 +47,14 @@ function createStore() {
           return isWithinDateRange
         })
       }
-      return expenses.filter((expense) => expense.date > startDate && expense.date < endDate)
+      return savedExpenses.filter((expense) => expense.date > startDate && expense.date < endDate)
     },
-    addExpense(newExpense: NewExpense) {
-      const newExpenseWithId = {
-        ...newExpense,
-        id: `${Math.random()}`,
-      }
-      expenses.push(newExpenseWithId)
+    async addExpense(newExpense: NewExpense) {
+      await saveExpense(newExpense)
       return expenses
     },
-    updateExpense(expenseDataToUpdate, key) {
-      const existingExpenseIndex = expenses.findIndex((expense) => expense.id == key)
-      if (existingExpenseIndex === -1) {
-        throw new Error('Key is invalid')
-      }
-      const updatedExpense = { ...expenses[existingExpenseIndex!] }
-      Object.entries(expenseDataToUpdate).forEach(([newDataKey, newDataValue]) => {
-        const key = newDataKey as keyof typeof updatedExpense
-        const value = newDataValue as (typeof updatedExpense)[typeof key]
-        // @ts-ignore
-        updatedExpense[key] = value
-      })
-      updatedExpense.netAmount = updatedExpense.amount - (updatedExpense.paidBackAmount || 0)
-      expenses[existingExpenseIndex] = updatedExpense
+    async updateExpense(expenseDataToUpdate, key) {
+      await updateExpense(expenseDataToUpdate, key)
     },
     getCategories() {
       const categoryNames = categories.map((category) => category.name)
@@ -121,12 +112,8 @@ function createStore() {
       }
       categories[categoryIndex].subCategories.splice(subcategoryIndex, 1)
     },
-    deleteExpense(key: string) {
-      const expenseIndex = expenses.findIndex((expense) => expense.id === key)
-      if (expenseIndex === -1) {
-        throw new Error('Expense not found')
-      }
-      expenses.splice(expenseIndex, 1)
+    async deleteExpense(key: string): Promise<void> {
+      await deleteExpense(key)
     },
   })
 }

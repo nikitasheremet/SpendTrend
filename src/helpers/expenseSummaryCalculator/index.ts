@@ -8,70 +8,84 @@ import type {
 } from '@/types/expenseSummary'
 import { calculateTotalForListOfExpenses } from './helpers/calculateTotalForListOfExpenses'
 import { roundNumber } from './helpers/roundNumber'
+import type { ExpenseSummaryCalculatorI } from './interaface'
+import { getFirstAndLastDayForMonth } from './helpers/getFirstAndLastDayForMonth'
+import { getExpensesForDateRange } from '@/service/expenses/getExpensesForDateRange'
+import { getCategories } from '@/service/categories/getCategories'
 
-export class ExpenseSummaryCalculator {
+export class ExpenseSummaryCalculator implements ExpenseSummaryCalculatorI {
   private selectedMonth: number
   private selectedYear: number
-  private expensesForSelectedMonth: Expense[]
-  private expensesForLastThreeMonths: Expense[]
-  private expenseSummaryByCategory: ExpenseSummaryByCategory
-
-  private totalAmountForSelectedMonth: number
-  private threeMonthAverageAmountForSelectedMonth: number
+  private selectedMonthAsDate: Date
 
   constructor(selectedMonth: number, selectedYear: number) {
     this.selectedMonth = selectedMonth
     this.selectedYear = selectedYear
-    this.expensesForSelectedMonth = this.getExpensesForSelectedMonth()
-    this.totalAmountForSelectedMonth = this.totalForSelectedMonth()
-    this.threeMonthAverageAmountForSelectedMonth = this.threeMonthAverageForSelectedMonth()
-
-    this.expensesForLastThreeMonths = this.getExpensesForLastThreeMonths()
-    this.expenseSummaryByCategory = this.compileExpenseSummaryByCategory()
+    this.selectedMonthAsDate = new Date(this.selectedYear, this.selectedMonth, 15)
   }
 
-  getExpenseSummaryForSelectedMonth(): ExpenseSummaryForMonth {
-    return this.compileExpenseSummaryForSelectedMonth()
+  async getExpenseSummaryForSelectedMonth(): Promise<ExpenseSummaryForMonth> {
+    return await this.compileExpenseSummaryForSelectedMonth()
   }
 
-  getExpenseSummaryByCategory(): ExpenseSummaryByCategory {
-    return this.compileExpenseSummaryByCategory()
+  async getExpenseSummaryByCategory(): Promise<ExpenseSummaryByCategory> {
+    return await this.compileExpenseSummaryByCategory()
   }
 
-  private compileExpenseSummaryForSelectedMonth(): ExpenseSummaryForMonth {
+  private async compileExpenseSummaryForSelectedMonth(): Promise<ExpenseSummaryForMonth> {
+    const totalAmount = await this.totalForSelectedMonth()
+    const threeMonthAverage = await this.threeMonthAverageForSelectedMonth()
     return {
-      totalAmount: this.totalAmountForSelectedMonth,
-      threeMonthAverage: this.threeMonthAverageAmountForSelectedMonth,
-      diffTotalToAverage: this.diffTotalToAverage(),
-      diffTotalToAverageAsPercent: this.diffTotalToAverageAsPercent(),
+      totalAmount,
+      threeMonthAverage,
+      diffTotalToAverage: this.diffTotalToAverage(totalAmount, threeMonthAverage),
+      diffTotalToAverageAsPercent: this.diffTotalToAverageAsPercent(totalAmount, threeMonthAverage),
     }
   }
 
-  private compileExpenseSummaryByCategory(): ExpenseSummaryByCategory {
-    const categories = store.getCategories()
+  private async compileExpenseSummaryByCategory(): Promise<ExpenseSummaryByCategory> {
+    const categories = await getCategories()
     const expenseSummaryByCategory: ExpenseSummaryByCategory = {}
-    categories.forEach((category) => {
-      expenseSummaryByCategory[category] = {
-        ...this.compileExpenseSummary(category),
-        subcategories: this.compileExpenseSummaryBySubcategory(category),
-      }
+    const categoriesExpenseSummaries = await Promise.all(
+      categories.map(async (category) => {
+        const categoryExpenseCategory = await this.compileExpenseSummary(category.name)
+        return {
+          ...categoryExpenseCategory,
+          subcategories: await this.compileExpenseSummaryBySubcategory(category.name),
+        }
+      }),
+    )
+    categories.forEach((category, index) => {
+      expenseSummaryByCategory[category.name] = categoriesExpenseSummaries[index]
     })
     return expenseSummaryByCategory
   }
 
-  private compileExpenseSummaryBySubcategory(category: string): ExpenseSummaryBySubcategory {
-    const subcategories = store.getSubcategoriesForCategory(category)
+  private async compileExpenseSummaryBySubcategory(
+    category: string,
+  ): Promise<ExpenseSummaryBySubcategory> {
+    const categories = await getCategories()
+    const categoryData = categories.find((cat) => cat.name === category)
+    const subcategories = categoryData?.subcategories || []
 
     const expenseSummaryBySubcategory: ExpenseSummaryBySubcategory = {}
-    subcategories.forEach((subcategory) => {
-      expenseSummaryBySubcategory[subcategory] = this.compileExpenseSummary(category, subcategory)
+    const subcategoriesSummaries = await Promise.all(
+      subcategories.map(async (subcategory) => {
+        return await this.compileExpenseSummary(category, subcategory)
+      }),
+    )
+    subcategories.forEach((subcategory, index) => {
+      expenseSummaryBySubcategory[subcategory] = subcategoriesSummaries[index]
     })
     return expenseSummaryBySubcategory
   }
 
-  private compileExpenseSummary(category: string, subcategory?: string): MonthDetails {
-    const total = this.categoryTotalForSelectedMonth(category, subcategory)
-    const threeMonthAverage = this.categoryThreeMonthAverage(category, subcategory)
+  private async compileExpenseSummary(
+    category: string,
+    subcategory?: string,
+  ): Promise<MonthDetails> {
+    const total = await this.categoryTotalForSelectedMonth(category, subcategory)
+    const threeMonthAverage = await this.categoryThreeMonthAverage(category, subcategory)
     const diffTotalToAverage = this.categoryDiffTotalToAverage(total, threeMonthAverage)
     return {
       totalAmount: total,
@@ -84,41 +98,31 @@ export class ExpenseSummaryCalculator {
     }
   }
 
-  private getExpensesForSelectedMonth(): Expense[] {
-    const desiredDateRange = this.firstAndLastDayOfTheMonth(
-      new Date(this.selectedYear, this.selectedMonth, 1),
-    )
-    const expensesForSelectedMonth = store.getExpensesForDateRange(desiredDateRange)
+  private async getExpensesForSelectedMonth(): Promise<Expense[]> {
+    const desiredDateRange = getFirstAndLastDayForMonth(this.selectedMonthAsDate)
+    const expensesForSelectedMonth = await getExpensesForDateRange(desiredDateRange)
     return expensesForSelectedMonth
   }
 
-  private firstAndLastDayOfTheMonth(date: Date): [ExpenseDate, ExpenseDate] {
-    const beginningDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), 0).getTime()
-    const endDate = new Date(date.getUTCFullYear(), date.getUTCMonth() + 1, -1).getTime()
-    return [beginningDate, endDate]
+  private async totalForSelectedMonth(): Promise<number> {
+    return calculateTotalForListOfExpenses(await this.getExpensesForSelectedMonth())
   }
 
-  private getExpensesForLastThreeMonths(): Expense[] {
-    return []
-  }
+  private async threeMonthAverageForSelectedMonth(): Promise<number> {
+    const selectedMonthYearDate = this.selectedMonthAsDate
 
-  private totalForSelectedMonth(): number {
-    return calculateTotalForListOfExpenses(this.expensesForSelectedMonth)
-  }
-
-  private threeMonthAverageForSelectedMonth(): number {
-    const selectedMonthYearDate = new Date(this.selectedYear, this.selectedMonth, 0)
-
-    const totalsForLastThreeMonths = [1, 2, 3].map((monthOffset) => {
-      const expenseDate = new Date(
-        selectedMonthYearDate.getUTCFullYear(),
-        selectedMonthYearDate.getUTCMonth() - monthOffset,
-        1,
-      )
-      const startEndDate = this.firstAndLastDayOfTheMonth(expenseDate)
-      const expensesForMonth = store.getExpensesForDateRange(startEndDate)
-      return calculateTotalForListOfExpenses(expensesForMonth)
-    })
+    const totalsForLastThreeMonths = await Promise.all(
+      [1, 2, 3].map(async (monthOffset) => {
+        const expenseDate = new Date(
+          selectedMonthYearDate.getUTCFullYear(),
+          selectedMonthYearDate.getUTCMonth() - monthOffset,
+          15,
+        )
+        const startEndDate = getFirstAndLastDayForMonth(expenseDate)
+        const expensesForMonth = await getExpensesForDateRange(startEndDate)
+        return calculateTotalForListOfExpenses(expensesForMonth)
+      }),
+    )
 
     const [totalForMinusOneMonth, totalForMinusTwoMonth, totalForMinusThreeMonth] =
       totalsForLastThreeMonths
@@ -128,43 +132,46 @@ export class ExpenseSummaryCalculator {
     return roundNumber(numberToRound, 2)
   }
 
-  private diffTotalToAverage(): number {
-    const numberToRound =
-      this.totalAmountForSelectedMonth - this.threeMonthAverageAmountForSelectedMonth
+  private diffTotalToAverage(total: number, average: number): number {
+    const numberToRound = total - average
     return roundNumber(numberToRound, 2)
   }
 
-  private diffTotalToAverageAsPercent(): number {
-    const numberToRound =
-      (this.diffTotalToAverage() / this.threeMonthAverageAmountForSelectedMonth) * 100
+  private diffTotalToAverageAsPercent(total: number, average: number): number {
+    const numberToRound = (this.diffTotalToAverage(total, average) / average) * 100
 
     return roundNumber(numberToRound, 2)
   }
 
-  private categoryTotalForSelectedMonth(category: string, subcategory?: string): number {
+  private async categoryTotalForSelectedMonth(
+    category: string,
+    subcategory?: string,
+  ): Promise<number> {
     const selectedMonthYearDate = new Date(this.selectedYear, this.selectedMonth, 1)
-    const startEndDate = this.firstAndLastDayOfTheMonth(selectedMonthYearDate)
-    const expensesForMonth = store.getExpensesForDateRange(startEndDate, { category, subcategory })
+    const startEndDate = getFirstAndLastDayForMonth(selectedMonthYearDate)
+    const expensesForMonth = await getExpensesForDateRange(startEndDate, { category, subcategory })
     const numberToRound = calculateTotalForListOfExpenses(expensesForMonth)
     return roundNumber(numberToRound, 2)
   }
 
-  private categoryThreeMonthAverage(category: string, subcategory?: string): number {
-    const selectedMonthYearDate = new Date(this.selectedYear, this.selectedMonth, 15)
+  private async categoryThreeMonthAverage(category: string, subcategory?: string): Promise<number> {
+    const selectedMonthYearDate = this.selectedMonthAsDate
 
-    const totalsForLastThreeMonths = [1, 2, 3].map((monthOffset) => {
-      const expenseDate = new Date(
-        selectedMonthYearDate.getUTCFullYear(),
-        selectedMonthYearDate.getUTCMonth() - monthOffset,
-        15,
-      )
-      const startEndDate = this.firstAndLastDayOfTheMonth(expenseDate)
-      const expensesForMonth = store.getExpensesForDateRange(startEndDate, {
-        category,
-        subcategory,
-      })
-      return calculateTotalForListOfExpenses(expensesForMonth)
-    })
+    const totalsForLastThreeMonths = await Promise.all(
+      [1, 2, 3].map(async (monthOffset) => {
+        const expenseDate = new Date(
+          selectedMonthYearDate.getUTCFullYear(),
+          selectedMonthYearDate.getUTCMonth() - monthOffset,
+          15,
+        )
+        const startEndDate = getFirstAndLastDayForMonth(expenseDate)
+        const expensesForMonth = await getExpensesForDateRange(startEndDate, {
+          category,
+          subcategory,
+        })
+        return calculateTotalForListOfExpenses(expensesForMonth)
+      }),
+    )
 
     const [totalForMinusOneMonth, totalForMinusTwoMonth, totalForMinusThreeMonth] =
       totalsForLastThreeMonths
