@@ -21,6 +21,11 @@ const { newSubcategoriesValue, addSubcategory, error } = useAddSubcategory(
   subcategoriesAdded,
 )
 
+async function handleAddSubcategory() {
+  await addSubcategory()
+  closeAddSubcategoryModal()
+}
+
 function closeAddSubcategoryModal() {
   isOpen.value = false
 }
@@ -29,7 +34,7 @@ function closeAddSubcategoryModal() {
 <template>
   <Modal :is-modal-open="isOpen" @modal-closed="closeAddSubcategoryModal">
     <Input type="text" placeholder="Subcategory name" v-model="newSubcategoriesValue" />
-    <button @click="addSubcategory">Save Subcategory</button>
+    <button @click="handleAddSubcategory">Save Subcategory</button>
     <Error v-if="error" :error="error" />
   </Modal>
 </template>

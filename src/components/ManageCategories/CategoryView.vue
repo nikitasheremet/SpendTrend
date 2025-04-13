@@ -58,6 +58,7 @@ const error = deleteCategoryError || deleteSubcategoryError
       </span>
     </div>
     <SubcategoryView
+      v-if="showSubcategories"
       :subcategories="subcategories"
       @subcategory-delete-clicked="deleteSubcategory"
     />
