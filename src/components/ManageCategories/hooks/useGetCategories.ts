@@ -26,7 +26,10 @@ export function useGetCategories(): {
   })
 
   function newCategoriesAdded(newCategories: Category[]) {
-    categories.value = [...categories.value, ...newCategories]
+    const updatedCategories = [...categories.value, ...newCategories].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    )
+    categories.value = updatedCategories
   }
 
   function categoryDeleted(categoryDeleted: Category) {

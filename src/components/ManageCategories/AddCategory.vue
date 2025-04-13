@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import Modal from '../DesignSystem/Modal/Modal.vue'
-import { removeDuplicates } from '@/helpers/removeDuplicates'
 import { computed, ref } from 'vue'
-import { store } from '@/store/store'
 import { useControlModal } from '../DesignSystem/Modal/useControlModal'
 import type { Category } from '@/types/expenseData'
 import { useAddCategory } from './hooks/useAddCategory'
+import Error from '../DesignSystem/Error.vue'
 
 const { isModalOpen: isAddCategoryModalOpen, openModal, closeModal } = useControlModal()
 
@@ -37,6 +36,7 @@ function handleAddCategory() {
       v-model="newCategoriesValue"
     />
     <button @click="addCategory" :disabled="isSaveCategoryDisabled">Save Category</button>
+    <Error v-if="error" :error="error" />
   </Modal>
 </template>
 

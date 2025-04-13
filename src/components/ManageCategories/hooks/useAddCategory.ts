@@ -12,7 +12,7 @@ export function useAddCategory(addCategoryCallback: (newCategoriesAdded: Categor
 
   async function addCategory() {
     const trimmedValue = newCategoriesValue.value.trim()
-    if (trimmedValue.length === 0) {
+    if (trimmedValue === '') {
       error.value = new Error('Category name cannot be empty')
       return
     }
