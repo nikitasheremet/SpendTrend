@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import MonthlyCategorySummary from '@/components/DataSummary/MonthlyCategorySummary.vue'
-import MonthlyTotalSummary from '@/components/DataSummary/MonthlyTotalSummary.vue'
+import DataSummary from '@/components/DataSummary/DataSummary.vue'
 </script>
 
 <template>
-  <Suspense>
-    <MonthlyTotalSummary />
-  </Suspense>
-  <MonthlyCategorySummary />
+  <DataSummary />
 </template>

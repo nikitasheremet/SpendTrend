@@ -1,12 +1,11 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
 import { useGetMonthlyExpenseSummary } from './helpers/useGetMonthlyExpenseSummary'
 import MonthlyCategorySummaryDetails from './MonthlyCategorySummaryDetails.vue'
 
-const thisMonth = ref(new Date().getUTCMonth())
-const thisYear = ref(new Date().getUTCFullYear())
+const monthModel = defineModel<number>('month', { required: true })
+const yearModel = defineModel<number>('year', { required: true })
 
-const { summaryForSelectedMonthByCategory } = useGetMonthlyExpenseSummary(thisMonth, thisYear)
+const { summaryForSelectedMonthByCategory } = useGetMonthlyExpenseSummary(monthModel, yearModel)
 </script>
 
 <template>
