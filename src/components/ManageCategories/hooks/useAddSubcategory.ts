@@ -1,3 +1,5 @@
+import { splitString } from '@/helpers/splitString'
+import { addNewSubcategories } from '@/service/categories/addNewSubcategories'
 import type { Category } from '@/types/expenseData'
 import { ref, type Ref } from 'vue'
 
@@ -13,14 +15,12 @@ export function useAddSubcategory(
   const error = ref<Error | undefined>(undefined)
   async function addSubcategory() {
     try {
-      const newSubcategories = newSubcategoriesValue.value
-        .split(',')
-        .map((subcategory) => subcategory.trim())
-        .filter((subcategory) => !subcategory)
-      if (newSubcategories.length === 0) {
-        alert('Please enter at least one subcategory.')
-        return
+      const newSubcategories = splitString(newSubcategoriesValue.value)
+      if (!newSubcategories) {
+        throw new Error('Subcategory name cannot be empty')
       }
+      const orderedSubcategories = newSubcategories.sort((a, b) => a.localeCompare(b))
+      await addNewSubcategories(category, orderedSubcategories)
 
       subcategoryAddedCallback(newSubcategories)
     } catch (err) {
