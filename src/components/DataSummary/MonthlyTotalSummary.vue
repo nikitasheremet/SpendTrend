@@ -1,10 +1,20 @@
 <script lang="ts" setup>
-import { store } from '@/store/store'
+import { onMounted, ref } from 'vue'
 import { useGetMonthlyExpenseSummary } from './helpers/useGetMonthlyExpenseSummary'
-import { ref } from 'vue'
 import { getListOfYears } from '@/service/expenses/getListOfYears'
 
-const listOfYears = await getListOfYears()
+const monthModel = defineModel<number>('month', { required: true })
+const yearModel = defineModel<number>('year', { required: true })
+
+const listOfYears = ref<number[]>([])
+
+onMounted(() => {
+  getListOfYears().then((years) => {
+    const currentYear = new Date().getUTCFullYear()
+    const yearsWithCurrentYear = Array.from(new Set([...years, currentYear].sort((a, b) => a - b)))
+    listOfYears.value = yearsWithCurrentYear
+  })
+})
 const listOfMonths = [
   ['Jan', 0],
   ['Feb', 1],
@@ -20,13 +30,7 @@ const listOfMonths = [
   ['Dec', 11],
 ]
 
-const currentSelectedYear = ref(new Date().getUTCFullYear())
-const currentSelectedMonth = ref(new Date().getUTCMonth())
-const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(
-  currentSelectedMonth,
-  currentSelectedYear,
-)
-console.log(summaryForSelectedMonth)
+const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(monthModel, yearModel)
 </script>
 
 <template>
@@ -37,10 +41,10 @@ console.log(summaryForSelectedMonth)
     <p>3 Month Average</p>
     <p>Diff Value</p>
     <p>Diff Percent</p>
-    <select v-model="currentSelectedYear">
+    <select v-model="yearModel">
       <option v-for="year in listOfYears" :value="year">{{ year }}</option>
     </select>
-    <select v-model="currentSelectedMonth">
+    <select v-model="monthModel">
       <option v-for="month in listOfMonths" :value="month[1]">{{ month[0] }}</option>
     </select>
     <p>{{ summaryForSelectedMonth.totalAmount }}</p>
