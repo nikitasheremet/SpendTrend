@@ -1,8 +1,5 @@
 <script lang="ts" setup>
-import { defineProps, defineEmits } from 'vue'
-defineProps<{
-  options: string[]
-}>()
+defineProps<{ options: string[] }>()
 defineEmits(['dropdownOptionClick'])
 </script>
 
