@@ -1,8 +1,10 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./packages/frontend/tsconfig.node.json" },
-    { "path": "./packages/frontend/tsconfig.app.json" },
-    { "path": "./packages/frontend/tsconfig.vitest.json" }
-  ]
+  "compilerOptions": {
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "module": "ESNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
 }
