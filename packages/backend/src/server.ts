@@ -1,13 +1,13 @@
 import Koa from 'koa'
 import Router from '@koa/router'
-import { drizzle } from 'drizzle-orm/node-postgres'
 import dotenv from 'dotenv'
 import path from 'path'
+import bodyParser from 'koa-bodyparser'
+import { createExpenseHandler } from './expense/handler'
+import { connectToDb } from './db'
 
 dotenv.config({ path: path.resolve(__dirname, '../env/.env.local') })
-
-const db = drizzle(process.env.DATABASE_URL!)
-console.log('Database URL:', process.env.DATABASE_URL)
+connectToDb()
 
 const PORT = process.env.PORT || 3000
 
@@ -19,6 +19,9 @@ router.get('/health', (ctx) => {
   ctx.body = { status: `ok: ${new Date().toISOString()}` }
 })
 
+router.post('/createexpense', createExpenseHandler)
+
+app.use(bodyParser())
 app.use(router.routes())
 app.use(router.allowedMethods())
 

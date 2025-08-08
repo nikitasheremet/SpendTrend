@@ -1,5 +1,5 @@
 {
-  "id": "b1a3e304-ea7b-4639-aa28-cba2ec98705c",
+  "id": "638c2184-5c97-4b1e-bbb1-b1655e4a705f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -63,24 +63,20 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": true,
           "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "expenses_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "default": "gen_random_uuid()"
         },
         "userId": {
           "name": "userId",
-          "type": "integer",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountId": {
+          "name": "accountId",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -98,7 +94,7 @@
         },
         "date": {
           "name": "date",
-          "type": "varchar(255)",
+          "type": "date",
           "primaryKey": false,
           "notNull": true
         },
@@ -125,6 +121,20 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
