@@ -1,14 +1,18 @@
-import { integer, pgTable, varchar, index } from 'drizzle-orm/pg-core'
+import { uuid } from 'drizzle-orm/pg-core'
+import { integer, pgTable, varchar, index, date, timestamp } from 'drizzle-orm/pg-core'
 export const expensesTable = pgTable('expenses', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer().notNull(),
+  id: uuid().primaryKey().defaultRandom(),
+  userId: uuid().notNull(),
+  accountId: uuid().notNull(),
   name: varchar({ length: 255 }).notNull(),
   amount: integer().notNull(),
-  date: varchar({ length: 255 }).notNull(),
+  date: date().notNull(),
   paidBackAmount: integer().notNull(),
   category: varchar({ length: 255 }).notNull(),
   subCategory: varchar({ length: 255 }).notNull(),
   netAmount: integer().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 })
 
 export const expenseCategoriesTable = pgTable(
