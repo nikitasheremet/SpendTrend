@@ -83,7 +83,6 @@ test.describe('Get Expenses Endpoint', () => {
       // Insert test expenses directly into database
       const [expense1] = await db.insert(expensesTable).values(fakeExpenseData1).returning()
       const [expense2] = await db.insert(expensesTable).values(fakeExpenseData2).returning()
-      console.log(expense1.id, expense2.id)
       await db.insert(expensesTable).values(fakeExpenseDataDifferentAccount)
 
       // Get expenses

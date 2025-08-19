@@ -23,12 +23,18 @@ import {
   VALIDATION_ERROR_NETAMOUNT_TYPE,
   VALIDATION_ERROR_NETAMOUNT_NAN,
   VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
+  VALIDATION_INPUT_MUST_BE_AN_OBJECT,
 } from '../../models/errors/validationError'
 import { CreateExpenseInput } from '../service/createExpenseService'
 import { validateUserId, validateAccountId } from './validationUtils'
 
 export function validateCreateExpenseInput(input: unknown): asserts input is CreateExpenseInput {
+  if (!input || typeof input !== 'object') {
+    throw new ValidationError(VALIDATION_INPUT_MUST_BE_AN_OBJECT)
+  }
+
   const createExpenseInput = input as Record<string, unknown>
+
   validateName(createExpenseInput?.name)
   validateUserId(createExpenseInput?.userId)
   validateAccountId(createExpenseInput?.accountId)

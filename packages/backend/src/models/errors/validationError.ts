@@ -1,3 +1,5 @@
+export const VALIDATION_INPUT_MUST_BE_AN_OBJECT = 'Input must be an object'
+
 export const VALIDATION_ERROR_NETAMOUNT_MISSING = 'Net amount must be present'
 export const VALIDATION_ERROR_NETAMOUNT_TYPE = 'Net amount must be a number'
 export const VALIDATION_ERROR_NETAMOUNT_NAN = 'Net amount must be a valid number'
