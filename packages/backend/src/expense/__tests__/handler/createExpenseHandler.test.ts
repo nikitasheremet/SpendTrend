@@ -1,14 +1,14 @@
-import { createExpenseService } from '../service'
-import { validateExpenseInput } from '../validation'
+import { createExpenseService } from '../../service/createExpenseService'
+import { validateCreateExpenseInput } from '../../validation/'
 import type { Context } from 'koa'
-import { STATUS_CREATED_201 } from '../../models/statusCodes'
-import { createExpenseHandler } from '../handler'
+import { STATUS_CREATED_201 } from '../../../models/statusCodes'
+import { createExpenseHandler } from '../../handler/createExpensesHandler'
 
-jest.mock('../service')
-jest.mock('../validation')
+jest.mock('../../service/createExpenseService')
+jest.mock('../../validation')
 
 const mockService = createExpenseService as jest.Mock
-const mockValidation = validateExpenseInput as jest.Mock
+const mockValidation = validateCreateExpenseInput as jest.Mock
 
 describe('createExpenseHandler', () => {
   const fakeCtx = {

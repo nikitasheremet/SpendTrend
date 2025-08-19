@@ -1,8 +1,8 @@
-import { CreateExpenseInput, createExpenseService } from '../service'
-import * as repository from '../repository'
-import type { Expense } from '../../models/expense/Expense'
+import { CreateExpenseInput, createExpenseService } from '../../service/createExpenseService'
+import * as repository from '../../repository/createExpensesRepository'
+import type { Expense } from '../../../models/expense/Expense'
 
-jest.mock('../repository', () => ({
+jest.mock('../../repository/createExpensesRepository', () => ({
   createExpenseRepository: jest.fn(),
 }))
 

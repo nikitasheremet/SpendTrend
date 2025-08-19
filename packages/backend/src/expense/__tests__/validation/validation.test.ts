@@ -1,4 +1,4 @@
-import { validateExpenseInput } from '../validation'
+import { validateCreateExpenseInput } from '../../validation/'
 import {
   ValidationError,
   VALIDATION_ERROR_NAME,
@@ -27,9 +27,9 @@ import {
   VALIDATION_ERROR_NETAMOUNT_TYPE,
   VALIDATION_ERROR_NETAMOUNT_NAN,
   VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
-} from '../../models/errors/validationError'
+} from '../../../models/errors/validationError'
 
-describe('validateExpenseInput', () => {
+describe('validateCreateExpenseInput', () => {
   const validInput = {
     name: 'Lunch',
     amount: 10,
@@ -44,58 +44,58 @@ describe('validateExpenseInput', () => {
   describe('when the netAmount field is invalid', () => {
     it('should throw a ValidationError for missing netAmount', () => {
       const input = { ...validInput, netAmount: undefined }
-      expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_MISSING)
+      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_MISSING)
     })
     it('should throw a ValidationError for non-number netAmount', () => {
       const input = { ...validInput, netAmount: 'not-a-number' }
-      expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_TYPE)
+      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_TYPE)
     })
     it('should throw a ValidationError for NaN netAmount', () => {
       const input = { ...validInput, netAmount: NaN }
-      expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_NAN)
+      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_NAN)
     })
     it('should throw a ValidationError for negative netAmount', () => {
       const input = { ...validInput, netAmount: -1 }
-      expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_NEGATIVE)
+      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_NEGATIVE)
     })
   })
   describe('when the userId field is invalid', () => {
     it('should throw a ValidationError for missing userId', () => {
       const input = { ...validInput, userId: undefined }
-      expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_MISSING)
+      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_MISSING)
     })
     it('should throw a ValidationError for empty userId', () => {
       const input = { ...validInput, userId: '' }
-      expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_MISSING)
+      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_MISSING)
     })
     it('should throw a ValidationError for non-string userId', () => {
       const input = { ...validInput, userId: 123 }
-      expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_TYPE)
+      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_TYPE)
     })
   })
 
   describe('when the accountId field is invalid', () => {
     it('should throw a ValidationError for missing accountId', () => {
       const input = { ...validInput, accountId: undefined }
-      expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_MISSING)
+      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_MISSING)
     })
     it('should throw a ValidationError for empty accountId', () => {
       const input = { ...validInput, accountId: '' }
-      expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_MISSING)
+      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_MISSING)
     })
     it('should throw a ValidationError for non-string accountId', () => {
       const input = { ...validInput, accountId: 123 }
-      expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_TYPE)
+      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_TYPE)
     })
   })
   describe('when name field is missing or empty', () => {
@@ -103,8 +103,8 @@ describe('validateExpenseInput', () => {
       // Arrange
       const input = { ...validInput, name: undefined }
       // Act & Assert
-      expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_NAME)
+      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NAME)
     })
   })
 
@@ -114,8 +114,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, amount: undefined }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_MISSING)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_MISSING)
       })
     })
     describe('when amount is NaN', () => {
@@ -123,8 +123,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, amount: NaN }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_NAN)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_NAN)
       })
     })
     describe('when amount is negative', () => {
@@ -132,8 +132,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, amount: -5 }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_NEGATIVE)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_NEGATIVE)
       })
     })
     describe('when amount is not a number', () => {
@@ -141,8 +141,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, amount: 'not-a-number' }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_TYPE)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_TYPE)
       })
     })
   })
@@ -153,8 +153,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, date: undefined }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_MISSING)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_MISSING)
       })
     })
     describe('when date is not a string', () => {
@@ -162,8 +162,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, date: 20230728 }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_TYPE)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_TYPE)
       })
     })
     describe('when date is an empty string', () => {
@@ -171,8 +171,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, date: '' }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_EMPTY)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_EMPTY)
       })
     })
     describe('when date does not match YYYY-MM-DD', () => {
@@ -180,8 +180,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, date: '07-28-2025' }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_FORMAT)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_FORMAT)
       })
     })
   })
@@ -191,8 +191,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, category: undefined }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_MISSING)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_MISSING)
       })
     })
     describe('when category is not a string', () => {
@@ -200,8 +200,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, category: 123 }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_TYPE)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_TYPE)
       })
     })
     describe('when category is an empty string', () => {
@@ -209,8 +209,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, category: '' }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_EMPTY)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_EMPTY)
       })
     })
   })
@@ -221,8 +221,10 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, subCategory: undefined }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_SUBCATEGORY_MISSING)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(
+          VALIDATION_ERROR_SUBCATEGORY_MISSING,
+        )
       })
     })
     describe('when subCategory is not a string', () => {
@@ -230,8 +232,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, subCategory: 123 }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_SUBCATEGORY_TYPE)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_SUBCATEGORY_TYPE)
       })
     })
   })
@@ -242,8 +244,10 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, paidBackAmount: undefined }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(
+          VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING,
+        )
       })
     })
     describe('when paidBackAmount is NaN', () => {
@@ -251,8 +255,8 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, paidBackAmount: NaN }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_PAIDBACKAMOUNT_NAN)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_PAIDBACKAMOUNT_NAN)
       })
     })
     describe('when paidBackAmount is negative', () => {
@@ -260,8 +264,10 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, paidBackAmount: -5 }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(
+          VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE,
+        )
       })
     })
     describe('when paidBackAmount is not a number', () => {
@@ -269,8 +275,10 @@ describe('validateExpenseInput', () => {
         // Arrange
         const input = { ...validInput, paidBackAmount: 'not-a-number' }
         // Act & Assert
-        expect(() => validateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateExpenseInput(input)).toThrow(VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE)
+        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
+        expect(() => validateCreateExpenseInput(input)).toThrow(
+          VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE,
+        )
       })
     })
   })

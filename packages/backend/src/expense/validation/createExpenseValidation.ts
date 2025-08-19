@@ -19,30 +19,34 @@ import {
   VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE,
   VALIDATION_ERROR_AMOUNT_TYPE,
-  VALIDATION_ERROR_USERID_MISSING,
-  VALIDATION_ERROR_ACCOUNTID_MISSING,
-  VALIDATION_ERROR_ACCOUNTID_TYPE,
-  VALIDATION_ERROR_USERID_TYPE,
   VALIDATION_ERROR_NETAMOUNT_MISSING,
   VALIDATION_ERROR_NETAMOUNT_TYPE,
   VALIDATION_ERROR_NETAMOUNT_NAN,
   VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
-} from '../models/errors/validationError'
-import { CreateExpenseInput } from './service'
+  VALIDATION_INPUT_MUST_BE_AN_OBJECT,
+} from '../../models/errors/validationError'
+import { CreateExpenseInput } from '../service/createExpenseService'
+import { validateUserId, validateAccountId } from './validationUtils'
 
-export function validateExpenseInput(input: any): asserts input is CreateExpenseInput {
-  validateName(input?.name)
-  validateUserId(input?.userId)
-  validateAccountId(input?.accountId)
-  validateAmount(input?.amount)
-  validateNetAmount(input?.netAmount)
-  validateDate(input?.date)
-  validateCategory(input?.category)
-  validateSubCategory(input?.subCategory)
-  validatePaidBackAmount(input?.paidBackAmount)
+export function validateCreateExpenseInput(input: unknown): asserts input is CreateExpenseInput {
+  if (!input || typeof input !== 'object') {
+    throw new ValidationError(VALIDATION_INPUT_MUST_BE_AN_OBJECT)
+  }
+
+  const createExpenseInput = input as Record<string, unknown>
+
+  validateName(createExpenseInput?.name)
+  validateUserId(createExpenseInput?.userId)
+  validateAccountId(createExpenseInput?.accountId)
+  validateAmount(createExpenseInput?.amount)
+  validateNetAmount(createExpenseInput?.netAmount)
+  validateDate(createExpenseInput?.date)
+  validateCategory(createExpenseInput?.category)
+  validateSubCategory(createExpenseInput?.subCategory)
+  validatePaidBackAmount(createExpenseInput?.paidBackAmount)
 }
 
-function validateNetAmount(netAmount: any) {
+function validateNetAmount(netAmount: unknown) {
   if (netAmount === undefined) {
     throw new ValidationError(VALIDATION_ERROR_NETAMOUNT_MISSING)
   }
@@ -57,37 +61,13 @@ function validateNetAmount(netAmount: any) {
   }
 }
 
-function validateName(name: any) {
+function validateName(name: unknown) {
   if (!name || typeof name !== 'string') {
     throw new ValidationError(VALIDATION_ERROR_NAME)
   }
 }
 
-function validateUserId(userId: any) {
-  if (userId === undefined) {
-    throw new ValidationError(VALIDATION_ERROR_USERID_MISSING)
-  }
-  if (typeof userId !== 'string') {
-    throw new ValidationError(VALIDATION_ERROR_USERID_TYPE)
-  }
-  if (userId.trim() === '') {
-    throw new ValidationError(VALIDATION_ERROR_USERID_MISSING)
-  }
-}
-
-function validateAccountId(accountId: any) {
-  if (accountId === undefined) {
-    throw new ValidationError(VALIDATION_ERROR_ACCOUNTID_MISSING)
-  }
-  if (typeof accountId !== 'string') {
-    throw new ValidationError(VALIDATION_ERROR_ACCOUNTID_TYPE)
-  }
-  if (accountId.trim() === '') {
-    throw new ValidationError(VALIDATION_ERROR_ACCOUNTID_MISSING)
-  }
-}
-
-function validateAmount(amount: any) {
+function validateAmount(amount: unknown) {
   if (amount === undefined) {
     throw new ValidationError(VALIDATION_ERROR_AMOUNT_MISSING)
   }
@@ -102,7 +82,7 @@ function validateAmount(amount: any) {
   }
 }
 
-function validateDate(date: any) {
+function validateDate(date: unknown) {
   if (date === undefined) {
     throw new ValidationError(VALIDATION_ERROR_DATE_MISSING)
   }
@@ -117,7 +97,7 @@ function validateDate(date: any) {
   }
 }
 
-function validateCategory(category: any) {
+function validateCategory(category: unknown) {
   if (category === undefined) {
     throw new ValidationError(VALIDATION_ERROR_CATEGORY_MISSING)
   }
@@ -129,7 +109,7 @@ function validateCategory(category: any) {
   }
 }
 
-function validateSubCategory(subCategory: any) {
+function validateSubCategory(subCategory: unknown) {
   if (subCategory === undefined) {
     throw new ValidationError(VALIDATION_ERROR_SUBCATEGORY_MISSING)
   }
@@ -138,7 +118,7 @@ function validateSubCategory(subCategory: any) {
   }
 }
 
-function validatePaidBackAmount(paidBackAmount: any) {
+function validatePaidBackAmount(paidBackAmount: unknown) {
   if (paidBackAmount === undefined) {
     throw new ValidationError(VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING)
   }

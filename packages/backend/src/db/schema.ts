@@ -15,6 +15,8 @@ export const expensesTable = pgTable('expenses', {
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 })
 
+export type ExpensesTableRow = typeof expensesTable.$inferSelect
+
 export const expenseCategoriesTable = pgTable(
   'expense_categories',
   {
