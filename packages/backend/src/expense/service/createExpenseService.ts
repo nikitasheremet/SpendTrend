@@ -1,4 +1,4 @@
-import { CreateExpense, createExpenseRepository } from './repository'
+import { CreateExpense, createExpenseRepository } from '../repository/createExpensesRepository'
 
 export interface CreateExpenseInput {
   userId: string

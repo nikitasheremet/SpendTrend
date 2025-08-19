@@ -1,10 +1,7 @@
-import { createExpenseRepository, CreateExpense } from '../repository'
-import { db } from '../../db'
-jest.mock('../../db', () => ({
-  db: {
-    insert: jest.fn(),
-  },
-}))
+import { createExpenseRepository, CreateExpense } from '../../repository/createExpensesRepository'
+import { db } from '../../../db'
+
+jest.mock('../../../db')
 
 describe('createExpenseRepository', () => {
   const mockDbInsert = db.insert as jest.Mock
@@ -26,7 +23,6 @@ describe('createExpenseRepository', () => {
   afterEach(() => {
     jest.resetAllMocks()
   })
-  beforeEach(() => {})
 
   describe('when the database throws an error', () => {
     it('should throw an error', async () => {

@@ -1,6 +1,7 @@
+import { ExpensesTableRow } from '../../../db/schema'
 import { Expense } from '../../../models/expense/Expense'
 
-export function dbExpenseToDomainExpense(dbExpense: any): Expense {
+export function dbExpenseToDomainExpense(dbExpense: ExpensesTableRow): Expense {
   return {
     id: dbExpense.id,
     userId: dbExpense.userId,
@@ -15,4 +16,8 @@ export function dbExpenseToDomainExpense(dbExpense: any): Expense {
     createdAt: dbExpense.createdAt.toISOString(),
     updatedAt: dbExpense.updatedAt.toISOString(),
   }
+}
+
+export function dbExpensesToDomainExpenses(dbExpenses: ExpensesTableRow[]): Expense[] {
+  return dbExpenses.map(dbExpenseToDomainExpense)
 }

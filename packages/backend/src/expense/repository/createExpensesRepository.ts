@@ -1,7 +1,7 @@
-import { db } from '../db'
-import { expensesTable } from '../db/schema'
-import { Expense } from '../models/expense/Expense'
-import { dbExpenseToDomainExpense } from '../utilities/mappers/expense/DBExpenseToDomainExpense'
+import { db } from '../../db'
+import { expensesTable } from '../../db/schema'
+import { Expense } from '../../models/expense/Expense'
+import { dbExpenseToDomainExpense } from '../../utilities/mappers/expense/DBExpenseToDomainExpense'
 
 export interface CreateExpense {
   userId: string

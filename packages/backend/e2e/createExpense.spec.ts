@@ -5,13 +5,14 @@ import {
   STATUS_INTERNAL_SERVER_ERROR_500,
   STATUS_UNPROCESSABLE_ENTITY_422,
 } from '../src/models/statusCodes'
+import crypto from 'crypto'
 
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Create Expense Endpoint', () => {
   const fakeValidExpenseData = {
     userId: '00000000-0000-0000-0000-000000000001',
-    accountId: '00000000-0000-0000-0000-000000000002',
+    accountId: crypto.randomUUID(),
     name: 'Groceries',
     amount: 100,
     netAmount: 90,
