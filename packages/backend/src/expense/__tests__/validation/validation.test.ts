@@ -1,7 +1,6 @@
 import { validateCreateExpenseInput } from '../../validation/'
 import {
   ValidationError,
-  VALIDATION_ERROR_NAME,
   VALIDATION_ERROR_AMOUNT_MISSING,
   VALIDATION_ERROR_AMOUNT_NAN,
   VALIDATION_ERROR_AMOUNT_NEGATIVE,
@@ -27,6 +26,7 @@ import {
   VALIDATION_ERROR_NETAMOUNT_TYPE,
   VALIDATION_ERROR_NETAMOUNT_NAN,
   VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
+  VALIDATION_ERROR_NAME_IS_REQUIRED,
 } from '../../../models/errors/validationError'
 
 describe('validateCreateExpenseInput', () => {
@@ -104,7 +104,7 @@ describe('validateCreateExpenseInput', () => {
       const input = { ...validInput, name: undefined }
       // Act & Assert
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NAME)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NAME_IS_REQUIRED)
     })
   })
 

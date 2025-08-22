@@ -2,7 +2,7 @@ import {
   VALIDATION_INPUT_MUST_BE_AN_OBJECT,
   ValidationError,
 } from '../../models/errors/validationError'
-import { validateUserId, validateAccountId } from './validationUtils'
+import { validateRequiredUserId, validateRequiredAccountId } from './validationUtils/'
 
 export interface GetExpensesInput {
   userId: string
@@ -16,6 +16,6 @@ export function validateGetExpensesInput(input: unknown): asserts input is GetEx
 
   const getExpensesInput = input as Record<string, unknown>
 
-  validateUserId(getExpensesInput?.userId)
-  validateAccountId(getExpensesInput?.accountId)
+  validateRequiredUserId(getExpensesInput?.userId)
+  validateRequiredAccountId(getExpensesInput?.accountId)
 }
