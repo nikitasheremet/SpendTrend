@@ -2,6 +2,7 @@ import {
   ValidationError,
   VALIDATION_ERROR_ACCOUNTID_MISSING,
   VALIDATION_ERROR_ACCOUNTID_TYPE,
+  VALIDATION_ERROR_ACCOUNTID_EMPTY,
 } from '../../../models/errors/validationError'
 
 export function validateRequiredAccountId(accountId: unknown): void {
@@ -16,6 +17,6 @@ function validateAccountId(accountId: unknown): void {
     throw new ValidationError(VALIDATION_ERROR_ACCOUNTID_TYPE)
   }
   if (accountId.trim() === '') {
-    throw new ValidationError(VALIDATION_ERROR_ACCOUNTID_MISSING)
+    throw new ValidationError(VALIDATION_ERROR_ACCOUNTID_EMPTY)
   }
 }
