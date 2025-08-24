@@ -6,7 +6,7 @@ import {
   VALIDATION_ERROR_EXPENSEID_EMPTY,
   VALIDATION_ERROR_NO_FIELDS_TO_UPDATE,
   VALIDATION_ERROR_NAME_MUST_BE_STRING,
-  VALIDATION_ERROR_NAME_MUST_BE_NOT_EMPTY,
+  VALIDATION_ERROR_NAME_EMPTY,
   VALIDATION_ERROR_AMOUNT_TYPE,
   VALIDATION_ERROR_AMOUNT_NAN,
   VALIDATION_ERROR_AMOUNT_NEGATIVE,
@@ -74,7 +74,7 @@ describe('validateUpdateExpenseInput', () => {
       const fakeInvalidInput = { ...fakeValidInput, name: '' }
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
-        VALIDATION_ERROR_NAME_MUST_BE_NOT_EMPTY,
+        VALIDATION_ERROR_NAME_EMPTY,
       )
     })
   })

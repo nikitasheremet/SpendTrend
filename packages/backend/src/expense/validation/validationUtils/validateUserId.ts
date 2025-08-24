@@ -1,6 +1,6 @@
 import {
+  VALIDATION_ERROR_USERID_EMPTY,
   VALIDATION_ERROR_USERID_MISSING,
-  VALIDATION_ERROR_USERID_MUST_NOT_BE_EMPTY,
   VALIDATION_ERROR_USERID_TYPE,
   ValidationError,
 } from '../../../models/errors/validationError'
@@ -17,6 +17,6 @@ function validateUserId(userId: unknown): void {
     throw new ValidationError(VALIDATION_ERROR_USERID_TYPE)
   }
   if (userId.trim() === '') {
-    throw new ValidationError(VALIDATION_ERROR_USERID_MUST_NOT_BE_EMPTY)
+    throw new ValidationError(VALIDATION_ERROR_USERID_EMPTY)
   }
 }

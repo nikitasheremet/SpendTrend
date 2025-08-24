@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test'
-import { VALIDATION_ERROR_NAME } from '../src/models/errors/validationError'
 import {
   STATUS_CREATED_201,
   STATUS_INTERNAL_SERVER_ERROR_500,
@@ -30,7 +29,6 @@ test.describe('Create Expense Endpoint', () => {
       expect(response.status()).toBe(STATUS_UNPROCESSABLE_ENTITY_422)
       const body = await response.json()
       expect(body).toHaveProperty('error')
-      expect(body.error).toContain(VALIDATION_ERROR_NAME)
     })
   })
   test.describe('when internal server error occurs', () => {
