@@ -1,6 +1,6 @@
 import {
   VALIDATION_ERROR_NAME_IS_REQUIRED,
-  VALIDATION_ERROR_NAME_MUST_BE_NOT_EMPTY,
+  VALIDATION_ERROR_NAME_EMPTY,
   VALIDATION_ERROR_NAME_MUST_BE_STRING,
   ValidationError,
 } from '../../../models/errors/validationError'
@@ -10,7 +10,7 @@ function validateName(name: unknown) {
     throw new ValidationError(VALIDATION_ERROR_NAME_MUST_BE_STRING)
   }
   if (name.trim() === '') {
-    throw new ValidationError(VALIDATION_ERROR_NAME_MUST_BE_NOT_EMPTY)
+    throw new ValidationError(VALIDATION_ERROR_NAME_EMPTY)
   }
 }
 

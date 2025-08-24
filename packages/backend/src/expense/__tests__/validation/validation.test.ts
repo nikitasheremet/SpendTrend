@@ -27,6 +27,8 @@ import {
   VALIDATION_ERROR_NETAMOUNT_NAN,
   VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
   VALIDATION_ERROR_NAME_IS_REQUIRED,
+  VALIDATION_ERROR_USERID_EMPTY,
+  VALIDATION_ERROR_ACCOUNTID_EMPTY,
 } from '../../../models/errors/validationError'
 
 describe('validateCreateExpenseInput', () => {
@@ -72,7 +74,7 @@ describe('validateCreateExpenseInput', () => {
     it('should throw a ValidationError for empty userId', () => {
       const input = { ...validInput, userId: '' }
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_MISSING)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_EMPTY)
     })
     it('should throw a ValidationError for non-string userId', () => {
       const input = { ...validInput, userId: 123 }
@@ -90,7 +92,7 @@ describe('validateCreateExpenseInput', () => {
     it('should throw a ValidationError for empty accountId', () => {
       const input = { ...validInput, accountId: '' }
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_MISSING)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_EMPTY)
     })
     it('should throw a ValidationError for non-string accountId', () => {
       const input = { ...validInput, accountId: 123 }

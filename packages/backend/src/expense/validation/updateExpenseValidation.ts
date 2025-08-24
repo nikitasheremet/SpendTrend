@@ -23,13 +23,13 @@ export function validateUpdateExpenseInput(input: unknown): asserts input is Upd
   const updatedExpenseInput = input as Record<string, unknown>
 
   if (
-    !updatedExpenseInput?.name &&
-    !updatedExpenseInput?.amount &&
-    !updatedExpenseInput?.netAmount &&
-    !updatedExpenseInput?.date &&
-    !updatedExpenseInput?.category &&
-    !updatedExpenseInput?.subCategory &&
-    !updatedExpenseInput?.paidBackAmount
+    updatedExpenseInput?.name === undefined &&
+    updatedExpenseInput?.amount === undefined &&
+    updatedExpenseInput?.netAmount === undefined &&
+    updatedExpenseInput?.date === undefined &&
+    updatedExpenseInput?.category === undefined &&
+    updatedExpenseInput?.subCategory === undefined &&
+    updatedExpenseInput?.paidBackAmount === undefined
   ) {
     throw new ValidationError(VALIDATION_ERROR_NO_FIELDS_TO_UPDATE)
   }
