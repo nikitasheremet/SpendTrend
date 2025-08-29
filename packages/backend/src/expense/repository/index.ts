@@ -1,2 +1,2 @@
 export { getExpensesRepository } from './getExpensesRepository'
-export { createExpenseRepository } from './createExpensesRepository'
+export { createExpenseRepository } from './createExpenseRepository'

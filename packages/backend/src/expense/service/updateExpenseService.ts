@@ -1,5 +1,5 @@
 import { updateExpenseRepository } from '../repository/updateExpenseRepository'
-import { UpdateExpenseInput } from './models'
+import { UpdateExpenseInput } from '../validation/models'
 
 export async function updateExpenseService(input: UpdateExpenseInput) {
   const { id, ...otherFields } = input

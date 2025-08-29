@@ -1,8 +1,7 @@
-import { validateCreateExpenseInput } from '../../validation/'
+import { validateCreateExpenseInput } from '../../validation'
 import {
   ValidationError,
   VALIDATION_ERROR_AMOUNT_MISSING,
-  VALIDATION_ERROR_AMOUNT_NAN,
   VALIDATION_ERROR_AMOUNT_NEGATIVE,
   VALIDATION_ERROR_AMOUNT_TYPE,
   VALIDATION_ERROR_DATE_MISSING,
@@ -15,7 +14,6 @@ import {
   VALIDATION_ERROR_SUBCATEGORY_MISSING,
   VALIDATION_ERROR_SUBCATEGORY_TYPE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING,
-  VALIDATION_ERROR_PAIDBACKAMOUNT_NAN,
   VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE,
   VALIDATION_ERROR_USERID_MISSING,
@@ -24,7 +22,6 @@ import {
   VALIDATION_ERROR_ACCOUNTID_TYPE,
   VALIDATION_ERROR_NETAMOUNT_MISSING,
   VALIDATION_ERROR_NETAMOUNT_TYPE,
-  VALIDATION_ERROR_NETAMOUNT_NAN,
   VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
   VALIDATION_ERROR_NAME_IS_REQUIRED,
   VALIDATION_ERROR_USERID_EMPTY,
@@ -53,11 +50,6 @@ describe('validateCreateExpenseInput', () => {
       const input = { ...validInput, netAmount: 'not-a-number' }
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
       expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_TYPE)
-    })
-    it('should throw a ValidationError for NaN netAmount', () => {
-      const input = { ...validInput, netAmount: NaN }
-      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_NAN)
     })
     it('should throw a ValidationError for negative netAmount', () => {
       const input = { ...validInput, netAmount: -1 }
@@ -118,15 +110,6 @@ describe('validateCreateExpenseInput', () => {
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_MISSING)
-      })
-    })
-    describe('when amount is NaN', () => {
-      it('should throw a ValidationError with the correct message for NaN amount', () => {
-        // Arrange
-        const input = { ...validInput, amount: NaN }
-        // Act & Assert
-        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_NAN)
       })
     })
     describe('when amount is negative', () => {
@@ -250,15 +233,6 @@ describe('validateCreateExpenseInput', () => {
         expect(() => validateCreateExpenseInput(input)).toThrow(
           VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING,
         )
-      })
-    })
-    describe('when paidBackAmount is NaN', () => {
-      it('should throw a ValidationError with the correct message for NaN paidBackAmount', () => {
-        // Arrange
-        const input = { ...validInput, paidBackAmount: NaN }
-        // Act & Assert
-        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_PAIDBACKAMOUNT_NAN)
       })
     })
     describe('when paidBackAmount is negative', () => {

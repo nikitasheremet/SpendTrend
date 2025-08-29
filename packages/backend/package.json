@@ -16,7 +16,8 @@
     "drizzle-orm": "^0.44.2",
     "koa": "^2.15.0",
     "koa-bodyparser": "^4.4.1",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "zod": "^4.1.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.2",
