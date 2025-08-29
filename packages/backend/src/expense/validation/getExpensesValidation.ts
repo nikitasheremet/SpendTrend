@@ -1,21 +1,12 @@
-import {
-  VALIDATION_INPUT_MUST_BE_AN_OBJECT,
-  ValidationError,
-} from '../../models/errors/validationError'
-import { validateRequiredUserId, validateRequiredAccountId } from './validationUtils/'
-
-export interface GetExpensesInput {
-  userId: string
-  accountId: string
-}
+import { ZodError } from 'zod'
+import { ValidationError } from '../../models/errors/validationError'
+import { GetExpensesInput, getExpensesSchema } from './models'
 
 export function validateGetExpensesInput(input: unknown): asserts input is GetExpensesInput {
-  if (!input || typeof input !== 'object') {
-    throw new ValidationError(VALIDATION_INPUT_MUST_BE_AN_OBJECT)
+  try {
+    getExpensesSchema.parse(input)
+  } catch (err: unknown) {
+    const zodError = err as ZodError
+    throw new ValidationError(zodError.issues[0].message)
   }
-
-  const getExpensesInput = input as Record<string, unknown>
-
-  validateRequiredUserId(getExpensesInput?.userId)
-  validateRequiredAccountId(getExpensesInput?.accountId)
 }

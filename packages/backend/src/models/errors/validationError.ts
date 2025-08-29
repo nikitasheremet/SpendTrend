@@ -2,7 +2,6 @@ export const VALIDATION_INPUT_MUST_BE_AN_OBJECT = 'Input must be an object'
 
 export const VALIDATION_ERROR_NETAMOUNT_MISSING = 'Net amount must be present'
 export const VALIDATION_ERROR_NETAMOUNT_TYPE = 'Net amount must be a number'
-export const VALIDATION_ERROR_NETAMOUNT_NAN = 'Net amount must be a valid number'
 export const VALIDATION_ERROR_NETAMOUNT_NEGATIVE = 'Net amount cannot be negative'
 export const VALIDATION_ERROR_CATEGORY_MISSING = 'Category must be provided'
 export const VALIDATION_ERROR_CATEGORY_TYPE = 'Category must be a string'
@@ -16,7 +15,6 @@ export const VALIDATION_ERROR_NAME_IS_REQUIRED = 'Name is required'
 export const VALIDATION_ERROR_NAME_MUST_BE_STRING = 'Name must be a string'
 export const VALIDATION_ERROR_NAME_EMPTY = 'Name must not be empty'
 export const VALIDATION_ERROR_AMOUNT_MISSING = 'Amount must be provided and must be a number'
-export const VALIDATION_ERROR_AMOUNT_NAN = 'Amount must be a valid number'
 export const VALIDATION_ERROR_AMOUNT_NEGATIVE = 'Amount cannot be negative'
 
 export const VALIDATION_ERROR_AMOUNT_TYPE = 'Amount must be a number'
@@ -26,7 +24,6 @@ export const VALIDATION_ERROR_SUBCATEGORY_TYPE = 'Subcategory must be a string'
 
 export const VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING =
   'Paid back amount must be provided and must be a number'
-export const VALIDATION_ERROR_PAIDBACKAMOUNT_NAN = 'Paid back amount must be a valid number'
 export const VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE = 'Paid back amount cannot be negative'
 
 export const VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE = 'Paid back amount must be a number'

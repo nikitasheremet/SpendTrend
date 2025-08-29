@@ -1,4 +1,4 @@
-import { createExpenseRepository, CreateExpense } from '../../repository/createExpensesRepository'
+import { createExpenseRepository, CreateExpense } from '../../repository/createExpenseRepository'
 import { db } from '../../../db'
 
 jest.mock('../../../db')

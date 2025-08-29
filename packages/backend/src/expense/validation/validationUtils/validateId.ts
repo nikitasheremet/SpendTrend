@@ -2,22 +2,16 @@ import {
   VALIDATION_ERROR_EXPENSEID_EMPTY,
   VALIDATION_ERROR_EXPENSEID_MISSING,
   VALIDATION_ERROR_EXPENSEID_TYPE,
-  ValidationError,
 } from '../../../models/errors/validationError'
+import * as z from 'zod'
 
-export function validateRequiredId(expenseId: unknown): void {
-  if (expenseId === undefined || expenseId === null) {
-    throw new ValidationError(VALIDATION_ERROR_EXPENSEID_MISSING)
-  }
-  validateId(expenseId)
-}
-
-function validateId(expenseId: unknown): void {
-  if (typeof expenseId !== 'string') {
-    throw new ValidationError(VALIDATION_ERROR_EXPENSEID_TYPE)
-  }
-
-  if (expenseId.trim() === '') {
-    throw new ValidationError(VALIDATION_ERROR_EXPENSEID_EMPTY)
-  }
-}
+export const idSchema = z
+  .string({
+    error: (iss) => {
+      if (iss.input === undefined) {
+        return VALIDATION_ERROR_EXPENSEID_MISSING
+      }
+      return VALIDATION_ERROR_EXPENSEID_TYPE
+    },
+  })
+  .min(1, { error: VALIDATION_ERROR_EXPENSEID_EMPTY })

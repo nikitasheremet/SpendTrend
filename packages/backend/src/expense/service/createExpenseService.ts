@@ -1,16 +1,5 @@
-import { CreateExpense, createExpenseRepository } from '../repository/createExpensesRepository'
-
-export interface CreateExpenseInput {
-  userId: string
-  accountId: string
-  name: string
-  amount: number
-  netAmount: number
-  date: string
-  category: string
-  subCategory: string
-  paidBackAmount: number
-}
+import { CreateExpense, createExpenseRepository } from '../repository/createExpenseRepository'
+import { CreateExpenseInput } from '../validation/models'
 
 export async function createExpenseService(input: CreateExpenseInput) {
   const createExpenseInputs: CreateExpense = {

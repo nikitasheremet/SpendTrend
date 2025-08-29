@@ -1,6 +1,6 @@
 import type { Context } from 'koa'
 import { createExpenseService } from '../service/createExpenseService'
-import { validateCreateExpenseInput } from '../validation/'
+import { validateCreateExpenseInput } from '../validation'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { STATUS_CREATED_201 } from '../../models/statusCodes'
 

@@ -2,7 +2,7 @@ import { createExpenseService } from '../../service/createExpenseService'
 import { validateCreateExpenseInput } from '../../validation/'
 import type { Context } from 'koa'
 import { STATUS_CREATED_201 } from '../../../models/statusCodes'
-import { createExpenseHandler } from '../../handler/createExpensesHandler'
+import { createExpenseHandler } from '../../handler/createExpenseHandler'
 
 jest.mock('../../service/createExpenseService')
 jest.mock('../../validation')

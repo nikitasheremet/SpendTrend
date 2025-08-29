@@ -1,23 +1,14 @@
 import {
   VALIDATION_ERROR_SUBCATEGORY_MISSING,
   VALIDATION_ERROR_SUBCATEGORY_TYPE,
-  ValidationError,
 } from '../../../models/errors/validationError'
+import * as z from 'zod'
 
-function validateSubCategory(subCategory: unknown) {
-  if (typeof subCategory !== 'string') {
-    throw new ValidationError(VALIDATION_ERROR_SUBCATEGORY_TYPE)
-  }
-}
-
-export function validateRequiredSubCategory(subCategory: unknown) {
-  if (subCategory === undefined) {
-    throw new ValidationError(VALIDATION_ERROR_SUBCATEGORY_MISSING)
-  }
-  validateSubCategory(subCategory)
-}
-
-export function validateOptionalSubCategory(subCategory: unknown) {
-  if (subCategory === undefined) return
-  validateSubCategory(subCategory)
-}
+export const subCategorySchema = z.string({
+  error: (iss) => {
+    if (iss.input === undefined) {
+      return VALIDATION_ERROR_SUBCATEGORY_MISSING
+    }
+    return VALIDATION_ERROR_SUBCATEGORY_TYPE
+  },
+})

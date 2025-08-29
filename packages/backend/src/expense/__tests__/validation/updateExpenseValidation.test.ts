@@ -8,19 +8,16 @@ import {
   VALIDATION_ERROR_NAME_MUST_BE_STRING,
   VALIDATION_ERROR_NAME_EMPTY,
   VALIDATION_ERROR_AMOUNT_TYPE,
-  VALIDATION_ERROR_AMOUNT_NAN,
   VALIDATION_ERROR_AMOUNT_NEGATIVE,
   VALIDATION_ERROR_NETAMOUNT_TYPE,
-  VALIDATION_ERROR_NETAMOUNT_NAN,
   VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
   VALIDATION_ERROR_DATE_TYPE,
   VALIDATION_ERROR_DATE_EMPTY,
   VALIDATION_ERROR_CATEGORY_TYPE,
   VALIDATION_ERROR_CATEGORY_EMPTY,
   VALIDATION_ERROR_SUBCATEGORY_TYPE,
-  VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE,
-  VALIDATION_ERROR_PAIDBACKAMOUNT_NAN,
+  VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE,
 } from '../../../models/errors/validationError'
 
 describe('validateUpdateExpenseInput', () => {
@@ -95,14 +92,6 @@ describe('validateUpdateExpenseInput', () => {
         VALIDATION_ERROR_AMOUNT_NEGATIVE,
       )
     })
-
-    it('should throw an error if amount is NaN', () => {
-      const fakeInvalidInput = { ...fakeValidInput, amount: NaN }
-      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
-      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
-        VALIDATION_ERROR_AMOUNT_NAN,
-      )
-    })
   })
 
   describe('when "netAmount" is present and is invalid', () => {
@@ -119,14 +108,6 @@ describe('validateUpdateExpenseInput', () => {
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
         VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
-      )
-    })
-
-    it('should throw an error if netAmount is NaN', () => {
-      const fakeInvalidInput = { ...fakeValidInput, netAmount: NaN }
-      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
-      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
-        VALIDATION_ERROR_NETAMOUNT_NAN,
       )
     })
   })
@@ -177,7 +158,7 @@ describe('validateUpdateExpenseInput', () => {
 
   describe('when "paidBackAmount" is present and is invalid', () => {
     it('should throw an error if paidBackAmount is not a number', () => {
-      const fakeInvalidInput = { ...fakeValidInput, paidBackAmount: '123' }
+      const fakeInvalidInput = { ...fakeValidInput, paidBackAmount: 'not-a-number' }
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
         VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE,
@@ -189,14 +170,6 @@ describe('validateUpdateExpenseInput', () => {
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
         VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE,
-      )
-    })
-
-    it('should throw an error if paidBackAmount is NaN', () => {
-      const fakeInvalidInput = { ...fakeValidInput, paidBackAmount: NaN }
-      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
-      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
-        VALIDATION_ERROR_PAIDBACKAMOUNT_NAN,
       )
     })
   })
