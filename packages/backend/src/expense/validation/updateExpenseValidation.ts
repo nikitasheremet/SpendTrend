@@ -1,4 +1,4 @@
-import { ZodError } from 'zod/v3'
+import { ZodError } from 'zod'
 import { ValidationError } from '../../models/errors/validationError'
 import { UpdateExpenseInput, updateExpenseSchema } from './models'
 
