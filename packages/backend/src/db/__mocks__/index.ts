@@ -1,5 +1,6 @@
 const mockDb = {
   insert: jest.fn(),
+  select: jest.fn(),
   update: jest.fn().mockReturnValue({
     set: jest.fn().mockReturnValue({
       where: jest.fn().mockReturnValue({
