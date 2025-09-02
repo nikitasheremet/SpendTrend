@@ -28,7 +28,9 @@ describe('getExpenseCategoriesHandler', () => {
 
   describe('when request is successful', () => {
     it('should return 200 and expenseCategories', async () => {
-      const fakeResult = [{ name: 'Groceries', subcategories: ['A'] }]
+      const fakeResult = [
+        { id: '123e4567-e89b-12d3-a456-426614174000', name: 'Groceries', subcategories: ['A'] },
+      ]
       mockService.mockResolvedValueOnce(fakeResult)
 
       await getExpenseCategoriesHandler(fakeValidContext)

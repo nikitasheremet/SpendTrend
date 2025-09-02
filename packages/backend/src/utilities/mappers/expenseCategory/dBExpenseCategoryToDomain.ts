@@ -6,8 +6,9 @@ import {
 export function dbExpenseCategoryToDomain(
   dbExpenseCategory: ExpenseCategoriesDbRow,
 ): ExpenseCategory {
-  const { userId, accountId, name, subcategories, createdAt, updatedAt } = dbExpenseCategory
+  const { id, userId, accountId, name, subcategories, createdAt, updatedAt } = dbExpenseCategory
   return {
+    id,
     userId,
     accountId,
     name,

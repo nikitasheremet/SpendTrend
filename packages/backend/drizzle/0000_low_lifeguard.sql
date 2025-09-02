@@ -1,4 +1,5 @@
 CREATE TABLE "expense_categories" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"userId" uuid NOT NULL,
 	"accountId" uuid NOT NULL,
 	"name" varchar(255) NOT NULL,

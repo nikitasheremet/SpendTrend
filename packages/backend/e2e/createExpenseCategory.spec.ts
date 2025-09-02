@@ -59,7 +59,9 @@ test.describe('Create Expense Category Endpoint', () => {
           ),
         )
       expect(rows.length).toBe(1)
-      expect(rows[0]).toEqual(expect.objectContaining({ name: fakeValidCategory.name }))
+      expect(rows[0]).toEqual(
+        expect.objectContaining({ name: fakeValidCategory.name, id: body.expenseCategory.id }),
+      )
     })
   })
   test.describe('when a request is sent to create an expenseCategory with the same name as an existing expenseCategory for the same accountId', () => {

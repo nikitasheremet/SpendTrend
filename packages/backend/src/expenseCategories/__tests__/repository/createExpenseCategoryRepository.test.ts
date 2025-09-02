@@ -14,11 +14,17 @@ describe('when createExpenseCategoryRepository is called', () => {
 
   describe('when expenseCategory is created successfully', () => {
     it('should return created expenseCategory', async () => {
-      const returnedDbRow = { ...fakeInput, createdAt: new Date(), updatedAt: new Date() }
+      const returnedDbRow = {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        ...fakeInput,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
       mockInsert.mockReturnValueOnce({ values: () => ({ returning: () => [returnedDbRow] }) })
 
       const result = await createExpenseCategoryRepository(fakeInput)
       expect(result).toEqual({
+        id: returnedDbRow.id,
         userId: returnedDbRow.userId,
         accountId: returnedDbRow.accountId,
         name: returnedDbRow.name,

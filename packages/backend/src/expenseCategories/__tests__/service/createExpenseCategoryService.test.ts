@@ -12,7 +12,11 @@ describe('createExpenseCategoryService', () => {
 
   describe('when create call is successful', () => {
     it('should return the created expenseCategory', async () => {
-      const fakeRepoRow = { name: 'Groceries', userId: 'user-123' }
+      const fakeRepoRow = {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        name: 'Groceries',
+        userId: 'user-123',
+      }
       mockCreateExpenseCategoryRepository.mockResolvedValueOnce(fakeRepoRow)
 
       const input = {

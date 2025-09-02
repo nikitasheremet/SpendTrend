@@ -1,6 +1,7 @@
 import { expenseCategoriesTable } from '../../db/schema'
 
 export type ExpenseCategory = {
+  id: string // UUID
   userId: string // UUID
   accountId: string // UUID
   name: string

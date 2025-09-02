@@ -3,7 +3,7 @@ import { expenseCategoriesTable } from '../../db/schema'
 import { DB_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 import { ExpenseCategory } from '../../models/expenseCategory/expenseCategory'
 import { eq } from 'drizzle-orm'
-import { dbExpenseCategoriesToDomainCategories } from '../../models/expenseCategory/dbExpenseCategoriesToDomainCategories'
+import { dbExpenseCategoriesToDomainCategories } from '../../utilities/mappers/expenseCategory/dbExpenseCategoriesToDomainCategories'
 
 export interface GetExpenseCategoriesRepoInput {
   accountId: string

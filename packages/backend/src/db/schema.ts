@@ -20,6 +20,7 @@ export type ExpensesTableRow = typeof expensesTable.$inferSelect
 export const expenseCategoriesTable = pgTable(
   'expense_categories',
   {
+    id: uuid().primaryKey().defaultRandom(),
     userId: uuid().notNull(),
     accountId: uuid().notNull(),
     name: varchar({ length: 255 }).notNull(),

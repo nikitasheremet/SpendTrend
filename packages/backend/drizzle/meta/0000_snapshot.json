@@ -1,5 +1,5 @@
 {
-  "id": "fef3ec93-dc8d-4ed3-9c53-3de948e0e1de",
+  "id": "6246f5d6-ca7d-471a-9a93-f82417820068",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -8,6 +8,13 @@
       "name": "expense_categories",
       "schema": "",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
         "userId": {
           "name": "userId",
           "type": "uuid",
