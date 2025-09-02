@@ -1,5 +1,8 @@
-import { ExpenseCategoriesDbRow, ExpenseCategory } from './expenseCategory'
-import { dbExpenseCategoryToDomain } from '../../utilities/mappers/expenseCategory/dBExpenseCategoryToDomain'
+import {
+  ExpenseCategoriesDbRow,
+  ExpenseCategory,
+} from '../../../models/expenseCategory/expenseCategory'
+import { dbExpenseCategoryToDomain } from './dBExpenseCategoryToDomain'
 
 export function dbExpenseCategoriesToDomainCategories(
   dbExpenseCategories: ExpenseCategoriesDbRow[],

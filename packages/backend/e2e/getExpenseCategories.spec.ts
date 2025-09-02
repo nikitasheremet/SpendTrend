@@ -63,6 +63,7 @@ test.describe('Get Expense Categories Endpoint', () => {
       expect(body.expenseCategories).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
+            id: insertedCategory1.id,
             name: insertedCategory1.name,
             userId: insertedCategory1.userId,
             accountId: insertedCategory1.accountId,
@@ -71,6 +72,7 @@ test.describe('Get Expense Categories Endpoint', () => {
             updatedAt: insertedCategory1.updatedAt.toISOString(),
           }),
           expect.objectContaining({
+            id: insertedCategory2.id,
             name: insertedCategory2.name,
             userId: insertedCategory2.userId,
             accountId: insertedCategory2.accountId,

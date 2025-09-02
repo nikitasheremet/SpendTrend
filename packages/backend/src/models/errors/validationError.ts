@@ -45,6 +45,9 @@ export const VALIDATION_ERROR_SUBCATEGORIES_MUST_BE_ARRAY = 'Subcategories must 
 export const VALIDATION_ERROR_SUBCATEGORIES_ITEMS_MUST_BE_STRINGS =
   'Subcategories must contain only strings'
 
+export const VALIDATION_ERROR_EXPENSECATEGORYID_MISSING = 'Expense category ID must be provided'
+export const VALIDATION_ERROR_EXPENSECATEGORYID_TYPE = 'Expense category ID must be a uuid'
+
 export class ValidationError extends Error {
   constructor(message: string) {
     super(message)

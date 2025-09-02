@@ -16,6 +16,7 @@ describe('getExpenseCategoriesRepository', () => {
     it('should return the mapped rows', async () => {
       const fakeDbRows = [
         {
+          id: '123e4567-e89b-12d3-a456-426614174000',
           userId: 'u',
           accountId: 'a',
           name: 'Groceries',
@@ -24,6 +25,7 @@ describe('getExpenseCategoriesRepository', () => {
           updatedAt: new Date(),
         },
         {
+          id: '123e4567-e89b-12d3-a456-426614174001',
           userId: 'u',
           accountId: 'a',
           name: 'Utilities',
