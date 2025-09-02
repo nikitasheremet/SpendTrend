@@ -1,0 +1,1 @@
+export { createExpenseCategoryService } from './createExpenseCategoryService'

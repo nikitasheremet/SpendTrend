@@ -1,6 +1,6 @@
 import { updateExpenseService } from '../../service/updateExpenseService'
-import type { UpdateExpenseInput } from '../../service/models'
 import { updateExpenseRepository } from '../../repository/updateExpenseRepository'
+import { UpdateExpenseInput } from '../../validation/models'
 
 jest.mock('../../repository/updateExpenseRepository', () => ({
   updateExpenseRepository: jest.fn(),
