@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import path from 'path'
 import bodyParser from 'koa-bodyparser'
 import { createExpenseHandler, getExpensesHandler, updateExpenseHandler } from './expense/handler/'
+import { createExpenseCategoryHandler } from './expenseCategories/handler'
 import { connectToDb } from './db'
 
 dotenv.config({ path: path.resolve(__dirname, '../env/.env.local') })
@@ -20,6 +21,7 @@ router.get('/health', (ctx) => {
 })
 
 router.post('/createexpense', createExpenseHandler)
+router.post('/createexpensecategory', createExpenseCategoryHandler)
 router.get('/expenses', getExpensesHandler)
 router.put('/updateexpense', updateExpenseHandler)
 

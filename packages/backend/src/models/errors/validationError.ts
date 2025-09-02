@@ -28,15 +28,22 @@ export const VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE = 'Paid back amount cannot
 
 export const VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE = 'Paid back amount must be a number'
 export const VALIDATION_ERROR_USERID_MISSING = 'User ID must be provided'
-export const VALIDATION_ERROR_USERID_TYPE = 'User ID must be a string'
+export const VALIDATION_ERROR_USERID_TYPE = 'User ID must be uuid'
 export const VALIDATION_ERROR_USERID_EMPTY = 'User ID must not be empty'
 export const VALIDATION_ERROR_ACCOUNTID_MISSING = 'Account ID must be provided'
-export const VALIDATION_ERROR_ACCOUNTID_TYPE = 'Account ID must be a string'
+export const VALIDATION_ERROR_ACCOUNTID_TYPE = 'Account ID must be a uuid'
 export const VALIDATION_ERROR_ACCOUNTID_EMPTY = 'Account ID cannot be an empty string'
 export const VALIDATION_ERROR_EXPENSEID_MISSING = 'Expense ID must be provided'
 export const VALIDATION_ERROR_EXPENSEID_TYPE = 'Expense ID must be a string'
 export const VALIDATION_ERROR_EXPENSEID_EMPTY = 'Expense ID cannot be an empty string'
 export const VALIDATION_ERROR_NO_FIELDS_TO_UPDATE = 'No fields provided to update'
+
+export const VALIDATION_ERROR_USERID_INVALID = 'User ID must be a UUID'
+
+export const VALIDATION_ERROR_SUBCATEGORIES_MISSING = 'Subcategories must be provided'
+export const VALIDATION_ERROR_SUBCATEGORIES_MUST_BE_ARRAY = 'Subcategories must be an array'
+export const VALIDATION_ERROR_SUBCATEGORIES_ITEMS_MUST_BE_STRINGS =
+  'Subcategories must contain only strings'
 
 export class ValidationError extends Error {
   constructor(message: string) {

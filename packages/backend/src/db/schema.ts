@@ -1,5 +1,5 @@
 import { uuid } from 'drizzle-orm/pg-core'
-import { integer, pgTable, varchar, index, date, timestamp } from 'drizzle-orm/pg-core'
+import { integer, pgTable, varchar, uniqueIndex, date, timestamp } from 'drizzle-orm/pg-core'
 export const expensesTable = pgTable('expenses', {
   id: uuid().primaryKey().defaultRandom(),
   userId: uuid().notNull(),
@@ -20,9 +20,12 @@ export type ExpensesTableRow = typeof expensesTable.$inferSelect
 export const expenseCategoriesTable = pgTable(
   'expense_categories',
   {
-    userId: integer().notNull(),
+    userId: uuid().notNull(),
+    accountId: uuid().notNull(),
     name: varchar({ length: 255 }).notNull(),
     subcategories: varchar({ length: 255 }).array().notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [index('userId_name').on(table.userId, table.name)],
+  (table) => [uniqueIndex('accountId_name').on(table.accountId, table.name)],
 )
