@@ -1,5 +1,5 @@
 import * as z from 'zod'
-import { userIdSchema, accountIdSchema, nameSchema, subcategoriesSchema } from './validationUtils'
+import { userIdSchema, accountIdSchema, nameSchema, subcategoriesSchema, idSchema } from './validationUtils'
 import { VALIDATION_INPUT_MUST_BE_AN_OBJECT } from '../../models/errors/validationError'
 
 export const CreateExpenseCategoryInputSchema = z.object(
@@ -23,3 +23,14 @@ export const GetExpenseCategoriesInputSchema = z.object(
 )
 
 export type GetExpenseCategoriesInput = z.infer<typeof GetExpenseCategoriesInputSchema>
+
+export const DeleteExpenseCategoryInputSchema = z.object(
+  {
+    userId: userIdSchema,
+    accountId: accountIdSchema,
+    id: idSchema,
+  },
+  { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
+)
+
+export type DeleteExpenseCategoryInput = z.infer<typeof DeleteExpenseCategoryInputSchema>
