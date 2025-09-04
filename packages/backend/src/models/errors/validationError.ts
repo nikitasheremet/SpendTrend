@@ -48,6 +48,9 @@ export const VALIDATION_ERROR_SUBCATEGORIES_ITEMS_MUST_BE_STRINGS =
 export const VALIDATION_ERROR_EXPENSECATEGORYID_MISSING = 'Expense category ID must be provided'
 export const VALIDATION_ERROR_EXPENSECATEGORYID_TYPE = 'Expense category ID must be a uuid'
 
+export const VALIDATION_ERROR_UPDATE_EXPENSECATEGORY_AT_LEAST_ONE_FIELD_REQUIRED =
+  "At least one of 'name' or 'subcategories' must be provided"
+
 export class ValidationError extends Error {
   constructor(message: string) {
     super(message)
