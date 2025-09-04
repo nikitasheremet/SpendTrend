@@ -7,12 +7,11 @@ import { dbExpenseCategoryToDomain } from '../../utilities/mappers/expenseCatego
 
 export async function deleteExpenseCategoryRepository(id: string): Promise<ExpenseCategory> {
   try {
-    const deletedRows = await db
+    const [deletedRow] = await db
       .delete(expenseCategoriesTable)
       .where(eq(expenseCategoriesTable.id, id))
       .returning()
 
-    const [deletedRow] = deletedRows
     if (!deletedRow) {
       throw new RepositoryError(
         `${NOT_FOUND_ERROR} - No expense category found to delete with id: ${id}`,

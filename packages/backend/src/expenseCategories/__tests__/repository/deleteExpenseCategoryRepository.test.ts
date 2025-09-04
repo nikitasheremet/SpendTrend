@@ -1,11 +1,11 @@
 import { deleteExpenseCategoryRepository } from '../../repository/deleteExpenseCategoryRepository'
 import { RepositoryError, NOT_FOUND_ERROR, DB_ERROR } from '../../../models/errors/repositoryErrors'
-import * as db from '../../../db'
+import { db } from '../../../db'
 
 jest.mock('../../../db')
 
 describe('deleteExpenseCategoryRepository', () => {
-  const mockDb = db.db as jest.Mocked<typeof db.db>
+  const mockDb = db as jest.Mocked<typeof db>
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -14,6 +14,9 @@ describe('deleteExpenseCategoryRepository', () => {
   const fakeId = '00000000-0000-4000-8000-000000000000'
   const fakeDbResult = {
     id: fakeId,
+    userId: '00000000-0000-4000-8000-000000000001',
+    accountId: '00000000-0000-4000-8000-000000000002',
+    name: 'Test Category',
     subcategories: ['sub1', 'sub2'],
     createdAt: new Date('2023-01-01T00:00:00Z'),
     updatedAt: new Date('2023-01-01T00:00:00Z'),
@@ -30,12 +33,17 @@ describe('deleteExpenseCategoryRepository', () => {
 
       const result = await deleteExpenseCategoryRepository(fakeId)
 
-      expect(result).toEqual({
-        id: fakeId,
-        subcategories: ['sub1', 'sub2'],
-        createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z',
-      })
+      const expectedResult = {
+        id: fakeDbResult.id,
+        userId: fakeDbResult.userId,
+        accountId: fakeDbResult.accountId,
+        name: fakeDbResult.name,
+        subcategories: fakeDbResult.subcategories,
+        createdAt: fakeDbResult.createdAt.toISOString(),
+        updatedAt: fakeDbResult.updatedAt.toISOString(),
+      }
+
+      expect(result).toEqual(expectedResult)
     })
   })
 
