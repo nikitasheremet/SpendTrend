@@ -12,13 +12,14 @@ export async function deleteExpenseCategoryRepository(id: string): Promise<Expen
       .where(eq(expenseCategoriesTable.id, id))
       .returning()
 
-    if (deletedRows.length === 0) {
+    const [deletedRow] = deletedRows
+    if (!deletedRow) {
       throw new RepositoryError(
         `${NOT_FOUND_ERROR} - No expense category found to delete with id: ${id}`,
       )
     }
 
-    return dbExpenseCategoryToDomain(deletedRows[0])
+    return dbExpenseCategoryToDomain(deletedRow)
   } catch (error) {
     if (error instanceof RepositoryError) {
       throw error

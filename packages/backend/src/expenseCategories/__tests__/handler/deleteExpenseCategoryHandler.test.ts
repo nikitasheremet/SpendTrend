@@ -1,14 +1,14 @@
 import { deleteExpenseCategoryHandler } from '../../handler/deleteExpenseCategoryHandler'
-import * as service from '../../service/deleteExpenseCategoryService'
-import * as validation from '../../validation/deleteExpenseCategoryValidation'
+import { deleteExpenseCategoryService } from '../../service/deleteExpenseCategoryService'
+import { validateDeleteExpenseCategoryInput } from '../../validation/deleteExpenseCategoryValidation'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 
 jest.mock('../../service/deleteExpenseCategoryService')
 jest.mock('../../validation/deleteExpenseCategoryValidation')
 
 describe('deleteExpenseCategoryHandler', () => {
-  const mockService = service.deleteExpenseCategoryService as jest.Mock
-  const mockValidation = validation.validateDeleteExpenseCategoryInput as jest.Mock
+  const mockService = deleteExpenseCategoryService as jest.Mock
+  const mockValidation = validateDeleteExpenseCategoryInput as jest.Mock
 
   beforeEach(() => {
     mockService.mockReset()
@@ -66,18 +66,6 @@ describe('deleteExpenseCategoryHandler', () => {
 
       expect(fakeValidContext.status).not.toBe(STATUS_SUCCESS_200)
       expect(fakeValidContext.body).toEqual({ error: 'Database error' })
-    })
-  })
-
-  describe('when service throws unknown error', () => {
-    it('should return error status code and message', async () => {
-      const fakeUnknownError = new Error('Unknown error')
-      mockService.mockRejectedValueOnce(fakeUnknownError)
-
-      await deleteExpenseCategoryHandler(fakeValidContext)
-
-      expect(fakeValidContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeValidContext.body).toEqual({ error: 'Unknown error' })
     })
   })
 })

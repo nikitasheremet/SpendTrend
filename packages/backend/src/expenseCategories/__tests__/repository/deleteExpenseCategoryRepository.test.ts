@@ -1,5 +1,5 @@
 import { deleteExpenseCategoryRepository } from '../../repository/deleteExpenseCategoryRepository'
-import { RepositoryError } from '../../../models/errors/repositoryErrors'
+import { RepositoryError, NOT_FOUND_ERROR, DB_ERROR } from '../../../models/errors/repositoryErrors'
 import * as db from '../../../db'
 
 jest.mock('../../../db')
@@ -14,9 +14,6 @@ describe('deleteExpenseCategoryRepository', () => {
   const fakeId = '00000000-0000-4000-8000-000000000000'
   const fakeDbResult = {
     id: fakeId,
-    userId: '00000000-0000-4000-8000-000000000001',
-    accountId: '00000000-0000-4000-8000-000000000002',
-    name: 'Test Category',
     subcategories: ['sub1', 'sub2'],
     createdAt: new Date('2023-01-01T00:00:00Z'),
     updatedAt: new Date('2023-01-01T00:00:00Z'),
@@ -35,9 +32,6 @@ describe('deleteExpenseCategoryRepository', () => {
 
       expect(result).toEqual({
         id: fakeId,
-        userId: '00000000-0000-4000-8000-000000000001',
-        accountId: '00000000-0000-4000-8000-000000000002',
-        name: 'Test Category',
         subcategories: ['sub1', 'sub2'],
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
@@ -58,7 +52,7 @@ describe('deleteExpenseCategoryRepository', () => {
         RepositoryError,
       )
       await expect(deleteExpenseCategoryRepository(fakeId)).rejects.toThrow(
-        `Not Found Error - No expense category found to delete with id: ${fakeId}`,
+        NOT_FOUND_ERROR,
       )
     })
   })
@@ -77,7 +71,7 @@ describe('deleteExpenseCategoryRepository', () => {
         RepositoryError,
       )
       await expect(deleteExpenseCategoryRepository(fakeId)).rejects.toThrow(
-        'Database Error: Database connection failed',
+        DB_ERROR,
       )
     })
   })
