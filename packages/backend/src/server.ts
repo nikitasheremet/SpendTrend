@@ -7,6 +7,7 @@ import { createExpenseHandler, getExpensesHandler, updateExpenseHandler } from '
 import {
   createExpenseCategoryHandler,
   getExpenseCategoriesHandler,
+  deleteExpenseCategoryHandler,
   updateExpenseCategoryHandler,
 } from './expenseCategories/handler'
 import { connectToDb } from './db'
@@ -29,6 +30,7 @@ router.post('/createexpensecategory', createExpenseCategoryHandler)
 router.get('/expenses', getExpensesHandler)
 router.put('/updateexpense', updateExpenseHandler)
 router.get('/getexpensecategories', getExpenseCategoriesHandler)
+router.delete('/deleteexpensecategory', deleteExpenseCategoryHandler)
 router.put('/updateexpensecategory', updateExpenseCategoryHandler)
 
 app.use(bodyParser())
