@@ -57,25 +57,17 @@ test.describe('Delete Expense Category Endpoint', () => {
 
   test.describe('when request is successful', () => {
     test('should delete the expense category and return the deleted category', async ({ request }) => {
-      // First, create a category
-      const createResponse = await request.post(`${BASE_URL}/createexpensecategory`, {
-        data: fakeValidCategory,
-      })
-      const createBody = await createResponse.json()
-      const createdCategoryId = createBody.expenseCategory.id
-
-      // Verify it exists in DB
-      const rowsBeforeDelete = await db
-        .select()
-        .from(expenseCategoriesTable)
-        .where(eq(expenseCategoriesTable.id, createdCategoryId))
-      expect(rowsBeforeDelete.length).toBe(1)
+      // Create a category directly in the database
+      const [createdCategory] = await db
+        .insert(expenseCategoriesTable)
+        .values(fakeValidCategory)
+        .returning()
 
       // Delete the category
       const deletePayload = {
         userId: fakeUserId,
         accountId: fakeAccountId,
-        id: createdCategoryId,
+        id: createdCategory.id,
       }
       const deleteResponse = await request.delete(`${BASE_URL}/deleteexpensecategory`, {
         data: deletePayload,
@@ -83,14 +75,14 @@ test.describe('Delete Expense Category Endpoint', () => {
       const deleteBody = await deleteResponse.json()
 
       expect(deleteResponse.status()).toBe(STATUS_SUCCESS_200)
-      expect(deleteBody.id).toBe(createdCategoryId)
+      expect(deleteBody.id).toBe(createdCategory.id)
       expect(deleteBody.name).toBe(fakeValidCategory.name)
 
       // Verify it no longer exists in DB
       const rowsAfterDelete = await db
         .select()
         .from(expenseCategoriesTable)
-        .where(eq(expenseCategoriesTable.id, createdCategoryId))
+        .where(eq(expenseCategoriesTable.id, createdCategory.id))
       expect(rowsAfterDelete.length).toBe(0)
     })
   })

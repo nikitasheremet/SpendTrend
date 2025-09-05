@@ -1,11 +1,14 @@
 import { deleteExpenseCategoryRepository } from '../../repository/deleteExpenseCategoryRepository'
 import { RepositoryError, NOT_FOUND_ERROR, DB_ERROR } from '../../../models/errors/repositoryErrors'
 import { db } from '../../../db'
+import { dbExpenseCategoryToDomain } from '../../../utilities/mappers/expenseCategory/dBExpenseCategoryToDomain'
 
 jest.mock('../../../db')
+jest.mock('../../../utilities/mappers/expenseCategory/dBExpenseCategoryToDomain')
 
 describe('deleteExpenseCategoryRepository', () => {
   const mockDb = db as jest.Mocked<typeof db>
+  const mockMapper = dbExpenseCategoryToDomain as jest.MockedFunction<typeof dbExpenseCategoryToDomain>
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -14,12 +17,14 @@ describe('deleteExpenseCategoryRepository', () => {
   const fakeId = '00000000-0000-4000-8000-000000000000'
   const fakeDbResult = {
     id: fakeId,
-    userId: '00000000-0000-4000-8000-000000000001',
-    accountId: '00000000-0000-4000-8000-000000000002',
-    name: 'Test Category',
-    subcategories: ['sub1', 'sub2'],
     createdAt: new Date('2023-01-01T00:00:00Z'),
     updatedAt: new Date('2023-01-01T00:00:00Z'),
+  }
+
+  const fakeDomainResult = {
+    id: fakeId,
+    createdAt: '2023-01-01T00:00:00.000Z',
+    updatedAt: '2023-01-01T00:00:00.000Z',
   }
 
   describe('when deletion is successful', () => {
@@ -30,20 +35,11 @@ describe('deleteExpenseCategoryRepository', () => {
         }),
       })
       mockDb.delete = mockDelete
+      mockMapper.mockReturnValue(fakeDomainResult as any)
 
       const result = await deleteExpenseCategoryRepository(fakeId)
 
-      const expectedResult = {
-        id: fakeDbResult.id,
-        userId: fakeDbResult.userId,
-        accountId: fakeDbResult.accountId,
-        name: fakeDbResult.name,
-        subcategories: fakeDbResult.subcategories,
-        createdAt: fakeDbResult.createdAt.toISOString(),
-        updatedAt: fakeDbResult.updatedAt.toISOString(),
-      }
-
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(fakeDomainResult)
     })
   })
 
