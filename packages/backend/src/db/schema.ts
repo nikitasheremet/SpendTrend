@@ -30,3 +30,14 @@ export const expenseCategoriesTable = pgTable(
   },
   (table) => [uniqueIndex('accountId_name').on(table.accountId, table.name)],
 )
+
+export const incomeTable = pgTable('income', {
+  id: uuid().primaryKey().defaultRandom(),
+  userId: uuid().notNull(),
+  accountId: uuid().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  amount: integer().notNull(),
+  date: date().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+})

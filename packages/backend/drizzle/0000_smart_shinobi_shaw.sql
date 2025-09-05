@@ -23,4 +23,15 @@ CREATE TABLE "expenses" (
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "income" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"userId" uuid NOT NULL,
+	"accountId" uuid NOT NULL,
+	"name" varchar(255) NOT NULL,
+	"amount" integer NOT NULL,
+	"date" date NOT NULL,
+	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
+	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE UNIQUE INDEX "accountId_name" ON "expense_categories" USING btree ("accountId","name");
