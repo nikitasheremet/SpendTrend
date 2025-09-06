@@ -1,5 +1,13 @@
 import { uuid } from 'drizzle-orm/pg-core'
-import { integer, pgTable, varchar, uniqueIndex, date, timestamp } from 'drizzle-orm/pg-core'
+import {
+  integer,
+  pgTable,
+  varchar,
+  uniqueIndex,
+  date,
+  timestamp,
+  decimal,
+} from 'drizzle-orm/pg-core'
 
 export const expenseCategoriesTable = pgTable(
   'expense_categories',
@@ -33,3 +41,14 @@ export const expensesTable = pgTable('expenses', {
 })
 
 export type ExpensesTableRow = typeof expensesTable.$inferSelect
+
+export const incomeTable = pgTable('income', {
+  id: uuid().primaryKey().defaultRandom(),
+  userId: uuid().notNull(),
+  accountId: uuid().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  amount: decimal().notNull(),
+  date: date().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+})
