@@ -1,30 +1,23 @@
 import { test, expect } from '@playwright/test'
 import { STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
-import { expensesTable } from '../src/db/schema'
+import { expenseCategoriesTable, expensesTable } from '../src/db/schema'
 import crypto from 'crypto'
+import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
+import { CreateExpense } from '../src/expense/repository/createExpenseRepository'
 
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Update Expense Endpoint', () => {
-  test.beforeAll(() => {
-    connectToDb()
-  })
+  let createdExpenseCategory: ExpenseCategoryDbRow
+  let dataToCreateExpense: CreateExpense
 
-  const fakeAccountId = crypto.randomUUID()
-  const fakeExpenseData = {
-    userId: '00000000-0000-0000-0000-000000000001',
-    accountId: fakeAccountId,
-    name: 'Groceries',
-    amount: 100,
-    netAmount: 90,
-    date: '2025-08-07',
-    category: 'Food',
-    subCategory: 'Supermarket',
-    paidBackAmount: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }
+  test.beforeAll(async () => {
+    const { expenseCategory, expenseToCreate } =
+      await assignFakeCreateExpenseInputAndExpenseCategory()
+    createdExpenseCategory = expenseCategory
+    dataToCreateExpense = expenseToCreate
+  })
 
   test.describe('when required data fails validation', () => {
     test('should return error message and 422 status code', async ({ request }) => {
@@ -46,7 +39,10 @@ test.describe('Update Expense Endpoint', () => {
   test.describe('when an expense is updated successfully', () => {
     test('should return the merged expense and updatedAt should change', async ({ request }) => {
       // Insert a test expense directly into the database
-      const [createdExpense] = await db.insert(expensesTable).values(fakeExpenseData).returning()
+      const [createdExpense] = await db
+        .insert(expensesTable)
+        .values(dataToCreateExpense)
+        .returning()
 
       // Prepare update - change name and amount
       const updatePayload = {
@@ -68,19 +64,19 @@ test.describe('Update Expense Endpoint', () => {
 
       // ID and linkage fields remain the same
       expect(updated.id).toBe(createdExpense.id)
-      expect(updated.userId).toBe(fakeExpenseData.userId)
-      expect(updated.accountId).toBe(fakeAccountId)
+      expect(updated.userId).toBe(createdExpense.userId)
+      expect(updated.accountId).toBe(createdExpense.accountId)
 
       // Updated fields reflect the payload
       expect(updated.name).toBe(updatePayload.name)
       expect(updated.amount).toBe(updatePayload.amount)
 
       // Fields not updated remain the same
-      expect(updated.date).toBe(fakeExpenseData.date)
-      expect(updated.category).toBe(fakeExpenseData.category)
+      expect(updated.date).toBe(createdExpense.date)
+      expect(updated.category.id).toBe(createdExpense.categoryId)
 
       // createdAt should be unchanged (compare to the original input's ISO string)
-      expect(updated.createdAt).toBe(fakeExpenseData.createdAt.toISOString())
+      expect(updated.createdAt).toBe(createdExpense.createdAt.toISOString())
 
       // updatedAt should be different and newer than the original
       const originalUpdatedAt = new Date(createdExpense.updatedAt)
@@ -110,3 +106,42 @@ test.describe('Update Expense Endpoint', () => {
     })
   })
 })
+
+async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
+  expenseCategory: ExpenseCategoryDbRow
+  expenseToCreate: CreateExpense
+}> {
+  connectToDb()
+
+  const fakeAccountId = crypto.randomUUID()
+  const fakeUserId = crypto.randomUUID()
+
+  const [createdCategory] = await db
+    .insert(expenseCategoriesTable)
+    .values({
+      userId: fakeUserId,
+      accountId: fakeAccountId,
+      name: 'Sample Category',
+      subcategories: ['SubCat1'],
+    })
+    .returning()
+
+  const fakeExpenseData = {
+    userId: '00000000-0000-0000-0000-000000000001',
+    accountId: fakeAccountId,
+    name: 'Groceries',
+    amount: 100,
+    netAmount: 90,
+    date: '2025-08-07',
+    categoryId: createdCategory.id,
+    subCategory: 'Supermarket',
+    paidBackAmount: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  return {
+    expenseCategory: createdCategory,
+    expenseToCreate: fakeExpenseData,
+  }
+}

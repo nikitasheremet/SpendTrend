@@ -13,11 +13,10 @@ import {
   VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
   VALIDATION_ERROR_DATE_TYPE,
   VALIDATION_ERROR_DATE_EMPTY,
-  VALIDATION_ERROR_CATEGORY_TYPE,
-  VALIDATION_ERROR_CATEGORY_EMPTY,
   VALIDATION_ERROR_SUBCATEGORY_TYPE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE,
+  VALIDATION_ERROR_CATEGORY_ID_TYPE,
 } from '../../../models/errors/validationError'
 
 describe('validateUpdateExpenseInput', () => {
@@ -27,7 +26,7 @@ describe('validateUpdateExpenseInput', () => {
     amount: 100,
     netAmount: 90,
     date: '2025-08-22',
-    category: 'Food',
+    categoryId: '123e4567-e89b-12d3-a456-426614174001',
     subCategory: 'Groceries',
     paidBackAmount: 0,
   }
@@ -128,20 +127,12 @@ describe('validateUpdateExpenseInput', () => {
     })
   })
 
-  describe('when "category" is present and is invalid', () => {
-    it('should throw an error if category is not a string', () => {
-      const fakeInvalidInput = { ...fakeValidInput, category: 123 }
+  describe('when "categoryId" is present and is invalid', () => {
+    it('should throw an error if categoryId is not a uuid', () => {
+      const fakeInvalidInput = { ...fakeValidInput, categoryId: 123 }
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
-        VALIDATION_ERROR_CATEGORY_TYPE,
-      )
-    })
-
-    it('should throw an error if category is an empty string', () => {
-      const fakeInvalidInput = { ...fakeValidInput, category: '' }
-      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
-      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
-        VALIDATION_ERROR_CATEGORY_EMPTY,
+        VALIDATION_ERROR_CATEGORY_ID_TYPE,
       )
     })
   })

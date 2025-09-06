@@ -16,7 +16,7 @@ CREATE TABLE "expenses" (
 	"amount" integer NOT NULL,
 	"date" date NOT NULL,
 	"paidBackAmount" integer NOT NULL,
-	"category" varchar(255) NOT NULL,
+	"categoryId" uuid NOT NULL,
 	"subCategory" varchar(255) NOT NULL,
 	"netAmount" integer NOT NULL,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
@@ -28,10 +28,11 @@ CREATE TABLE "income" (
 	"userId" uuid NOT NULL,
 	"accountId" uuid NOT NULL,
 	"name" varchar(255) NOT NULL,
-	"amount" integer NOT NULL,
+	"amount" numeric NOT NULL,
 	"date" date NOT NULL,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+ALTER TABLE "expenses" ADD CONSTRAINT "expenses_categoryId_expense_categories_id_fk" FOREIGN KEY ("categoryId") REFERENCES "public"."expense_categories"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "accountId_name" ON "expense_categories" USING btree ("accountId","name");

@@ -51,7 +51,7 @@ describe('updateExpenseRepository', () => {
         amount: 300,
         netAmount: 300,
         date: '2025-08-23',
-        category: 'Food',
+        categoryId: 'category-1',
         subCategory: 'Coffee',
         paidBackAmount: 0,
         createdAt: new Date(),
@@ -77,7 +77,7 @@ describe('updateExpenseRepository', () => {
 
       expect(result).toEqual(
         expect.objectContaining({
-          ...fakeDbExpense,
+          id: 'expense-1',
           category: {
             ...fakeExpenseCategory,
             createdAt: fakeExpenseCategory.createdAt.toISOString(),
@@ -87,6 +87,7 @@ describe('updateExpenseRepository', () => {
           updatedAt: fakeDbExpense.updatedAt.toISOString(),
         }),
       )
+      expect(result).not.toHaveProperty('categoryId')
     })
   })
 

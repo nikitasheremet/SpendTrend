@@ -40,7 +40,7 @@ export const getExpensesSchema = z.strictObject(
   { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
 )
 
-export const updateExpenseSchema = z
+export const updateExpenseInputSchema = z
   .strictObject(
     {
       id: idSchema,
@@ -48,7 +48,7 @@ export const updateExpenseSchema = z
       amount: amountSchema.optional(),
       netAmount: netAmountSchema.optional(),
       date: dateSchema.optional(),
-      category: categorySchema.optional(),
+      categoryId: categoryIdSchema.optional(),
       subCategory: subCategorySchema.optional(),
       paidBackAmount: paidBackAmountSchema.optional(),
     },
@@ -64,4 +64,4 @@ export const updateExpenseSchema = z
 
 export type CreateExpenseInput = z.infer<typeof createExpenseInputSchema>
 export type GetExpensesInput = z.infer<typeof getExpensesSchema>
-export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>
+export type UpdateExpenseInput = z.infer<typeof updateExpenseInputSchema>

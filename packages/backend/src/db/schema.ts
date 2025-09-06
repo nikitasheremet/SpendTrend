@@ -31,7 +31,7 @@ export const expensesTable = pgTable('expenses', {
   amount: integer().notNull(),
   date: date().notNull(),
   paidBackAmount: integer().notNull(),
-  category: uuid()
+  categoryId: uuid()
     .notNull()
     .references(() => expenseCategoriesTable.id),
   subCategory: varchar({ length: 255 }).notNull(),
