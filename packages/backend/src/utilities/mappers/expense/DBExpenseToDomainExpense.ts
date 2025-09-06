@@ -3,7 +3,7 @@ import { Expense } from '../../../models/expense/Expense'
 import { ExpenseCategoryDbRow } from '../../../models/expenseCategory/expenseCategory'
 import { dbExpenseCategoryToDomain } from '../expenseCategory/dBExpenseCategoryToDomain'
 
-export interface DbExpenseWithExpenseCategory extends Omit<ExpensesTableRow, 'category'> {
+export interface DbExpenseWithExpenseCategory extends Omit<ExpensesTableRow, 'categoryId'> {
   category: ExpenseCategoryDbRow
 }
 

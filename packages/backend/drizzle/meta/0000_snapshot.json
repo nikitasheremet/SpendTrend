@@ -1,5 +1,5 @@
 {
-  "id": "40d1efa8-4c60-483d-80bd-6c66ff81e14b",
+  "id": "c031845f-7d05-481f-9cc5-f93d36fd2dfc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -131,8 +131,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "category": {
-          "name": "category",
+        "categoryId": {
+          "name": "categoryId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -166,12 +166,16 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "expenses_category_expense_categories_id_fk": {
-          "name": "expenses_category_expense_categories_id_fk",
+        "expenses_categoryId_expense_categories_id_fk": {
+          "name": "expenses_categoryId_expense_categories_id_fk",
           "tableFrom": "expenses",
           "tableTo": "expense_categories",
-          "columnsFrom": ["category"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "categoryId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -213,7 +217,7 @@
         },
         "amount": {
           "name": "amount",
-          "type": "integer",
+          "type": "numeric",
           "primaryKey": false,
           "notNull": true
         },

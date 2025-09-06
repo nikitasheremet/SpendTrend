@@ -12,21 +12,21 @@ export interface UpdateExpenseRepository {
 }
 
 export async function updateExpenseRepository(input: UpdateExpenseRepository): Promise<Expense> {
-  const [updatedRows] = await db
+  const [updatedRow] = await db
     .update(expensesTable)
     .set(input.fieldsToUpdate)
     .where(eq(expensesTable.id, input.id))
     .returning()
 
-  if (!updatedRows) {
+  if (!updatedRow) {
     throw new RepositoryError(
       `${NOT_FOUND_ERROR} - No expense found to update with id: ${input.id}`,
     )
   }
 
   const expenseCategory = (await db.query.expenseCategoriesTable.findFirst({
-    where: eq(expenseCategoriesTable.id, updatedRows.category),
+    where: eq(expenseCategoriesTable.id, updatedRow.categoryId),
   })) as ExpenseCategoryDbRow
 
-  return dbExpenseToDomainExpense({ ...updatedRows, category: expenseCategory })
+  return dbExpenseToDomainExpense({ ...updatedRow, category: expenseCategory })
 }

@@ -28,7 +28,7 @@ export async function createExpenseRepository(input: CreateExpense): Promise<Exp
         name: input.name,
         amount: input.amount,
         date: input.date,
-        category: input.categoryId,
+        categoryId: input.categoryId,
         subCategory: input.subCategory,
         paidBackAmount: input.paidBackAmount,
         netAmount: input.netAmount,
@@ -37,7 +37,7 @@ export async function createExpenseRepository(input: CreateExpense): Promise<Exp
 
     // If the above insert was successful then the category must exist
     const expenseCategory = (await db.query.expenseCategoriesTable.findFirst({
-      where: eq(expenseCategoriesTable.id, input.categoryId),
+      where: eq(expenseCategoriesTable.id, createdExpense.categoryId),
     })) as ExpenseCategoryDbRow
 
     return dbExpenseToDomainExpense({ ...createdExpense, category: expenseCategory })
