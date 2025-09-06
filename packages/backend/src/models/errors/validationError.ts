@@ -4,7 +4,11 @@ export const VALIDATION_ERROR_NETAMOUNT_MISSING = 'Net amount must be present'
 export const VALIDATION_ERROR_NETAMOUNT_TYPE = 'Net amount must be a number'
 export const VALIDATION_ERROR_NETAMOUNT_NEGATIVE = 'Net amount cannot be negative'
 export const VALIDATION_ERROR_CATEGORY_MISSING = 'Category must be provided'
-export const VALIDATION_ERROR_CATEGORY_TYPE = 'Category must be a string'
+export const VALIDATION_ERROR_CATEGORY_TYPE = 'Category must be a uuid'
+
+export const VALIDATION_ERROR_CATEGORY_ID_MISSING = 'Category ID must be provided'
+export const VALIDATION_ERROR_CATEGORY_ID_TYPE = 'Category ID must be a uuid'
+
 export const VALIDATION_ERROR_CATEGORY_EMPTY = 'Category cannot be an empty string'
 export const DATE_REGEX_YYYY_MM_DD = /^\d{4}-\d{2}-\d{2}$/
 export const VALIDATION_ERROR_DATE_MISSING = 'Date must be provided'

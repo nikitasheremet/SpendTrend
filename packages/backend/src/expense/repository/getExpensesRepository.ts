@@ -14,6 +14,9 @@ export async function getExpensesRepository(input: GetExpensesRepositoryInput): 
     const { accountId } = input
 
     const expenses = await db.query.expensesTable.findMany({
+      with: {
+        category: true,
+      },
       where: eq(expensesTable.accountId, accountId),
       orderBy: [desc(expensesTable.date)],
     })

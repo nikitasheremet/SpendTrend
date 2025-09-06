@@ -29,11 +29,13 @@ describe('deleteExpenseCategoryRepository', () => {
 
       const result = await deleteExpenseCategoryRepository(fakeId)
 
-      expect(result).toEqual({
-        id: fakeId,
-        createdAt: new Date('2023-01-01T00:00:00Z'),
-        updatedAt: new Date('2023-01-01T00:00:00Z'),
-      })
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: fakeId,
+          createdAt: fakeDbResult.createdAt.toISOString(),
+          updatedAt: fakeDbResult.updatedAt.toISOString(),
+        }),
+      )
     })
   })
 

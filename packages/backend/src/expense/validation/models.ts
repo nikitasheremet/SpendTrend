@@ -15,8 +15,9 @@ import {
   subCategorySchema,
   userIdSchema,
 } from './validationUtils'
+import { categoryIdSchema } from './validationUtils/validateCategoryId'
 
-export const createExpenseSchema = z.strictObject(
+export const createExpenseInputSchema = z.strictObject(
   {
     name: nameSchema,
     userId: userIdSchema,
@@ -24,7 +25,7 @@ export const createExpenseSchema = z.strictObject(
     amount: amountSchema,
     netAmount: netAmountSchema,
     date: dateSchema,
-    category: categorySchema,
+    categoryId: categoryIdSchema,
     subCategory: subCategorySchema,
     paidBackAmount: paidBackAmountSchema,
   },
@@ -61,6 +62,6 @@ export const updateExpenseSchema = z
     { message: VALIDATION_ERROR_NO_FIELDS_TO_UPDATE },
   )
 
-export type CreateExpenseInput = z.infer<typeof createExpenseSchema>
+export type CreateExpenseInput = z.infer<typeof createExpenseInputSchema>
 export type GetExpensesInput = z.infer<typeof getExpensesSchema>
 export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>

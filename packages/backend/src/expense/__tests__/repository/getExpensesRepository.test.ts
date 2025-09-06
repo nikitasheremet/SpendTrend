@@ -30,39 +30,43 @@ describe('getExpensesRepository', () => {
   describe('when the database returns an array of expenses', () => {
     it('should map the results to the Expense domain type', async () => {
       // Arrange
-      const fakeDbExpenses = [
-        {
-          id: '1',
-          accountId: fakeAccountId,
-          name: 'Groceries',
-          amount: 100,
-          netAmount: 90,
-          date: '2025-08-04',
-          category: 'Food',
-          subCategory: 'Groceries',
-          paidBackAmount: 0,
-          createdAt: new Date('2025-08-04T10:00:00Z'),
-          updatedAt: new Date('2025-08-04T10:00:00Z'),
-        },
-      ]
+      const fakeExpenseCategory = {
+        id: 'category-1',
+        userId: 'user-1',
+        accountId: 'account-1',
+        name: 'Food',
+        subcategories: ['Groceries'],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      const fakeDbExpense = {
+        id: '1',
+        accountId: fakeAccountId,
+        name: 'Groceries',
+        amount: 100,
+        netAmount: 90,
+        date: '2025-08-04',
+        category: fakeExpenseCategory,
+        subCategory: 'Groceries',
+        paidBackAmount: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
 
       const expectedExpenses = [
         {
-          id: '1',
-          accountId: fakeAccountId,
-          name: 'Groceries',
-          amount: 100,
-          netAmount: 90,
-          date: '2025-08-04',
-          category: 'Food',
-          subCategory: 'Groceries',
-          paidBackAmount: 0,
-          createdAt: '2025-08-04T10:00:00.000Z',
-          updatedAt: '2025-08-04T10:00:00.000Z',
+          ...fakeDbExpense,
+          category: {
+            ...fakeDbExpense.category,
+            createdAt: fakeDbExpense.category.createdAt.toISOString(),
+            updatedAt: fakeDbExpense.category.updatedAt.toISOString(),
+          },
+          createdAt: fakeDbExpense.createdAt.toISOString(),
+          updatedAt: fakeDbExpense.updatedAt.toISOString(),
         },
       ]
 
-      mockDbFindMany.mockResolvedValueOnce(fakeDbExpenses)
+      mockDbFindMany.mockResolvedValueOnce([fakeDbExpense])
 
       // Act
       const result = await getExpensesRepository({ accountId: fakeAccountId })
