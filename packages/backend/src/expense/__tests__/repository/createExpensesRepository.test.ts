@@ -2,9 +2,13 @@ import { createExpenseRepository, CreateExpense } from '../../repository/createE
 import { db } from '../../../db'
 
 jest.mock('../../../db')
+jest.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('createExpenseRepository', () => {
   const mockDbInsert = db.insert as jest.Mock
+  const fakeDbQuery = db.query
+
+  const fakeCategoryId = 'category-1'
 
   const fakeValidExpense: CreateExpense = {
     userId: 'user-1',
@@ -13,11 +17,9 @@ describe('createExpenseRepository', () => {
     amount: 100,
     netAmount: 90,
     date: '2025-08-04',
-    category: 'Food',
+    categoryId: fakeCategoryId,
     subCategory: 'Groceries',
     paidBackAmount: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
   }
 
   afterEach(() => {
@@ -41,12 +43,26 @@ describe('createExpenseRepository', () => {
       const fakeDbExpense = {
         id: fakeExpenseId,
         ...fakeValidExpense,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
       mockDbInsert.mockReturnValue({
         values: jest.fn().mockReturnValue({
           returning: jest.fn().mockResolvedValue([fakeDbExpense]),
         }),
       })
+      const fakeExpenseCategoryQueryResponse = {
+        id: fakeCategoryId,
+        userId: 'user-1',
+        accountId: 'account-1',
+        name: 'Food',
+        subcategories: ['Groceries'],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      fakeDbQuery.expenseCategoriesTable.findFirst = jest
+        .fn()
+        .mockResolvedValue(fakeExpenseCategoryQueryResponse)
 
       const result = await createExpenseRepository(fakeValidExpense)
       expect(result).toEqual({
@@ -57,11 +73,19 @@ describe('createExpenseRepository', () => {
         amount: fakeValidExpense.amount,
         netAmount: fakeValidExpense.netAmount,
         date: fakeValidExpense.date,
-        category: fakeValidExpense.category,
+        category: {
+          id: fakeCategoryId,
+          userId: fakeExpenseCategoryQueryResponse.userId,
+          accountId: fakeExpenseCategoryQueryResponse.accountId,
+          name: fakeExpenseCategoryQueryResponse.name,
+          subcategories: fakeExpenseCategoryQueryResponse.subcategories,
+          createdAt: fakeExpenseCategoryQueryResponse.createdAt.toISOString(),
+          updatedAt: fakeExpenseCategoryQueryResponse.updatedAt.toISOString(),
+        },
         subCategory: fakeValidExpense.subCategory,
         paidBackAmount: fakeValidExpense.paidBackAmount,
-        createdAt: fakeValidExpense.createdAt.toISOString(),
-        updatedAt: fakeValidExpense.updatedAt.toISOString(),
+        createdAt: fakeDbExpense.createdAt.toISOString(),
+        updatedAt: fakeDbExpense.updatedAt.toISOString(),
       })
     })
   })

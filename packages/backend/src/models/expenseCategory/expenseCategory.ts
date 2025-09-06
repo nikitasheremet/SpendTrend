@@ -10,4 +10,4 @@ export type ExpenseCategory = {
   updatedAt: string // Timestamp with timezone
 }
 
-export type ExpenseCategoriesDbRow = typeof expenseCategoriesTable.$inferSelect
+export type ExpenseCategoryDbRow = typeof expenseCategoriesTable.$inferSelect

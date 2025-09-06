@@ -133,7 +133,7 @@
         },
         "category": {
           "name": "category",
-          "type": "varchar(255)",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -165,7 +165,17 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "expenses_category_expense_categories_id_fk": {
+          "name": "expenses_category_expense_categories_id_fk",
+          "tableFrom": "expenses",
+          "tableTo": "expense_categories",
+          "columnsFrom": ["category"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

@@ -3,6 +3,7 @@ import {
   STATUS_SUCCESS_200,
   STATUS_INTERNAL_SERVER_ERROR_500,
   STATUS_UNPROCESSABLE_ENTITY_422,
+  STATUS_NOT_FOUND_404,
 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
 import { eq, and } from 'drizzle-orm'
@@ -39,7 +40,7 @@ test.describe('Delete Expense Category Endpoint', () => {
   })
 
   test.describe('when expense category does not exist', () => {
-    test('should return a 500 status code and NOT_FOUND_ERROR', async ({ request }) => {
+    test('should return a 404 status code and NOT_FOUND_ERROR', async ({ request }) => {
       const nonExistentId = crypto.randomUUID()
       const deletePayload = {
         userId: fakeUserId,
@@ -49,14 +50,16 @@ test.describe('Delete Expense Category Endpoint', () => {
       const response = await request.delete(`${BASE_URL}/deleteexpensecategory`, {
         data: deletePayload,
       })
-      expect(response.status()).toBe(STATUS_INTERNAL_SERVER_ERROR_500)
+      expect(response.status()).toBe(STATUS_NOT_FOUND_404)
       const body = await response.json()
       expect(body.error).toContain(NOT_FOUND_ERROR)
     })
   })
 
   test.describe('when request is successful', () => {
-    test('should delete the expense category and return the deleted category', async ({ request }) => {
+    test('should delete the expense category and return the deleted category', async ({
+      request,
+    }) => {
       // Create a category directly in the database
       const [createdCategory] = await db
         .insert(expenseCategoriesTable)
@@ -75,8 +78,8 @@ test.describe('Delete Expense Category Endpoint', () => {
       const deleteBody = await deleteResponse.json()
 
       expect(deleteResponse.status()).toBe(STATUS_SUCCESS_200)
-      expect(deleteBody.id).toBe(createdCategory.id)
-      expect(deleteBody.name).toBe(fakeValidCategory.name)
+      expect(deleteBody.expenseCategory.id).toBe(createdCategory.id)
+      expect(deleteBody.expenseCategory.name).toBe(fakeValidCategory.name)
 
       // Verify it no longer exists in DB
       const rowsAfterDelete = await db

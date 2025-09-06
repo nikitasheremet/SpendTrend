@@ -5,21 +5,25 @@ import {
   STATUS_UNPROCESSABLE_ENTITY_422,
 } from '../src/models/statusCodes'
 import crypto from 'crypto'
+import { DB_ERROR } from '../src/models/errors/repositoryErrors'
+import { connectToDb, db } from '../src/db'
+import { expenseCategoriesTable } from '../src/db/schema'
+import { CreateExpenseInput } from '../src/expense/validation/models'
+import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
 
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Create Expense Endpoint', () => {
-  const fakeValidExpenseData = {
-    userId: '00000000-0000-0000-0000-000000000001',
-    accountId: crypto.randomUUID(),
-    name: 'Groceries',
-    amount: 100,
-    netAmount: 90,
-    date: '2025-08-07',
-    category: 'Food',
-    subCategory: 'Supermarket',
-    paidBackAmount: 0,
-  }
+  let createdExpenseCategory: ExpenseCategoryDbRow
+  let fakeCreateExpenseInput: CreateExpenseInput
+
+  test.beforeAll(async () => {
+    const { createExpenseInput, expenseCategory } =
+      await assignFakeCreateExpenseInputAndExpenseCategory()
+    fakeCreateExpenseInput = createExpenseInput
+    createdExpenseCategory = expenseCategory
+  })
+
   test.describe('when required data fails validation', () => {
     test('should return error message and 422 status code', async ({ request }) => {
       const fakeBadValidationData = {}
@@ -33,7 +37,7 @@ test.describe('Create Expense Endpoint', () => {
   })
   test.describe('when internal server error occurs', () => {
     test('should return error message and 500 status code', async ({ request }) => {
-      const fakeBadValidationData = JSON.parse(JSON.stringify(fakeValidExpenseData))
+      const fakeBadValidationData = JSON.parse(JSON.stringify(fakeCreateExpenseInput))
       fakeBadValidationData.userId = 'invalid-uuid'
 
       const response = await request.post(`${BASE_URL}/createexpense`, {
@@ -44,10 +48,23 @@ test.describe('Create Expense Endpoint', () => {
       expect(body).toHaveProperty('error')
     })
   })
+  test.describe("when an expense with a expenseCategory Id that doesn't exist is created", () => {
+    test('should return a 500 error and a DB_ERROR message', async ({ request }) => {
+      const fakeExpenseDataWithInvalidCategory = JSON.parse(JSON.stringify(fakeCreateExpenseInput))
+      fakeExpenseDataWithInvalidCategory.categoryId = crypto.randomUUID()
+
+      const response = await request.post(`${BASE_URL}/createexpense`, {
+        data: fakeExpenseDataWithInvalidCategory,
+      })
+      expect(response.status()).toBe(STATUS_INTERNAL_SERVER_ERROR_500)
+      const body = await response.json()
+      expect(body.error).toContain(DB_ERROR)
+    })
+  })
   test.describe('when valid expense data is provided', () => {
     test('should create a new expense and return the expense object', async ({ request }) => {
       const response = await request.post(`${BASE_URL}/createexpense`, {
-        data: fakeValidExpenseData,
+        data: fakeCreateExpenseInput,
       })
 
       expect(response.status()).toBe(STATUS_CREATED_201)
@@ -55,17 +72,62 @@ test.describe('Create Expense Endpoint', () => {
       expect(body).toHaveProperty('id')
       expect(body).toEqual(
         expect.objectContaining({
-          name: fakeValidExpenseData.name,
-          userId: fakeValidExpenseData.userId,
-          accountId: fakeValidExpenseData.accountId,
-          paidBackAmount: fakeValidExpenseData.paidBackAmount,
-          amount: fakeValidExpenseData.amount,
-          netAmount: fakeValidExpenseData.netAmount,
-          date: fakeValidExpenseData.date,
-          category: fakeValidExpenseData.category,
-          subCategory: fakeValidExpenseData.subCategory,
+          name: fakeCreateExpenseInput.name,
+          userId: fakeCreateExpenseInput.userId,
+          accountId: fakeCreateExpenseInput.accountId,
+          paidBackAmount: fakeCreateExpenseInput.paidBackAmount,
+          amount: fakeCreateExpenseInput.amount,
+          netAmount: fakeCreateExpenseInput.netAmount,
+          date: fakeCreateExpenseInput.date,
+          category: {
+            id: createdExpenseCategory.id,
+            userId: createdExpenseCategory.userId,
+            accountId: createdExpenseCategory.accountId,
+            name: createdExpenseCategory.name,
+            subcategories: createdExpenseCategory.subcategories,
+            createdAt: createdExpenseCategory.createdAt.toISOString(),
+            updatedAt: createdExpenseCategory.updatedAt.toISOString(),
+          },
+          subCategory: fakeCreateExpenseInput.subCategory,
         }),
       )
     })
   })
 })
+
+async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
+  createExpenseInput: CreateExpenseInput
+  expenseCategory: ExpenseCategoryDbRow
+}> {
+  connectToDb()
+
+  const fakeAccountId = crypto.randomUUID()
+  const fakeUserId = crypto.randomUUID()
+
+  const [createdCategory] = await db
+    .insert(expenseCategoriesTable)
+    .values({
+      userId: fakeUserId,
+      accountId: fakeAccountId,
+      name: 'Sample Category',
+      subcategories: ['SubCat1'],
+    })
+    .returning()
+
+  const createExpenseInput = {
+    userId: fakeUserId,
+    accountId: fakeAccountId,
+    name: 'Groceries',
+    amount: 100,
+    netAmount: 90,
+    date: '2025-08-07',
+    categoryId: createdCategory.id,
+    subCategory: 'Supermarket',
+    paidBackAmount: 0,
+  }
+
+  return {
+    createExpenseInput,
+    expenseCategory: createdCategory,
+  }
+}

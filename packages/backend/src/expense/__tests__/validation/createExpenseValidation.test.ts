@@ -8,9 +8,8 @@ import {
   VALIDATION_ERROR_DATE_TYPE,
   VALIDATION_ERROR_DATE_EMPTY,
   VALIDATION_ERROR_DATE_FORMAT,
-  VALIDATION_ERROR_CATEGORY_MISSING,
-  VALIDATION_ERROR_CATEGORY_TYPE,
-  VALIDATION_ERROR_CATEGORY_EMPTY,
+  VALIDATION_ERROR_CATEGORY_ID_MISSING,
+  VALIDATION_ERROR_CATEGORY_ID_TYPE,
   VALIDATION_ERROR_SUBCATEGORY_MISSING,
   VALIDATION_ERROR_SUBCATEGORY_TYPE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING,
@@ -27,6 +26,7 @@ import {
   VALIDATION_ERROR_USERID_EMPTY,
   VALIDATION_ERROR_ACCOUNTID_EMPTY,
 } from '../../../models/errors/validationError'
+import crypto from 'crypto'
 
 describe('validateCreateExpenseInput', () => {
   const validInput = {
@@ -34,7 +34,7 @@ describe('validateCreateExpenseInput', () => {
     amount: 10,
     netAmount: 10,
     date: '2023-01-01',
-    category: 'Food',
+    categoryId: crypto.randomUUID(),
     subCategory: 'Dining',
     paidBackAmount: 0,
     userId: 'user-123',
@@ -172,30 +172,23 @@ describe('validateCreateExpenseInput', () => {
   })
   describe('when the category field is invalid', () => {
     describe('when category is missing', () => {
-      it('should throw a ValidationError with the correct message for missing category', () => {
+      it('should throw a ValidationError with the correct message for missing categoryId', () => {
         // Arrange
-        const input = { ...validInput, category: undefined }
+        const input = { ...validInput, categoryId: undefined }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_MISSING)
+        expect(() => validateCreateExpenseInput(input)).toThrow(
+          VALIDATION_ERROR_CATEGORY_ID_MISSING,
+        )
       })
     })
-    describe('when category is not a string', () => {
-      it('should throw a ValidationError with the correct message for non-string category', () => {
+    describe('when categoryId is not a valid uuid', () => {
+      it('should throw a ValidationError with the correct message for non-uuid categoryId', () => {
         // Arrange
-        const input = { ...validInput, category: 123 }
+        const input = { ...validInput, categoryId: 123 }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_TYPE)
-      })
-    })
-    describe('when category is an empty string', () => {
-      it('should throw a ValidationError with the correct message for empty category', () => {
-        // Arrange
-        const input = { ...validInput, category: '' }
-        // Act & Assert
-        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_EMPTY)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_ID_TYPE)
       })
     })
   })

@@ -1,10 +1,10 @@
 import {
-  ExpenseCategoriesDbRow,
+  ExpenseCategoryDbRow,
   ExpenseCategory,
 } from '../../../models/expenseCategory/expenseCategory'
 
 export function dbExpenseCategoryToDomain(
-  dbExpenseCategory: ExpenseCategoriesDbRow,
+  dbExpenseCategory: ExpenseCategoryDbRow,
 ): ExpenseCategory {
   const { id, userId, accountId, name, subcategories, createdAt, updatedAt } = dbExpenseCategory
   return {

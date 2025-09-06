@@ -10,6 +10,7 @@ jest.mock('../../../db')
 
 describe('updateExpenseRepository', () => {
   const mockDbUpdate = db.update as jest.Mock
+  const mockDbQuery = db.query
 
   const fakeInput: UpdateExpenseRepository = {
     id: 'expense-1',
@@ -57,13 +58,31 @@ describe('updateExpenseRepository', () => {
         updatedAt: new Date(),
       }
 
+      const fakeExpenseCategory = {
+        id: 'category-1',
+        userId: 'user-1',
+        accountId: 'account-1',
+        name: 'Food',
+        subcategories: ['Groceries'],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+
       returningMock.mockResolvedValueOnce([fakeDbExpense])
+      mockDbQuery.expenseCategoriesTable.findFirst = jest
+        .fn()
+        .mockResolvedValue(fakeExpenseCategory)
 
       const result = await updateExpenseRepository(fakeInput)
 
       expect(result).toEqual(
         expect.objectContaining({
           ...fakeDbExpense,
+          category: {
+            ...fakeExpenseCategory,
+            createdAt: fakeExpenseCategory.createdAt.toISOString(),
+            updatedAt: fakeExpenseCategory.updatedAt.toISOString(),
+          },
           createdAt: fakeDbExpense.createdAt.toISOString(),
           updatedAt: fakeDbExpense.updatedAt.toISOString(),
         }),

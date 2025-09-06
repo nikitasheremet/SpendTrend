@@ -1,9 +1,10 @@
 import { eq } from 'drizzle-orm'
 import { db } from '../../db'
-import { expensesTable, ExpensesTableRow } from '../../db/schema'
+import { expenseCategoriesTable, expensesTable, ExpensesTableRow } from '../../db/schema'
 import { Expense } from '../../models/expense/Expense'
 import { dbExpenseToDomainExpense } from '../../utilities/mappers/expense/DBExpenseToDomainExpense'
 import { NOT_FOUND_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
+import { ExpenseCategoryDbRow } from '../../models/expenseCategory/expenseCategory'
 
 export interface UpdateExpenseRepository {
   id: string
@@ -11,17 +12,21 @@ export interface UpdateExpenseRepository {
 }
 
 export async function updateExpenseRepository(input: UpdateExpenseRepository): Promise<Expense> {
-  const updatedRows = await db
+  const [updatedRows] = await db
     .update(expensesTable)
     .set(input.fieldsToUpdate)
     .where(eq(expensesTable.id, input.id))
     .returning()
 
-  if (updatedRows.length === 0) {
+  if (!updatedRows) {
     throw new RepositoryError(
       `${NOT_FOUND_ERROR} - No expense found to update with id: ${input.id}`,
     )
   }
 
-  return dbExpenseToDomainExpense(updatedRows[0])
+  const expenseCategory = (await db.query.expenseCategoriesTable.findFirst({
+    where: eq(expenseCategoriesTable.id, updatedRows.category),
+  })) as ExpenseCategoryDbRow
+
+  return dbExpenseToDomainExpense({ ...updatedRows, category: expenseCategory })
 }

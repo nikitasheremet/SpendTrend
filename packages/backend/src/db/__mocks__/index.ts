@@ -12,6 +12,9 @@ const mockDb = {
     expensesTable: {
       findMany: jest.fn(),
     },
+    expenseCategoriesTable: {
+      findFirst: jest.fn(),
+    },
   },
 }
 
