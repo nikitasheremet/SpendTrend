@@ -1,5 +1,13 @@
 import { uuid } from 'drizzle-orm/pg-core'
-import { integer, pgTable, varchar, uniqueIndex, date, timestamp } from 'drizzle-orm/pg-core'
+import {
+  integer,
+  pgTable,
+  varchar,
+  uniqueIndex,
+  date,
+  timestamp,
+  decimal,
+} from 'drizzle-orm/pg-core'
 export const expensesTable = pgTable('expenses', {
   id: uuid().primaryKey().defaultRandom(),
   userId: uuid().notNull(),
@@ -36,7 +44,7 @@ export const incomeTable = pgTable('income', {
   userId: uuid().notNull(),
   accountId: uuid().notNull(),
   name: varchar({ length: 255 }).notNull(),
-  amount: integer().notNull(),
+  amount: decimal().notNull(),
   date: date().notNull(),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
