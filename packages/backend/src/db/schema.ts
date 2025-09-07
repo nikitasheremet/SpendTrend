@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm'
 import { uuid } from 'drizzle-orm/pg-core'
 import {
   integer,
@@ -23,6 +24,10 @@ export const expenseCategoriesTable = pgTable(
   (table) => [uniqueIndex('accountId_name').on(table.accountId, table.name)],
 )
 
+export const expenseCategoriesRelations = relations(expenseCategoriesTable, ({ many }) => ({
+  expenses: many(expensesTable),
+}))
+
 export const expensesTable = pgTable('expenses', {
   id: uuid().primaryKey().defaultRandom(),
   userId: uuid().notNull(),
@@ -39,6 +44,13 @@ export const expensesTable = pgTable('expenses', {
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 })
+
+export const expensesRelations = relations(expensesTable, ({ one }) => ({
+  category: one(expenseCategoriesTable, {
+    fields: [expensesTable.categoryId],
+    references: [expenseCategoriesTable.id],
+  }),
+}))
 
 export type ExpensesTableRow = typeof expensesTable.$inferSelect
 

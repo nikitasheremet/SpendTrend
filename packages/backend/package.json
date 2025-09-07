@@ -8,7 +8,9 @@
     "test:e2e": "npx playwright test e2e",
     "test:unit": "jest src --passWithNoTests",
     "test:all": "npm run test:unit && npm run test:e2e",
-    "types:lint": "tsc && eslint . --ext .ts"
+    "types:lint": "tsc && eslint . --ext .ts",
+    "e2e:test": "npx playwright test",
+    "db:gen:mig": "npx drizzle-kit generate && npx drizzle-kit migrate"
   },
   "dependencies": {
     "@koa/router": "^12.0.0",
