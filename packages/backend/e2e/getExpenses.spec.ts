@@ -1,57 +1,26 @@
 import { test, expect } from '@playwright/test'
 import { STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
-import { expensesTable } from '../src/db/schema'
+import { expensesTable, expenseCategoriesTable, ExpensesTableRow } from '../src/db/schema'
 import crypto from 'crypto'
 
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Get Expenses Endpoint', () => {
-  test.beforeAll(() => {
+  let fakeExpenseData1: ExpensesTableRow
+  let fakeExpenseData2: ExpensesTableRow
+  let fakeExpenseDataDifferentAccount: ExpensesTableRow
+  let fakeAccountId: string
+
+  test.beforeAll(async () => {
     connectToDb()
+    const { accountId, expenseData1, expenseData2, expenseDataDifferentAccount } =
+      await assignFakeExpenseData()
+    fakeAccountId = accountId
+    fakeExpenseData1 = expenseData1
+    fakeExpenseData2 = expenseData2
+    fakeExpenseDataDifferentAccount = expenseDataDifferentAccount
   })
-  const fakeAccountId = crypto.randomUUID()
-  const fakeExpenseData1 = {
-    userId: '00000000-0000-0000-0000-000000000001',
-    accountId: fakeAccountId,
-    name: 'Groceries',
-    amount: 100,
-    netAmount: 90,
-    date: '2025-08-07',
-    category: 'Food',
-    subCategory: 'Supermarket',
-    paidBackAmount: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }
-
-  const fakeExpenseData2 = {
-    userId: '00000000-0000-0000-0000-000000000001',
-    accountId: fakeAccountId,
-    name: 'Restaurant',
-    amount: 50,
-    netAmount: 50,
-    date: '2025-08-08',
-    category: 'Food',
-    subCategory: 'Dining Out',
-    paidBackAmount: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }
-
-  const fakeExpenseDataDifferentAccount = {
-    userId: '00000000-0000-0000-0000-000000000003',
-    accountId: '00000000-0000-0000-0000-000000000004',
-    name: 'Utilities',
-    amount: 200,
-    netAmount: 180,
-    date: '2025-08-09',
-    category: 'Bills',
-    subCategory: 'Electricity',
-    paidBackAmount: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }
 
   test.describe('when required data fails validation', () => {
     test('should return error message and 422 status code', async ({ request }) => {
@@ -107,7 +76,10 @@ test.describe('Get Expenses Endpoint', () => {
           amount: fakeExpenseData2.amount,
           netAmount: fakeExpenseData2.netAmount,
           date: fakeExpenseData2.date,
-          category: fakeExpenseData2.category,
+          category: expect.objectContaining({
+            name: 'Food',
+            subcategories: ['Supermarket', 'Dining Out'],
+          }),
           subCategory: fakeExpenseData2.subCategory,
           paidBackAmount: fakeExpenseData2.paidBackAmount,
           createdAt: fakeExpenseData2.createdAt.toISOString(),
@@ -123,7 +95,10 @@ test.describe('Get Expenses Endpoint', () => {
           amount: fakeExpenseData1.amount,
           netAmount: fakeExpenseData1.netAmount,
           date: fakeExpenseData1.date,
-          category: fakeExpenseData1.category,
+          category: expect.objectContaining({
+            name: 'Food',
+            subcategories: ['Supermarket', 'Dining Out'],
+          }),
           subCategory: fakeExpenseData1.subCategory,
           paidBackAmount: fakeExpenseData1.paidBackAmount,
           createdAt: fakeExpenseData1.createdAt.toISOString(),
@@ -133,3 +108,74 @@ test.describe('Get Expenses Endpoint', () => {
     })
   })
 })
+
+async function assignFakeExpenseData(): Promise<{
+  accountId: string
+  expenseData1: any
+  expenseData2: any
+  expenseDataDifferentAccount: any
+}> {
+  const fakeAccountId = crypto.randomUUID()
+  const fakeUserId = '00000000-0000-0000-0000-000000000001'
+
+  const [createdCategory] = await db
+    .insert(expenseCategoriesTable)
+    .values({
+      userId: fakeUserId,
+      accountId: fakeAccountId,
+      name: 'Food',
+      subcategories: ['Supermarket', 'Dining Out'],
+    })
+    .returning()
+
+  const fakeExpenseData1 = {
+    userId: fakeUserId,
+    accountId: fakeAccountId,
+    name: 'Groceries',
+    amount: 100,
+    netAmount: 90,
+    date: '2025-08-07',
+    categoryId: createdCategory.id,
+    subCategory: 'Supermarket',
+    paidBackAmount: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const fakeExpenseData2 = {
+    userId: fakeUserId,
+    accountId: fakeAccountId,
+    name: 'Restaurant',
+    amount: 50,
+    netAmount: 50,
+    date: '2025-08-08',
+    categoryId: createdCategory.id,
+    subCategory: 'Dining Out',
+    paidBackAmount: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const fakeAccountId2 = '00000000-0000-0000-0000-000000000004'
+
+  const fakeExpenseDataDifferentAccount = {
+    userId: fakeUserId,
+    accountId: fakeAccountId2,
+    name: 'Utilities',
+    amount: 200,
+    netAmount: 180,
+    date: '2025-08-09',
+    categoryId: createdCategory.id,
+    subCategory: 'Electricity',
+    paidBackAmount: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  return {
+    accountId: fakeAccountId,
+    expenseData1: fakeExpenseData1,
+    expenseData2: fakeExpenseData2,
+    expenseDataDifferentAccount: fakeExpenseDataDifferentAccount,
+  }
+}
