@@ -6,7 +6,6 @@ import {
 import {
   accountIdSchema,
   amountSchema,
-  categorySchema,
   dateSchema,
   idSchema,
   nameSchema,
@@ -14,8 +13,9 @@ import {
   paidBackAmountSchema,
   subCategorySchema,
   userIdSchema,
+  categoryIdSchema,
+  subCategoryIdSchema,
 } from './validationUtils'
-import { categoryIdSchema } from './validationUtils/validateCategoryId'
 
 export const createExpenseInputSchema = z.strictObject(
   {
@@ -26,7 +26,7 @@ export const createExpenseInputSchema = z.strictObject(
     netAmount: netAmountSchema,
     date: dateSchema,
     categoryId: categoryIdSchema,
-    subCategory: subCategorySchema,
+    subCategoryId: subCategoryIdSchema,
     paidBackAmount: paidBackAmountSchema,
   },
   { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
