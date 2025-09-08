@@ -9,6 +9,7 @@ describe('createExpenseRepository', () => {
   const fakeDbQuery = db.query
 
   const fakeCategoryId = 'category-1'
+  const fakeSubCategoryId = 'sub-category-1'
 
   const fakeValidExpense: CreateExpense = {
     userId: 'user-1',
@@ -18,7 +19,7 @@ describe('createExpenseRepository', () => {
     netAmount: 90,
     date: '2025-08-04',
     categoryId: fakeCategoryId,
-    subCategory: 'Groceries',
+    subCategoryId: fakeSubCategoryId,
     paidBackAmount: 0,
   }
 
@@ -51,12 +52,21 @@ describe('createExpenseRepository', () => {
           returning: jest.fn().mockResolvedValue([fakeDbExpense]),
         }),
       })
+      const fakeExpenseSubCategory = {
+        id: fakeSubCategoryId,
+        userId: 'user-1',
+        accountId: 'account-1',
+        categoryId: fakeCategoryId,
+        name: 'Groceries',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
       const fakeExpenseCategoryQueryResponse = {
         id: fakeCategoryId,
         userId: 'user-1',
         accountId: 'account-1',
         name: 'Food',
-        subcategories: ['Groceries'],
+        subCategories: [fakeExpenseSubCategory],
         createdAt: new Date(),
         updatedAt: new Date(),
       }
@@ -78,11 +88,21 @@ describe('createExpenseRepository', () => {
           userId: fakeExpenseCategoryQueryResponse.userId,
           accountId: fakeExpenseCategoryQueryResponse.accountId,
           name: fakeExpenseCategoryQueryResponse.name,
-          subcategories: fakeExpenseCategoryQueryResponse.subcategories,
+          subCategories: [
+            {
+              ...fakeExpenseSubCategory,
+              createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
+              updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
+            },
+          ],
           createdAt: fakeExpenseCategoryQueryResponse.createdAt.toISOString(),
           updatedAt: fakeExpenseCategoryQueryResponse.updatedAt.toISOString(),
         },
-        subCategory: fakeValidExpense.subCategory,
+        subCategory: {
+          ...fakeExpenseSubCategory,
+          createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
+          updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
+        },
         paidBackAmount: fakeValidExpense.paidBackAmount,
         createdAt: fakeDbExpense.createdAt.toISOString(),
         updatedAt: fakeDbExpense.updatedAt.toISOString(),

@@ -4,8 +4,6 @@ import { expenseCategoriesTable, expensesTable } from '../../db/schema'
 import { DB_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 import { Expense } from '../../models/expense/Expense'
 import { dbExpenseToDomainExpense } from '../../utilities/mappers/expense/DBExpenseToDomainExpense'
-import { ExpenseCategoryDbRow } from '../../models/expenseCategory/expenseCategory'
-import { DbExpenseCategoryWithSubCategories } from '../../utilities/mappers/expenseCategory/dBExpenseCategoryToDomain'
 
 export interface CreateExpense {
   userId: string
