@@ -1,5 +1,5 @@
 {
-  "id": "c031845f-7d05-481f-9cc5-f93d36fd2dfc",
+  "id": "e2188a19-98f6-4fe5-8373-9af6c3b0b47a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -30,12 +30,6 @@
         "name": {
           "name": "name",
           "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "subcategories": {
-          "name": "subcategories",
-          "type": "varchar(255)[]",
           "primaryKey": false,
           "notNull": true
         },
@@ -78,6 +72,100 @@
         }
       },
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.expense_subcategories": {
+      "name": "expense_subcategories",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountId": {
+          "name": "accountId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "categoryId": {
+          "name": "categoryId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "categoryId_name": {
+          "name": "categoryId_name",
+          "columns": [
+            {
+              "expression": "categoryId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "expense_subcategories_categoryId_expense_categories_id_fk": {
+          "name": "expense_subcategories_categoryId_expense_categories_id_fk",
+          "tableFrom": "expense_subcategories",
+          "tableTo": "expense_categories",
+          "columnsFrom": [
+            "categoryId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -137,9 +225,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "subCategory": {
-          "name": "subCategory",
-          "type": "varchar(255)",
+        "subCategoryId": {
+          "name": "subCategoryId",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -172,6 +260,19 @@
           "tableTo": "expense_categories",
           "columnsFrom": [
             "categoryId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "expenses_subCategoryId_expense_subcategories_id_fk": {
+          "name": "expenses_subCategoryId_expense_subcategories_id_fk",
+          "tableFrom": "expenses",
+          "tableTo": "expense_subcategories",
+          "columnsFrom": [
+            "subCategoryId"
           ],
           "columnsTo": [
             "id"

@@ -10,6 +10,29 @@ import {
   decimal,
 } from 'drizzle-orm/pg-core'
 
+export const expenseSubcategories = pgTable(
+  'expense_subcategories',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    userId: uuid().notNull(),
+    accountId: uuid().notNull(),
+    name: varchar({ length: 255 }).notNull(),
+    categoryId: uuid()
+      .notNull()
+      .references(() => expenseCategoriesTable.id),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex('categoryId_name').on(table.categoryId, table.name)],
+)
+
+export const expenseSubcategoriesRelations = relations(expenseSubcategories, ({ one }) => ({
+  category: one(expenseCategoriesTable, {
+    fields: [expenseSubcategories.categoryId],
+    references: [expenseCategoriesTable.id],
+  }),
+}))
+
 export const expenseCategoriesTable = pgTable(
   'expense_categories',
   {
@@ -17,7 +40,6 @@ export const expenseCategoriesTable = pgTable(
     userId: uuid().notNull(),
     accountId: uuid().notNull(),
     name: varchar({ length: 255 }).notNull(),
-    subcategories: varchar({ length: 255 }).array().notNull(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
@@ -26,6 +48,7 @@ export const expenseCategoriesTable = pgTable(
 
 export const expenseCategoriesRelations = relations(expenseCategoriesTable, ({ many }) => ({
   expenses: many(expensesTable),
+  subcategories: many(expenseSubcategories),
 }))
 
 export const expensesTable = pgTable('expenses', {
@@ -39,7 +62,9 @@ export const expensesTable = pgTable('expenses', {
   categoryId: uuid()
     .notNull()
     .references(() => expenseCategoriesTable.id),
-  subCategory: varchar({ length: 255 }).notNull(),
+  subCategoryId: uuid()
+    .notNull()
+    .references(() => expenseSubcategories.id),
   netAmount: integer().notNull(),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -49,6 +74,10 @@ export const expensesRelations = relations(expensesTable, ({ one }) => ({
   category: one(expenseCategoriesTable, {
     fields: [expensesTable.categoryId],
     references: [expenseCategoriesTable.id],
+  }),
+  subcategory: one(expenseSubcategories, {
+    fields: [expensesTable.subCategoryId],
+    references: [expenseSubcategories.id],
   }),
 }))
 
