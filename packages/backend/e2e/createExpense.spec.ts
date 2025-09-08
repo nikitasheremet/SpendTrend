@@ -7,21 +7,24 @@ import {
 import crypto from 'crypto'
 import { DB_ERROR } from '../src/models/errors/repositoryErrors'
 import { connectToDb, db } from '../src/db'
-import { expenseCategoriesTable } from '../src/db/schema'
+import { expenseCategoriesTable, expenseSubCategories } from '../src/db/schema'
 import { CreateExpenseInput } from '../src/expense/validation/models'
 import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
+import { ExpenseSubCategoryDbRow } from '../src/models/expenseSubCategory/expenseSubCategory'
 
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Create Expense Endpoint', () => {
   let createdExpenseCategory: ExpenseCategoryDbRow
+  let createdExpenseSubCategory: ExpenseSubCategoryDbRow
   let fakeCreateExpenseInput: CreateExpenseInput
 
   test.beforeAll(async () => {
-    const { createExpenseInput, expenseCategory } =
+    const { createExpenseInput, expenseCategory, expenseSubCategory } =
       await assignFakeCreateExpenseInputAndExpenseCategory()
     fakeCreateExpenseInput = createExpenseInput
     createdExpenseCategory = expenseCategory
+    createdExpenseSubCategory = expenseSubCategory
   })
 
   test.describe('when required data fails validation', () => {
@@ -84,11 +87,29 @@ test.describe('Create Expense Endpoint', () => {
             userId: createdExpenseCategory.userId,
             accountId: createdExpenseCategory.accountId,
             name: createdExpenseCategory.name,
-            subcategories: createdExpenseCategory.subcategories,
+            subCategories: [
+              {
+                id: createdExpenseSubCategory.id,
+                userId: createdExpenseSubCategory.userId,
+                accountId: createdExpenseSubCategory.accountId,
+                categoryId: createdExpenseSubCategory.categoryId,
+                name: createdExpenseSubCategory.name,
+                createdAt: createdExpenseSubCategory.createdAt.toISOString(),
+                updatedAt: createdExpenseSubCategory.updatedAt.toISOString(),
+              },
+            ],
             createdAt: createdExpenseCategory.createdAt.toISOString(),
             updatedAt: createdExpenseCategory.updatedAt.toISOString(),
           },
-          subCategory: fakeCreateExpenseInput.subCategory,
+          subCategory: {
+            id: createdExpenseSubCategory.id,
+            userId: createdExpenseSubCategory.userId,
+            accountId: createdExpenseSubCategory.accountId,
+            categoryId: createdExpenseSubCategory.categoryId,
+            name: createdExpenseSubCategory.name,
+            createdAt: createdExpenseSubCategory.createdAt.toISOString(),
+            updatedAt: createdExpenseSubCategory.updatedAt.toISOString(),
+          },
         }),
       )
     })
@@ -98,6 +119,7 @@ test.describe('Create Expense Endpoint', () => {
 async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
   createExpenseInput: CreateExpenseInput
   expenseCategory: ExpenseCategoryDbRow
+  expenseSubCategory: ExpenseSubCategoryDbRow
 }> {
   connectToDb()
 
@@ -110,7 +132,16 @@ async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
       userId: fakeUserId,
       accountId: fakeAccountId,
       name: 'Sample Category',
-      subcategories: ['SubCat1'],
+    })
+    .returning()
+
+  const [createdSubCategory] = await db
+    .insert(expenseSubCategories)
+    .values({
+      userId: fakeUserId,
+      accountId: fakeAccountId,
+      categoryId: createdCategory.id,
+      name: 'Groceries',
     })
     .returning()
 
@@ -122,12 +153,13 @@ async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
     netAmount: 90,
     date: '2025-08-07',
     categoryId: createdCategory.id,
-    subCategory: 'Supermarket',
+    subCategoryId: createdSubCategory.id,
     paidBackAmount: 0,
   }
 
   return {
     createExpenseInput,
     expenseCategory: createdCategory,
+    expenseSubCategory: createdSubCategory,
   }
 }

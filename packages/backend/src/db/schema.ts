@@ -10,7 +10,7 @@ import {
   decimal,
 } from 'drizzle-orm/pg-core'
 
-export const expenseSubcategories = pgTable(
+export const expenseSubCategories = pgTable(
   'expense_subcategories',
   {
     id: uuid().primaryKey().defaultRandom(),
@@ -26,9 +26,9 @@ export const expenseSubcategories = pgTable(
   (table) => [uniqueIndex('categoryId_name').on(table.categoryId, table.name)],
 )
 
-export const expenseSubcategoriesRelations = relations(expenseSubcategories, ({ one }) => ({
+export const expenseSubCategoriesRelations = relations(expenseSubCategories, ({ one }) => ({
   category: one(expenseCategoriesTable, {
-    fields: [expenseSubcategories.categoryId],
+    fields: [expenseSubCategories.categoryId],
     references: [expenseCategoriesTable.id],
   }),
 }))
@@ -48,7 +48,7 @@ export const expenseCategoriesTable = pgTable(
 
 export const expenseCategoriesRelations = relations(expenseCategoriesTable, ({ many }) => ({
   expenses: many(expensesTable),
-  subcategories: many(expenseSubcategories),
+  subCategories: many(expenseSubCategories),
 }))
 
 export const expensesTable = pgTable('expenses', {
@@ -64,7 +64,7 @@ export const expensesTable = pgTable('expenses', {
     .references(() => expenseCategoriesTable.id),
   subCategoryId: uuid()
     .notNull()
-    .references(() => expenseSubcategories.id),
+    .references(() => expenseSubCategories.id),
   netAmount: integer().notNull(),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -75,9 +75,9 @@ export const expensesRelations = relations(expensesTable, ({ one }) => ({
     fields: [expensesTable.categoryId],
     references: [expenseCategoriesTable.id],
   }),
-  subcategory: one(expenseSubcategories, {
+  subCategory: one(expenseSubCategories, {
     fields: [expensesTable.subCategoryId],
-    references: [expenseSubcategories.id],
+    references: [expenseSubCategories.id],
   }),
 }))
 

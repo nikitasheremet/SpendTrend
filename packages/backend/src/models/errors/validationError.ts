@@ -25,6 +25,8 @@ export const VALIDATION_ERROR_AMOUNT_TYPE = 'Amount must be a number'
 
 export const VALIDATION_ERROR_SUBCATEGORY_MISSING = 'Subcategory must be provided'
 export const VALIDATION_ERROR_SUBCATEGORY_TYPE = 'Subcategory must be a string'
+export const VALIDATION_ERROR_SUBCATEGORY_ID_MISSING = 'Subcategory ID must be provided'
+export const VALIDATION_ERROR_SUBCATEGORY_ID_TYPE = 'Subcategory ID must be a uuid'
 
 export const VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING =
   'Paid back amount must be provided and must be a number'

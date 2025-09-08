@@ -1,11 +1,11 @@
+import { ExpenseCategory } from '../../../models/expenseCategory/expenseCategory'
 import {
-  ExpenseCategory,
-  ExpenseCategoryDbRow,
-} from '../../../models/expenseCategory/expenseCategory'
-import { dbExpenseCategoryToDomain } from './dBExpenseCategoryToDomain'
+  dbExpenseCategoryToDomain,
+  DbExpenseCategoryWithSubCategories,
+} from './dBExpenseCategoryToDomain'
 
 export function dbExpenseCategoriesToDomainCategories(
-  dbExpenseCategories: ExpenseCategoryDbRow[],
+  dbExpenseCategories: DbExpenseCategoryWithSubCategories[],
 ): ExpenseCategory[] {
   return dbExpenseCategories.map(dbExpenseCategoryToDomain)
 }

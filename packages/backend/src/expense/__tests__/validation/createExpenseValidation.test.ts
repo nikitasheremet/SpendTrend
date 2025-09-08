@@ -10,8 +10,6 @@ import {
   VALIDATION_ERROR_DATE_FORMAT,
   VALIDATION_ERROR_CATEGORY_ID_MISSING,
   VALIDATION_ERROR_CATEGORY_ID_TYPE,
-  VALIDATION_ERROR_SUBCATEGORY_MISSING,
-  VALIDATION_ERROR_SUBCATEGORY_TYPE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING,
   VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE,
@@ -25,6 +23,8 @@ import {
   VALIDATION_ERROR_NAME_IS_REQUIRED,
   VALIDATION_ERROR_USERID_EMPTY,
   VALIDATION_ERROR_ACCOUNTID_EMPTY,
+  VALIDATION_ERROR_SUBCATEGORY_ID_MISSING,
+  VALIDATION_ERROR_SUBCATEGORY_ID_TYPE,
 } from '../../../models/errors/validationError'
 import crypto from 'crypto'
 
@@ -35,7 +35,7 @@ describe('validateCreateExpenseInput', () => {
     netAmount: 10,
     date: '2023-01-01',
     categoryId: crypto.randomUUID(),
-    subCategory: 'Dining',
+    subCategoryId: crypto.randomUUID(),
     paidBackAmount: 0,
     userId: 'user-123',
     accountId: 'account-456',
@@ -170,7 +170,7 @@ describe('validateCreateExpenseInput', () => {
       })
     })
   })
-  describe('when the category field is invalid', () => {
+  describe('when the categoryId field is invalid', () => {
     describe('when category is missing', () => {
       it('should throw a ValidationError with the correct message for missing categoryId', () => {
         // Arrange
@@ -193,25 +193,27 @@ describe('validateCreateExpenseInput', () => {
     })
   })
 
-  describe('when the subCategory field is invalid', () => {
-    describe('when subCategory is missing', () => {
-      it('should throw a ValidationError with the correct message for missing subCategory', () => {
+  describe('when the subCategoryId field is invalid', () => {
+    describe('when subCategoryId is missing', () => {
+      it('should throw a ValidationError with the correct message for missing subCategoryId', () => {
         // Arrange
-        const input = { ...validInput, subCategory: undefined }
+        const input = { ...validInput, subCategoryId: undefined }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(
-          VALIDATION_ERROR_SUBCATEGORY_MISSING,
+          VALIDATION_ERROR_SUBCATEGORY_ID_MISSING,
         )
       })
     })
-    describe('when subCategory is not a string', () => {
-      it('should throw a ValidationError with the correct message for non-string subCategory', () => {
+    describe('when subCategoryId is not a string', () => {
+      it('should throw a ValidationError with the correct message for non-string subCategoryId', () => {
         // Arrange
-        const input = { ...validInput, subCategory: 123 }
+        const input = { ...validInput, subCategoryId: 123 }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_SUBCATEGORY_TYPE)
+        expect(() => validateCreateExpenseInput(input)).toThrow(
+          VALIDATION_ERROR_SUBCATEGORY_ID_TYPE,
+        )
       })
     })
   })
