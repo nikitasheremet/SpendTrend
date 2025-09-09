@@ -14,12 +14,26 @@ export async function getExpensesRepository(input: GetExpensesRepositoryInput): 
     const { accountId } = input
 
     const expenses = await db.query.expensesTable.findMany({
-      with: { category: true },
+      with: {
+        category: {
+          with: { subCategories: true },
+        },
+      },
       where: eq(expensesTable.accountId, accountId),
       orderBy: [desc(expensesTable.date)],
     })
 
-    return dbExpensesToDomainExpenses(expenses)
+    const expenseWithCategoriesAndSubcategories = expenses.map((expense) => {
+      const expenseSubcategory = expense.subCategoryId
+        ? expense.category.subCategories.find((sub) => sub.id === expense.subCategoryId)
+        : undefined
+      return {
+        ...expense,
+        subCategory: expenseSubcategory,
+      }
+    })
+
+    return dbExpensesToDomainExpenses(expenseWithCategoriesAndSubcategories)
   } catch (error) {
     console.error(`${DB_ERROR}: GetExpensesRepository,`, error, input.accountId)
     throw new Error(`${DB_ERROR}: Failed to fetch expenses for accountId: ${input.accountId}`)
