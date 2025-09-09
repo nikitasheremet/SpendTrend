@@ -1,9 +1,11 @@
 import { test, expect } from '@playwright/test'
 import { STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
-import { expensesTable, expenseCategoriesTable } from '../src/db/schema'
+import { expensesTable, expenseCategoriesTable, expenseSubCategoriesTable } from '../src/db/schema'
 import crypto from 'crypto'
 import { ExpensesDbRow } from '../src/models/expense/Expense'
+import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
+import { ExpenseSubCategoryDbRow } from '../src/models/expenseSubCategory/expenseSubCategory'
 
 const BASE_URL = 'http://localhost:3000'
 
@@ -11,16 +13,26 @@ test.describe('Get Expenses Endpoint', () => {
   let fakeExpenseData1: ExpensesDbRow
   let fakeExpenseData2: ExpensesDbRow
   let fakeExpenseDataDifferentAccount: ExpensesDbRow
+  let fakeCreatedExpenseCategory: ExpenseCategoryDbRow
+  let fakeCreatedExpenseSubCategory: ExpenseSubCategoryDbRow
   let fakeAccountId: string
 
   test.beforeAll(async () => {
     connectToDb()
-    const { accountId, expenseData1, expenseData2, expenseDataDifferentAccount } =
-      await assignFakeExpenseData()
+    const {
+      accountId,
+      expenseData1,
+      expenseData2,
+      expenseDataDifferentAccount,
+      createdExpenseCategory,
+      createdExpenseSubCategory,
+    } = await assignFakeExpenseData()
     fakeAccountId = accountId
     fakeExpenseData1 = expenseData1
     fakeExpenseData2 = expenseData2
     fakeExpenseDataDifferentAccount = expenseDataDifferentAccount
+    fakeCreatedExpenseCategory = createdExpenseCategory
+    fakeCreatedExpenseSubCategory = createdExpenseSubCategory
   })
 
   test.describe('when required data fails validation', () => {
@@ -68,44 +80,87 @@ test.describe('Get Expenses Endpoint', () => {
 
       // Verify the created expenses are in the response
       const returnedExpenses = body.expenses
-      expect(returnedExpenses[0]).toEqual(
-        expect.objectContaining({
-          id: expense2.id,
-          userId: fakeExpenseData2.userId,
-          accountId: fakeAccountId,
-          name: fakeExpenseData2.name,
-          amount: fakeExpenseData2.amount,
-          netAmount: fakeExpenseData2.netAmount,
-          date: fakeExpenseData2.date,
-          category: expect.objectContaining({
-            name: 'Food',
-            subcategories: ['Supermarket', 'Dining Out'],
-          }),
-          subCategory: fakeExpenseData2.subCategoryId,
-          paidBackAmount: fakeExpenseData2.paidBackAmount,
-          createdAt: fakeExpenseData2.createdAt.toISOString(),
-          updatedAt: fakeExpenseData2.updatedAt.toISOString(),
-        }),
-      )
-      expect(returnedExpenses[1]).toEqual(
-        expect.objectContaining({
-          id: expense1.id,
-          userId: fakeExpenseData1.userId,
-          accountId: fakeAccountId,
-          name: fakeExpenseData1.name,
-          amount: fakeExpenseData1.amount,
-          netAmount: fakeExpenseData1.netAmount,
-          date: fakeExpenseData1.date,
-          category: expect.objectContaining({
-            name: 'Food',
-            subcategories: ['Supermarket', 'Dining Out'],
-          }),
-          subCategory: fakeExpenseData1.subCategoryId,
-          paidBackAmount: fakeExpenseData1.paidBackAmount,
-          createdAt: fakeExpenseData1.createdAt.toISOString(),
-          updatedAt: fakeExpenseData1.updatedAt.toISOString(),
-        }),
-      )
+      expect(returnedExpenses[0]).toEqual({
+        id: expense2.id,
+        userId: fakeExpenseData2.userId,
+        accountId: fakeAccountId,
+        name: fakeExpenseData2.name,
+        amount: fakeExpenseData2.amount,
+        netAmount: fakeExpenseData2.netAmount,
+        date: fakeExpenseData2.date,
+        category: {
+          id: fakeCreatedExpenseCategory.id,
+          name: fakeCreatedExpenseCategory.name,
+          userId: fakeCreatedExpenseCategory.userId,
+          accountId: fakeCreatedExpenseCategory.accountId,
+          subCategories: [
+            {
+              id: fakeCreatedExpenseSubCategory.id,
+              name: fakeCreatedExpenseSubCategory.name,
+              userId: fakeCreatedExpenseSubCategory.userId,
+              accountId: fakeCreatedExpenseSubCategory.accountId,
+              categoryId: fakeCreatedExpenseCategory.id,
+              createdAt: fakeCreatedExpenseSubCategory.createdAt.toISOString(),
+              updatedAt: fakeCreatedExpenseSubCategory.updatedAt.toISOString(),
+            },
+          ],
+          createdAt: fakeCreatedExpenseCategory.createdAt.toISOString(),
+          updatedAt: fakeCreatedExpenseCategory.updatedAt.toISOString(),
+        },
+        subCategory: {
+          id: fakeCreatedExpenseSubCategory.id,
+          name: fakeCreatedExpenseSubCategory.name,
+          userId: fakeCreatedExpenseSubCategory.userId,
+          accountId: fakeCreatedExpenseSubCategory.accountId,
+          categoryId: fakeCreatedExpenseCategory.id,
+          createdAt: fakeCreatedExpenseSubCategory.createdAt.toISOString(),
+          updatedAt: fakeCreatedExpenseSubCategory.updatedAt.toISOString(),
+        },
+        paidBackAmount: fakeExpenseData2.paidBackAmount,
+        createdAt: fakeExpenseData2.createdAt.toISOString(),
+        updatedAt: fakeExpenseData2.updatedAt.toISOString(),
+      })
+
+      expect(returnedExpenses[1]).toEqual({
+        id: expense1.id,
+        userId: fakeExpenseData1.userId,
+        accountId: fakeAccountId,
+        name: fakeExpenseData1.name,
+        amount: fakeExpenseData1.amount,
+        netAmount: fakeExpenseData1.netAmount,
+        date: fakeExpenseData1.date,
+        category: {
+          id: fakeCreatedExpenseCategory.id,
+          name: fakeCreatedExpenseCategory.name,
+          userId: fakeCreatedExpenseCategory.userId,
+          accountId: fakeCreatedExpenseCategory.accountId,
+          subCategories: [
+            {
+              id: fakeCreatedExpenseSubCategory.id,
+              name: fakeCreatedExpenseSubCategory.name,
+              userId: fakeCreatedExpenseSubCategory.userId,
+              accountId: fakeCreatedExpenseSubCategory.accountId,
+              categoryId: fakeCreatedExpenseCategory.id,
+              createdAt: fakeCreatedExpenseSubCategory.createdAt.toISOString(),
+              updatedAt: fakeCreatedExpenseSubCategory.updatedAt.toISOString(),
+            },
+          ],
+          createdAt: fakeCreatedExpenseCategory.createdAt.toISOString(),
+          updatedAt: fakeCreatedExpenseCategory.updatedAt.toISOString(),
+        },
+        subCategory: {
+          id: fakeCreatedExpenseSubCategory.id,
+          name: fakeCreatedExpenseSubCategory.name,
+          userId: fakeCreatedExpenseSubCategory.userId,
+          accountId: fakeCreatedExpenseSubCategory.accountId,
+          categoryId: fakeCreatedExpenseCategory.id,
+          createdAt: fakeCreatedExpenseSubCategory.createdAt.toISOString(),
+          updatedAt: fakeCreatedExpenseSubCategory.updatedAt.toISOString(),
+        },
+        paidBackAmount: fakeExpenseData1.paidBackAmount,
+        createdAt: fakeExpenseData1.createdAt.toISOString(),
+        updatedAt: fakeExpenseData1.updatedAt.toISOString(),
+      })
     })
   })
 })
@@ -115,6 +170,8 @@ async function assignFakeExpenseData(): Promise<{
   expenseData1: any
   expenseData2: any
   expenseDataDifferentAccount: any
+  createdExpenseCategory: ExpenseCategoryDbRow
+  createdExpenseSubCategory: ExpenseSubCategoryDbRow
 }> {
   const fakeAccountId = crypto.randomUUID()
   const fakeUserId = '00000000-0000-0000-0000-000000000001'
@@ -125,7 +182,16 @@ async function assignFakeExpenseData(): Promise<{
       userId: fakeUserId,
       accountId: fakeAccountId,
       name: 'Food',
-      subcategories: ['Supermarket', 'Dining Out'],
+    })
+    .returning()
+
+  const [createdSubCategory] = await db
+    .insert(expenseSubCategoriesTable)
+    .values({
+      userId: fakeUserId,
+      accountId: fakeAccountId,
+      categoryId: createdCategory.id,
+      name: 'Groceries',
     })
     .returning()
 
@@ -137,7 +203,7 @@ async function assignFakeExpenseData(): Promise<{
     netAmount: 90,
     date: '2025-08-07',
     categoryId: createdCategory.id,
-    subCategory: 'Supermarket',
+    subCategoryId: createdSubCategory.id,
     paidBackAmount: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -151,7 +217,7 @@ async function assignFakeExpenseData(): Promise<{
     netAmount: 50,
     date: '2025-08-08',
     categoryId: createdCategory.id,
-    subCategory: 'Dining Out',
+    subCategoryId: createdSubCategory.id,
     paidBackAmount: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -167,7 +233,7 @@ async function assignFakeExpenseData(): Promise<{
     netAmount: 180,
     date: '2025-08-09',
     categoryId: createdCategory.id,
-    subCategory: 'Electricity',
+    subCategoryId: createdSubCategory.id,
     paidBackAmount: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -178,5 +244,7 @@ async function assignFakeExpenseData(): Promise<{
     expenseData1: fakeExpenseData1,
     expenseData2: fakeExpenseData2,
     expenseDataDifferentAccount: fakeExpenseDataDifferentAccount,
+    createdExpenseCategory: createdCategory,
+    createdExpenseSubCategory: createdSubCategory,
   }
 }

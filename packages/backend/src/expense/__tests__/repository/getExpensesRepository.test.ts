@@ -27,27 +27,37 @@ describe('getExpensesRepository', () => {
     })
   })
 
-  describe.skip('when the database returns an array of expenses', () => {
+  describe('when the database returns an array of expenses', () => {
     it('should map the results to the Expense domain type', async () => {
       // Arrange
+      const fakeExpenseSubCategory = {
+        id: 'subcategory-1',
+        userId: 'user-1',
+        accountId: 'account-1',
+        name: 'Groceries',
+        categoryId: 'category-1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
       const fakeExpenseCategory = {
         id: 'category-1',
         userId: 'user-1',
         accountId: 'account-1',
         name: 'Food',
-        subcategories: ['Groceries'],
+        subCategories: [fakeExpenseSubCategory],
         createdAt: new Date(),
         updatedAt: new Date(),
       }
       const fakeDbExpense = {
         id: '1',
         accountId: fakeAccountId,
+        userId: 'user-1',
         name: 'Groceries',
         amount: 100,
         netAmount: 90,
         date: '2025-08-04',
         category: fakeExpenseCategory,
-        subCategory: 'Groceries',
+        subCategoryId: 'subcategory-1',
         paidBackAmount: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -55,11 +65,28 @@ describe('getExpensesRepository', () => {
 
       const expectedExpenses = [
         {
-          ...fakeDbExpense,
+          id: '1',
+          accountId: fakeAccountId,
+          userId: 'user-1',
+          name: 'Groceries',
+          amount: 100,
+          netAmount: 90,
+          date: '2025-08-04',
+          paidBackAmount: 0,
           category: {
             ...fakeDbExpense.category,
+            subCategories: fakeDbExpense.category.subCategories.map((sub) => ({
+              ...sub,
+              createdAt: sub.createdAt.toISOString(),
+              updatedAt: sub.updatedAt.toISOString(),
+            })),
             createdAt: fakeDbExpense.category.createdAt.toISOString(),
             updatedAt: fakeDbExpense.category.updatedAt.toISOString(),
+          },
+          subCategory: {
+            ...fakeExpenseSubCategory,
+            createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
+            updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
           },
           createdAt: fakeDbExpense.createdAt.toISOString(),
           updatedAt: fakeDbExpense.updatedAt.toISOString(),
