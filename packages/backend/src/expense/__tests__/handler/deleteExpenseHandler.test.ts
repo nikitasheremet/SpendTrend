@@ -21,7 +21,7 @@ describe("deleteExpenseHandler", () => {
       } as unknown as Context
     
       beforeEach(() => {
-        //mockService.mockReset()
+        mockService.mockReset()
         jest.resetAllMocks()
       })
 
