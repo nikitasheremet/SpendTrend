@@ -43,7 +43,7 @@ test.describe('Delete Expense Endpoint', () => {
       // Simulate an internal server error by providing an invalid accountId
       const response = await request.post(`${BASE_URL}/deleteexpense`, {
         data: {
-          userId: '00000000-0000-0000-0000-000000000001',
+          userId: crypto.randomUUID(),
           accountId: crypto.randomUUID(),
           expenseId: crypto.randomUUID(),
         },
@@ -70,7 +70,6 @@ test.describe('Delete Expense Endpoint', () => {
 
       expect(response.status()).toBe(STATUS_SUCCESS_200)
       const body = await response.json()
-      expect(body).toHaveProperty('expense')
       expect(body.expense).toEqual(
         expect.objectContaining({
           id: fakeExpenseData1.id,
@@ -122,7 +121,7 @@ async function assignFakeExpenseData(): Promise<{
   subCategory: any
 }> {
   const fakeExpenseId = crypto.randomUUID()
-  const fakeUserId = '00000000-0000-0000-0000-000000000001'
+  const fakeUserId = crypto.randomUUID()
   const fakeAccountId = crypto.randomUUID()
 
   const [createdCategory] = await db
