@@ -9,7 +9,6 @@ import {
 } from '../src/db/schema'
 import crypto from 'crypto'
 import { NOT_FOUND_ERROR } from '../src/models/errors/repositoryErrors'
-import { create } from 'domain'
 
 const BASE_URL = 'http://localhost:3000'
 
