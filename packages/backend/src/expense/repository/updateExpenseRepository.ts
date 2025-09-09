@@ -1,32 +1,48 @@
 import { eq } from 'drizzle-orm'
 import { db } from '../../db'
-import { expenseCategoriesTable, expensesTable, ExpensesTableRow } from '../../db/schema'
-import { Expense } from '../../models/expense/Expense'
+import { expenseCategoriesTable, expensesTable } from '../../db/schema'
+import { Expense, ExpensesDbRow } from '../../models/expense/Expense'
 import { dbExpenseToDomainExpense } from '../../utilities/mappers/expense/DBExpenseToDomainExpense'
-import { NOT_FOUND_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
-import { ExpenseCategoryDbRow } from '../../models/expenseCategory/expenseCategory'
+import { DB_ERROR, NOT_FOUND_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 
 export interface UpdateExpenseRepository {
   id: string
-  fieldsToUpdate: Partial<ExpensesTableRow>
+  fieldsToUpdate: Partial<ExpensesDbRow>
 }
 
 export async function updateExpenseRepository(input: UpdateExpenseRepository): Promise<Expense> {
-  const [updatedRow] = await db
+  const [updateExpense] = await db
     .update(expensesTable)
     .set(input.fieldsToUpdate)
     .where(eq(expensesTable.id, input.id))
     .returning()
 
-  if (!updatedRow) {
+  if (!updateExpense) {
     throw new RepositoryError(
       `${NOT_FOUND_ERROR} - No expense found to update with id: ${input.id}`,
     )
   }
 
-  const expenseCategory = (await db.query.expenseCategoriesTable.findFirst({
-    where: eq(expenseCategoriesTable.id, updatedRow.categoryId),
-  })) as ExpenseCategoryDbRow
+  const expenseCategory = await db.query.expenseCategoriesTable.findFirst({
+    where: eq(expenseCategoriesTable.id, updateExpense.categoryId),
+    with: { subCategories: true },
+  })
+  if (!expenseCategory)
+    throw new RepositoryError(
+      `${DB_ERROR}: Expense category not found after expense creation. Possible race condition. Expected Expense Category: ${updateExpense.categoryId}. ExpenseId: ${updateExpense.id}`,
+    )
 
-  return dbExpenseToDomainExpense({ ...updatedRow, category: expenseCategory })
+  const expenseSubCategory = expenseCategory.subCategories.find(
+    (sub) => sub.id === updateExpense.subCategoryId,
+  )
+  if (!expenseSubCategory)
+    throw new RepositoryError(
+      `${DB_ERROR}: Expense subCategory not found after expense creation. Possible race condition. Expected Expense SubCategory: ${updateExpense.subCategoryId}. ExpenseId: ${updateExpense.id}`,
+    )
+
+  return dbExpenseToDomainExpense({
+    ...updateExpense,
+    category: expenseCategory,
+    subCategory: expenseSubCategory,
+  })
 }

@@ -1,5 +1,4 @@
-import { ExpensesTableRow } from '../../../db/schema'
-import { Expense } from '../../../models/expense/Expense'
+import { Expense, ExpensesDbRow } from '../../../models/expense/Expense'
 import { ExpenseSubCategoryDbRow } from '../../../models/expenseSubCategory/expenseSubCategory'
 import {
   dbExpenseCategoryToDomain,
@@ -7,7 +6,7 @@ import {
 } from '../expenseCategory/dBExpenseCategoryToDomain'
 import { dbExpenseSubCategoryToDomain } from '../expenseSubCategory/dbExpenseSubCategoryToDomain'
 
-export interface DbExpenseWithExpenseCategory extends Omit<ExpensesTableRow, 'categoryId'> {
+export interface DbExpenseWithExpenseCategory extends Omit<ExpensesDbRow, 'categoryId'> {
   category: DbExpenseCategoryWithSubCategories
   subCategory: ExpenseSubCategoryDbRow
 }

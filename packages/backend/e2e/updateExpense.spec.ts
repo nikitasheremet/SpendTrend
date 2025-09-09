@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
-import { expenseCategoriesTable, expensesTable } from '../src/db/schema'
+import { expenseCategoriesTable, expensesTable, expenseSubCategoriesTable } from '../src/db/schema'
 import crypto from 'crypto'
 import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
 import { CreateExpense } from '../src/expense/repository/createExpenseRepository'
@@ -122,7 +122,16 @@ async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
       userId: fakeUserId,
       accountId: fakeAccountId,
       name: 'Sample Category',
-      subcategories: ['SubCat1'],
+    })
+    .returning()
+
+  const [createdSubCategory] = await db
+    .insert(expenseSubCategoriesTable)
+    .values({
+      userId: fakeUserId,
+      accountId: fakeAccountId,
+      categoryId: createdCategory.id,
+      name: 'Groceries',
     })
     .returning()
 
@@ -134,7 +143,7 @@ async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
     netAmount: 90,
     date: '2025-08-07',
     categoryId: createdCategory.id,
-    subCategory: 'Supermarket',
+    subCategoryId: createdSubCategory.id,
     paidBackAmount: 0,
     createdAt: new Date(),
     updatedAt: new Date(),

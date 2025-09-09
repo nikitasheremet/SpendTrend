@@ -7,7 +7,7 @@ import {
 import crypto from 'crypto'
 import { DB_ERROR } from '../src/models/errors/repositoryErrors'
 import { connectToDb, db } from '../src/db'
-import { expenseCategoriesTable, expenseSubCategories } from '../src/db/schema'
+import { expenseCategoriesTable, expenseSubCategoriesTable } from '../src/db/schema'
 import { CreateExpenseInput } from '../src/expense/validation/models'
 import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
 import { ExpenseSubCategoryDbRow } from '../src/models/expenseSubCategory/expenseSubCategory'
@@ -136,7 +136,7 @@ async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
     .returning()
 
   const [createdSubCategory] = await db
-    .insert(expenseSubCategories)
+    .insert(expenseSubCategoriesTable)
     .values({
       userId: fakeUserId,
       accountId: fakeAccountId,
