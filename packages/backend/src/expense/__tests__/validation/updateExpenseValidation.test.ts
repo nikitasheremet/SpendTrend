@@ -13,10 +13,10 @@ import {
   VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
   VALIDATION_ERROR_DATE_TYPE,
   VALIDATION_ERROR_DATE_EMPTY,
-  VALIDATION_ERROR_SUBCATEGORY_TYPE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE,
   VALIDATION_ERROR_CATEGORY_ID_TYPE,
+  VALIDATION_ERROR_SUBCATEGORY_ID_TYPE,
 } from '../../../models/errors/validationError'
 
 describe('validateUpdateExpenseInput', () => {
@@ -27,7 +27,7 @@ describe('validateUpdateExpenseInput', () => {
     netAmount: 90,
     date: '2025-08-22',
     categoryId: '123e4567-e89b-12d3-a456-426614174001',
-    subCategory: 'Groceries',
+    subCategoryId: '123e4567-e89b-12d3-a456-426614174002',
     paidBackAmount: 0,
   }
 
@@ -137,12 +137,12 @@ describe('validateUpdateExpenseInput', () => {
     })
   })
 
-  describe('when "subCategory" is present and is invalid', () => {
-    it('should throw an error if subCategory is not a string', () => {
-      const fakeInvalidInput = { ...fakeValidInput, subCategory: 123 }
+  describe('when "subCategoryId" is present and is invalid', () => {
+    it('should throw an error if subCategoryId is not a uuid', () => {
+      const fakeInvalidInput = { ...fakeValidInput, subCategoryId: 123 }
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
-        VALIDATION_ERROR_SUBCATEGORY_TYPE,
+        VALIDATION_ERROR_SUBCATEGORY_ID_TYPE,
       )
     })
   })

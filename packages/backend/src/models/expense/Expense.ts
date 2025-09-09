@@ -1,3 +1,4 @@
+import { expensesTable } from '../../db/schema'
 import { ExpenseCategory } from '../expenseCategory/expenseCategory'
 import { ExpenseSubCategory } from '../expenseSubCategory/expenseSubCategory'
 
@@ -15,3 +16,5 @@ export interface Expense {
   createdAt: string // Timestamp with timezone
   updatedAt: string // Timestamp with timezone
 }
+
+export type ExpensesDbRow = typeof expensesTable.$inferSelect

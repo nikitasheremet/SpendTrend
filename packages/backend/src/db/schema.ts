@@ -10,7 +10,7 @@ import {
   decimal,
 } from 'drizzle-orm/pg-core'
 
-export const expenseSubCategories = pgTable(
+export const expenseSubCategoriesTable = pgTable(
   'expense_subcategories',
   {
     id: uuid().primaryKey().defaultRandom(),
@@ -26,9 +26,9 @@ export const expenseSubCategories = pgTable(
   (table) => [uniqueIndex('categoryId_name').on(table.categoryId, table.name)],
 )
 
-export const expenseSubCategoriesRelations = relations(expenseSubCategories, ({ one }) => ({
+export const expenseSubCategoriesRelations = relations(expenseSubCategoriesTable, ({ one }) => ({
   category: one(expenseCategoriesTable, {
-    fields: [expenseSubCategories.categoryId],
+    fields: [expenseSubCategoriesTable.categoryId],
     references: [expenseCategoriesTable.id],
   }),
 }))
@@ -48,7 +48,7 @@ export const expenseCategoriesTable = pgTable(
 
 export const expenseCategoriesRelations = relations(expenseCategoriesTable, ({ many }) => ({
   expenses: many(expensesTable),
-  subCategories: many(expenseSubCategories),
+  subCategories: many(expenseSubCategoriesTable),
 }))
 
 export const expensesTable = pgTable('expenses', {
@@ -64,7 +64,7 @@ export const expensesTable = pgTable('expenses', {
     .references(() => expenseCategoriesTable.id),
   subCategoryId: uuid()
     .notNull()
-    .references(() => expenseSubCategories.id),
+    .references(() => expenseSubCategoriesTable.id),
   netAmount: integer().notNull(),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -75,13 +75,11 @@ export const expensesRelations = relations(expensesTable, ({ one }) => ({
     fields: [expensesTable.categoryId],
     references: [expenseCategoriesTable.id],
   }),
-  subCategory: one(expenseSubCategories, {
+  subCategory: one(expenseSubCategoriesTable, {
     fields: [expensesTable.subCategoryId],
-    references: [expenseSubCategories.id],
+    references: [expenseSubCategoriesTable.id],
   }),
 }))
-
-export type ExpensesTableRow = typeof expensesTable.$inferSelect
 
 export const incomeTable = pgTable('income', {
   id: uuid().primaryKey().defaultRandom(),

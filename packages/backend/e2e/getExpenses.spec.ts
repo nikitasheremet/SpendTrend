@@ -1,15 +1,16 @@
 import { test, expect } from '@playwright/test'
 import { STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
-import { expensesTable, expenseCategoriesTable, ExpensesTableRow } from '../src/db/schema'
+import { expensesTable, expenseCategoriesTable } from '../src/db/schema'
 import crypto from 'crypto'
+import { ExpensesDbRow } from '../src/models/expense/Expense'
 
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Get Expenses Endpoint', () => {
-  let fakeExpenseData1: ExpensesTableRow
-  let fakeExpenseData2: ExpensesTableRow
-  let fakeExpenseDataDifferentAccount: ExpensesTableRow
+  let fakeExpenseData1: ExpensesDbRow
+  let fakeExpenseData2: ExpensesDbRow
+  let fakeExpenseDataDifferentAccount: ExpensesDbRow
   let fakeAccountId: string
 
   test.beforeAll(async () => {
@@ -80,7 +81,7 @@ test.describe('Get Expenses Endpoint', () => {
             name: 'Food',
             subcategories: ['Supermarket', 'Dining Out'],
           }),
-          subCategory: fakeExpenseData2.subCategory,
+          subCategory: fakeExpenseData2.subCategoryId,
           paidBackAmount: fakeExpenseData2.paidBackAmount,
           createdAt: fakeExpenseData2.createdAt.toISOString(),
           updatedAt: fakeExpenseData2.updatedAt.toISOString(),
@@ -99,7 +100,7 @@ test.describe('Get Expenses Endpoint', () => {
             name: 'Food',
             subcategories: ['Supermarket', 'Dining Out'],
           }),
-          subCategory: fakeExpenseData1.subCategory,
+          subCategory: fakeExpenseData1.subCategoryId,
           paidBackAmount: fakeExpenseData1.paidBackAmount,
           createdAt: fakeExpenseData1.createdAt.toISOString(),
           updatedAt: fakeExpenseData1.updatedAt.toISOString(),

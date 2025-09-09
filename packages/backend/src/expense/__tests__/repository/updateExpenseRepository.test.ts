@@ -4,7 +4,8 @@ import {
 } from '../../repository/updateExpenseRepository'
 import { db } from '../../../db'
 import { RepositoryError, NOT_FOUND_ERROR } from '../../../models/errors/repositoryErrors'
-import { ExpensesTableRow } from '../../../db/schema'
+import { ExpensesDbRow } from '../../../models/expense/Expense'
+import { ExpenseSubCategoryDbRow } from '../../../models/expenseSubCategory/expenseSubCategory'
 
 jest.mock('../../../db')
 
@@ -43,7 +44,7 @@ describe('updateExpenseRepository', () => {
 
   describe('when the database update succeeds', () => {
     it('should return an Expense object', async () => {
-      const fakeDbExpense: ExpensesTableRow = {
+      const fakeDbExpense: ExpensesDbRow = {
         id: 'expense-1',
         userId: 'user-1',
         accountId: 'account-1',
@@ -52,8 +53,18 @@ describe('updateExpenseRepository', () => {
         netAmount: 300,
         date: '2025-08-23',
         categoryId: 'category-1',
-        subCategory: 'Coffee',
+        subCategoryId: 'sub-category-1',
         paidBackAmount: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+
+      const fakeExpenseSubCategory: ExpenseSubCategoryDbRow = {
+        id: 'sub-category-1',
+        userId: 'user-1',
+        accountId: 'account-1',
+        name: 'Coffee',
+        categoryId: 'category-1',
         createdAt: new Date(),
         updatedAt: new Date(),
       }
@@ -63,7 +74,7 @@ describe('updateExpenseRepository', () => {
         userId: 'user-1',
         accountId: 'account-1',
         name: 'Food',
-        subcategories: ['Groceries'],
+        subCategories: [fakeExpenseSubCategory],
         createdAt: new Date(),
         updatedAt: new Date(),
       }
@@ -75,25 +86,41 @@ describe('updateExpenseRepository', () => {
 
       const result = await updateExpenseRepository(fakeInput)
 
-      expect(result).toEqual(
-        expect.objectContaining({
-          id: 'expense-1',
-          category: {
-            ...fakeExpenseCategory,
-            createdAt: fakeExpenseCategory.createdAt.toISOString(),
-            updatedAt: fakeExpenseCategory.updatedAt.toISOString(),
-          },
-          createdAt: fakeDbExpense.createdAt.toISOString(),
-          updatedAt: fakeDbExpense.updatedAt.toISOString(),
-        }),
-      )
-      expect(result).not.toHaveProperty('categoryId')
+      expect(result).toEqual({
+        id: 'expense-1',
+        userId: 'user-1',
+        accountId: 'account-1',
+        name: 'Coffee',
+        amount: 300,
+        netAmount: 300,
+        date: '2025-08-23',
+        paidBackAmount: 0,
+        category: {
+          ...fakeExpenseCategory,
+          subCategories: [
+            {
+              ...fakeExpenseSubCategory,
+              createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
+              updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
+            },
+          ],
+          createdAt: fakeExpenseCategory.createdAt.toISOString(),
+          updatedAt: fakeExpenseCategory.updatedAt.toISOString(),
+        },
+        subCategory: {
+          ...fakeExpenseSubCategory,
+          createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
+          updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
+        },
+        createdAt: fakeDbExpense.createdAt.toISOString(),
+        updatedAt: fakeDbExpense.updatedAt.toISOString(),
+      })
     })
   })
 
   describe('when the database returning returns an empty array', () => {
     it('should throw a repository error indicating no expense could be found', async () => {
-      const fakeNoExpensesUpdated = [] as ExpensesTableRow[]
+      const fakeNoExpensesUpdated = [] as ExpensesDbRow[]
       returningMock.mockResolvedValueOnce(fakeNoExpensesUpdated)
 
       const promise = updateExpenseRepository(fakeInput)
