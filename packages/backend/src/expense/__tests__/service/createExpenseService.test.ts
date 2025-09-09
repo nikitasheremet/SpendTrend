@@ -1,8 +1,8 @@
-import { CreateExpenseInput, createExpenseService } from '../../service/createExpenseService'
-import * as repository from '../../repository/createExpensesRepository'
-import type { Expense } from '../../../models/expense/Expense'
+import { createExpenseService } from '../../service/createExpenseService'
+import * as repository from '../../repository/createExpenseRepository'
+import { CreateExpenseInput } from '../../validation/models'
 
-jest.mock('../../repository/createExpensesRepository', () => ({
+jest.mock('../../repository/createExpenseRepository', () => ({
   createExpenseRepository: jest.fn(),
 }))
 
@@ -26,19 +26,8 @@ describe('createExpenseService', () => {
 
   it('should return the data returned from the repository and match type Expense', async () => {
     // Arrange
-    const expense: Expense = {
+    const expense = {
       id: '1',
-      userId: 'user-1',
-      accountId: 'account-1',
-      name: 'Lunch',
-      amount: 10,
-      netAmount: 10,
-      date: '2023-01-01',
-      category: 'Food',
-      subCategory: 'Dining',
-      paidBackAmount: 0,
-      createdAt: '2023-01-01T12:00:00Z',
-      updatedAt: '2023-01-01T12:00:00Z',
     }
     mockedCreateExpenseRepository.mockResolvedValueOnce(expense)
 

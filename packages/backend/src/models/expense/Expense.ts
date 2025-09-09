@@ -1,3 +1,6 @@
+import { ExpenseCategory } from '../expenseCategory/expenseCategory'
+import { ExpenseSubCategory } from '../expenseSubCategory/expenseSubCategory'
+
 export interface Expense {
   id: string // UUID
   userId: string // UUID
@@ -6,8 +9,8 @@ export interface Expense {
   amount: number
   netAmount: number
   date: string // YYYY-MM-DD
-  category: string
-  subCategory: string
+  category: ExpenseCategory
+  subCategory: ExpenseSubCategory
   paidBackAmount: number
   createdAt: string // Timestamp with timezone
   updatedAt: string // Timestamp with timezone

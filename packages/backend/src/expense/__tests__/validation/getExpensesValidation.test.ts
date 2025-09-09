@@ -5,6 +5,8 @@ import {
   VALIDATION_ERROR_USERID_TYPE,
   VALIDATION_ERROR_ACCOUNTID_MISSING,
   VALIDATION_ERROR_ACCOUNTID_TYPE,
+  VALIDATION_ERROR_USERID_EMPTY,
+  VALIDATION_ERROR_ACCOUNTID_EMPTY,
 } from '../../../models/errors/validationError'
 
 describe('validateGetExpensesInput', () => {
@@ -23,7 +25,7 @@ describe('validateGetExpensesInput', () => {
     it('should throw a ValidationError for empty userId', () => {
       const input = { ...validInput, userId: '' }
       expect(() => validateGetExpensesInput(input)).toThrow(ValidationError)
-      expect(() => validateGetExpensesInput(input)).toThrow(VALIDATION_ERROR_USERID_MISSING)
+      expect(() => validateGetExpensesInput(input)).toThrow(VALIDATION_ERROR_USERID_EMPTY)
     })
 
     it('should throw a ValidationError for non-string userId', () => {
@@ -43,7 +45,7 @@ describe('validateGetExpensesInput', () => {
     it('should throw a ValidationError for empty accountId', () => {
       const input = { ...validInput, accountId: '' }
       expect(() => validateGetExpensesInput(input)).toThrow(ValidationError)
-      expect(() => validateGetExpensesInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_MISSING)
+      expect(() => validateGetExpensesInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_EMPTY)
     })
 
     it('should throw a ValidationError for non-string accountId', () => {

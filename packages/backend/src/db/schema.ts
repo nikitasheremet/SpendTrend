@@ -1,5 +1,56 @@
+import { relations } from 'drizzle-orm'
 import { uuid } from 'drizzle-orm/pg-core'
-import { integer, pgTable, varchar, index, date, timestamp } from 'drizzle-orm/pg-core'
+import {
+  integer,
+  pgTable,
+  varchar,
+  uniqueIndex,
+  date,
+  timestamp,
+  decimal,
+} from 'drizzle-orm/pg-core'
+
+export const expenseSubCategories = pgTable(
+  'expense_subcategories',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    userId: uuid().notNull(),
+    accountId: uuid().notNull(),
+    name: varchar({ length: 255 }).notNull(),
+    categoryId: uuid()
+      .notNull()
+      .references(() => expenseCategoriesTable.id),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex('categoryId_name').on(table.categoryId, table.name)],
+)
+
+export const expenseSubCategoriesRelations = relations(expenseSubCategories, ({ one }) => ({
+  category: one(expenseCategoriesTable, {
+    fields: [expenseSubCategories.categoryId],
+    references: [expenseCategoriesTable.id],
+  }),
+}))
+
+export const expenseCategoriesTable = pgTable(
+  'expense_categories',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    userId: uuid().notNull(),
+    accountId: uuid().notNull(),
+    name: varchar({ length: 255 }).notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex('accountId_name').on(table.accountId, table.name)],
+)
+
+export const expenseCategoriesRelations = relations(expenseCategoriesTable, ({ many }) => ({
+  expenses: many(expensesTable),
+  subCategories: many(expenseSubCategories),
+}))
+
 export const expensesTable = pgTable('expenses', {
   id: uuid().primaryKey().defaultRandom(),
   userId: uuid().notNull(),
@@ -8,21 +59,37 @@ export const expensesTable = pgTable('expenses', {
   amount: integer().notNull(),
   date: date().notNull(),
   paidBackAmount: integer().notNull(),
-  category: varchar({ length: 255 }).notNull(),
-  subCategory: varchar({ length: 255 }).notNull(),
+  categoryId: uuid()
+    .notNull()
+    .references(() => expenseCategoriesTable.id),
+  subCategoryId: uuid()
+    .notNull()
+    .references(() => expenseSubCategories.id),
   netAmount: integer().notNull(),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 })
 
+export const expensesRelations = relations(expensesTable, ({ one }) => ({
+  category: one(expenseCategoriesTable, {
+    fields: [expensesTable.categoryId],
+    references: [expenseCategoriesTable.id],
+  }),
+  subCategory: one(expenseSubCategories, {
+    fields: [expensesTable.subCategoryId],
+    references: [expenseSubCategories.id],
+  }),
+}))
+
 export type ExpensesTableRow = typeof expensesTable.$inferSelect
 
-export const expenseCategoriesTable = pgTable(
-  'expense_categories',
-  {
-    userId: integer().notNull(),
-    name: varchar({ length: 255 }).notNull(),
-    subcategories: varchar({ length: 255 }).array().notNull(),
-  },
-  (table) => [index('userId_name').on(table.userId, table.name)],
-)
+export const incomeTable = pgTable('income', {
+  id: uuid().primaryKey().defaultRandom(),
+  userId: uuid().notNull(),
+  accountId: uuid().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  amount: decimal().notNull(),
+  date: date().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+})

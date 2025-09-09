@@ -7,7 +7,10 @@
     "dev": "tsx src/server.ts",
     "test:e2e": "npx playwright test e2e",
     "test:unit": "jest src --passWithNoTests",
-    "test:all": "npm run test:unit && npm run test:e2e"
+    "test:all": "npm run test:unit && npm run test:e2e",
+    "types:lint": "tsc && eslint . --ext .ts",
+    "e2e:test": "npx playwright test",
+    "db:gen:mig": "npx drizzle-kit generate && npx drizzle-kit migrate"
   },
   "dependencies": {
     "@koa/router": "^12.0.0",
@@ -15,7 +18,8 @@
     "drizzle-orm": "^0.44.2",
     "koa": "^2.15.0",
     "koa-bodyparser": "^4.4.1",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "zod": "^4.1.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.2",

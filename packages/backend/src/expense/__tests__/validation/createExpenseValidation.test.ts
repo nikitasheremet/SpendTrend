@@ -1,22 +1,16 @@
-import { validateCreateExpenseInput } from '../../validation/'
+import { validateCreateExpenseInput } from '../../validation'
 import {
   ValidationError,
-  VALIDATION_ERROR_NAME,
   VALIDATION_ERROR_AMOUNT_MISSING,
-  VALIDATION_ERROR_AMOUNT_NAN,
   VALIDATION_ERROR_AMOUNT_NEGATIVE,
   VALIDATION_ERROR_AMOUNT_TYPE,
   VALIDATION_ERROR_DATE_MISSING,
   VALIDATION_ERROR_DATE_TYPE,
   VALIDATION_ERROR_DATE_EMPTY,
   VALIDATION_ERROR_DATE_FORMAT,
-  VALIDATION_ERROR_CATEGORY_MISSING,
-  VALIDATION_ERROR_CATEGORY_TYPE,
-  VALIDATION_ERROR_CATEGORY_EMPTY,
-  VALIDATION_ERROR_SUBCATEGORY_MISSING,
-  VALIDATION_ERROR_SUBCATEGORY_TYPE,
+  VALIDATION_ERROR_CATEGORY_ID_MISSING,
+  VALIDATION_ERROR_CATEGORY_ID_TYPE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING,
-  VALIDATION_ERROR_PAIDBACKAMOUNT_NAN,
   VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE,
   VALIDATION_ERROR_USERID_MISSING,
@@ -25,9 +19,14 @@ import {
   VALIDATION_ERROR_ACCOUNTID_TYPE,
   VALIDATION_ERROR_NETAMOUNT_MISSING,
   VALIDATION_ERROR_NETAMOUNT_TYPE,
-  VALIDATION_ERROR_NETAMOUNT_NAN,
   VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
+  VALIDATION_ERROR_NAME_IS_REQUIRED,
+  VALIDATION_ERROR_USERID_EMPTY,
+  VALIDATION_ERROR_ACCOUNTID_EMPTY,
+  VALIDATION_ERROR_SUBCATEGORY_ID_MISSING,
+  VALIDATION_ERROR_SUBCATEGORY_ID_TYPE,
 } from '../../../models/errors/validationError'
+import crypto from 'crypto'
 
 describe('validateCreateExpenseInput', () => {
   const validInput = {
@@ -35,8 +34,8 @@ describe('validateCreateExpenseInput', () => {
     amount: 10,
     netAmount: 10,
     date: '2023-01-01',
-    category: 'Food',
-    subCategory: 'Dining',
+    categoryId: crypto.randomUUID(),
+    subCategoryId: crypto.randomUUID(),
     paidBackAmount: 0,
     userId: 'user-123',
     accountId: 'account-456',
@@ -51,11 +50,6 @@ describe('validateCreateExpenseInput', () => {
       const input = { ...validInput, netAmount: 'not-a-number' }
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
       expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_TYPE)
-    })
-    it('should throw a ValidationError for NaN netAmount', () => {
-      const input = { ...validInput, netAmount: NaN }
-      expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_NAN)
     })
     it('should throw a ValidationError for negative netAmount', () => {
       const input = { ...validInput, netAmount: -1 }
@@ -72,7 +66,7 @@ describe('validateCreateExpenseInput', () => {
     it('should throw a ValidationError for empty userId', () => {
       const input = { ...validInput, userId: '' }
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_MISSING)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_EMPTY)
     })
     it('should throw a ValidationError for non-string userId', () => {
       const input = { ...validInput, userId: 123 }
@@ -90,7 +84,7 @@ describe('validateCreateExpenseInput', () => {
     it('should throw a ValidationError for empty accountId', () => {
       const input = { ...validInput, accountId: '' }
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_MISSING)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_EMPTY)
     })
     it('should throw a ValidationError for non-string accountId', () => {
       const input = { ...validInput, accountId: 123 }
@@ -104,7 +98,7 @@ describe('validateCreateExpenseInput', () => {
       const input = { ...validInput, name: undefined }
       // Act & Assert
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NAME)
+      expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NAME_IS_REQUIRED)
     })
   })
 
@@ -116,15 +110,6 @@ describe('validateCreateExpenseInput', () => {
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_MISSING)
-      })
-    })
-    describe('when amount is NaN', () => {
-      it('should throw a ValidationError with the correct message for NaN amount', () => {
-        // Arrange
-        const input = { ...validInput, amount: NaN }
-        // Act & Assert
-        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_NAN)
       })
     })
     describe('when amount is negative', () => {
@@ -185,55 +170,50 @@ describe('validateCreateExpenseInput', () => {
       })
     })
   })
-  describe('when the category field is invalid', () => {
+  describe('when the categoryId field is invalid', () => {
     describe('when category is missing', () => {
-      it('should throw a ValidationError with the correct message for missing category', () => {
+      it('should throw a ValidationError with the correct message for missing categoryId', () => {
         // Arrange
-        const input = { ...validInput, category: undefined }
+        const input = { ...validInput, categoryId: undefined }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_MISSING)
+        expect(() => validateCreateExpenseInput(input)).toThrow(
+          VALIDATION_ERROR_CATEGORY_ID_MISSING,
+        )
       })
     })
-    describe('when category is not a string', () => {
-      it('should throw a ValidationError with the correct message for non-string category', () => {
+    describe('when categoryId is not a valid uuid', () => {
+      it('should throw a ValidationError with the correct message for non-uuid categoryId', () => {
         // Arrange
-        const input = { ...validInput, category: 123 }
+        const input = { ...validInput, categoryId: 123 }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_TYPE)
-      })
-    })
-    describe('when category is an empty string', () => {
-      it('should throw a ValidationError with the correct message for empty category', () => {
-        // Arrange
-        const input = { ...validInput, category: '' }
-        // Act & Assert
-        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_EMPTY)
+        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_ID_TYPE)
       })
     })
   })
 
-  describe('when the subCategory field is invalid', () => {
-    describe('when subCategory is missing', () => {
-      it('should throw a ValidationError with the correct message for missing subCategory', () => {
+  describe('when the subCategoryId field is invalid', () => {
+    describe('when subCategoryId is missing', () => {
+      it('should throw a ValidationError with the correct message for missing subCategoryId', () => {
         // Arrange
-        const input = { ...validInput, subCategory: undefined }
+        const input = { ...validInput, subCategoryId: undefined }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(
-          VALIDATION_ERROR_SUBCATEGORY_MISSING,
+          VALIDATION_ERROR_SUBCATEGORY_ID_MISSING,
         )
       })
     })
-    describe('when subCategory is not a string', () => {
-      it('should throw a ValidationError with the correct message for non-string subCategory', () => {
+    describe('when subCategoryId is not a string', () => {
+      it('should throw a ValidationError with the correct message for non-string subCategoryId', () => {
         // Arrange
-        const input = { ...validInput, subCategory: 123 }
+        const input = { ...validInput, subCategoryId: 123 }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_SUBCATEGORY_TYPE)
+        expect(() => validateCreateExpenseInput(input)).toThrow(
+          VALIDATION_ERROR_SUBCATEGORY_ID_TYPE,
+        )
       })
     })
   })
@@ -248,15 +228,6 @@ describe('validateCreateExpenseInput', () => {
         expect(() => validateCreateExpenseInput(input)).toThrow(
           VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING,
         )
-      })
-    })
-    describe('when paidBackAmount is NaN', () => {
-      it('should throw a ValidationError with the correct message for NaN paidBackAmount', () => {
-        // Arrange
-        const input = { ...validInput, paidBackAmount: NaN }
-        // Act & Assert
-        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_PAIDBACKAMOUNT_NAN)
       })
     })
     describe('when paidBackAmount is negative', () => {

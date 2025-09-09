@@ -1,7 +1,18 @@
 import { ExpensesTableRow } from '../../../db/schema'
 import { Expense } from '../../../models/expense/Expense'
+import { ExpenseSubCategoryDbRow } from '../../../models/expenseSubCategory/expenseSubCategory'
+import {
+  dbExpenseCategoryToDomain,
+  DbExpenseCategoryWithSubCategories,
+} from '../expenseCategory/dBExpenseCategoryToDomain'
+import { dbExpenseSubCategoryToDomain } from '../expenseSubCategory/dbExpenseSubCategoryToDomain'
 
-export function dbExpenseToDomainExpense(dbExpense: ExpensesTableRow): Expense {
+export interface DbExpenseWithExpenseCategory extends Omit<ExpensesTableRow, 'categoryId'> {
+  category: DbExpenseCategoryWithSubCategories
+  subCategory: ExpenseSubCategoryDbRow
+}
+
+export function dbExpenseToDomainExpense(dbExpense: DbExpenseWithExpenseCategory): Expense {
   return {
     id: dbExpense.id,
     userId: dbExpense.userId,
@@ -10,14 +21,14 @@ export function dbExpenseToDomainExpense(dbExpense: ExpensesTableRow): Expense {
     amount: dbExpense.amount,
     netAmount: dbExpense.netAmount,
     date: dbExpense.date,
-    category: dbExpense.category,
-    subCategory: dbExpense.subCategory,
+    category: dbExpenseCategoryToDomain(dbExpense.category),
+    subCategory: dbExpenseSubCategoryToDomain(dbExpense.subCategory),
     paidBackAmount: dbExpense.paidBackAmount,
     createdAt: dbExpense.createdAt.toISOString(),
     updatedAt: dbExpense.updatedAt.toISOString(),
   }
 }
 
-export function dbExpensesToDomainExpenses(dbExpenses: ExpensesTableRow[]): Expense[] {
+export function dbExpensesToDomainExpenses(dbExpenses: DbExpenseWithExpenseCategory[]): Expense[] {
   return dbExpenses.map(dbExpenseToDomainExpense)
 }
