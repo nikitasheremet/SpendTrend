@@ -32,6 +32,15 @@ export const createExpenseInputSchema = z.strictObject(
   { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
 )
 
+export const DeleteExpensesInputSchema = z.strictObject(
+  {
+    userId: userIdSchema,
+    accountId: accountIdSchema,
+    expenseId: idSchema,
+  },
+  { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
+)
+
 export const getExpensesInputSchema = z.strictObject(
   {
     userId: userIdSchema,
@@ -63,5 +72,6 @@ export const updateExpenseInputSchema = z
   )
 
 export type CreateExpenseInput = z.infer<typeof createExpenseInputSchema>
+export type DeleteExpensesInput = z.infer<typeof DeleteExpensesInputSchema>
 export type GetExpensesInput = z.infer<typeof getExpensesInputSchema>
 export type UpdateExpenseInput = z.infer<typeof updateExpenseInputSchema>

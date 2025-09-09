@@ -3,7 +3,7 @@ import Router from '@koa/router'
 import dotenv from 'dotenv'
 import path from 'path'
 import bodyParser from 'koa-bodyparser'
-import { createExpenseHandler, getExpensesHandler, updateExpenseHandler } from './expense/handler/'
+import { deleteExpenseHandler, createExpenseHandler, getExpensesHandler, updateExpenseHandler } from './expense/handler/'
 import {
   createExpenseCategoryHandler,
   getExpenseCategoriesHandler,
@@ -32,6 +32,7 @@ router.put('/updateexpense', updateExpenseHandler)
 router.get('/getexpensecategories', getExpenseCategoriesHandler)
 router.delete('/deleteexpensecategory', deleteExpenseCategoryHandler)
 router.put('/updateexpensecategory', updateExpenseCategoryHandler)
+router.post('/deleteexpense', deleteExpenseHandler)
 
 app.use(bodyParser())
 app.use(router.routes())
