@@ -50,8 +50,11 @@ export async function deleteExpenseRepository(input: DeleteExpense): Promise<Exp
       subCategory: expenseSubCategory,
     })
   } catch (error) {
-    const dbError = error as Error
-    console.error(`Failed to delete expense for expenseId: ${input.id}`, dbError)
-    throw new RepositoryError(`${DB_ERROR}: Failed to delete expense. Error: ${dbError.message}`)
+    if (error instanceof RepositoryError) {
+      throw error;
+    }
+    const dbError = error as Error;
+    console.error(`Failed to delete expense for expenseId: ${input.id}`, dbError);
+    throw new RepositoryError(`${DB_ERROR}: Failed to delete expense. Error: ${dbError.message}`);
   }
 }
