@@ -16,6 +16,7 @@ const mockDb = {
       findFirst: jest.fn(),
     },
   },
+  delete: jest.fn()
 }
 
 export const db = mockDb
