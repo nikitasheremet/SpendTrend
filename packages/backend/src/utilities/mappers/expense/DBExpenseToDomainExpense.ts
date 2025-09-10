@@ -8,7 +8,7 @@ import { dbExpenseSubCategoryToDomain } from '../expenseSubCategory/dbExpenseSub
 
 export interface DbExpenseWithExpenseCategory extends Omit<ExpensesDbRow, 'categoryId'> {
   category: DbExpenseCategoryWithSubCategories
-  subCategory: ExpenseSubCategoryDbRow
+  subCategory?: ExpenseSubCategoryDbRow | null
 }
 
 export function dbExpenseToDomainExpense(dbExpense: DbExpenseWithExpenseCategory): Expense {
@@ -21,7 +21,9 @@ export function dbExpenseToDomainExpense(dbExpense: DbExpenseWithExpenseCategory
     netAmount: dbExpense.netAmount,
     date: dbExpense.date,
     category: dbExpenseCategoryToDomain(dbExpense.category),
-    subCategory: dbExpenseSubCategoryToDomain(dbExpense.subCategory),
+    subCategory: dbExpense.subCategory
+      ? dbExpenseSubCategoryToDomain(dbExpense.subCategory)
+      : undefined,
     paidBackAmount: dbExpense.paidBackAmount,
     createdAt: dbExpense.createdAt,
     updatedAt: dbExpense.updatedAt,

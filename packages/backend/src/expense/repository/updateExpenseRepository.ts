@@ -35,10 +35,6 @@ export async function updateExpenseRepository(input: UpdateExpenseRepository): P
   const expenseSubCategory = expenseCategory.subCategories.find(
     (sub) => sub.id === updateExpense.subCategoryId,
   )
-  if (!expenseSubCategory)
-    throw new RepositoryError(
-      `${DB_ERROR}: Expense subCategory not found after expense creation. Possible race condition. Expected Expense SubCategory: ${updateExpense.subCategoryId}. ExpenseId: ${updateExpense.id}`,
-    )
 
   return dbExpenseToDomainExpense({
     ...updateExpense,

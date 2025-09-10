@@ -36,10 +36,6 @@ export async function deleteExpenseRepository(input: DeleteExpense): Promise<Exp
     const expenseSubCategory = expenseCategory.subCategories.find(
       (sub) => sub.id === deletedExpense.subCategoryId,
     )
-    if (!expenseSubCategory)
-      throw new RepositoryError(
-        `${DB_ERROR}: Expense subCategory not found before expense deletion. Expected Expense SubCategory: ${deletedExpense.subCategoryId}. ExpenseId: ${deletedExpense.id}`,
-      )
 
     // Return the deleted expense id
     return dbExpenseToDomainExpense({

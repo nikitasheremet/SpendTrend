@@ -25,7 +25,7 @@ export const createExpenseInputSchema = z.strictObject(
     netAmount: netAmountSchema,
     date: dateSchema,
     categoryId: categoryIdSchema,
-    subCategoryId: subCategoryIdSchema,
+    subCategoryId: subCategoryIdSchema.optional(),
     paidBackAmount: paidBackAmountSchema,
   },
   { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
