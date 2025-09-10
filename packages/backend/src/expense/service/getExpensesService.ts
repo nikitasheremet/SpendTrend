@@ -1,4 +1,4 @@
-import { Expense } from '../../models/expense/Expense'
+import { Expense } from '../../models/expense/expense'
 import { getExpensesRepository } from '../repository/getExpensesRepository'
 
 export interface GetExpensesServiceInput {

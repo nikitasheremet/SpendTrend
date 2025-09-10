@@ -1,5 +1,6 @@
 import { createExpenseRepository, CreateExpense } from '../../repository/createExpenseRepository'
 import { db } from '../../../db'
+import { excludeFieldsAndAdd } from '../../../utilities/excludeFieldsAndAdd'
 
 jest.mock('../../../db')
 jest.spyOn(console, 'error').mockImplementation(() => {})
@@ -74,39 +75,13 @@ describe('createExpenseRepository', () => {
         .fn()
         .mockResolvedValue(fakeExpenseCategoryQueryResponse)
 
-      const result = await createExpenseRepository(fakeValidExpense)
-      expect(result).toEqual({
-        id: fakeExpenseId,
-        userId: fakeValidExpense.userId,
-        accountId: fakeValidExpense.accountId,
-        name: fakeValidExpense.name,
-        amount: fakeValidExpense.amount,
-        netAmount: fakeValidExpense.netAmount,
-        date: fakeValidExpense.date,
-        category: {
-          id: fakeCategoryId,
-          userId: fakeExpenseCategoryQueryResponse.userId,
-          accountId: fakeExpenseCategoryQueryResponse.accountId,
-          name: fakeExpenseCategoryQueryResponse.name,
-          subCategories: [
-            {
-              ...fakeExpenseSubCategory,
-              createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
-              updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
-            },
-          ],
-          createdAt: fakeExpenseCategoryQueryResponse.createdAt.toISOString(),
-          updatedAt: fakeExpenseCategoryQueryResponse.updatedAt.toISOString(),
-        },
-        subCategory: {
-          ...fakeExpenseSubCategory,
-          createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
-          updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
-        },
-        paidBackAmount: fakeValidExpense.paidBackAmount,
-        createdAt: fakeDbExpense.createdAt.toISOString(),
-        updatedAt: fakeDbExpense.updatedAt.toISOString(),
+      const expectedExpense = excludeFieldsAndAdd(fakeDbExpense, ['subCategoryId', 'categoryId'], {
+        category: fakeExpenseCategoryQueryResponse,
+        subCategory: fakeExpenseSubCategory,
       })
+
+      const result = await createExpenseRepository(fakeValidExpense)
+      expect(result).toEqual(expectedExpense)
     })
   })
 })

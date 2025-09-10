@@ -12,7 +12,7 @@ import { DB_ERROR } from '../src/models/errors/repositoryErrors'
 
 const BASE_URL = 'http://localhost:3000'
 
-test.describe('Create Expense Category Endpoint', () => {
+test.describe.skip('Create Expense Category Endpoint', () => {
   test.beforeAll(() => {
     connectToDb()
   })

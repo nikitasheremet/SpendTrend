@@ -1,6 +1,7 @@
 import { getExpensesRepository } from '../../repository/getExpensesRepository'
 import { db } from '../../../db'
 import { DB_ERROR } from '../../../models/errors/repositoryErrors'
+import { excludeFieldsAndAdd } from '../../../utilities/excludeFieldsAndAdd'
 
 jest.mock('../../../db')
 // Mocking console error to prevent actual logging during tests
@@ -57,41 +58,11 @@ describe('getExpensesRepository', () => {
         netAmount: 90,
         date: '2025-08-04',
         category: fakeExpenseCategory,
-        subCategoryId: 'subcategory-1',
+        subCategory: fakeExpenseSubCategory,
         paidBackAmount: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       }
-
-      const expectedExpenses = [
-        {
-          id: '1',
-          accountId: fakeAccountId,
-          userId: 'user-1',
-          name: 'Groceries',
-          amount: 100,
-          netAmount: 90,
-          date: '2025-08-04',
-          paidBackAmount: 0,
-          category: {
-            ...fakeDbExpense.category,
-            subCategories: fakeDbExpense.category.subCategories.map((sub) => ({
-              ...sub,
-              createdAt: sub.createdAt.toISOString(),
-              updatedAt: sub.updatedAt.toISOString(),
-            })),
-            createdAt: fakeDbExpense.category.createdAt.toISOString(),
-            updatedAt: fakeDbExpense.category.updatedAt.toISOString(),
-          },
-          subCategory: {
-            ...fakeExpenseSubCategory,
-            createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
-            updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
-          },
-          createdAt: fakeDbExpense.createdAt.toISOString(),
-          updatedAt: fakeDbExpense.updatedAt.toISOString(),
-        },
-      ]
 
       mockDbFindMany.mockResolvedValueOnce([fakeDbExpense])
 
@@ -99,7 +70,7 @@ describe('getExpensesRepository', () => {
       const result = await getExpensesRepository({ accountId: fakeAccountId })
 
       // Assert
-      expect(result).toEqual(expectedExpenses)
+      expect(result).toEqual([fakeDbExpense])
     })
   })
 })

@@ -3,9 +3,10 @@ import { STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
 import { expensesTable, expenseCategoriesTable, expenseSubCategoriesTable } from '../src/db/schema'
 import crypto from 'crypto'
-import { ExpensesDbRow } from '../src/models/expense/Expense'
+import { ExpensesDbRow } from '../src/models/expense/expense'
 import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
 import { ExpenseSubCategoryDbRow } from '../src/models/expenseSubCategory/expenseSubCategory'
+import { excludeFieldsAndAdd } from '../src/utilities/excludeFieldsAndAdd'
 
 const BASE_URL = 'http://localhost:3000'
 
@@ -81,25 +82,12 @@ test.describe('Get Expenses Endpoint', () => {
       // Verify the created expenses are in the response
       const returnedExpenses = body.expenses
       expect(returnedExpenses[0]).toEqual({
-        id: expense2.id,
-        userId: fakeExpenseData2.userId,
-        accountId: fakeAccountId,
-        name: fakeExpenseData2.name,
-        amount: fakeExpenseData2.amount,
-        netAmount: fakeExpenseData2.netAmount,
-        date: fakeExpenseData2.date,
+        ...excludeFieldsAndAdd(expense2, ['categoryId', 'subCategoryId']),
         category: {
-          id: fakeCreatedExpenseCategory.id,
-          name: fakeCreatedExpenseCategory.name,
-          userId: fakeCreatedExpenseCategory.userId,
-          accountId: fakeCreatedExpenseCategory.accountId,
+          ...fakeCreatedExpenseCategory,
           subCategories: [
             {
-              id: fakeCreatedExpenseSubCategory.id,
-              name: fakeCreatedExpenseSubCategory.name,
-              userId: fakeCreatedExpenseSubCategory.userId,
-              accountId: fakeCreatedExpenseSubCategory.accountId,
-              categoryId: fakeCreatedExpenseCategory.id,
+              ...fakeCreatedExpenseSubCategory,
               createdAt: fakeCreatedExpenseSubCategory.createdAt.toISOString(),
               updatedAt: fakeCreatedExpenseSubCategory.updatedAt.toISOString(),
             },
@@ -108,39 +96,21 @@ test.describe('Get Expenses Endpoint', () => {
           updatedAt: fakeCreatedExpenseCategory.updatedAt.toISOString(),
         },
         subCategory: {
-          id: fakeCreatedExpenseSubCategory.id,
-          name: fakeCreatedExpenseSubCategory.name,
-          userId: fakeCreatedExpenseSubCategory.userId,
-          accountId: fakeCreatedExpenseSubCategory.accountId,
-          categoryId: fakeCreatedExpenseCategory.id,
+          ...fakeCreatedExpenseSubCategory,
           createdAt: fakeCreatedExpenseSubCategory.createdAt.toISOString(),
           updatedAt: fakeCreatedExpenseSubCategory.updatedAt.toISOString(),
         },
-        paidBackAmount: fakeExpenseData2.paidBackAmount,
         createdAt: fakeExpenseData2.createdAt.toISOString(),
         updatedAt: fakeExpenseData2.updatedAt.toISOString(),
       })
 
       expect(returnedExpenses[1]).toEqual({
-        id: expense1.id,
-        userId: fakeExpenseData1.userId,
-        accountId: fakeAccountId,
-        name: fakeExpenseData1.name,
-        amount: fakeExpenseData1.amount,
-        netAmount: fakeExpenseData1.netAmount,
-        date: fakeExpenseData1.date,
+        ...excludeFieldsAndAdd(expense1, ['categoryId', 'subCategoryId']),
         category: {
-          id: fakeCreatedExpenseCategory.id,
-          name: fakeCreatedExpenseCategory.name,
-          userId: fakeCreatedExpenseCategory.userId,
-          accountId: fakeCreatedExpenseCategory.accountId,
+          ...fakeCreatedExpenseCategory,
           subCategories: [
             {
-              id: fakeCreatedExpenseSubCategory.id,
-              name: fakeCreatedExpenseSubCategory.name,
-              userId: fakeCreatedExpenseSubCategory.userId,
-              accountId: fakeCreatedExpenseSubCategory.accountId,
-              categoryId: fakeCreatedExpenseCategory.id,
+              ...fakeCreatedExpenseSubCategory,
               createdAt: fakeCreatedExpenseSubCategory.createdAt.toISOString(),
               updatedAt: fakeCreatedExpenseSubCategory.updatedAt.toISOString(),
             },
@@ -149,15 +119,10 @@ test.describe('Get Expenses Endpoint', () => {
           updatedAt: fakeCreatedExpenseCategory.updatedAt.toISOString(),
         },
         subCategory: {
-          id: fakeCreatedExpenseSubCategory.id,
-          name: fakeCreatedExpenseSubCategory.name,
-          userId: fakeCreatedExpenseSubCategory.userId,
-          accountId: fakeCreatedExpenseSubCategory.accountId,
-          categoryId: fakeCreatedExpenseCategory.id,
+          ...fakeCreatedExpenseSubCategory,
           createdAt: fakeCreatedExpenseSubCategory.createdAt.toISOString(),
           updatedAt: fakeCreatedExpenseSubCategory.updatedAt.toISOString(),
         },
-        paidBackAmount: fakeExpenseData1.paidBackAmount,
         createdAt: fakeExpenseData1.createdAt.toISOString(),
         updatedAt: fakeExpenseData1.updatedAt.toISOString(),
       })

@@ -4,8 +4,9 @@ import {
 } from '../../repository/updateExpenseRepository'
 import { db } from '../../../db'
 import { RepositoryError, NOT_FOUND_ERROR } from '../../../models/errors/repositoryErrors'
-import { ExpensesDbRow } from '../../../models/expense/Expense'
+import { ExpensesDbRow } from '../../../models/expense/expense'
 import { ExpenseSubCategoryDbRow } from '../../../models/expenseSubCategory/expenseSubCategory'
+import { excludeFieldsAndAdd } from '../../../utilities/excludeFieldsAndAdd'
 
 jest.mock('../../../db')
 
@@ -84,37 +85,18 @@ describe('updateExpenseRepository', () => {
         .fn()
         .mockResolvedValue(fakeExpenseCategory)
 
+      const expectedUpdatedExpense = excludeFieldsAndAdd(
+        fakeDbExpense,
+        ['subCategoryId', 'categoryId'],
+        {
+          category: fakeExpenseCategory,
+          subCategory: fakeExpenseSubCategory,
+        },
+      )
+
       const result = await updateExpenseRepository(fakeInput)
 
-      expect(result).toEqual({
-        id: 'expense-1',
-        userId: 'user-1',
-        accountId: 'account-1',
-        name: 'Coffee',
-        amount: 300,
-        netAmount: 300,
-        date: '2025-08-23',
-        paidBackAmount: 0,
-        category: {
-          ...fakeExpenseCategory,
-          subCategories: [
-            {
-              ...fakeExpenseSubCategory,
-              createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
-              updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
-            },
-          ],
-          createdAt: fakeExpenseCategory.createdAt.toISOString(),
-          updatedAt: fakeExpenseCategory.updatedAt.toISOString(),
-        },
-        subCategory: {
-          ...fakeExpenseSubCategory,
-          createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
-          updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
-        },
-        createdAt: fakeDbExpense.createdAt.toISOString(),
-        updatedAt: fakeDbExpense.updatedAt.toISOString(),
-      })
+      expect(result).toEqual(expectedUpdatedExpense)
     })
   })
 

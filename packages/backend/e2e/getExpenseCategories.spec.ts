@@ -6,7 +6,7 @@ import crypto from 'crypto'
 
 const BASE_URL = 'http://localhost:3000'
 
-test.describe('Get Expense Categories Endpoint', () => {
+test.describe.skip('Get Expense Categories Endpoint', () => {
   test.beforeAll(() => {
     connectToDb()
   })

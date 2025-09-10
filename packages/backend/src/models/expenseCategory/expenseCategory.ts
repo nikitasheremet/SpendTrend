@@ -7,8 +7,8 @@ export type ExpenseCategory = {
   accountId: string // UUID
   name: string
   subCategories: ExpenseSubCategory[]
-  createdAt: string // Timestamp with timezone
-  updatedAt: string // Timestamp with timezone
+  createdAt: Date
+  updatedAt: Date
 }
 
 export type ExpenseCategoryDbRow = typeof expenseCategoriesTable.$inferSelect

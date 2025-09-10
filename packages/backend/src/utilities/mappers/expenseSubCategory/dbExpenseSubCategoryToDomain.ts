@@ -12,7 +12,7 @@ export function dbExpenseSubCategoryToDomain(
     accountId: dbSubCategory.accountId,
     name: dbSubCategory.name,
     categoryId: dbSubCategory.categoryId,
-    createdAt: dbSubCategory.createdAt.toISOString(),
-    updatedAt: dbSubCategory.updatedAt.toISOString(),
+    createdAt: dbSubCategory.createdAt,
+    updatedAt: dbSubCategory.updatedAt,
   }
 }

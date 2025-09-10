@@ -1,7 +1,7 @@
 import { deleteExpenseRepository, DeleteExpense } from '../../repository/deleteExpenseRepository'
 import { db } from '../../../db'
 import { DB_ERROR } from '../../../models/errors/repositoryErrors'
-
+import { excludeFieldsAndAdd } from '../../../utilities/excludeFieldsAndAdd'
 
 jest.mock('../../../db')
 jest.spyOn(console, 'error').mockImplementation(() => {})
@@ -76,42 +76,19 @@ describe('deleteExpensesRepository', () => {
         .fn()
         .mockResolvedValue(fakeExpenseCategoryQueryResponse)
 
+      const expectedDeletedExpense = excludeFieldsAndAdd(
+        fakeDeletedExpense,
+        ['subCategoryId', 'categoryId'],
+        {
+          category: fakeExpenseCategoryQueryResponse,
+          subCategory: fakeExpenseSubCategory,
+        },
+      )
       // Act
       const result = await deleteExpenseRepository({ id: fakeValidExpense.id })
 
       // Assert
-      expect(result).toEqual({
-        id: fakeDeletedExpense.id,
-        userId: fakeDeletedExpense.userId,
-        accountId: fakeDeletedExpense.accountId,
-        name: fakeDeletedExpense.name,
-        amount: fakeDeletedExpense.amount,
-        netAmount: fakeDeletedExpense.netAmount,
-        date: fakeDeletedExpense.date,
-        category: {
-          id: '1',
-          userId: fakeExpenseCategoryQueryResponse.userId,
-          accountId: fakeExpenseCategoryQueryResponse.accountId,
-          name: fakeExpenseCategoryQueryResponse.name,
-          subCategories: [
-            {
-              ...fakeExpenseSubCategory,
-              createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
-              updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
-            },
-          ],
-          createdAt: fakeExpenseCategoryQueryResponse.createdAt.toISOString(),
-          updatedAt: fakeExpenseCategoryQueryResponse.updatedAt.toISOString(),
-        },
-        subCategory: {
-          ...fakeExpenseSubCategory,
-          createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
-          updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
-        },
-        paidBackAmount: fakeDeletedExpense.paidBackAmount,
-        createdAt: fakeDeletedExpense.createdAt.toISOString(),
-        updatedAt: fakeDeletedExpense.updatedAt.toISOString(),
-      })
+      expect(result).toEqual(expectedDeletedExpense)
     })
   })
 })

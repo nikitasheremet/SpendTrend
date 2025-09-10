@@ -1,4 +1,4 @@
-import { expenseSubCategories } from '../../db/schema'
+import { expenseSubCategoriesTable } from '../../db/schema'
 
 export interface ExpenseSubCategory {
   id: string // UUID
@@ -6,8 +6,8 @@ export interface ExpenseSubCategory {
   accountId: string // UUID
   name: string
   categoryId: string // UUID
-  createdAt: string // Timestamp with timezone
-  updatedAt: string // Timestamp with timezone
+  createdAt: Date
+  updatedAt: Date
 }
 
-export type ExpenseSubCategoryDbRow = typeof expenseSubCategories.$inferSelect
+export type ExpenseSubCategoryDbRow = typeof expenseSubCategoriesTable.$inferSelect

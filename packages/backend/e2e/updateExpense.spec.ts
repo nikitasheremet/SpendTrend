@@ -3,19 +3,15 @@ import { STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
 import { expenseCategoriesTable, expensesTable, expenseSubCategoriesTable } from '../src/db/schema'
 import crypto from 'crypto'
-import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
 import { CreateExpense } from '../src/expense/repository/createExpenseRepository'
 
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Update Expense Endpoint', () => {
-  let createdExpenseCategory: ExpenseCategoryDbRow
   let dataToCreateExpense: CreateExpense
 
   test.beforeAll(async () => {
-    const { expenseCategory, expenseToCreate } =
-      await assignFakeCreateExpenseInputAndExpenseCategory()
-    createdExpenseCategory = expenseCategory
+    const { expenseToCreate } = await assignFakeCreateExpenseInputAndExpenseCategory()
     dataToCreateExpense = expenseToCreate
   })
 
@@ -108,7 +104,6 @@ test.describe('Update Expense Endpoint', () => {
 })
 
 async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
-  expenseCategory: ExpenseCategoryDbRow
   expenseToCreate: CreateExpense
 }> {
   connectToDb()
@@ -150,7 +145,6 @@ async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
   }
 
   return {
-    expenseCategory: createdCategory,
     expenseToCreate: fakeExpenseData,
   }
 }
