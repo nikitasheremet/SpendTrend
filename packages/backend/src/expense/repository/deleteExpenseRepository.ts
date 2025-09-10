@@ -2,9 +2,8 @@ import { eq } from 'drizzle-orm'
 import { db } from '../../db'
 import { expenseCategoriesTable, expensesTable } from '../../db/schema'
 import { DB_ERROR, NOT_FOUND_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
-import { Expense } from '../../models/expense/Expense'
+import { Expense } from '../../models/expense/expense'
 import { dbExpenseToDomainExpense } from '../../utilities/mappers/expense/DBExpenseToDomainExpense'
-
 
 export interface DeleteExpense {
   id: string
@@ -15,9 +14,8 @@ export async function deleteExpenseRepository(input: DeleteExpense): Promise<Exp
     // Find the expense to delete
     const [deletedExpense] = await db
       .delete(expensesTable)
-      .where(
-        eq(expensesTable.id, input.id)
-      ).returning()
+      .where(eq(expensesTable.id, input.id))
+      .returning()
 
     if (!deletedExpense) {
       throw new RepositoryError(
@@ -51,10 +49,10 @@ export async function deleteExpenseRepository(input: DeleteExpense): Promise<Exp
     })
   } catch (error) {
     if (error instanceof RepositoryError) {
-      throw error;
+      throw error
     }
-    const dbError = error as Error;
-    console.error(`Failed to delete expense for expenseId: ${input.id}`, dbError);
-    throw new RepositoryError(`${DB_ERROR}: Failed to delete expense. Error: ${dbError.message}`);
+    const dbError = error as Error
+    console.error(`Failed to delete expense for expenseId: ${input.id}`, dbError)
+    throw new RepositoryError(`${DB_ERROR}: Failed to delete expense. Error: ${dbError.message}`)
   }
 }

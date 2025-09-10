@@ -11,6 +11,8 @@ import { expenseCategoriesTable, expenseSubCategoriesTable } from '../src/db/sch
 import { CreateExpenseInput } from '../src/expense/validation/models'
 import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
 import { ExpenseSubCategoryDbRow } from '../src/models/expenseSubCategory/expenseSubCategory'
+import { excludeFieldsAndAdd } from '../src/utilities/excludeFieldsAndAdd'
+import { create } from 'domain'
 
 const BASE_URL = 'http://localhost:3000'
 
@@ -75,25 +77,12 @@ test.describe('Create Expense Endpoint', () => {
       expect(body).toHaveProperty('id')
       expect(body).toEqual(
         expect.objectContaining({
-          name: fakeCreateExpenseInput.name,
-          userId: fakeCreateExpenseInput.userId,
-          accountId: fakeCreateExpenseInput.accountId,
-          paidBackAmount: fakeCreateExpenseInput.paidBackAmount,
-          amount: fakeCreateExpenseInput.amount,
-          netAmount: fakeCreateExpenseInput.netAmount,
-          date: fakeCreateExpenseInput.date,
+          ...excludeFieldsAndAdd(fakeCreateExpenseInput, ['categoryId', 'subCategoryId']),
           category: {
-            id: createdExpenseCategory.id,
-            userId: createdExpenseCategory.userId,
-            accountId: createdExpenseCategory.accountId,
-            name: createdExpenseCategory.name,
+            ...createdExpenseCategory,
             subCategories: [
               {
-                id: createdExpenseSubCategory.id,
-                userId: createdExpenseSubCategory.userId,
-                accountId: createdExpenseSubCategory.accountId,
-                categoryId: createdExpenseSubCategory.categoryId,
-                name: createdExpenseSubCategory.name,
+                ...createdExpenseSubCategory,
                 createdAt: createdExpenseSubCategory.createdAt.toISOString(),
                 updatedAt: createdExpenseSubCategory.updatedAt.toISOString(),
               },
@@ -102,14 +91,12 @@ test.describe('Create Expense Endpoint', () => {
             updatedAt: createdExpenseCategory.updatedAt.toISOString(),
           },
           subCategory: {
-            id: createdExpenseSubCategory.id,
-            userId: createdExpenseSubCategory.userId,
-            accountId: createdExpenseSubCategory.accountId,
-            categoryId: createdExpenseSubCategory.categoryId,
-            name: createdExpenseSubCategory.name,
+            ...createdExpenseSubCategory,
             createdAt: createdExpenseSubCategory.createdAt.toISOString(),
             updatedAt: createdExpenseSubCategory.updatedAt.toISOString(),
           },
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
         }),
       )
     })

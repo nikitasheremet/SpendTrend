@@ -19,7 +19,7 @@ export function dbExpenseCategoryToDomain(
     accountId,
     name,
     subCategories: subCategories.map(dbExpenseSubCategoryToDomain),
-    createdAt: createdAt.toISOString(),
-    updatedAt: updatedAt.toISOString(),
+    createdAt,
+    updatedAt,
   }
 }

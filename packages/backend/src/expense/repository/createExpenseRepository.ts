@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 import { db } from '../../db'
 import { expenseCategoriesTable, expensesTable } from '../../db/schema'
 import { DB_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
-import { Expense } from '../../models/expense/Expense'
+import { Expense } from '../../models/expense/expense'
 import { dbExpenseToDomainExpense } from '../../utilities/mappers/expense/DBExpenseToDomainExpense'
 
 export interface CreateExpense {

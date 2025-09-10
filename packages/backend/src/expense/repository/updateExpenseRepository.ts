@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { db } from '../../db'
 import { expenseCategoriesTable, expensesTable } from '../../db/schema'
-import { Expense, ExpensesDbRow } from '../../models/expense/Expense'
+import { Expense, ExpensesDbRow } from '../../models/expense/expense'
 import { dbExpenseToDomainExpense } from '../../utilities/mappers/expense/DBExpenseToDomainExpense'
 import { DB_ERROR, NOT_FOUND_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 

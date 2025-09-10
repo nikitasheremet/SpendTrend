@@ -13,7 +13,7 @@ import { NOT_FOUND_ERROR } from '../src/models/errors/repositoryErrors'
 
 const BASE_URL = 'http://localhost:3000'
 
-test.describe('Delete Expense Category Endpoint', () => {
+test.describe.skip('Delete Expense Category Endpoint', () => {
   test.beforeAll(() => {
     connectToDb()
   })

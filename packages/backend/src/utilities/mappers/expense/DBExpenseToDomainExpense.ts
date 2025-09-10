@@ -1,4 +1,4 @@
-import { Expense, ExpensesDbRow } from '../../../models/expense/Expense'
+import { Expense, ExpensesDbRow } from '../../../models/expense/expense'
 import { ExpenseSubCategoryDbRow } from '../../../models/expenseSubCategory/expenseSubCategory'
 import {
   dbExpenseCategoryToDomain,
@@ -23,8 +23,8 @@ export function dbExpenseToDomainExpense(dbExpense: DbExpenseWithExpenseCategory
     category: dbExpenseCategoryToDomain(dbExpense.category),
     subCategory: dbExpenseSubCategoryToDomain(dbExpense.subCategory),
     paidBackAmount: dbExpense.paidBackAmount,
-    createdAt: dbExpense.createdAt.toISOString(),
-    updatedAt: dbExpense.updatedAt.toISOString(),
+    createdAt: dbExpense.createdAt,
+    updatedAt: dbExpense.updatedAt,
   }
 }
 

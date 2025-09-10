@@ -13,8 +13,8 @@ export interface Expense {
   category: ExpenseCategory
   subCategory: ExpenseSubCategory
   paidBackAmount: number
-  createdAt: string // Timestamp with timezone
-  updatedAt: string // Timestamp with timezone
+  createdAt: Date
+  updatedAt: Date
 }
 
 export type ExpensesDbRow = typeof expensesTable.$inferSelect

@@ -1,4 +1,4 @@
-import { Expense } from '../../models/expense/Expense'
+import { Expense } from '../../models/expense/expense'
 import { deleteExpenseRepository } from '../repository/deleteExpenseRepository'
 
 export interface DeleteExpenseServiceInput {

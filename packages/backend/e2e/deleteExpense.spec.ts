@@ -1,19 +1,16 @@
 import { test, expect } from '@playwright/test'
 import { STATUS_SUCCESS_200, STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
-import {
-  expensesTable,
-  expenseCategoriesTable,
-  ExpensesTableRow,
-  expenseSubCategories,
-} from '../src/db/schema'
+import { expensesTable, expenseCategoriesTable, expenseSubCategoriesTable } from '../src/db/schema'
 import crypto from 'crypto'
 import { NOT_FOUND_ERROR } from '../src/models/errors/repositoryErrors'
+import { excludeFieldsAndAdd } from '../src/utilities/excludeFieldsAndAdd'
+import { ExpensesDbRow } from '../src/models/expense/expense'
 
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Delete Expense Endpoint', () => {
-  let fakeExpenseData1: ExpensesTableRow
+  let fakeExpenseData1: ExpensesDbRow
   let fakeExpenseId: string
   let fakeCategory: any
   let fakeSubCategory: any
@@ -70,46 +67,28 @@ test.describe('Delete Expense Endpoint', () => {
 
       expect(response.status()).toBe(STATUS_SUCCESS_200)
       const body = await response.json()
-      expect(body.expense).toEqual(
-        expect.objectContaining({
-          id: fakeExpenseData1.id,
-          userId: fakeExpenseData1.userId,
-          accountId: fakeExpenseData1.accountId,
-          name: fakeExpenseData1.name,
-          amount: fakeExpenseData1.amount,
-          netAmount: fakeExpenseData1.netAmount,
-          date: fakeExpenseData1.date,
-          category: {
-            id: fakeCategory.id,
-            userId: fakeCategory.userId,
-            accountId: fakeCategory.accountId,
-            name: fakeCategory.name,
-            subCategories: [
-              {
-                id: fakeSubCategory.id,
-                userId: fakeSubCategory.userId,
-                accountId: fakeSubCategory.accountId,
-                categoryId: fakeSubCategory.categoryId,
-                name: fakeSubCategory.name,
-                createdAt: fakeSubCategory.createdAt.toISOString(),
-                updatedAt: fakeSubCategory.updatedAt.toISOString(),
-              },
-            ],
-            createdAt: fakeCategory.createdAt.toISOString(),
-            updatedAt: fakeCategory.updatedAt.toISOString(),
-          },
-          subCategory: {
-            id: fakeSubCategory.id,
-            userId: fakeSubCategory.userId,
-            accountId: fakeSubCategory.accountId,
-            categoryId: fakeSubCategory.categoryId,
-            name: fakeSubCategory.name,
-            createdAt: fakeSubCategory.createdAt.toISOString(),
-            updatedAt: fakeSubCategory.updatedAt.toISOString(),
-          },
-          paidBackAmount: fakeExpenseData1.paidBackAmount,
-        }),
-      )
+      expect(body.expense).toEqual({
+        ...excludeFieldsAndAdd(insertedExpense, ['categoryId', 'subCategoryId']),
+        category: {
+          ...fakeCategory,
+          subCategories: [
+            {
+              ...fakeSubCategory,
+              createdAt: fakeSubCategory.createdAt.toISOString(),
+              updatedAt: fakeSubCategory.updatedAt.toISOString(),
+            },
+          ],
+          createdAt: fakeCategory.createdAt.toISOString(),
+          updatedAt: fakeCategory.updatedAt.toISOString(),
+        },
+        subCategory: {
+          ...fakeSubCategory,
+          createdAt: fakeSubCategory.createdAt.toISOString(),
+          updatedAt: fakeSubCategory.updatedAt.toISOString(),
+        },
+        createdAt: insertedExpense.createdAt.toISOString(),
+        updatedAt: insertedExpense.updatedAt.toISOString(),
+      })
     })
   })
 })
@@ -134,7 +113,7 @@ async function assignFakeExpenseData(): Promise<{
     .returning()
 
   const [createdSubCategory] = await db
-    .insert(expenseSubCategories)
+    .insert(expenseSubCategoriesTable)
     .values({
       userId: fakeUserId,
       accountId: fakeAccountId,
