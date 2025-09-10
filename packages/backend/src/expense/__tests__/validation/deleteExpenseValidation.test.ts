@@ -5,18 +5,16 @@ import {
   VALIDATION_ERROR_USERID_TYPE,
   VALIDATION_ERROR_ACCOUNTID_MISSING,
   VALIDATION_ERROR_ACCOUNTID_TYPE,
-  VALIDATION_ERROR_USERID_EMPTY,
-  VALIDATION_ERROR_ACCOUNTID_EMPTY,
   VALIDATION_ERROR_EXPENSEID_TYPE,
   VALIDATION_ERROR_EXPENSEID_MISSING,
-  VALIDATION_ERROR_EXPENSEID_EMPTY,
 } from '../../../models/errors/validationError'
+import crypto from 'crypto'
 
 describe('validateDeleteExpensesInput', () => {
   const validInput = {
-    userId: 'user-123',
-    accountId: 'account-456',
-    expenseId: 'expense-789',
+    userId: crypto.randomUUID(),
+    accountId: crypto.randomUUID(),
+    expenseId: crypto.randomUUID(),
   }
 
   describe('when the userId field is invalid', () => {
@@ -26,13 +24,7 @@ describe('validateDeleteExpensesInput', () => {
       expect(() => validateDeleteExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_MISSING)
     })
 
-    it('should throw a ValidationError for empty userId', () => {
-      const input = { ...validInput, userId: '' }
-      expect(() => validateDeleteExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateDeleteExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_EMPTY)
-    })
-
-    it('should throw a ValidationError for non-string userId', () => {
+    it('should throw a ValidationError for invalid userId', () => {
       const input = { ...validInput, userId: 123 }
       expect(() => validateDeleteExpenseInput(input)).toThrow(ValidationError)
       expect(() => validateDeleteExpenseInput(input)).toThrow(VALIDATION_ERROR_USERID_TYPE)
@@ -46,13 +38,7 @@ describe('validateDeleteExpensesInput', () => {
       expect(() => validateDeleteExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_MISSING)
     })
 
-    it('should throw a ValidationError for empty accountId', () => {
-      const input = { ...validInput, accountId: '' }
-      expect(() => validateDeleteExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateDeleteExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_EMPTY)
-    })
-
-    it('should throw a ValidationError for non-string accountId', () => {
+    it('should throw a ValidationError for invalid accountId', () => {
       const input = { ...validInput, accountId: 123 }
       expect(() => validateDeleteExpenseInput(input)).toThrow(ValidationError)
       expect(() => validateDeleteExpenseInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_TYPE)
@@ -66,13 +52,7 @@ describe('validateDeleteExpensesInput', () => {
       expect(() => validateDeleteExpenseInput(input)).toThrow(VALIDATION_ERROR_EXPENSEID_MISSING)
     })
 
-    it('should throw a ValidationError for empty expenseId', () => {
-      const input = { ...validInput, expenseId: '' }
-      expect(() => validateDeleteExpenseInput(input)).toThrow(ValidationError)
-      expect(() => validateDeleteExpenseInput(input)).toThrow(VALIDATION_ERROR_EXPENSEID_EMPTY)
-    })
-
-    it('should throw a ValidationError for non-string expenseId', () => {
+    it('should throw a ValidationError for invalid expenseId', () => {
       const input = { ...validInput, expenseId: 123 }
       expect(() => validateDeleteExpenseInput(input)).toThrow(ValidationError)
       expect(() => validateDeleteExpenseInput(input)).toThrow(VALIDATION_ERROR_EXPENSEID_TYPE)
