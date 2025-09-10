@@ -21,7 +21,6 @@ import {
   VALIDATION_ERROR_NETAMOUNT_TYPE,
   VALIDATION_ERROR_NETAMOUNT_NEGATIVE,
   VALIDATION_ERROR_NAME_IS_REQUIRED,
-  VALIDATION_ERROR_SUBCATEGORY_ID_MISSING,
   VALIDATION_ERROR_SUBCATEGORY_ID_TYPE,
 } from '../../../models/errors/validationError'
 import crypto from 'crypto'
@@ -181,20 +180,9 @@ describe('validateCreateExpenseInput', () => {
     })
   })
 
-  describe('when the subCategoryId field is invalid', () => {
-    describe('when subCategoryId is missing', () => {
-      it('should throw a ValidationError with the correct message for missing subCategoryId', () => {
-        // Arrange
-        const input = { ...validInput, subCategoryId: undefined }
-        // Act & Assert
-        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(
-          VALIDATION_ERROR_SUBCATEGORY_ID_MISSING,
-        )
-      })
-    })
-    describe('when subCategoryId is not a string', () => {
-      it('should throw a ValidationError with the correct message for non-string subCategoryId', () => {
+  describe('when the subCategoryId field is provided but invalid ', () => {
+    describe('when subCategoryId is not a valid uuid', () => {
+      it('should throw a ValidationError ', () => {
         // Arrange
         const input = { ...validInput, subCategoryId: 123 }
         // Act & Assert

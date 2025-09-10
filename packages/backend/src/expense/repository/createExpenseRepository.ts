@@ -46,10 +46,6 @@ export async function createExpenseRepository(input: CreateExpense): Promise<Exp
     const expenseSubCategory = expenseCategory.subCategories.find(
       (sub) => sub.id === createdExpense.subCategoryId,
     )
-    if (!expenseSubCategory)
-      throw new RepositoryError(
-        `${DB_ERROR}: Expense subCategory not found after expense creation. Possible race condition. Expected Expense SubCategory: ${createdExpense.subCategoryId}. ExpenseId: ${createdExpense.id}`,
-      )
 
     return dbExpenseToDomainExpense({
       ...createdExpense,

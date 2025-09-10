@@ -11,7 +11,7 @@ export interface Expense {
   netAmount: number
   date: string // YYYY-MM-DD
   category: ExpenseCategory
-  subCategory: ExpenseSubCategory
+  subCategory?: ExpenseSubCategory
   paidBackAmount: number
   createdAt: Date
   updatedAt: Date
