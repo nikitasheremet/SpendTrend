@@ -38,26 +38,6 @@ test.describe('Create Expense Subcategory Endpoint', () => {
     })
   })
 
-  test.describe('when internal server error occurs', () => {
-    test('should return error message and 500 status code for database constraint violation', async ({
-      request,
-    }) => {
-      // Try to create a subcategory with a categoryId that doesn't exist
-      const fakeBadData = {
-        ...fakeCreateExpenseSubcategoryInput,
-        categoryId: crypto.randomUUID(),
-      }
-
-      const response = await request.post(`${BASE_URL}/createsubcategory`, {
-        data: fakeBadData,
-      })
-      expect(response.status()).toBe(STATUS_INTERNAL_SERVER_ERROR_500)
-      const body = await response.json()
-      expect(body).toHaveProperty('error')
-      expect(body.error).toContain(DB_ERROR)
-    })
-  })
-
   test.describe("when a subcategory with a categoryId that doesn't exist is created", () => {
     test('should return a 500 error and a DB_ERROR message', async ({ request }) => {
       const fakeSubcategoryDataWithInvalidCategory = {
@@ -119,7 +99,6 @@ test.describe('Create Expense Subcategory Endpoint', () => {
       expect(duplicateResponse.status()).toBe(STATUS_INTERNAL_SERVER_ERROR_500)
 
       const body = await duplicateResponse.json()
-      expect(body).toHaveProperty('error')
       expect(body.error).toContain(DB_ERROR)
     })
   })
