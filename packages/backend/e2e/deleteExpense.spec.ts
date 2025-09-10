@@ -11,14 +11,12 @@ const BASE_URL = 'http://localhost:3000'
 
 test.describe('Delete Expense Endpoint', () => {
   let fakeExpenseData1: ExpensesDbRow
-  let fakeExpenseId: string
   let fakeCategory: any
   let fakeSubCategory: any
 
   test.beforeAll(async () => {
     connectToDb()
-    const { expenseId, expenseData1, category, subCategory } = await assignFakeExpenseData()
-    fakeExpenseId = expenseId
+    const { expenseData1, category, subCategory } = await assignFakeExpenseData()
     fakeExpenseData1 = expenseData1
     fakeCategory = category
     fakeSubCategory = subCategory
@@ -94,7 +92,6 @@ test.describe('Delete Expense Endpoint', () => {
 })
 
 async function assignFakeExpenseData(): Promise<{
-  expenseId: string
   expenseData1: any
   category: any
   subCategory: any
@@ -138,7 +135,6 @@ async function assignFakeExpenseData(): Promise<{
   }
 
   return {
-    expenseId: fakeExpenseId,
     expenseData1: fakeExpenseData1,
     category: createdCategory,
     subCategory: createdSubCategory,

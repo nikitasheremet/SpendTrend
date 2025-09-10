@@ -12,7 +12,6 @@ import { CreateExpenseInput } from '../src/expense/validation/models'
 import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
 import { ExpenseSubCategoryDbRow } from '../src/models/expenseSubCategory/expenseSubCategory'
 import { excludeFieldsAndAdd } from '../src/utilities/excludeFieldsAndAdd'
-import { create } from 'domain'
 
 const BASE_URL = 'http://localhost:3000'
 

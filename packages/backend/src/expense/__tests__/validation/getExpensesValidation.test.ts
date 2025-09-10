@@ -5,14 +5,13 @@ import {
   VALIDATION_ERROR_USERID_TYPE,
   VALIDATION_ERROR_ACCOUNTID_MISSING,
   VALIDATION_ERROR_ACCOUNTID_TYPE,
-  VALIDATION_ERROR_USERID_EMPTY,
-  VALIDATION_ERROR_ACCOUNTID_EMPTY,
 } from '../../../models/errors/validationError'
+import crypto from 'crypto'
 
 describe('validateGetExpensesInput', () => {
   const validInput = {
-    userId: 'user-123',
-    accountId: 'account-456',
+    userId: crypto.randomUUID(),
+    accountId: crypto.randomUUID(),
   }
 
   describe('when the userId field is invalid', () => {
@@ -22,13 +21,7 @@ describe('validateGetExpensesInput', () => {
       expect(() => validateGetExpensesInput(input)).toThrow(VALIDATION_ERROR_USERID_MISSING)
     })
 
-    it('should throw a ValidationError for empty userId', () => {
-      const input = { ...validInput, userId: '' }
-      expect(() => validateGetExpensesInput(input)).toThrow(ValidationError)
-      expect(() => validateGetExpensesInput(input)).toThrow(VALIDATION_ERROR_USERID_EMPTY)
-    })
-
-    it('should throw a ValidationError for non-string userId', () => {
+    it('should throw a ValidationError for invalid userId', () => {
       const input = { ...validInput, userId: 123 }
       expect(() => validateGetExpensesInput(input)).toThrow(ValidationError)
       expect(() => validateGetExpensesInput(input)).toThrow(VALIDATION_ERROR_USERID_TYPE)
@@ -42,13 +35,7 @@ describe('validateGetExpensesInput', () => {
       expect(() => validateGetExpensesInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_MISSING)
     })
 
-    it('should throw a ValidationError for empty accountId', () => {
-      const input = { ...validInput, accountId: '' }
-      expect(() => validateGetExpensesInput(input)).toThrow(ValidationError)
-      expect(() => validateGetExpensesInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_EMPTY)
-    })
-
-    it('should throw a ValidationError for non-string accountId', () => {
+    it('should throw a ValidationError for invalid accountId', () => {
       const input = { ...validInput, accountId: 123 }
       expect(() => validateGetExpensesInput(input)).toThrow(ValidationError)
       expect(() => validateGetExpensesInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_TYPE)

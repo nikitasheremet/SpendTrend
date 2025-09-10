@@ -3,7 +3,6 @@ import {
   ValidationError,
   VALIDATION_ERROR_EXPENSEID_MISSING,
   VALIDATION_ERROR_EXPENSEID_TYPE,
-  VALIDATION_ERROR_EXPENSEID_EMPTY,
   VALIDATION_ERROR_NO_FIELDS_TO_UPDATE,
   VALIDATION_ERROR_NAME_MUST_BE_STRING,
   VALIDATION_ERROR_NAME_EMPTY,
@@ -40,19 +39,11 @@ describe('validateUpdateExpenseInput', () => {
       )
     })
 
-    it('should throw an error if id is not a string', () => {
+    it('should throw an error if id is not uuid', () => {
       const fakeInvalidInput = { ...fakeValidInput, id: 123 }
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
         VALIDATION_ERROR_EXPENSEID_TYPE,
-      )
-    })
-
-    it('should throw an error if id is an empty string', () => {
-      const fakeInvalidInput = { ...fakeValidInput, id: '' }
-      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
-      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
-        VALIDATION_ERROR_EXPENSEID_EMPTY,
       )
     })
   })
