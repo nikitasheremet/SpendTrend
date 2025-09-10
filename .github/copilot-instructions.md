@@ -6,7 +6,6 @@ Provide project context and coding guidelines that AI should follow when generat
 
 1. **Project Context**:
    - This project is a personal finance management tool.
-   - The primary technologies used are TypeScript, React, and Node.js.
    - The application aims to help users track their income, expenses, and savings goals.
 
 2. **Coding Guidelines**:
@@ -29,6 +28,7 @@ Provide project context and coding guidelines that AI should follow when generat
 - Do not use default exports only named exports
 - No magic numbers
 - No magic text
+- Use early returns for error handling when possible
 
 5. ## Error Handling
 
