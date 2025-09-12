@@ -4,8 +4,9 @@ import { updateExpenseSubCategoryService } from '../service/updateExpenseSubCate
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { STATUS_SUCCESS_200 } from '../../models/statusCodes'
 
-export async function updateExpenseSubcategoryHandler(ctx: Context): Promise<void> {
+export async function updateExpenseSubCategoryHandler(ctx: Context): Promise<void> {
   try {
+    console.log(ctx)
     const input = ctx.request.body
     validateUpdateExpenseSubCategory(input)
     const updatedExpenseSubCategory = await updateExpenseSubCategoryService(input)

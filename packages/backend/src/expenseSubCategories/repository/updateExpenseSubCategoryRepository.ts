@@ -2,7 +2,7 @@ import { db } from '../../db'
 import { expenseSubCategoriesTable } from '../../db/schema'
 import { ExpenseSubCategory } from '../../models/expenseSubCategory/expenseSubCategory'
 import { dbExpenseSubCategoryToDomain } from '../../utilities/mappers/expenseSubCategory/dbExpenseSubCategoryToDomain'
-import { DB_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
+import { DB_ERROR, NOT_FOUND_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 import { eq } from 'drizzle-orm'
 
 export interface UpdateExpenseSubcategory {
@@ -24,18 +24,23 @@ export async function updateExpenseSubCategoryRepository(
       .returning()
 
     if (!updatedSubcategory) {
-      throw new RepositoryError('Expense subcategory not found')
+      throw new RepositoryError(
+        `${NOT_FOUND_ERROR}: Could not find subCategory with id: ${subCategoryId}`,
+      )
     }
 
     return dbExpenseSubCategoryToDomain(updatedSubcategory)
   } catch (error) {
-    // If it's already a RepositoryError, re-throw it
+    console.error(
+      `ExpenseSubCategories: updateExpenseSubcategoryRepository: Failed to update expense subcategory with id: ${subCategoryId}`,
+      error,
+    )
+
     if (error instanceof RepositoryError) {
       throw error
     }
 
     const dbError = error as Error
-    console.error(`Failed to update expense subcategory with id: ${subCategoryId}`, dbError)
     throw new RepositoryError(
       `${DB_ERROR}: Failed to update expense subcategory. Error: ${dbError.message}`,
     )

@@ -1,9 +1,9 @@
 import { ExpenseSubCategory } from '../../models/expenseSubCategory/expenseSubCategory'
 import { updateExpenseSubCategoryRepository } from '../repository/updateExpenseSubCategoryRepository'
-import { UpdateExpenseSubcategoryInput } from '../validation/models'
+import { UpdateExpenseSubCategoryInput } from '../validation/models'
 
 export async function updateExpenseSubCategoryService(
-  input: UpdateExpenseSubcategoryInput,
+  input: UpdateExpenseSubCategoryInput,
 ): Promise<ExpenseSubCategory> {
   const updatePatch = {
     name: input.name,
