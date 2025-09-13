@@ -35,7 +35,7 @@ The handler should receive the input, call validation to validate it, then call 
 - Use zod schemas and call `parse` to validate input.
 - Wrap validation failures in `validationError.ts` and return meaningful messages.
 - Place the input schema name in a `models` file inside the validation directory; use `validationUtil` for schema fragments.
-- Unit tests: test each input field for all failure conditions.
+- Unit tests: test each input field for all failure conditions. Use existing `createExpenseValidation.test.ts` as example.
 
 ### Service Layer
 
@@ -61,11 +61,11 @@ The handler should receive the input, call validation to validate it, then call 
 ```
 
 src/
-├── handlers/[DOMAIN_NAME]/
-├── validation/[DOMAIN_NAME]/
-├── services/[DOMAIN_NAME]/
-├── repositories/[DOMAIN_NAME]/
-└── mappers/[DOMAIN_NAME]/
+── [DOMAIN_NAME]
+-- handler/
+-- validation
+-- services
+-- reposiotories
 
 ```
 
@@ -77,7 +77,7 @@ src/
 - Use try/catch for async operations and log errors with context.
 - Follow project testing conventions: Jest `describe`/`it` structure, `fake` prefix for fake variables, `mock` prefix for mocked functions.
 
-## Minimal Contract (2–4 bullets)
+## Contract
 
 - Inputs: validated object matching the zod schema.
 - Outputs: domain entity or structured error object { error: string } with appropriate HTTP status.
