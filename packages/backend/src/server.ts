@@ -15,8 +15,8 @@ import {
   deleteExpenseCategoryHandler,
   updateExpenseCategoryHandler,
 } from './expenseCategories/handler'
-import { createExpenseSubcategoryHandler } from './expenseSubCategories/handler'
-import { updateExpenseSubcategoryHandler } from './expenseSubCategories/handler/updateExpenseSubCategoryHandler'
+import { createExpenseSubCategoryHandler } from './expenseSubCategories/handler'
+import { updateExpenseSubCategoryHandler } from './expenseSubCategories/handler/updateExpenseSubCategoryHandler'
 import { connectToDb } from './db'
 
 dotenv.config({ path: path.resolve(__dirname, '../env/.env.local') })
@@ -34,8 +34,8 @@ router.get('/health', (ctx) => {
 
 router.post('/createexpense', createExpenseHandler)
 router.post('/createexpensecategory', createExpenseCategoryHandler)
-router.post('/createsubcategory', createExpenseSubcategoryHandler)
-router.put('/updateexpensesubcategory', updateExpenseSubcategoryHandler)
+router.post('/createsubcategory', createExpenseSubCategoryHandler)
+router.put('/updateexpensesubcategory', updateExpenseSubCategoryHandler)
 router.get('/expenses', getExpensesHandler)
 router.put('/updateexpense', updateExpenseHandler)
 router.get('/getexpensecategories', getExpenseCategoriesHandler)
