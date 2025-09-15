@@ -11,12 +11,11 @@ import {
   VALIDATION_ERROR_UPDATE_EXPENSECATEGORY_AT_LEAST_ONE_FIELD_REQUIRED,
 } from '../../models/errors/validationError'
 
-export const CreateExpenseCategoryInputSchema = z.object(
+export const CreateExpenseCategoryInputSchema = z.strictObject(
   {
     userId: userIdSchema,
     accountId: accountIdSchema,
     name: nameSchema,
-    subcategories: subcategoriesSchema,
   },
   { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
 )
@@ -43,6 +42,7 @@ export const DeleteExpenseCategoryInputSchema = z.object(
 )
 
 export type DeleteExpenseCategoryInput = z.infer<typeof DeleteExpenseCategoryInputSchema>
+
 export const UpdateExpenseCategoryInputSchema = z
   .object(
     {

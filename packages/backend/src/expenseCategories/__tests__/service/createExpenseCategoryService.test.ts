@@ -5,6 +5,11 @@ jest.mock('../../repository/createExpenseCategoryRepository')
 
 describe('createExpenseCategoryService', () => {
   const mockCreateExpenseCategoryRepository = createExpenseCategoryRepository as jest.Mock
+  const fakeInput = {
+    userId: 'user-123',
+    accountId: 'acc-456',
+    name: 'Groceries',
+  }
 
   beforeEach(() => {
     mockCreateExpenseCategoryRepository.mockReset()
@@ -19,13 +24,7 @@ describe('createExpenseCategoryService', () => {
       }
       mockCreateExpenseCategoryRepository.mockResolvedValueOnce(fakeRepoRow)
 
-      const input = {
-        userId: 'user-123',
-        accountId: 'acc-456',
-        name: 'Groceries',
-        subcategories: [],
-      }
-      const result = await createExpenseCategoryService(input)
+      const result = await createExpenseCategoryService(fakeInput)
 
       expect(result).toBe(fakeRepoRow)
     })
@@ -35,14 +34,7 @@ describe('createExpenseCategoryService', () => {
       const mockError = new Error('Repository failure')
       mockCreateExpenseCategoryRepository.mockRejectedValueOnce(mockError)
 
-      const input = {
-        userId: 'user-123',
-        accountId: 'acc-456',
-        name: 'Groceries',
-        subcategories: [],
-      }
-
-      await expect(createExpenseCategoryService(input)).rejects.toThrow('Repository failure')
+      await expect(createExpenseCategoryService(fakeInput)).rejects.toThrow('Repository failure')
     })
   })
 })

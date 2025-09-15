@@ -8,7 +8,6 @@ export interface CreateExpenseCategoryRepoInput {
   userId: string
   accountId: string
   name: string
-  subcategories: string[]
 }
 
 export async function createExpenseCategoryRepository(
@@ -19,7 +18,14 @@ export async function createExpenseCategoryRepository(
       .insert(expenseCategoriesTable)
       .values(input)
       .returning()
-    return dbExpenseCategoryToDomain(createdExpenseCategory)
+
+    // Since this is a newly created category, it won't have any subcategories yet
+    const categoryWithSubCategories = {
+      ...createdExpenseCategory,
+      subCategories: [],
+    }
+
+    return dbExpenseCategoryToDomain(categoryWithSubCategories)
   } catch (error) {
     throw new RepositoryError(`${DB_ERROR}: ${(error as Error).message}`)
   }
