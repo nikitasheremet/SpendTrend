@@ -16,7 +16,6 @@ describe('createExpenseCategoryValidation', () => {
     userId: '00000000-0000-4000-8000-000000000000',
     accountId: '00000000-0000-4000-8000-000000000001',
     name: 'Groceries',
-    subcategories: ['Produce', 'Dairy'],
   }
 
   describe('when input is undefined', () => {

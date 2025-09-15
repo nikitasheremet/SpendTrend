@@ -22,7 +22,6 @@ test.describe('Create Expense Category Endpoint', () => {
     userId: crypto.randomUUID(),
     accountId: fakeAccountId,
     name: `Category-${Math.random()}`,
-    subcategories: ['Flights', 'Hotels'],
   }
 
   test.describe('when input is invalid', () => {

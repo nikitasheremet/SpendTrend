@@ -11,7 +11,7 @@ import {
   VALIDATION_ERROR_UPDATE_EXPENSECATEGORY_AT_LEAST_ONE_FIELD_REQUIRED,
 } from '../../models/errors/validationError'
 
-export const CreateExpenseCategoryInputSchema = z.object(
+export const CreateExpenseCategoryInputSchema = z.strictObject(
   {
     userId: userIdSchema,
     accountId: accountIdSchema,
