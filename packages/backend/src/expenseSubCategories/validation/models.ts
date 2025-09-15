@@ -31,3 +31,14 @@ export const updateExpenseSubCategoryInputSchema = z.strictObject(
 )
 
 export type UpdateExpenseSubCategoryInput = z.infer<typeof updateExpenseSubCategoryInputSchema>
+
+export const deleteExpenseSubCategoryInputSchema = z.strictObject(
+  {
+    userId: userIdSchema,
+    accountId: accountIdSchema,
+    subCategoryId: subCategoryIdSchema,
+  },
+  { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
+)
+
+export type DeleteExpenseSubCategoryInput = z.infer<typeof deleteExpenseSubCategoryInputSchema>

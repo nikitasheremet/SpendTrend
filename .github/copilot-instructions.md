@@ -22,6 +22,7 @@ Provide project context and coding guidelines that AI should follow when generat
 
 - Use camelCase for variables, functions, and methods
 - Use ALL_CAPS for constants
+- When writing subCategory the C should always be capatilized in file name, function name, and variables
 
 4. ## Coding Conventions
 

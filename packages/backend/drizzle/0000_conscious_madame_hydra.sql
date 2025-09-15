@@ -26,7 +26,7 @@ CREATE TABLE "expenses" (
 	"date" date NOT NULL,
 	"paidBackAmount" integer NOT NULL,
 	"categoryId" uuid NOT NULL,
-	"subCategoryId" uuid NOT NULL,
+	"subCategoryId" uuid,
 	"netAmount" integer NOT NULL,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL

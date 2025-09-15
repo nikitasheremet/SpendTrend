@@ -1,2 +1,3 @@
-export { createExpenseSubCategoryHandler } from './createExpenseSubCategoryHandler'
+export { createExpenseSubCategoryHandler } from './createExpenseSubcategoryHandler'
 export { updateExpenseSubCategoryHandler } from './updateExpenseSubCategoryHandler'
+export { deleteExpenseSubCategoryHandler } from './deleteExpenseSubCategoryHandler'
