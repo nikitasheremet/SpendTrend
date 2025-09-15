@@ -9,7 +9,6 @@ export async function createExpenseCategoryService(
     userId: input.userId,
     accountId: input.accountId,
     name: input.name,
-    subcategories: input.subcategories,
   }
 
   const createdExpenseCategory = await createExpenseCategoryRepository(repoInput)

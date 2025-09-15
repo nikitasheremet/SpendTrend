@@ -16,7 +16,6 @@ export const CreateExpenseCategoryInputSchema = z.object(
     userId: userIdSchema,
     accountId: accountIdSchema,
     name: nameSchema,
-    subcategories: subcategoriesSchema,
   },
   { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
 )
@@ -43,6 +42,7 @@ export const DeleteExpenseCategoryInputSchema = z.object(
 )
 
 export type DeleteExpenseCategoryInput = z.infer<typeof DeleteExpenseCategoryInputSchema>
+
 export const UpdateExpenseCategoryInputSchema = z
   .object(
     {
