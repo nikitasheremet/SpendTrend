@@ -8,11 +8,11 @@ import { ExpenseSubCategoryDbRow } from '../../models/expenseSubCategory/expense
 export async function deleteExpenseSubCategoryService(
   input: DeleteExpenseSubCategoryInput,
 ): Promise<ExpenseSubCategoryDbRow> {
-  // First delete the expense subcategory
-  const deletedSubCategory = await deleteExpenseSubCategoryRepository(input)
-
-  // Then clean up references in expenses table
+  // First clean up references in expenses table
   await deleteExpenseSubCategoryReferencesInExpenses(input.subCategoryId)
+
+  // Then delete the expense subcategory after all references are removed
+  const deletedSubCategory = await deleteExpenseSubCategoryRepository(input)
 
   return deletedSubCategory
 }
