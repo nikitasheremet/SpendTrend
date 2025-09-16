@@ -6,12 +6,12 @@ import {
 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
 import { eq } from 'drizzle-orm'
-import { expenseCategoriesTable } from '../src/db/schema'
+import { expenseCategoriesTable, expenseSubCategoriesTable } from '../src/db/schema'
 import crypto from 'crypto'
 
 const BASE_URL = 'http://localhost:3000'
 
-test.describe.skip('Update Expense Category Endpoint', () => {
+test.describe('Update Expense Category Endpoint', () => {
   test.beforeAll(() => {
     connectToDb()
   })
@@ -38,68 +38,68 @@ test.describe.skip('Update Expense Category Endpoint', () => {
 
   test.describe('when request is successful', () => {
     test('should return the updated expenseCategory', async ({ request }) => {
-      // First, create a category
-      const inserted = await db.insert(expenseCategoriesTable).values(fakeValidCategory).returning()
+      // First, create a category, setting the createdAt manually otherwise the test runs so fast that the updatedAt after the update is too close and comparison fails
+      const inserted = await db
+        .insert(expenseCategoriesTable)
+        .values({ ...fakeValidCategory, createdAt: new Date(Date.now() - 1000) })
+        .returning()
       const createdCategory = inserted[0]
 
-      // Update the name and subcategories
+      // Create a subcategory for the category
+      const fakeSubCategory = {
+        userId: createdCategory.userId,
+        accountId: createdCategory.accountId,
+        name: 'Test Subcategory',
+        categoryId: createdCategory.id,
+      }
+      const [createdSubCategory] = await db
+        .insert(expenseSubCategoriesTable)
+        .values(fakeSubCategory)
+        .returning()
+
+      // Update the name
       const updatePayload = {
         id: createdCategory.id,
         userId: createdCategory.userId,
         accountId: createdCategory.accountId,
         name: 'Updated Category Name',
-        subcategories: ['Updated Subcategory 1', 'Updated Subcategory 2'],
       }
+
       const response = await request.put(`${BASE_URL}/updateexpensecategory`, {
         data: updatePayload,
       })
       const body = await response.json()
 
       expect(response.status()).toBe(STATUS_SUCCESS_200)
-      expect(body.expenseCategory.name).toBe(updatePayload.name)
-      expect(body.expenseCategory.id).toBe(createdCategory.id)
 
-      // Verify in DB
+      const expectedExpenseCategory = {
+        name: updatePayload.name,
+        id: createdCategory.id,
+        userId: createdCategory.userId,
+        accountId: createdCategory.accountId,
+        createdAt: createdCategory.createdAt.toISOString(),
+        updatedAt: expect.any(String),
+        subCategories: [
+          {
+            ...createdSubCategory,
+            createdAt: createdSubCategory.createdAt.toISOString(),
+            updatedAt: createdSubCategory.updatedAt.toISOString(),
+          },
+        ],
+      }
+      expect(body.expenseCategory).toEqual(expectedExpenseCategory)
+
+      expect(
+        new Date(body.expenseCategory.updatedAt) > new Date(body.expenseCategory.createdAt),
+      ).toBe(true)
+
+      // Verify update in DB
       const rows = await db
         .select()
         .from(expenseCategoriesTable)
         .where(eq(expenseCategoriesTable.id, createdCategory.id))
       expect(rows.length).toBe(1)
       expect(rows[0].name).toBe(updatePayload.name)
-      expect(rows[0].subcategories).toEqual(updatePayload.subcategories)
-    })
-
-    test('should update subcategories and return the updated expenseCategory', async ({
-      request,
-    }) => {
-      // First, create a category
-      const inserted = await db.insert(expenseCategoriesTable).values(fakeValidCategory).returning()
-      const createdCategory = inserted[0]
-
-      // Update the subcategories
-      const updatePayload = {
-        id: createdCategory.id,
-        userId: createdCategory.userId,
-        accountId: createdCategory.accountId,
-        subcategories: ['New Sub1', 'New Sub2'],
-      }
-
-      const response = await request.put(`${BASE_URL}/updateexpensecategory`, {
-        data: updatePayload,
-      })
-      const body = await response.json()
-
-      expect(response.status()).toBe(STATUS_SUCCESS_200)
-      expect(body.expenseCategory.subcategories).toEqual(updatePayload.subcategories)
-      expect(body.expenseCategory.id).toBe(createdCategory.id)
-
-      // Verify in DB
-      const rows = await db
-        .select()
-        .from(expenseCategoriesTable)
-        .where(eq(expenseCategoriesTable.id, createdCategory.id))
-      expect(rows.length).toBe(1)
-      expect(rows[0].subcategories).toEqual(updatePayload.subcategories)
     })
   })
 
