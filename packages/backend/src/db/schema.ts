@@ -84,7 +84,7 @@ export const incomeTable = pgTable('income', {
   userId: uuid().notNull(),
   accountId: uuid().notNull(),
   name: varchar({ length: 255 }).notNull(),
-  amount: decimal().notNull(),
+  amount: integer().notNull(),
   date: date().notNull(),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
