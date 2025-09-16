@@ -5,22 +5,45 @@ import { DB_ERROR, RepositoryError } from '../../../models/errors/repositoryErro
 jest.mock('../../../db')
 
 describe('getExpenseCategoriesRepository', () => {
-  const mockSelect = db.select as jest.Mock
+  const mockQuery = { expenseCategoriesTable: { findMany: jest.fn() } }
   const fakeInput = { accountId: 'a' }
 
   beforeEach(() => {
-    mockSelect.mockReset()
+    jest.resetAllMocks()
+    // @ts-expect-error - mocking db.query
+    db.query = mockQuery
   })
 
-  describe.skip('when query is successful', () => {
+  describe('when query is successful', () => {
     it('should return the mapped rows', async () => {
+      const fakeSubCategories = [
+        {
+          id: 'sub-123',
+          userId: 'u',
+          accountId: 'a',
+          name: 'Produce',
+          categoryId: '123e4567-e89b-12d3-a456-426614174000',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: 'sub-456',
+          userId: 'u',
+          accountId: 'a',
+          name: 'Electricity',
+          categoryId: '123e4567-e89b-12d3-a456-426614174001',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]
+
       const fakeDbRows = [
         {
           id: '123e4567-e89b-12d3-a456-426614174000',
           userId: 'u',
           accountId: 'a',
           name: 'Groceries',
-          subcategories: ['Produce'],
+          subCategories: [fakeSubCategories[0]],
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -29,32 +52,66 @@ describe('getExpenseCategoriesRepository', () => {
           userId: 'u',
           accountId: 'a',
           name: 'Utilities',
-          subcategories: ['Electricity'],
+          subCategories: [fakeSubCategories[1]],
           createdAt: new Date(),
           updatedAt: new Date(),
         },
       ]
-      const fakeMappedRows = fakeDbRows.map((row) => ({
-        ...row,
-        createdAt: row.createdAt.toISOString(),
-        updatedAt: row.updatedAt.toISOString(),
-      }))
-      mockSelect.mockReturnValueOnce({
-        from: () => ({
-          where: () => fakeDbRows,
-        }),
-      })
+
+      mockQuery.expenseCategoriesTable.findMany.mockResolvedValueOnce(fakeDbRows)
 
       const result = await getExpenseCategoriesRepository(fakeInput)
-      expect(result).toEqual(fakeMappedRows)
+
+      expect(result).toHaveLength(2)
+      const expected = [
+        {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          userId: 'u',
+          accountId: 'a',
+          name: 'Groceries',
+          subCategories: [
+            {
+              id: 'sub-123',
+              userId: 'u',
+              accountId: 'a',
+              name: 'Produce',
+              categoryId: '123e4567-e89b-12d3-a456-426614174000',
+              createdAt: expect.any(Date),
+              updatedAt: expect.any(Date),
+            },
+          ],
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+        },
+        {
+          id: '123e4567-e89b-12d3-a456-426614174001',
+          userId: 'u',
+          accountId: 'a',
+          name: 'Utilities',
+          subCategories: [
+            {
+              id: 'sub-456',
+              userId: 'u',
+              accountId: 'a',
+              name: 'Electricity',
+              categoryId: '123e4567-e89b-12d3-a456-426614174001',
+              createdAt: expect.any(Date),
+              updatedAt: expect.any(Date),
+            },
+          ],
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+        },
+      ]
+
+      expect(result).toEqual(expected)
     })
   })
 
-  describe('when db select fails', () => {
+  describe('when db query fails', () => {
     it('should throw RepositoryError with DB_ERROR', async () => {
-      mockSelect.mockImplementationOnce(() => {
-        throw new Error('select failed')
-      })
+      mockQuery.expenseCategoriesTable.findMany.mockRejectedValueOnce(new Error('query failed'))
+
       const result = getExpenseCategoriesRepository(fakeInput)
       await expect(result).rejects.toThrow(RepositoryError)
       await expect(result).rejects.toThrow(DB_ERROR)
