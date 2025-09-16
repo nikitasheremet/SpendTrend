@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test'
 import { STATUS_SUCCESS_200, STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
-import { expenseCategoriesTable } from '../src/db/schema'
+import { expenseCategoriesTable, expenseSubCategoriesTable } from '../src/db/schema'
 import crypto from 'crypto'
 
 const BASE_URL = 'http://localhost:3000'
 
-test.describe.skip('Get Expense Categories Endpoint', () => {
+test.describe('Get Expense Categories Endpoint', () => {
   test.beforeAll(() => {
     connectToDb()
   })
@@ -20,31 +20,12 @@ test.describe.skip('Get Expense Categories Endpoint', () => {
   })
 
   test.describe('when request is successful', () => {
-    test('should return an array of expenseCategories', async ({ request }) => {
+    test('should return an array of expenseCategories with subcategories', async ({ request }) => {
       const fakeAccountId = crypto.randomUUID()
       const fakeUserId = crypto.randomUUID()
-      const fakeCategory1 = {
-        userId: fakeUserId,
-        accountId: fakeAccountId,
-        name: `Category1-${Math.random()}`,
-        subcategories: ['Sub1', 'Sub2'],
-      }
-      const fakeCategory2 = {
-        userId: fakeUserId,
-        accountId: fakeAccountId,
-        name: `Category2-${Math.random()}`,
-        subcategories: ['Sub3'],
-      }
 
-      // Insert categories directly into database and get inserted data
-      const [insertedCategory1] = await db
-        .insert(expenseCategoriesTable)
-        .values(fakeCategory1)
-        .returning()
-      const [insertedCategory2] = await db
-        .insert(expenseCategoriesTable)
-        .values(fakeCategory2)
-        .returning()
+      // Create test data with 2 categories and their subcategories
+      const testData = await createTestData(fakeUserId, fakeAccountId)
 
       // Get categories
       const response = await request.get(`${BASE_URL}/getexpensecategories`, {
@@ -60,28 +41,38 @@ test.describe.skip('Get Expense Categories Endpoint', () => {
       expect(body.expenseCategories.length).toBe(2)
 
       // Assert queried data matches inserted data, including createdAt and updatedAt
-      expect(body.expenseCategories).toEqual(
-        expect.arrayContaining([
+      for (const { category, subCategories } of testData) {
+        const categoryResponse = body.expenseCategories.find((cat: any) => cat.id === category.id)
+
+        // Check the category data
+        expect(categoryResponse).toEqual(
           expect.objectContaining({
-            id: insertedCategory1.id,
-            name: insertedCategory1.name,
-            userId: insertedCategory1.userId,
-            accountId: insertedCategory1.accountId,
-            subcategories: insertedCategory1.subcategories,
-            createdAt: insertedCategory1.createdAt.toISOString(),
-            updatedAt: insertedCategory1.updatedAt.toISOString(),
+            id: category.id,
+            name: category.name,
+            userId: category.userId,
+            accountId: category.accountId,
+            createdAt: category.createdAt.toISOString(),
+            updatedAt: category.updatedAt.toISOString(),
           }),
-          expect.objectContaining({
-            id: insertedCategory2.id,
-            name: insertedCategory2.name,
-            userId: insertedCategory2.userId,
-            accountId: insertedCategory2.accountId,
-            subcategories: insertedCategory2.subcategories,
-            createdAt: insertedCategory2.createdAt.toISOString(),
-            updatedAt: insertedCategory2.updatedAt.toISOString(),
-          }),
-        ]),
-      )
+        )
+
+        // Check all subcategories for this category
+        expect(categoryResponse.subCategories.length).toBe(subCategories.length)
+
+        for (const subCategory of subCategories) {
+          expect(categoryResponse.subCategories).toContainEqual(
+            expect.objectContaining({
+              id: subCategory.id,
+              name: subCategory.name,
+              userId: subCategory.userId,
+              accountId: subCategory.accountId,
+              categoryId: category.id,
+              createdAt: expect.any(String),
+              updatedAt: expect.any(String),
+            }),
+          )
+        }
+      }
     })
   })
 
@@ -103,3 +94,94 @@ test.describe.skip('Get Expense Categories Endpoint', () => {
     })
   })
 })
+
+interface CategoryWithSubCategories {
+  category: {
+    id: string
+    userId: string
+    accountId: string
+    name: string
+    createdAt: Date
+    updatedAt: Date
+  }
+  subCategories: Array<{
+    id: string
+    userId: string
+    accountId: string
+    name: string
+    categoryId: string
+    createdAt: Date
+    updatedAt: Date
+  }>
+}
+
+async function createTestData(
+  userId: string,
+  accountId: string,
+): Promise<CategoryWithSubCategories[]> {
+  const result: CategoryWithSubCategories[] = []
+
+  // Create first category
+  const [category1] = await db
+    .insert(expenseCategoriesTable)
+    .values({
+      userId,
+      accountId,
+      name: `Groceries-${Math.random()}`,
+    })
+    .returning()
+
+  // Create second category
+  const [category2] = await db
+    .insert(expenseCategoriesTable)
+    .values({
+      userId,
+      accountId,
+      name: `Utilities-${Math.random()}`,
+    })
+    .returning()
+
+  // Create subcategories for first category
+  const [subCategory1] = await db
+    .insert(expenseSubCategoriesTable)
+    .values({
+      userId,
+      accountId,
+      name: `Produce-${Math.random()}`,
+      categoryId: category1.id,
+    })
+    .returning()
+
+  const [subCategory2] = await db
+    .insert(expenseSubCategoriesTable)
+    .values({
+      userId,
+      accountId,
+      name: `Dairy-${Math.random()}`,
+      categoryId: category1.id,
+    })
+    .returning()
+
+  // Create subcategory for second category
+  const [subCategory3] = await db
+    .insert(expenseSubCategoriesTable)
+    .values({
+      userId,
+      accountId,
+      name: `Electricity-${Math.random()}`,
+      categoryId: category2.id,
+    })
+    .returning()
+
+  result.push({
+    category: category1,
+    subCategories: [subCategory1, subCategory2],
+  })
+
+  result.push({
+    category: category2,
+    subCategories: [subCategory3],
+  })
+
+  return result
+}
