@@ -15,7 +15,11 @@ import {
   deleteExpenseCategoryHandler,
   updateExpenseCategoryHandler,
 } from './expenseCategories/handler'
-import { createExpenseSubcategoryHandler } from './expenseSubCategories/handler'
+import {
+  createExpenseSubCategoryHandler,
+  updateExpenseSubCategoryHandler,
+  deleteExpenseSubCategoryHandler,
+} from './expenseSubCategories/handler'
 import { connectToDb } from './db'
 import { createIncomeHandler } from './income/handler/createIncomeHandler'
 
@@ -34,7 +38,9 @@ router.get('/health', (ctx) => {
 
 router.post('/createexpense', createExpenseHandler)
 router.post('/createexpensecategory', createExpenseCategoryHandler)
-router.post('/createsubcategory', createExpenseSubcategoryHandler)
+router.post('/createsubcategory', createExpenseSubCategoryHandler)
+router.put('/updateexpensesubcategory', updateExpenseSubCategoryHandler)
+router.post('/deleteexpensesubcategory', deleteExpenseSubCategoryHandler)
 router.get('/expenses', getExpensesHandler)
 router.put('/updateexpense', updateExpenseHandler)
 router.get('/getexpensecategories', getExpenseCategoriesHandler)

@@ -1,5 +1,5 @@
 import { db } from '../../db'
-import { expenseCategoriesTable } from '../../db/schema'
+import { expenseCategoriesTable, expenseSubCategoriesTable } from '../../db/schema'
 import { eq } from 'drizzle-orm'
 import { DB_ERROR, NOT_FOUND_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 import { ExpenseCategory } from '../../models/expenseCategory/expenseCategory'
@@ -8,8 +8,7 @@ import { dbExpenseCategoryToDomain } from '../../utilities/mappers/expenseCatego
 export interface UpdateExpenseCategoryRepoInput {
   id: string
   updates: {
-    name?: string
-    subcategories?: string[]
+    name: string
   }
 }
 
@@ -19,7 +18,7 @@ export async function updateExpenseCategoryRepository(
   try {
     const [updatedExpenseCategory] = await db
       .update(expenseCategoriesTable)
-      .set(input.updates)
+      .set({ ...input.updates, updatedAt: new Date() })
       .where(eq(expenseCategoriesTable.id, input.id))
       .returning()
 
@@ -27,7 +26,17 @@ export async function updateExpenseCategoryRepository(
       throw new RepositoryError(NOT_FOUND_ERROR)
     }
 
-    return dbExpenseCategoryToDomain(updatedExpenseCategory)
+    const subCategories = await db
+      .select()
+      .from(expenseSubCategoriesTable)
+      .where(eq(expenseSubCategoriesTable.categoryId, input.id))
+
+    const categoryWithSubCategories = {
+      ...updatedExpenseCategory,
+      subCategories,
+    }
+
+    return dbExpenseCategoryToDomain(categoryWithSubCategories)
   } catch (error) {
     if (error instanceof RepositoryError) {
       throw error

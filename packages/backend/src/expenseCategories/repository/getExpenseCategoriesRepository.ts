@@ -14,10 +14,12 @@ export async function getExpenseCategoriesRepository(
 ): Promise<ExpenseCategory[]> {
   try {
     const { accountId } = input
-    const rows = await db
-      .select()
-      .from(expenseCategoriesTable)
-      .where(eq(expenseCategoriesTable.accountId, accountId))
+    const rows = await db.query.expenseCategoriesTable.findMany({
+      where: eq(expenseCategoriesTable.accountId, accountId),
+      with: {
+        subCategories: true,
+      },
+    })
     return dbExpenseCategoriesToDomainCategories(rows)
   } catch (error) {
     throw new RepositoryError(`${DB_ERROR}: ${(error as Error).message}`)

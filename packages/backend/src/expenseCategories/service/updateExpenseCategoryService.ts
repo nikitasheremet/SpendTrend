@@ -9,7 +9,6 @@ export async function updateExpenseCategoryService(
     id: input.id,
     updates: {
       name: input.name,
-      subcategories: input.subcategories,
     },
   }
 

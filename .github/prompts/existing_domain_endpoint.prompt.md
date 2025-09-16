@@ -5,7 +5,7 @@ Use this template to create a new endpoint within an existing domain. Replace pl
 
 ## Template Usage
 
-Create a new endpoint: **[ENDPOINT_NAME]** inside an existing domain **[DOMAIN_NAME]**. The endpoint will add a handler, validation, service, repository, and mapper files within the existing domain's directories.
+Create a new endpoint: **[ENDPOINT_NAME]** inside an existing domain **[DOMAIN_NAME]**. The endpoint will add a handler, validation, service, repository within the existing domain's directories.
 
 ## Input Specification
 
@@ -15,7 +15,7 @@ Create a new endpoint: **[ENDPOINT_NAME]** inside an existing domain **[DOMAIN_N
 
 ## Architecture Overview
 
-The handler should receive the input, call validation to validate it, then call the service to perform business logic. The service should call the repository to interact with the database. The handler must be registered in `server.ts` or the project's routing entrypoint.
+The handler should receive the input, call validation to validate it, then call the service to perform business logic. The service should call the repository to interact with the database. The handler must be registered in `server.ts`
 
 ## Layer-by-Layer Implementation Details
 
@@ -25,17 +25,19 @@ The handler should receive the input, call validation to validate it, then call 
 - Call the service function which implements business logic and returns the domain entity or an error.
 - Catch failures, set a status code using `errorStatusMapper.ts`, and include an `error` property on the response body.
 - Unit tests (Jest):
-  - when validation throws an error
-  - when service throws an error
-  - when everything succeeds
+  - when validation throws an error - it should return non success error code and contain an error message
+  - when service throws an error - it should return non success error code and contain an error message
+  - when everything succeeds - it should return the appropriate object based on what this endpoint it doing
   - Use existing `createExpenseHandler.ts` and its tests as examples.
+  - Only mock the validation and service functions. Don't mock the error status mapper.
 
 ### Validation Layer
 
+- Validation function should `assert` the input type
 - Use zod schemas and call `parse` to validate input.
 - Wrap validation failures in `validationError.ts` and return meaningful messages.
 - Place the input schema name in a `models` file inside the validation directory; use `validationUtil` for schema fragments.
-- Unit tests: test each input field for all failure conditions.
+- Unit tests: test each input field for all failure conditions. Use existing `createExpenseValidation.test.ts` as example.
 
 ### Service Layer
 
@@ -51,7 +53,7 @@ The handler should receive the input, call validation to validate it, then call 
 
 ### Mappers
 
-- Place mappers under the domain `mappers` directory. Map database rows to domain types.
+- Place mappers under the `utilities/mappers` directory. Map database rows to domain types.
 
 ## End-to-End Testing
 
@@ -61,11 +63,28 @@ The handler should receive the input, call validation to validate it, then call 
 ```
 
 src/
-├── handlers/[DOMAIN_NAME]/
-├── validation/[DOMAIN_NAME]/
-├── services/[DOMAIN_NAME]/
-├── repositories/[DOMAIN_NAME]/
-└── mappers/[DOMAIN_NAME]/
+├── [DOMAIN_NAME]/
+│ ├── **tests**/
+│ │ ├── handler/
+│ │ ├── repository/
+│ │ ├── service/
+│ │ └── validation/
+│ ├── handler/
+│ │ ├── [specificFunction].ts
+│ │ └── index.ts
+│ ├── service/
+│ │ ├── [specificFunction].ts
+│ │ └── index.ts
+│ ├── repository/
+│ │ ├── [specificFunction].ts
+│ │ └── index.ts
+│ └── validation/
+│ ├── validationUtils/
+│ │ └── [schemaFragments].ts
+│ ├── [validationFunction].ts
+│ ├── index.ts
+│ ├── models.ts
+│
 
 ```
 
@@ -77,7 +96,7 @@ src/
 - Use try/catch for async operations and log errors with context.
 - Follow project testing conventions: Jest `describe`/`it` structure, `fake` prefix for fake variables, `mock` prefix for mocked functions.
 
-## Minimal Contract (2–4 bullets)
+## Contract
 
 - Inputs: validated object matching the zod schema.
 - Outputs: domain entity or structured error object { error: string } with appropriate HTTP status.

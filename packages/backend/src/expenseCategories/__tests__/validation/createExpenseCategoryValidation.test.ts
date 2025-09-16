@@ -4,9 +4,6 @@ import {
   VALIDATION_ERROR_NAME_IS_REQUIRED,
   VALIDATION_ERROR_NAME_MUST_BE_STRING,
   VALIDATION_ERROR_NAME_EMPTY,
-  VALIDATION_ERROR_SUBCATEGORIES_MISSING,
-  VALIDATION_ERROR_SUBCATEGORIES_MUST_BE_ARRAY,
-  VALIDATION_ERROR_SUBCATEGORIES_ITEMS_MUST_BE_STRINGS,
   VALIDATION_ERROR_USERID_TYPE,
   VALIDATION_ERROR_ACCOUNTID_TYPE,
   VALIDATION_ERROR_USERID_MISSING,
@@ -19,7 +16,6 @@ describe('createExpenseCategoryValidation', () => {
     userId: '00000000-0000-4000-8000-000000000000',
     accountId: '00000000-0000-4000-8000-000000000001',
     name: 'Groceries',
-    subcategories: ['Produce', 'Dairy'],
   }
 
   describe('when input is undefined', () => {
@@ -82,36 +78,6 @@ describe('createExpenseCategoryValidation', () => {
       const callValidation = () => validateCreateExpenseCategoryInput(fakeInvalidInput)
       expect(callValidation).toThrow(ValidationError)
       expect(callValidation).toThrow(VALIDATION_ERROR_NAME_EMPTY)
-    })
-  })
-
-  describe('when validating subcategories', () => {
-    it('should require subcategories', () => {
-      const fakeInvalidInput = { ...fakeValidInput, subcategories: undefined }
-      const callValidation = () => validateCreateExpenseCategoryInput(fakeInvalidInput)
-      expect(callValidation).toThrow(ValidationError)
-      expect(callValidation).toThrow(VALIDATION_ERROR_SUBCATEGORIES_MISSING)
-    })
-
-    it('should require subcategories to be an array', () => {
-      const fakeInvalidInput = { ...fakeValidInput, subcategories: 'not-an-array' }
-      const callValidation = () => validateCreateExpenseCategoryInput(fakeInvalidInput)
-      expect(callValidation).toThrow(ValidationError)
-      expect(callValidation).toThrow(VALIDATION_ERROR_SUBCATEGORIES_MUST_BE_ARRAY)
-    })
-
-    it('should allow empty subcategories array', () => {
-      const fakeValidInputWithEmptySubcategories = { ...fakeValidInput, subcategories: [] }
-      const callValidation = () =>
-        validateCreateExpenseCategoryInput(fakeValidInputWithEmptySubcategories)
-      expect(callValidation).not.toThrow()
-    })
-
-    it('should require all subcategory items to be strings', () => {
-      const fakeInvalidInput = { ...fakeValidInput, subcategories: ['Good', 123] }
-      const callValidation = () => validateCreateExpenseCategoryInput(fakeInvalidInput)
-      expect(callValidation).toThrow(ValidationError)
-      expect(callValidation).toThrow(VALIDATION_ERROR_SUBCATEGORIES_ITEMS_MUST_BE_STRINGS)
     })
   })
 

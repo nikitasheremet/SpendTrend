@@ -22,6 +22,7 @@ Provide project context and coding guidelines that AI should follow when generat
 
 - Use camelCase for variables, functions, and methods
 - Use ALL_CAPS for constants
+- When writing subCategory the C should always be capatilized in file name, function name, and variables
 
 4. ## Coding Conventions
 
@@ -48,3 +49,10 @@ Provide project context and coding guidelines that AI should follow when generat
 - Structure unit tests using `describe` and `test` blocks
 - `describe` blocks should follow structure: "when ABC occurs"
 - `test` blocks should follow structure: "should do/return XYZ"
+
+8. ## Backend Commands
+
+- Needs to be run in ./packages/backend
+- Run all unit tests: npm run test:unit
+- Run all e2e tests: npm run test:e2e
+- Run specific e2e test: npm run e2e:test {path to test relativel to backend package root}

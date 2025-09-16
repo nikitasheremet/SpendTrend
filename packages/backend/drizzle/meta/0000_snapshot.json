@@ -1,5 +1,5 @@
 {
-  "id": "e2188a19-98f6-4fe5-8373-9af6c3b0b47a",
+  "id": "3227707b-2713-4b81-a93a-23608602efa4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -229,7 +229,7 @@
           "name": "subCategoryId",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "netAmount": {
           "name": "netAmount",

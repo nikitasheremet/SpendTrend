@@ -9,6 +9,7 @@ jest.mock('../../../db')
 
 describe('updateExpenseCategoryRepository', () => {
   const mockDbUpdate = db.update as jest.Mock
+  const mockDbSelect = db.select as jest.Mock
 
   const fakeInput: UpdateExpenseCategoryRepoInput = {
     id: 'expense-category-1',
@@ -18,6 +19,8 @@ describe('updateExpenseCategoryRepository', () => {
   let returningMock: jest.Mock
   let whereMock: jest.Mock
   let setMock: jest.Mock
+  let fromMock: jest.Mock
+  let selectWhereMock: jest.Mock
 
   beforeEach(() => {
     jest.resetAllMocks()
@@ -26,6 +29,11 @@ describe('updateExpenseCategoryRepository', () => {
     whereMock = jest.fn().mockReturnValue({ returning: returningMock })
     setMock = jest.fn().mockReturnValue({ where: whereMock })
     mockDbUpdate.mockReturnValue({ set: setMock })
+
+    // create the chain for select: select().from(...).where(...)
+    selectWhereMock = jest.fn()
+    fromMock = jest.fn().mockReturnValue({ where: selectWhereMock })
+    mockDbSelect.mockReturnValue({ from: fromMock })
   })
 
   describe('when the database update throws an error', () => {
@@ -52,25 +60,68 @@ describe('updateExpenseCategoryRepository', () => {
     })
   })
 
-  describe.skip('when the database update succeeds', () => {
-    it('should return the updated expense category mapped to the domain version', async () => {
+  describe('when the database select for subcategories throws an error', () => {
+    it('should throw a repository error with DB_ERROR', async () => {
       const fakeDbExpenseCategory = {
         id: 'expense-category-1',
+        userId: 'user-1',
+        accountId: 'account-1',
+        name: 'Updated Name',
         createdAt: new Date('2025-09-01T00:00:00Z'),
         updatedAt: new Date('2025-09-01T00:00:00Z'),
       }
 
       returningMock.mockResolvedValueOnce([fakeDbExpenseCategory])
+      selectWhereMock.mockRejectedValueOnce(new Error('DB select error'))
+
+      await expect(updateExpenseCategoryRepository(fakeInput)).rejects.toThrow(DB_ERROR)
+      await expect(updateExpenseCategoryRepository(fakeInput)).rejects.toBeInstanceOf(
+        RepositoryError,
+      )
+    })
+  })
+
+  describe('when the database update succeeds', () => {
+    it('should return the updated expense category with subcategories mapped to the domain version', async () => {
+      const fakeDbExpenseCategory = {
+        id: 'expense-category-1',
+        userId: 'user-1',
+        accountId: 'account-1',
+        name: 'Updated Name',
+        createdAt: new Date('2025-09-01T00:00:00Z'),
+        updatedAt: new Date('2025-09-01T00:00:00Z'),
+      }
+
+      const fakeSubCategories = [
+        {
+          id: 'sub-1',
+          userId: 'user-1',
+          accountId: 'account-1',
+          name: 'Sub Category 1',
+          categoryId: 'expense-category-1',
+          createdAt: new Date('2025-09-01T00:00:00Z'),
+          updatedAt: new Date('2025-09-01T00:00:00Z'),
+        },
+      ]
+
+      returningMock.mockResolvedValueOnce([fakeDbExpenseCategory])
+      selectWhereMock.mockResolvedValueOnce(fakeSubCategories)
 
       const result = await updateExpenseCategoryRepository(fakeInput)
 
-      expect(result).toEqual(
-        expect.objectContaining({
-          ...fakeDbExpenseCategory,
-          createdAt: fakeDbExpenseCategory.createdAt.toISOString(),
-          updatedAt: fakeDbExpenseCategory.updatedAt.toISOString(),
-        }),
-      )
+      expect(result).toEqual({
+        id: 'expense-category-1',
+        userId: 'user-1',
+        accountId: 'account-1',
+        name: 'Updated Name',
+        subCategories: [
+          {
+            ...fakeSubCategories[0],
+          },
+        ],
+        createdAt: new Date('2025-09-01T00:00:00Z'),
+        updatedAt: new Date('2025-09-01T00:00:00Z'),
+      })
     })
   })
 })

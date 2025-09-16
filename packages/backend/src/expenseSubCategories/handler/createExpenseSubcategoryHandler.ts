@@ -5,7 +5,7 @@ import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { STATUS_CREATED_201 } from '../../models/statusCodes'
 import { CreateExpenseSubcategoryInput } from '../validation/models'
 
-export async function createExpenseSubcategoryHandler(ctx: Context): Promise<void> {
+export async function createExpenseSubCategoryHandler(ctx: Context): Promise<void> {
   try {
     const input = ctx.request.body
     validateCreateExpenseSubcategoryInput(input)

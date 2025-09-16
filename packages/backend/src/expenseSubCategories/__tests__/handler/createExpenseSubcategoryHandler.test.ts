@@ -1,4 +1,4 @@
-import { createExpenseSubcategoryHandler } from '../../handler/createExpenseSubcategoryHandler'
+import { createExpenseSubcategoryHandler } from '../../handler/createExpenseSubCategoryHandler'
 import * as service from '../../service/createExpenseSubcategoryService'
 import * as validation from '../../validation/createExpenseSubcategoryValidation'
 import { STATUS_CREATED_201 } from '../../../models/statusCodes'

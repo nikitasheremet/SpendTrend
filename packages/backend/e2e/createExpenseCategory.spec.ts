@@ -12,7 +12,7 @@ import { DB_ERROR } from '../src/models/errors/repositoryErrors'
 
 const BASE_URL = 'http://localhost:3000'
 
-test.describe.skip('Create Expense Category Endpoint', () => {
+test.describe('Create Expense Category Endpoint', () => {
   test.beforeAll(() => {
     connectToDb()
   })
@@ -22,7 +22,6 @@ test.describe.skip('Create Expense Category Endpoint', () => {
     userId: crypto.randomUUID(),
     accountId: fakeAccountId,
     name: `Category-${Math.random()}`,
-    subcategories: ['Flights', 'Hotels'],
   }
 
   test.describe('when input is invalid', () => {
@@ -46,7 +45,15 @@ test.describe.skip('Create Expense Category Endpoint', () => {
       const body = await response.json()
 
       expect(response.status()).toBe(STATUS_CREATED_201)
-      expect(body.expenseCategory.name).toBe(fakeValidCategory.name)
+      expect(body.expenseCategory).toEqual({
+        id: expect.any(String),
+        userId: fakeValidCategory.userId,
+        accountId: fakeValidCategory.accountId,
+        name: fakeValidCategory.name,
+        subCategories: [],
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      })
 
       // Verify directly in DB that the category was created
       const rows = await db
