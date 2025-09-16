@@ -1,15 +1,6 @@
 import * as z from 'zod'
-import {
-  userIdSchema,
-  accountIdSchema,
-  nameSchema,
-  subcategoriesSchema,
-  idSchema,
-} from './validationUtils'
-import {
-  VALIDATION_INPUT_MUST_BE_AN_OBJECT,
-  VALIDATION_ERROR_UPDATE_EXPENSECATEGORY_AT_LEAST_ONE_FIELD_REQUIRED,
-} from '../../models/errors/validationError'
+import { userIdSchema, accountIdSchema, nameSchema, idSchema } from './validationUtils'
+import { VALIDATION_INPUT_MUST_BE_AN_OBJECT } from '../../models/errors/validationError'
 
 export const CreateExpenseCategoryInputSchema = z.strictObject(
   {
