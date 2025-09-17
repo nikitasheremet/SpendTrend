@@ -19,7 +19,7 @@ export const expenseSubCategoriesTable = pgTable(
     name: varchar({ length: 255 }).notNull(),
     categoryId: uuid()
       .notNull()
-      .references(() => expenseCategoriesTable.id),
+      .references(() => expenseCategoriesTable.id, { onDelete: 'cascade' }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
