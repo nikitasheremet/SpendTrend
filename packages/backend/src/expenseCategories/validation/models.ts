@@ -13,7 +13,7 @@ export const CreateExpenseCategoryInputSchema = z.strictObject(
 
 export type CreateExpenseCategoryInput = z.infer<typeof CreateExpenseCategoryInputSchema>
 
-export const GetExpenseCategoriesInputSchema = z.object(
+export const GetExpenseCategoriesInputSchema = z.strictObject(
   {
     userId: userIdSchema,
     accountId: accountIdSchema,
@@ -23,7 +23,7 @@ export const GetExpenseCategoriesInputSchema = z.object(
 
 export type GetExpenseCategoriesInput = z.infer<typeof GetExpenseCategoriesInputSchema>
 
-export const DeleteExpenseCategoryInputSchema = z.object(
+export const DeleteExpenseCategoryInputSchema = z.strictObject(
   {
     userId: userIdSchema,
     accountId: accountIdSchema,
