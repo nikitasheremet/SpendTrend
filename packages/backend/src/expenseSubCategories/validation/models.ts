@@ -8,7 +8,7 @@ import {
   subCategoryIdSchema,
 } from './validationUtils'
 
-export const createExpenseSubcategoryInputSchema = z.strictObject(
+export const createExpenseSubCategoryInputSchema = z.strictObject(
   {
     userId: userIdSchema,
     accountId: accountIdSchema,
@@ -18,7 +18,7 @@ export const createExpenseSubcategoryInputSchema = z.strictObject(
   { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
 )
 
-export type CreateExpenseSubcategoryInput = z.infer<typeof createExpenseSubcategoryInputSchema>
+export type CreateExpenseSubCategoryInput = z.infer<typeof createExpenseSubCategoryInputSchema>
 
 export const updateExpenseSubCategoryInputSchema = z.strictObject(
   {

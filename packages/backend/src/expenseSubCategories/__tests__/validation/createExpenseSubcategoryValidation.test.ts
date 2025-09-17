@@ -1,4 +1,4 @@
-import { validateCreateExpenseSubcategoryInput } from '../../validation/createExpenseSubcategoryValidation'
+import { validateCreateExpenseSubCategoryInput } from '../../validation/createExpenseSubCategoryValidation'
 import {
   ValidationError,
   VALIDATION_ERROR_USERID_MISSING,
@@ -13,7 +13,7 @@ import {
   VALIDATION_INPUT_MUST_BE_AN_OBJECT,
 } from '../../../models/errors/validationError'
 
-describe('validateCreateExpenseSubcategoryInput', () => {
+describe('validateCreateExpenseSubCategoryInput', () => {
   const validInput = {
     userId: '00000000-0000-4000-8000-000000000000',
     accountId: '00000000-0000-4000-8000-000000000001',
@@ -23,8 +23,8 @@ describe('validateCreateExpenseSubcategoryInput', () => {
 
   describe('when input is not an object', () => {
     it('should throw a validation error', () => {
-      expect(() => validateCreateExpenseSubcategoryInput('not an object')).toThrow(ValidationError)
-      expect(() => validateCreateExpenseSubcategoryInput('not an object')).toThrow(
+      expect(() => validateCreateExpenseSubCategoryInput('not an object')).toThrow(ValidationError)
+      expect(() => validateCreateExpenseSubCategoryInput('not an object')).toThrow(
         VALIDATION_INPUT_MUST_BE_AN_OBJECT,
       )
     })
@@ -34,8 +34,8 @@ describe('validateCreateExpenseSubcategoryInput', () => {
     it('should throw a validation error', () => {
       const invalidInput = { ...validInput }
       delete (invalidInput as any).userId
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_USERID_MISSING,
       )
     })
@@ -44,8 +44,8 @@ describe('validateCreateExpenseSubcategoryInput', () => {
   describe('when userId is not a valid UUID', () => {
     it('should throw a validation error', () => {
       const invalidInput = { ...validInput, userId: 'invalid-uuid' }
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_USERID_TYPE,
       )
     })
@@ -55,8 +55,8 @@ describe('validateCreateExpenseSubcategoryInput', () => {
     it('should throw a validation error', () => {
       const invalidInput = { ...validInput }
       delete (invalidInput as any).accountId
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_ACCOUNTID_MISSING,
       )
     })
@@ -65,8 +65,8 @@ describe('validateCreateExpenseSubcategoryInput', () => {
   describe('when accountId is not a valid UUID', () => {
     it('should throw a validation error', () => {
       const invalidInput = { ...validInput, accountId: 'invalid-uuid' }
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_ACCOUNTID_TYPE,
       )
     })
@@ -76,8 +76,8 @@ describe('validateCreateExpenseSubcategoryInput', () => {
     it('should throw a validation error', () => {
       const invalidInput = { ...validInput }
       delete (invalidInput as any).categoryId
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_CATEGORY_ID_MISSING,
       )
     })
@@ -86,8 +86,8 @@ describe('validateCreateExpenseSubcategoryInput', () => {
   describe('when categoryId is not a valid UUID', () => {
     it('should throw a validation error', () => {
       const invalidInput = { ...validInput, categoryId: 'invalid-uuid' }
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_CATEGORY_ID_TYPE,
       )
     })
@@ -97,8 +97,8 @@ describe('validateCreateExpenseSubcategoryInput', () => {
     it('should throw a validation error', () => {
       const invalidInput = { ...validInput }
       delete (invalidInput as any).name
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_NAME_IS_REQUIRED,
       )
     })
@@ -107,8 +107,8 @@ describe('validateCreateExpenseSubcategoryInput', () => {
   describe('when name is not a string', () => {
     it('should throw a validation error', () => {
       const invalidInput = { ...validInput, name: 123 }
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_NAME_MUST_BE_STRING,
       )
     })
@@ -117,8 +117,8 @@ describe('validateCreateExpenseSubcategoryInput', () => {
   describe('when name is empty', () => {
     it('should throw a validation error', () => {
       const invalidInput = { ...validInput, name: '' }
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(ValidationError)
-      expect(() => validateCreateExpenseSubcategoryInput(invalidInput)).toThrow(
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
+      expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_NAME_EMPTY,
       )
     })
@@ -126,7 +126,7 @@ describe('validateCreateExpenseSubcategoryInput', () => {
 
   describe('when all fields are valid', () => {
     it('should not throw any error', () => {
-      expect(() => validateCreateExpenseSubcategoryInput(validInput)).not.toThrow()
+      expect(() => validateCreateExpenseSubCategoryInput(validInput)).not.toThrow()
     })
   })
 })

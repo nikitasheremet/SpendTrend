@@ -13,7 +13,7 @@ export interface CreateExpense {
   netAmount: number
   date: string
   categoryId: string
-  subCategoryId: string
+  subCategoryId?: string
   paidBackAmount: number
 }
 

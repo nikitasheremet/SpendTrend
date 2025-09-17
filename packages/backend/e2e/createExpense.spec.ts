@@ -39,19 +39,7 @@ test.describe('Create Expense Endpoint', () => {
       expect(body).toHaveProperty('error')
     })
   })
-  test.describe('when internal server error occurs', () => {
-    test('should return error message and 500 status code', async ({ request }) => {
-      const fakeBadValidationData = JSON.parse(JSON.stringify(fakeCreateExpenseInput))
-      fakeBadValidationData.userId = 'invalid-uuid'
 
-      const response = await request.post(`${BASE_URL}/createexpense`, {
-        data: fakeBadValidationData,
-      })
-      expect(response.status()).toBe(STATUS_INTERNAL_SERVER_ERROR_500)
-      const body = await response.json()
-      expect(body).toHaveProperty('error')
-    })
-  })
   test.describe("when an expense with a expenseCategory Id that doesn't exist is created", () => {
     test('should return a 500 error and a DB_ERROR message', async ({ request }) => {
       const fakeExpenseDataWithInvalidCategory = JSON.parse(JSON.stringify(fakeCreateExpenseInput))

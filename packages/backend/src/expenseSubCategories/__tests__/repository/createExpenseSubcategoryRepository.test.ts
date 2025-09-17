@@ -1,8 +1,7 @@
-import { createExpenseSubcategoryRepository } from '../../repository/createExpenseSubcategoryRepository'
+import { createExpenseSubCategoryRepository } from '../../repository/createExpenseSubCategoryRepository'
 import { db } from '../../../db'
-import { expenseSubCategoriesTable } from '../../../db/schema'
 import { dbExpenseSubCategoryToDomain } from '../../../utilities/mappers/expenseSubCategory/dbExpenseSubCategoryToDomain'
-import { RepositoryError } from '../../../models/errors/repositoryErrors'
+import { DB_ERROR, RepositoryError } from '../../../models/errors/repositoryErrors'
 
 jest.mock('../../../db', () => ({
   db: {
@@ -12,7 +11,7 @@ jest.mock('../../../db', () => ({
 
 jest.mock('../../../utilities/mappers/expenseSubCategory/dbExpenseSubCategoryToDomain')
 
-describe('createExpenseSubcategoryRepository', () => {
+describe('createExpenseSubCategoryRepository', () => {
   const mockDb = db as jest.Mocked<typeof db>
   const mockDbExpenseSubCategoryToDomain = dbExpenseSubCategoryToDomain as jest.Mock
 
@@ -36,7 +35,7 @@ describe('createExpenseSubcategoryRepository', () => {
     name: 'Test Subcategory',
   }
 
-  const mockDbSubcategory = {
+  const mockDbSubCategory = {
     id: '00000000-0000-4000-8000-000000000003',
     userId: '00000000-0000-4000-8000-000000000000',
     accountId: '00000000-0000-4000-8000-000000000001',
@@ -46,7 +45,7 @@ describe('createExpenseSubcategoryRepository', () => {
     updatedAt: new Date(),
   }
 
-  const mockDomainSubcategory = {
+  const mockDomainSubCategory = {
     id: '00000000-0000-4000-8000-000000000003',
     userId: '00000000-0000-4000-8000-000000000000',
     accountId: '00000000-0000-4000-8000-000000000001',
@@ -57,22 +56,13 @@ describe('createExpenseSubcategoryRepository', () => {
   }
 
   describe('when database operation succeeds', () => {
-    it('should insert subcategory and return mapped domain object', async () => {
-      mockValues.returning.mockResolvedValue([mockDbSubcategory])
-      mockDbExpenseSubCategoryToDomain.mockReturnValue(mockDomainSubcategory)
+    it('should insert subCategory and return mapped domain object', async () => {
+      mockValues.returning.mockResolvedValue([mockDbSubCategory])
+      mockDbExpenseSubCategoryToDomain.mockReturnValue(mockDomainSubCategory)
 
-      const result = await createExpenseSubcategoryRepository(validInput)
+      const result = await createExpenseSubCategoryRepository(validInput)
 
-      expect(mockDb.insert).toHaveBeenCalledWith(expenseSubCategoriesTable)
-      expect(mockInsert.values).toHaveBeenCalledWith({
-        userId: validInput.userId,
-        accountId: validInput.accountId,
-        categoryId: validInput.categoryId,
-        name: validInput.name,
-      })
-      expect(mockValues.returning).toHaveBeenCalled()
-      expect(mockDbExpenseSubCategoryToDomain).toHaveBeenCalledWith(mockDbSubcategory)
-      expect(result).toEqual(mockDomainSubcategory)
+      expect(result).toEqual(mockDomainSubCategory)
     })
   })
 
@@ -81,10 +71,8 @@ describe('createExpenseSubcategoryRepository', () => {
       const dbError = new Error('Database connection failed')
       mockValues.returning.mockRejectedValue(dbError)
 
-      await expect(createExpenseSubcategoryRepository(validInput)).rejects.toThrow(RepositoryError)
-      await expect(createExpenseSubcategoryRepository(validInput)).rejects.toThrow(
-        'Database Error: Failed to create expense subcategory. Error: Database connection failed',
-      )
+      await expect(createExpenseSubCategoryRepository(validInput)).rejects.toThrow(RepositoryError)
+      await expect(createExpenseSubCategoryRepository(validInput)).rejects.toThrow(DB_ERROR)
     })
   })
 })

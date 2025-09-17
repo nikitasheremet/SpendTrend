@@ -4,18 +4,18 @@ import { ExpenseSubCategory } from '../../models/expenseSubCategory/expenseSubCa
 import { dbExpenseSubCategoryToDomain } from '../../utilities/mappers/expenseSubCategory/dbExpenseSubCategoryToDomain'
 import { DB_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 
-export interface CreateExpenseSubcategory {
+export interface CreateExpenseSubCategory {
   userId: string
   accountId: string
   categoryId: string
   name: string
 }
 
-export async function createExpenseSubcategoryRepository(
-  input: CreateExpenseSubcategory,
+export async function createExpenseSubCategoryRepository(
+  input: CreateExpenseSubCategory,
 ): Promise<ExpenseSubCategory> {
   try {
-    const [createdSubcategory] = await db
+    const [createdSubCategory] = await db
       .insert(expenseSubCategoriesTable)
       .values({
         userId: input.userId,
@@ -25,12 +25,12 @@ export async function createExpenseSubcategoryRepository(
       })
       .returning()
 
-    return dbExpenseSubCategoryToDomain(createdSubcategory)
+    return dbExpenseSubCategoryToDomain(createdSubCategory)
   } catch (error) {
     const dbError = error as Error
-    console.error(`Failed to create expense subcategory for userId: ${input.userId}`, dbError)
+    console.error(`Failed to create expense subCategory for userId: ${input.userId}`, dbError)
     throw new RepositoryError(
-      `${DB_ERROR}: Failed to create expense subcategory. Error: ${dbError.message}`,
+      `${DB_ERROR}: Failed to create expense subCategory. Error: ${dbError.message}`,
     )
   }
 }
