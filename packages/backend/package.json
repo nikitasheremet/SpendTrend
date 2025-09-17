@@ -10,7 +10,8 @@
     "test:all": "npm run test:unit && npm run test:e2e",
     "types:lint": "tsc && eslint . --ext .ts",
     "e2e:test": "npx playwright test",
-    "db:gen:mig": "npx drizzle-kit generate && npx drizzle-kit migrate"
+    "db:gen:mig": "npx drizzle-kit generate && npx drizzle-kit migrate",
+    "prettier": "prettier --write ."
   },
   "dependencies": {
     "@koa/router": "^12.0.0",

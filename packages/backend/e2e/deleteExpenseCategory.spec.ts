@@ -6,7 +6,7 @@ import {
   STATUS_NOT_FOUND_404,
 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
-import { eq  } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { expenseCategoriesTable, expenseSubCategoriesTable, expensesTable } from '../src/db/schema'
 import crypto from 'crypto'
 import { NOT_FOUND_ERROR } from '../src/models/errors/repositoryErrors'

@@ -1,16 +1,16 @@
 import type { Context } from 'koa'
-import { validateCreateExpenseSubcategoryInput } from '../validation'
-import { createExpenseSubcategoryService } from '../service'
+import { validateCreateExpenseSubCategoryInput } from '../validation'
+import { createExpenseSubCategoryService } from '../service'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { STATUS_CREATED_201 } from '../../models/statusCodes'
-import { CreateExpenseSubcategoryInput } from '../validation/models'
+import { CreateExpenseSubCategoryInput } from '../validation/models'
 
 export async function createExpenseSubCategoryHandler(ctx: Context): Promise<void> {
   try {
     const input = ctx.request.body
-    validateCreateExpenseSubcategoryInput(input)
-    const expenseSubCategory = await createExpenseSubcategoryService(
-      input as CreateExpenseSubcategoryInput,
+    validateCreateExpenseSubCategoryInput(input)
+    const expenseSubCategory = await createExpenseSubCategoryService(
+      input as CreateExpenseSubCategoryInput,
     )
     ctx.status = STATUS_CREATED_201
     ctx.body = { expenseSubCategory }

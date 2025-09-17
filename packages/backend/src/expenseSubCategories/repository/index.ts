@@ -1,4 +1,4 @@
-export { createExpenseSubcategoryRepository } from './createExpenseSubcategoryRepository'
+export * from './createExpenseSubCategoryRepository'
 export { updateExpenseSubCategoryRepository } from './updateExpenseSubCategoryRepository'
 export {
   deleteExpenseSubCategoryRepository,

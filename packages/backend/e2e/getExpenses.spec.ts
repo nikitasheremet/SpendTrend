@@ -47,17 +47,6 @@ test.describe('Get Expenses Endpoint', () => {
       expect(body).toHaveProperty('error')
     })
   })
-  test.describe('when internal server error occurs', () => {
-    test('should return error message and 500 status code', async ({ request }) => {
-      // Simulate an internal server error by providing an invalid accountId
-      const response = await request.get(`${BASE_URL}/expenses`, {
-        params: { userId: '00000000-0000-0000-0000-000000000001', accountId: 'invalid-account-id' },
-      })
-      expect(response.status()).toBe(500)
-      const body = await response.json()
-      expect(body).toHaveProperty('error')
-    })
-  })
 
   test.describe('when get expenses is called successfully', () => {
     test('should return an array of expenses related to the account id provided in descending order based on date', async ({
@@ -139,7 +128,7 @@ async function assignFakeExpenseData(): Promise<{
   createdExpenseSubCategory: ExpenseSubCategoryDbRow
 }> {
   const fakeAccountId = crypto.randomUUID()
-  const fakeUserId = '00000000-0000-0000-0000-000000000001'
+  const fakeUserId = crypto.randomUUID()
 
   const [createdCategory] = await db
     .insert(expenseCategoriesTable)

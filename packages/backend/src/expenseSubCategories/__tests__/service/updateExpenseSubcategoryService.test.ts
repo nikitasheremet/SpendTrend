@@ -30,7 +30,7 @@ describe('when updating expense subcategory service', () => {
   })
 
   describe('when repository update succeeds', () => {
-    it('should return updated subcategory', async () => {
+    it('should return updated subCategory', async () => {
       const fakeUpdatedSubCategory = { id: '123' }
       mockUpdateExpenseSubcategoryRepository.mockResolvedValue(fakeUpdatedSubCategory)
 

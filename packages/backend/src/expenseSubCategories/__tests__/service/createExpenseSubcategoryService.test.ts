@@ -1,28 +1,25 @@
-import { createExpenseSubcategoryService } from '../../service/createExpenseSubcategoryService'
-import * as repository from '../../repository/createExpenseSubcategoryRepository'
-import { CreateExpenseSubcategoryInput } from '../../validation/models'
+import { createExpenseSubCategoryService } from '../../service/createExpenseSubCategoryService'
+import { createExpenseSubCategoryRepository } from '../../repository/createExpenseSubCategoryRepository'
+import { CreateExpenseSubCategoryInput } from '../../validation/models'
 
-jest.mock('../../repository/createExpenseSubcategoryRepository', () => ({
-  createExpenseSubcategoryRepository: jest.fn(),
-}))
+jest.mock('../../repository/createExpenseSubCategoryRepository')
 
-const fakeInput = {} as CreateExpenseSubcategoryInput
+const fakeInput = {} as CreateExpenseSubCategoryInput
 
 describe('createExpenseSubcategoryService', () => {
-  const mockedCreateExpenseSubcategoryRepository =
-    repository.createExpenseSubcategoryRepository as jest.Mock
+  const mockedCreateExpenseSubCategoryRepository = createExpenseSubCategoryRepository as jest.Mock
 
   beforeEach(() => {
-    mockedCreateExpenseSubcategoryRepository.mockReset()
+    jest.resetAllMocks()
   })
 
   it('should throw an error if repository throws', async () => {
     // Arrange
     const error = new Error('Repository error')
-    mockedCreateExpenseSubcategoryRepository.mockRejectedValueOnce(error)
+    mockedCreateExpenseSubCategoryRepository.mockRejectedValueOnce(error)
 
     // Act & Assert
-    await expect(createExpenseSubcategoryService(fakeInput)).rejects.toThrow('Repository error')
+    await expect(createExpenseSubCategoryService(fakeInput)).rejects.toThrow('Repository error')
   })
 
   it('should return the data returned from the repository and match type ExpenseSubCategory', async () => {
@@ -36,10 +33,10 @@ describe('createExpenseSubcategoryService', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     }
-    mockedCreateExpenseSubcategoryRepository.mockResolvedValueOnce(expenseSubCategory)
+    mockedCreateExpenseSubCategoryRepository.mockResolvedValueOnce(expenseSubCategory)
 
     // Act
-    const result = await createExpenseSubcategoryService(fakeInput)
+    const result = await createExpenseSubCategoryService(fakeInput)
 
     // Assert
     expect(result).toEqual(expenseSubCategory)

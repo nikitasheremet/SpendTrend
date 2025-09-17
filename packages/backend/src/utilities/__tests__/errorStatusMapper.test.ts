@@ -1,5 +1,8 @@
 import { ValidationError } from '../../models/errors/validationError'
-import { STATUS_UNPROCESSABLE_ENTITY_422, STATUS_INTERNAL_SERVER_ERROR_500 } from '../../models/statusCodes'
+import {
+  STATUS_UNPROCESSABLE_ENTITY_422,
+  STATUS_INTERNAL_SERVER_ERROR_500,
+} from '../../models/statusCodes'
 import { errorStatusMapper } from '../errorStatusMapper'
 
 describe('errorStatusMapper', () => {

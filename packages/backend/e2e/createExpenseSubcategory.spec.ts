@@ -8,14 +8,14 @@ import crypto from 'crypto'
 import { DB_ERROR } from '../src/models/errors/repositoryErrors'
 import { connectToDb, db } from '../src/db'
 import { expenseCategoriesTable } from '../src/db/schema'
-import { CreateExpenseSubcategoryInput } from '../src/expenseSubCategories/validation/models'
+import { CreateExpenseSubCategoryInput } from '../src/expenseSubCategories/validation/models'
 import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
 
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Create Expense Subcategory Endpoint', () => {
   let createdExpenseCategory: ExpenseCategoryDbRow
-  let fakeCreateExpenseSubcategoryInput: CreateExpenseSubcategoryInput
+  let fakeCreateExpenseSubcategoryInput: CreateExpenseSubCategoryInput
 
   test.beforeAll(async () => {
     const { createSubcategoryInput, expenseCategory } =
@@ -105,7 +105,7 @@ test.describe('Create Expense Subcategory Endpoint', () => {
 })
 
 async function assignFakeCreateExpenseSubcategoryInputAndExpenseCategory(): Promise<{
-  createSubcategoryInput: CreateExpenseSubcategoryInput
+  createSubcategoryInput: CreateExpenseSubCategoryInput
   expenseCategory: ExpenseCategoryDbRow
 }> {
   connectToDb()
@@ -122,7 +122,7 @@ async function assignFakeCreateExpenseSubcategoryInputAndExpenseCategory(): Prom
     })
     .returning()
 
-  const createSubcategoryInput: CreateExpenseSubcategoryInput = {
+  const createSubcategoryInput: CreateExpenseSubCategoryInput = {
     userId: fakeUserId,
     accountId: fakeAccountId,
     categoryId: createdCategory.id,

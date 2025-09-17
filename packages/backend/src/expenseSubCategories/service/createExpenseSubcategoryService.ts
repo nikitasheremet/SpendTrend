@@ -1,15 +1,12 @@
 import { ExpenseSubCategory } from '../../models/expenseSubCategory/expenseSubCategory'
-import {
-  createExpenseSubcategoryRepository,
-  CreateExpenseSubcategory,
-} from '../repository/createExpenseSubcategoryRepository'
-import { CreateExpenseSubcategoryInput } from '../validation/models'
+import { createExpenseSubCategoryRepository, CreateExpenseSubCategory } from '../repository'
+import { CreateExpenseSubCategoryInput } from '../validation/models'
 
-export async function createExpenseSubcategoryService(
-  input: CreateExpenseSubcategoryInput,
+export async function createExpenseSubCategoryService(
+  input: CreateExpenseSubCategoryInput,
 ): Promise<ExpenseSubCategory> {
-  const createExpenseSubcategoryInputs: CreateExpenseSubcategory = {
+  const createExpenseSubCategoryInputs: CreateExpenseSubCategory = {
     ...input,
   }
-  return createExpenseSubcategoryRepository(createExpenseSubcategoryInputs)
+  return createExpenseSubCategoryRepository(createExpenseSubCategoryInputs)
 }
