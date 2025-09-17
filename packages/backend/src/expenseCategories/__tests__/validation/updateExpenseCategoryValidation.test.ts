@@ -32,7 +32,9 @@ describe('validateUpdateExpenseCategoryInput', () => {
     it('should require id', () => {
       const fakeInvalidInput = { ...fakeValidInput, id: undefined }
       const callValidation = () => validateUpdateExpenseCategoryInput(fakeInvalidInput)
-      expect(callValidation).toThrow(new ValidationError(VALIDATION_ERROR_EXPENSECATEGORYID_MISSING))
+      expect(callValidation).toThrow(
+        new ValidationError(VALIDATION_ERROR_EXPENSECATEGORYID_MISSING),
+      )
     })
 
     it('should require id to be a uuid', () => {

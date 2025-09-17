@@ -14,30 +14,30 @@ describe('deleteExpensesService', () => {
   })
 
   describe('when the repository function throws an error', () => {
-      it('should return an error', async () => {
-        // Arrange
-        const fakeError = new Error('Repository error')
-        mockDeleteExpensesRepository.mockRejectedValueOnce(fakeError)
-  
-        // Act
-        const deleteExpensesServicePromise = deleteExpenseService(fakeInput)
+    it('should return an error', async () => {
+      // Arrange
+      const fakeError = new Error('Repository error')
+      mockDeleteExpensesRepository.mockRejectedValueOnce(fakeError)
 
-        // Assert
-        await expect(deleteExpensesServicePromise).rejects.toThrow(fakeError)
-      })
+      // Act
+      const deleteExpensesServicePromise = deleteExpenseService(fakeInput)
+
+      // Assert
+      await expect(deleteExpensesServicePromise).rejects.toThrow(fakeError)
     })
+  })
 
-    describe('when the repository function returns an expense', () => {
-        it('should return the same expense', async () => {
-          // Arrange
-          const fakeExpense = { id: '1', name: 'Groceries', amount: 100 }
-          mockDeleteExpensesRepository.mockResolvedValueOnce(fakeExpense)
+  describe('when the repository function returns an expense', () => {
+    it('should return the same expense', async () => {
+      // Arrange
+      const fakeExpense = { id: '1', name: 'Groceries', amount: 100 }
+      mockDeleteExpensesRepository.mockResolvedValueOnce(fakeExpense)
 
-          // Act
-          const result = await deleteExpenseService(fakeInput)
-    
-          // Assert
-          expect(result).toEqual(fakeExpense)
-        })
-      })
+      // Act
+      const result = await deleteExpenseService(fakeInput)
+
+      // Assert
+      expect(result).toEqual(fakeExpense)
+    })
+  })
 })

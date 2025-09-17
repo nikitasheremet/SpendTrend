@@ -20,9 +20,7 @@ describe('validateDeleteExpenseCategoryInput', () => {
         const fakeInvalidInput = { ...fakeValidInput }
         delete (fakeInvalidInput as any).userId
 
-        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(
-          ValidationError,
-        )
+        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(ValidationError)
       })
     })
 
@@ -30,9 +28,7 @@ describe('validateDeleteExpenseCategoryInput', () => {
       it('should throw ValidationError', () => {
         const fakeInvalidInput = { ...fakeValidInput, userId: 'invalid-uuid' }
 
-        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(
-          ValidationError,
-        )
+        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(ValidationError)
       })
     })
   })
@@ -43,9 +39,7 @@ describe('validateDeleteExpenseCategoryInput', () => {
         const fakeInvalidInput = { ...fakeValidInput }
         delete (fakeInvalidInput as any).accountId
 
-        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(
-          ValidationError,
-        )
+        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(ValidationError)
       })
     })
 
@@ -53,9 +47,7 @@ describe('validateDeleteExpenseCategoryInput', () => {
       it('should throw ValidationError', () => {
         const fakeInvalidInput = { ...fakeValidInput, accountId: 'invalid-uuid' }
 
-        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(
-          ValidationError,
-        )
+        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(ValidationError)
       })
     })
   })
@@ -66,9 +58,7 @@ describe('validateDeleteExpenseCategoryInput', () => {
         const fakeInvalidInput = { ...fakeValidInput }
         delete (fakeInvalidInput as any).id
 
-        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(
-          ValidationError,
-        )
+        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(ValidationError)
       })
     })
 
@@ -76,18 +66,14 @@ describe('validateDeleteExpenseCategoryInput', () => {
       it('should throw ValidationError', () => {
         const fakeInvalidInput = { ...fakeValidInput, id: 'invalid-uuid' }
 
-        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(
-          ValidationError,
-        )
+        expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(ValidationError)
       })
     })
   })
 
   describe('when input is not an object', () => {
     it('should throw ValidationError', () => {
-      expect(() => validateDeleteExpenseCategoryInput('not an object')).toThrow(
-        ValidationError,
-      )
+      expect(() => validateDeleteExpenseCategoryInput('not an object')).toThrow(ValidationError)
     })
   })
 })
