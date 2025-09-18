@@ -10,7 +10,7 @@ export async function createIncomeHandler(ctx: Context) {
     validateCreateIncomeInput(input)
     const income = await createIncomeService(input)
     ctx.status = STATUS_CREATED_201
-    ctx.body = income
+    ctx.body = { createdIncome: income }
   } catch (error) {
     ctx.status = errorStatusMapper(error)
     ctx.body = { error: (error as Error).message }

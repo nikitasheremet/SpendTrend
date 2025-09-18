@@ -6,7 +6,6 @@ import {
   accountIdSchema,
   amountSchema,
   dateSchema,
-  idSchema,
   nameSchema,
   userIdSchema,
 } from './validationUtils'
@@ -16,7 +15,6 @@ export const createIncomeInputSchema = z.strictObject(
     name: nameSchema,
     userId: userIdSchema,
     accountId: accountIdSchema,
-    id: idSchema,
     amount: amountSchema,
     date: dateSchema,
   },

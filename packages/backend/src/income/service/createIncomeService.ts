@@ -2,8 +2,6 @@ import { CreateIncome, createIncomeRepository } from '../repository/createIncome
 import { CreateIncomeInput } from '../validation/models'
 
 export async function createIncomeService(input: CreateIncomeInput) {
-  const createIncomeInputs: CreateIncome = {
-    ...input,
-  }
+  const createIncomeInputs: CreateIncome = { ...input }
   return createIncomeRepository(createIncomeInputs)
 }

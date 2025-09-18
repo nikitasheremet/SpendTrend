@@ -20,8 +20,7 @@ describe('createIncomeHandler', () => {
   } as unknown as Context
 
   beforeEach(() => {
-    mockService.mockReset()
-    mockValidation.mockReset()
+    jest.resetAllMocks()
   })
 
   describe('on success', () => {
@@ -34,7 +33,7 @@ describe('createIncomeHandler', () => {
 
       // Assert
       expect(fakeCtx.status).toBe(STATUS_CREATED_201)
-      expect(fakeCtx.body).toEqual({ id: 1, name: 'Lunch' })
+      expect(fakeCtx.body).toEqual({ createdIncome: { id: 1, name: 'Lunch' } })
     })
   })
 
@@ -45,7 +44,7 @@ describe('createIncomeHandler', () => {
         throw fakeValidationError
       })
       await createIncomeHandler(fakeCtx)
-      expect(fakeCtx.status).not.toBeUndefined()
+      expect(fakeCtx.status).not.toBe(STATUS_CREATED_201)
       expect(fakeCtx.body).toEqual({ error: fakeValidationError.message })
     })
   })
@@ -57,7 +56,7 @@ describe('createIncomeHandler', () => {
         throw fakeServiceError
       })
       await createIncomeHandler(fakeCtx)
-      expect(fakeCtx.status).not.toBeUndefined()
+      expect(fakeCtx.status).not.toBe(STATUS_CREATED_201)
       expect(fakeCtx.body).toEqual({ error: fakeServiceError.message })
     })
   })

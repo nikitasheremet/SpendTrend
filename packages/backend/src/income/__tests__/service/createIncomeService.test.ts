@@ -1,15 +1,14 @@
 import { createIncomeService } from '../../service/createIncomeService'
-import * as repository from '../../repository/createIncomeRepository'
+import { createIncomeRepository } from '../../repository/createIncomeRepository'
 import { CreateIncomeInput } from '../../validation/models'
 
 jest.mock('../../repository/createIncomeRepository', () => ({
   createIncomeRepository: jest.fn(),
 }))
 
-const fakeInput = {} as CreateIncomeInput
-
 describe('createIncomeService', () => {
-  const mockedCreateIncomeRepository = repository.createIncomeRepository as jest.Mock
+  const mockedCreateIncomeRepository = createIncomeRepository as jest.Mock
+  const fakeInput = {} as CreateIncomeInput
 
   beforeEach(() => {
     mockedCreateIncomeRepository.mockReset()

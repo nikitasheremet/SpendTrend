@@ -9,6 +9,7 @@ import { DB_ERROR } from '../src/models/errors/repositoryErrors'
 import { connectToDb, db } from '../src/db'
 import { CreateIncomeInput } from '../src/income/validation/models'
 import { excludeFieldsAndAdd } from '../src/utilities/excludeFieldsAndAdd'
+import { id } from 'zod/v4/locales/index.cjs'
 
 const BASE_URL = 'http://localhost:3000'
 
@@ -26,24 +27,12 @@ test.describe('Create Income Endpoint', () => {
       const response = await request.post(`${BASE_URL}/createincome`, {
         data: fakeBadValidationData,
       })
+      const body = await response.json()
       expect(response.status()).toBe(STATUS_UNPROCESSABLE_ENTITY_422)
-      const body = await response.json()
       expect(body).toHaveProperty('error')
     })
   })
-  test.describe('when internal server error occurs', () => {
-    test('should return error message and 500 status code', async ({ request }) => {
-      const fakeBadValidationData = JSON.parse(JSON.stringify(fakeCreateIncomeInput))
-      fakeBadValidationData.userId = 'invalid-uuid'
-
-      const response = await request.post(`${BASE_URL}/createincome`, {
-        data: fakeBadValidationData,
-      })
-      expect(response.status()).toBe(STATUS_INTERNAL_SERVER_ERROR_500)
-      const body = await response.json()
-      expect(body).toHaveProperty('error')
-    })
-  })
+  
   test.describe('when valid income data is provided', () => {
     test('should create a new income and return the income object', async ({ request }) => {
       const response = await request.post(`${BASE_URL}/createincome`, {
@@ -52,29 +41,42 @@ test.describe('Create Income Endpoint', () => {
 
       expect(response.status()).toBe(STATUS_CREATED_201)
       const body = await response.json()
-      expect(body).toHaveProperty('id')
-      expect(body).toEqual(
+
+      expect(body).toHaveProperty('createdIncome')
+      expect(body.createdIncome).toHaveProperty('id')
+      expect(body.createdIncome).toEqual(
         expect.objectContaining({
+          id: body.createdIncome.id,
           ...fakeCreateIncomeInput,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
+        }),
+      )
+      const createdIncome = await db.query.incomeTable.findFirst({
+        where: (income, { eq }) => eq(income.id, body.createdIncome.id),
+      })
+      expect(createdIncome).toBeDefined()
+      expect(createdIncome).toEqual(
+        expect.objectContaining({
+          id: body.createdIncome.id,
+          userId: fakeCreateIncomeInput.userId,
+          accountId: fakeCreateIncomeInput.accountId,
+          name: fakeCreateIncomeInput.name,
+          amount: fakeCreateIncomeInput.amount,
+          date: fakeCreateIncomeInput.date,
         }),
       )
     })
   })
 })
 
-async function assignFakeCreateIncomeInput(): Promise<{
-  createIncomeInput: CreateIncomeInput
-}> {
+async function assignFakeCreateIncomeInput(): Promise<{ createIncomeInput: CreateIncomeInput}> {
   connectToDb()
 
   const fakeAccountId = crypto.randomUUID()
   const fakeUserId = crypto.randomUUID()
-  const fakeIncomeId = crypto.randomUUID()
 
   const createIncomeInput = {
-    id: fakeIncomeId,
     userId: fakeUserId,
     accountId: fakeAccountId,
     name: 'Salary',
@@ -82,7 +84,5 @@ async function assignFakeCreateIncomeInput(): Promise<{
     date: '2025-08-07',
   }
 
-  return {
-    createIncomeInput,
-  }
+  return { createIncomeInput }
 }

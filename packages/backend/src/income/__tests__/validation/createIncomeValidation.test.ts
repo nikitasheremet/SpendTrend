@@ -18,7 +18,6 @@ import crypto from 'crypto'
 
 describe('validateCreateIncomeInput', () => {
   const validInput = {
-    id: crypto.randomUUID(),
     name: 'Lunch',
     amount: 10,
     date: '2023-01-01',
@@ -28,35 +27,30 @@ describe('validateCreateIncomeInput', () => {
   describe('when the userId field is invalid', () => {
     it('should throw a ValidationError for missing userId', () => {
       const input = { ...validInput, userId: undefined }
-      expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_USERID_MISSING)
+      expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_USERID_MISSING))
     })
     it('should throw a ValidationError for invalid userId', () => {
       const input = { ...validInput, userId: 123 }
-      expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_USERID_TYPE)
+      expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_USERID_TYPE))
     })
   })
 
   describe('when the accountId field is invalid', () => {
     it('should throw a ValidationError for missing accountId', () => {
       const input = { ...validInput, accountId: undefined }
-      expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_MISSING)
+      expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_ACCOUNTID_MISSING))
     })
     it('should throw a ValidationError for invalid accountId', () => {
       const input = { ...validInput, accountId: 123 }
-      expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_ACCOUNTID_TYPE)
+      expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_ACCOUNTID_TYPE))
     })
   })
-  describe('when name field is missing or empty', () => {
+  describe('if name is missing, if name is a non-string or if name is empty', () => {
     it('should throw a validation error for improper name field', () => {
       // Arrange
       const input = { ...validInput, name: undefined }
       // Act & Assert
-      expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-      expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_NAME_IS_REQUIRED)
+      expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_NAME_IS_REQUIRED))
     })
   })
 
@@ -66,8 +60,7 @@ describe('validateCreateIncomeInput', () => {
         // Arrange
         const input = { ...validInput, amount: undefined }
         // Act & Assert
-        expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_MISSING)
+        expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_AMOUNT_MISSING))
       })
     })
     describe('when amount is negative', () => {
@@ -75,8 +68,7 @@ describe('validateCreateIncomeInput', () => {
         // Arrange
         const input = { ...validInput, amount: -5 }
         // Act & Assert
-        expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_NEGATIVE)
+        expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_AMOUNT_NEGATIVE))
       })
     })
     describe('when amount is not a number', () => {
@@ -84,8 +76,7 @@ describe('validateCreateIncomeInput', () => {
         // Arrange
         const input = { ...validInput, amount: 'not-a-number' }
         // Act & Assert
-        expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_TYPE)
+        expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_AMOUNT_TYPE))
       })
     })
   })
@@ -96,8 +87,7 @@ describe('validateCreateIncomeInput', () => {
         // Arrange
         const input = { ...validInput, date: undefined }
         // Act & Assert
-        expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_DATE_MISSING)
+        expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_DATE_MISSING))
       })
     })
     describe('when date is not a string', () => {
@@ -105,8 +95,7 @@ describe('validateCreateIncomeInput', () => {
         // Arrange
         const input = { ...validInput, date: 20230728 }
         // Act & Assert
-        expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_DATE_TYPE)
+        expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_DATE_TYPE))
       })
     })
     describe('when date is an empty string', () => {
@@ -114,8 +103,7 @@ describe('validateCreateIncomeInput', () => {
         // Arrange
         const input = { ...validInput, date: '' }
         // Act & Assert
-        expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_DATE_EMPTY)
+        expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_DATE_EMPTY))
       })
     })
     describe('when date does not match YYYY-MM-DD', () => {
@@ -123,9 +111,15 @@ describe('validateCreateIncomeInput', () => {
         // Arrange
         const input = { ...validInput, date: '07-28-2025' }
         // Act & Assert
-        expect(() => validateCreateIncomeInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateIncomeInput(input)).toThrow(VALIDATION_ERROR_DATE_FORMAT)
+        expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_DATE_FORMAT))
       })
+    })
+  })
+
+  describe('when input is valid', () => {
+    it('should not throw an error', () => {
+      const input = { ...validInput }
+      expect(() => validateCreateIncomeInput(input)).not.toThrow()
     })
   })
 })

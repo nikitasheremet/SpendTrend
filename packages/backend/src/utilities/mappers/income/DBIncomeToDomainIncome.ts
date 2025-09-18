@@ -1,6 +1,6 @@
 import { Income, IncomeDbRow } from '../../../models/income/income'
 
-export interface DbIncomeWithIncomeCategory extends Omit<IncomeDbRow, 'categoryId'> {}
+export interface DbIncomeWithIncomeCategory extends IncomeDbRow {}
 
 export function dbIncomeToDomainIncome(dbIncome: DbIncomeWithIncomeCategory): Income {
   return {

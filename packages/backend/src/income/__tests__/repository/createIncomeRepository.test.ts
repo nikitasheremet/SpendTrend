@@ -10,7 +10,6 @@ describe('createIncomeRepository', () => {
   const fakeDbQuery = db.query
 
   const fakeValidIncome: CreateIncome = {
-    id: 'income-1',
     userId: 'user-1',
     accountId: 'account-1',
     name: 'Test Income',

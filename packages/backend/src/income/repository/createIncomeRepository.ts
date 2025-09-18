@@ -6,14 +6,11 @@ import { Income } from '../../models/income/income'
 import { dbIncomeToDomainIncome } from '../../utilities/mappers/income/DBIncomeToDomainIncome'
 
 export interface CreateIncome {
-  id: string
   userId: string
   accountId: string
   name: string
   amount: number
   date: string
-  createdAt?: Date
-  updatedAt?: Date
 }
 
 export async function createIncomeRepository(input: CreateIncome): Promise<Income> {
@@ -21,23 +18,18 @@ export async function createIncomeRepository(input: CreateIncome): Promise<Incom
     const [createdIncome] = await db
       .insert(incomeTable)
       .values({
-        id: input.id,
         userId: input.userId,
         accountId: input.accountId,
         name: input.name,
         amount: input.amount,
         date: input.date,
-        createdAt: input.createdAt,
-        updatedAt: input.updatedAt,
       })
       .returning()
 
-    return dbIncomeToDomainIncome({
-      ...createdIncome,
-    })
+    return dbIncomeToDomainIncome(createdIncome)
   } catch (error) {
     const dbError = error as Error
-    console.error(`Failed to create income for userId: ${input.userId}`, dbError)
+    console.error(`Failed to create income for userId: ${input.userId} and accountId: ${input.accountId}`, dbError)
     throw new RepositoryError(`${DB_ERROR}: Failed to create income. Error: ${dbError.message}`)
   }
 }
