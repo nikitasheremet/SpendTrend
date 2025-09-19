@@ -25,15 +25,16 @@ describe('createIncomeHandler', () => {
 
   describe('on success', () => {
     it('should return 201 and expense', async () => {
+      const fakeInput = { id: 1, name: 'Lunch' }
       // Arrange
-      mockService.mockResolvedValue({ id: 1, name: 'Lunch' })
+      mockService.mockResolvedValue(fakeInput)
 
       // Act
       await createIncomeHandler(fakeCtx)
 
       // Assert
       expect(fakeCtx.status).toBe(STATUS_CREATED_201)
-      expect(fakeCtx.body).toEqual({ createdIncome: { id: 1, name: 'Lunch' } })
+      expect(fakeCtx.body).toEqual({ createdIncome: fakeInput })
     })
   })
 

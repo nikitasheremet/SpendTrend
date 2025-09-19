@@ -13,6 +13,8 @@ import {
   VALIDATION_ERROR_ACCOUNTID_MISSING,
   VALIDATION_ERROR_ACCOUNTID_TYPE,
   VALIDATION_ERROR_NAME_IS_REQUIRED,
+  VALIDATION_ERROR_NAME_MUST_BE_STRING,
+  VALIDATION_ERROR_NAME_EMPTY,
 } from '../../../models/errors/validationError'
 import crypto from 'crypto'
 
@@ -46,11 +48,25 @@ describe('validateCreateIncomeInput', () => {
     })
   })
   describe('if name is missing, if name is a non-string or if name is empty', () => {
-    it('should throw a validation error for improper name field', () => {
-      // Arrange
-      const input = { ...validInput, name: undefined }
-      // Act & Assert
-      expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_NAME_IS_REQUIRED))
+    describe('when name is missing', () => {
+      it('should throw a ValidationError for missing name', () => {
+        const input = { ...validInput, name: undefined }
+        expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_NAME_IS_REQUIRED))
+      })
+    })
+
+    describe('when name is a non-string', () => {
+      it('should throw a ValidationError for non-string name', () => {
+        const input = { ...validInput, name: 123 }
+        expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_NAME_MUST_BE_STRING))
+      })
+    })
+
+    describe('when name is an empty string', () => {
+      it('should throw a ValidationError for empty name', () => {
+        const input = { ...validInput, name: '' }
+        expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_NAME_EMPTY))
+      })
     })
   })
 
@@ -118,8 +134,7 @@ describe('validateCreateIncomeInput', () => {
 
   describe('when input is valid', () => {
     it('should not throw an error', () => {
-      const input = { ...validInput }
-      expect(() => validateCreateIncomeInput(input)).not.toThrow()
+      expect(() => validateCreateIncomeInput(validInput)).not.toThrow()
     })
   })
 })

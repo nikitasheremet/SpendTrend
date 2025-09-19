@@ -1,8 +1,6 @@
 import { Income, IncomeDbRow } from '../../../models/income/income'
 
-export interface DbIncomeWithIncomeCategory extends IncomeDbRow {}
-
-export function dbIncomeToDomainIncome(dbIncome: DbIncomeWithIncomeCategory): Income {
+export function dbIncomeToDomainIncome(dbIncome: IncomeDbRow): Income {
   return {
     id: dbIncome.id,
     userId: dbIncome.userId,
@@ -15,6 +13,6 @@ export function dbIncomeToDomainIncome(dbIncome: DbIncomeWithIncomeCategory): In
   }
 }
 
-export function dbIncomeToDomainIncomes(dbIncomes: DbIncomeWithIncomeCategory[]): Income[] {
+export function dbIncomeToDomainIncomes(dbIncomes: IncomeDbRow[]): Income[] {
   return dbIncomes.map(dbIncomeToDomainIncome)
 }
