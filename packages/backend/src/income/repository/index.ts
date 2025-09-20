@@ -1,0 +1,1 @@
+export { createIncomeRepository } from './createIncomeRepository'

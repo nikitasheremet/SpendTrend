@@ -43,6 +43,9 @@ export const VALIDATION_ERROR_ACCOUNTID_TYPE = 'Account ID must be a uuid'
 export const VALIDATION_ERROR_EXPENSEID_MISSING = 'Expense ID must be provided'
 export const VALIDATION_ERROR_EXPENSEID_TYPE = 'Expense ID must be a uuid'
 
+export const VALIDATION_ERROR_INCOMEID_MISSING = 'Income ID must be provided'
+export const VALIDATION_ERROR_INCOMEID_TYPE = 'Income ID must be a uuid'
+
 export const VALIDATION_ERROR_NO_FIELDS_TO_UPDATE = 'No fields provided to update'
 
 export const VALIDATION_ERROR_SUBCATEGORIES_MISSING = 'Subcategories must be provided'
