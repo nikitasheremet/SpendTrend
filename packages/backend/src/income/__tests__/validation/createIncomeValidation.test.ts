@@ -47,7 +47,7 @@ describe('validateCreateIncomeInput', () => {
       expect(() => validateCreateIncomeInput(input)).toThrow(new ValidationError(VALIDATION_ERROR_ACCOUNTID_TYPE))
     })
   })
-  describe('if name is missing, if name is a non-string or if name is empty', () => {
+  describe('if name is invalid', () => {
     describe('when name is missing', () => {
       it('should throw a ValidationError for missing name', () => {
         const input = { ...validInput, name: undefined }
