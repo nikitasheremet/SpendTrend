@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { DateFormat, formatDate } from '@/helpers/date/formateDate'
+import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 import { computed, onMounted, useTemplateRef } from 'vue'
 
 const { autofocus, type = 'string' } = defineProps<{

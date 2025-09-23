@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "moduleResolution": "node",
-    "module": "ESNext",
     "strict": true,
     "esModuleInterop": true,
+    "module": "nodenext",
     "skipLibCheck": true
-  }
+  },
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "contracts" },
+    { "path": "packages/frontend" },
+    { "path": "packages/backend" }
+  ]
 }

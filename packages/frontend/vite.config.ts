@@ -1,18 +1,22 @@
-// @ts-check
-// @tsconfig ./tsconfig.node.json
-
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
-  plugins: [vue(), vueDevTools()],
+  plugins: [vue(), vueDevTools(), tsconfigPaths()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@contracts': fileURLToPath(new URL('../../contracts', import.meta.url)),
+      '@gateway': fileURLToPath(new URL('./src/gateway', import.meta.url)),
     },
   },
   base: process.env.NODE_ENV === 'production' ? '/SpendTrend/' : '/',
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './vitest.setup.ts',
+  },
 })
