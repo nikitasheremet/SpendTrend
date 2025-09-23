@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import Modal from '../DesignSystem/Modal/Modal.vue'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useControlModal } from '../DesignSystem/Modal/useControlModal'
-import type { Category } from '@/types/expenseData'
+import type { ExpenseCategory } from '@/types/expenseData'
 import { useAddCategory } from './hooks/useAddCategory'
 import Error from '../DesignSystem/Error.vue'
 
 const { isModalOpen: isAddCategoryModalOpen, openModal, closeModal } = useControlModal()
 
 const emits = defineEmits<{
-  categoryAdded: [Category[]]
+  categoryAdded: [ExpenseCategory]
 }>()
 
-function newCategoryAdded(newCategory: Category[]) {
+function newCategoryAdded(newCategory: ExpenseCategory) {
   emits('categoryAdded', newCategory)
   closeModal()
 }
@@ -29,12 +29,7 @@ function handleAddCategory() {
 <template>
   <button @click="handleAddCategory">Add Category</button>
   <Modal :is-modal-open="isAddCategoryModalOpen" @modal-closed="closeModal">
-    <input
-      id="add-category-input"
-      type="text"
-      placeholder="Multiple categories can be added seperated by commas"
-      v-model="newCategoriesValue"
-    />
+    <input id="add-category-input" type="text" v-model="newCategoriesValue" />
     <button @click="addCategory" :disabled="isSaveCategoryDisabled">Save Category</button>
     <Error v-if="error" :error="error" />
   </Modal>

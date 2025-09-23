@@ -44,6 +44,10 @@ export interface NewExpense {
   subCategory: string
 }
 
+export interface NewExpenseCategory {
+  name: string
+}
+
 export interface Category {
   name: string
   subcategories: string[]

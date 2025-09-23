@@ -7,8 +7,8 @@ export function createStore() {
   store = reactive<Store>({
     getAccountDetails: () => {
       return {
-        userId: '10000000-0a00-0a0a-0a00-00aaaa0a000a',
-        accountId: '20000000-0a00-0a0a-0a00-00aaaa0a000a',
+        userId: '76ddba1c-4e62-428e-80d1-57662dcc7f7c',
+        accountId: '76ddba1c-4e62-428e-80d1-57662dcc7f8a',
       }
     },
   })

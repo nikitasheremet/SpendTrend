@@ -1,5 +1,6 @@
 import Koa from 'koa'
 import Router from '@koa/router'
+import cors from '@koa/cors'
 import dotenv from 'dotenv'
 import path from 'path'
 import bodyParser from 'koa-bodyparser'
@@ -21,7 +22,7 @@ import {
   deleteExpenseSubCategoryHandler,
 } from './expenseSubCategories/handler'
 import { connectToDb } from './db'
-import { createIncomeHandler } from './income/handler' 
+import { createIncomeHandler } from './income/handler'
 
 dotenv.config({ path: path.resolve(__dirname, '../env/.env.local') })
 connectToDb()
@@ -50,6 +51,7 @@ router.post('/deleteexpense', deleteExpenseHandler)
 router.post('/createincome', createIncomeHandler)
 
 app.use(bodyParser())
+app.use(cors())
 app.use(router.routes())
 app.use(router.allowedMethods())
 

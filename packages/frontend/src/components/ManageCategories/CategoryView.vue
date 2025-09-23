@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import AddSubcategoryModal from '@/components/ManageCategories/AddSubcategoryModal.vue'
-import type { Category } from '@/types/expenseData'
+// import AddSubcategoryModal from '@/components/ManageCategories/AddSubcategoryModal.vue'
+import type { Category, ExpenseCategory } from '@/types/expenseData'
 import { useDeleteCategory } from './hooks/useDeleteCategory'
 import SubcategoryView from './SubcategoryView.vue'
 import { useManageSubcategories } from './hooks/useManageSubcategories'
@@ -10,25 +10,29 @@ import { useControlCategoryOptions } from './hooks/useControlCategoryOptions'
 import Error from '../DesignSystem/Error.vue'
 
 const { category } = defineProps<{
-  category: Category
+  category: ExpenseCategory
 }>()
 
 const emits = defineEmits<{
   categoryDeleted: [Category]
 }>()
 function categoryDeleted() {
+  /// @ts-expect-error - temp fix unit all endpoint are updated
   emits('categoryDeleted', category)
 }
+// @ts-expect-error - temp fix unit all endpoint are updated
 const { deleteCategory, error: deleteCategoryError } = useDeleteCategory(category, categoryDeleted)
 
 const {
   subcategories,
   deleteSubcategory,
-  subcategoriesAdded,
+  // subcategoriesAdded,
   error: deleteSubcategoryError,
+  // @ts-expect-error - temp fix unit all endpoint are updated
 } = useManageSubcategories(category)
-const { isModalOpen: isAddSubcategoryModalOpen, openModal: openAddSubcategoryModal } =
-  useControlModal()
+
+// eslint-disable-next-line
+const { isModalOpen, openModal: openAddSubcategoryModal } = useControlModal()
 
 const { isOptionsOpen, toggleOptions, closeOptions } = useControlCategoryOptions()
 
@@ -63,11 +67,11 @@ const error = deleteCategoryError || deleteSubcategoryError
       @subcategory-delete-clicked="deleteSubcategory"
     />
   </div>
-  <AddSubcategoryModal
+  <!-- <AddSubcategoryModal
     :category="category"
     v-model="isAddSubcategoryModalOpen"
     @subcategories-added="subcategoriesAdded"
-  />
+  /> -->
   <Error v-if="error" :error="error" />
 </template>
 
