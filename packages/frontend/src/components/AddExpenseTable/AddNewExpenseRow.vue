@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import { NewExpense } from '@/types/expenseData'
 import AddExpenseCell from './AddExpenseCell.vue'
-import type { NewExpenseData } from './AddExpenseTable.vue'
 import { useCategoriesInExpenseData } from '@/helpers/hooks/useGetCategories'
 
-const newExpenseData = defineModel<NewExpenseData>({ required: true })
+const newExpenseData = defineModel<NewExpense>({ required: true })
 
 const { categoryNames, getSubcategories } = useCategoriesInExpenseData()
 </script>

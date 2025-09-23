@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import UpdateView from './UpdateView.vue'
-import { DateFormat, formatDate } from '@/helpers/date/formateDate'
+import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 
 export type ComponentProps =
   | { type: 'date'; data?: number; options?: never }

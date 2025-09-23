@@ -1,10 +1,11 @@
 import { ref, watchEffect, type Ref } from 'vue'
-import type { NewExpenseData } from '../AddExpenseTable.vue'
 import { addNewExpense } from '@/service/expenses/addNewExpense'
+import { NewExpense } from '@/types/expenseData'
+import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 
-function createNewEmptyExpenseData(): NewExpenseData {
+function createNewEmptyExpenseData(): NewExpense {
   return {
-    date: new Date().getTime(),
+    date: formatDate(new Date(), DateFormat.YYYY_MM_DD),
     name: '',
     netAmount: 0,
     amount: 0,
@@ -15,11 +16,11 @@ function createNewEmptyExpenseData(): NewExpenseData {
 }
 
 export function useAddExpense(): {
-  newExpenseData: Ref<NewExpenseData>
+  newExpenseData: Ref<NewExpense>
   addExpense: () => Promise<void>
   error: Ref<Error | undefined>
 } {
-  const newExpenseData = ref<NewExpenseData>(createNewEmptyExpenseData())
+  const newExpenseData = ref<NewExpense>(createNewEmptyExpenseData())
   const error = ref<Error | undefined>(undefined)
 
   watchEffect(() => {
@@ -44,7 +45,7 @@ export function useAddExpense(): {
   }
 }
 
-function verifyNewExpenseData(newExpenseData: NewExpenseData): void {
+function verifyNewExpenseData(newExpenseData: NewExpense): void {
   if (!newExpenseData.date) {
     throw new Error('Date is required')
   }
