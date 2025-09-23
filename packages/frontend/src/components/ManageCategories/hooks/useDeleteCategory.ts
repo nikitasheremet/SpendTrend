@@ -11,7 +11,7 @@ export function useDeleteCategory(
 } {
   const error = ref<Error | undefined>(undefined)
   async function deleteCategory() {
-    let isDeleteConfirmed = window.confirm(
+    const isDeleteConfirmed = window.confirm(
       'Are you sure you want to delete this category? It will leave all expenses belonging to this category uncategorized. You will need to manually re-categorize them. This action cannot be undone.',
     )
     if (!isDeleteConfirmed) {

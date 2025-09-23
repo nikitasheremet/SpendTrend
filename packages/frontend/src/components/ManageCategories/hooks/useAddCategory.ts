@@ -1,8 +1,8 @@
-import { addNewCategories } from '@/service/categories/addNewCategories'
-import type { Category } from '@/types/expenseData'
+import { addNewCategory } from '@/service/categories/addNewCategories'
+import type { ExpenseCategory } from '@/types/expenseData'
 import { ref, type Ref } from 'vue'
 
-export function useAddCategory(addCategoryCallback: (newCategoriesAdded: Category[]) => void): {
+export function useAddCategory(addCategoryCallback: (newCategoryAdded: ExpenseCategory) => void): {
   newCategoriesValue: Ref<string>
   addCategory: () => void
   error: Ref<Error | undefined>
@@ -17,21 +17,9 @@ export function useAddCategory(addCategoryCallback: (newCategoriesAdded: Categor
       return
     }
 
-    const newCategoryNames = newCategoriesValue.value
-      .split(',')
-      .map((name) => name.trim())
-      .filter((name) => name.length > 0)
-
     try {
-      const newCategories = newCategoryNames.map((name) => {
-        return {
-          name,
-          subcategories: [],
-        }
-      })
-
-      const newCategoriesAdded = await addNewCategories(newCategories)
-      addCategoryCallback(newCategoriesAdded)
+      const newCategoryAdded = await addNewCategory({ name: newCategoriesValue.value.trim() })
+      addCategoryCallback(newCategoryAdded)
 
       newCategoriesValue.value = ''
     } catch (err) {

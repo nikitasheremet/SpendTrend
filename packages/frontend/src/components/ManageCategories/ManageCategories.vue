@@ -1,9 +1,6 @@
 <script lang="ts" setup>
-import { store } from '@/store/store'
 import CategoryView from './CategoryView.vue'
 import AddCategory from './AddCategory.vue'
-import { ref } from 'vue'
-import type { Category } from '@/types/expenseData'
 import { useGetCategories } from './hooks/useGetCategories'
 import Error from '../DesignSystem/Error.vue'
 

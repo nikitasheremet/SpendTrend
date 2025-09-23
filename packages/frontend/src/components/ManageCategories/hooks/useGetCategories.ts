@@ -1,20 +1,20 @@
 import { getCategories } from '@/service/categories/getCategories'
-import type { Category } from '@/types/expenseData'
+import type { Category, ExpenseCategory } from '@/types/expenseData'
 import { onMounted, ref, type Ref } from 'vue'
 
 export function useGetCategories(): {
-  categories: Ref<Category[]>
+  categories: Ref<ExpenseCategory[]>
   error: Ref<Error | undefined>
-  newCategoriesAdded: (newCategory: Category[]) => void
+  newCategoriesAdded: (newCategory: ExpenseCategory) => void
   categoryDeleted: (categoryDeleted: Category) => void
 } {
-  const categories = ref<Category[]>([])
+  const categories = ref<ExpenseCategory[]>([])
   const error = ref<Error | undefined>(undefined)
 
   async function fetchCategories() {
     try {
       getCategories().then((response) => {
-        categories.value = response
+        categories.value = response as unknown as ExpenseCategory[]
       })
     } catch (err) {
       error.value = err as Error
@@ -25,8 +25,8 @@ export function useGetCategories(): {
     fetchCategories()
   })
 
-  function newCategoriesAdded(newCategories: Category[]) {
-    const updatedCategories = [...categories.value, ...newCategories].sort((a, b) =>
+  function newCategoriesAdded(newCategories: ExpenseCategory) {
+    const updatedCategories = [...categories.value, newCategories].sort((a, b) =>
       a.name.localeCompare(b.name),
     )
     categories.value = updatedCategories
