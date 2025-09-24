@@ -26,7 +26,7 @@ describe('deleteExpenseSubCategory', () => {
         expenseSubCategory: {
           id: '123e4567-e89b-12d3-a456-426614174002',
         },
-      } as DeleteExpenseSubCategoryResponse
+      } as unknown as DeleteExpenseSubCategoryResponse
       mockPost.mockResolvedValue(fakeResponse)
 
       const expectedResult = {

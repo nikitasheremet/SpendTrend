@@ -5,5 +5,6 @@ import { mapExpenseSubCategory } from './apiExpenseSubCategoryToDomain'
 export function deleteExpenseSubCategoryResponseToDomainExpenseSubCategory(
   contractExpenseSubCategory: ContractExpenseSubCategory,
 ): ExpenseSubCategory {
+  console.log('Mapping deleted contract subcategory to domain:', contractExpenseSubCategory)
   return mapExpenseSubCategory(contractExpenseSubCategory)
 }

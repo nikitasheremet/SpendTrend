@@ -13,5 +13,8 @@ export async function deleteExpenseSubCategory(
   request: DeleteExpenseSubCategoryRequest,
 ): Promise<ExpenseSubCategory> {
   const response = await post<DeleteExpenseSubCategoryResponse>('deleteexpensesubcategory', request)
-  return deleteExpenseSubCategoryResponseToDomainExpenseSubCategory(response.expenseSubCategory)
+  console.log('Delete response:', response)
+  return deleteExpenseSubCategoryResponseToDomainExpenseSubCategory(
+    response.deletedExpenseSubCategory,
+  )
 }
