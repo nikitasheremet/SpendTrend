@@ -3,11 +3,11 @@ import { createExpenseCategory } from '@/gateway/expenseCategory/createExpenseCa
 import { getStore } from '@/store/store'
 import type { ExpenseCategory, NewExpenseCategory } from '@/types/expenseData'
 
-jest.mock('@/gateway/expenseCategory/createExpenseCategory')
-const mockCreateExpenseCategory = createExpenseCategory as jest.Mock
+vi.mock('@/gateway/expenseCategory/createExpenseCategory')
+const mockCreateExpenseCategory = vi.mocked(createExpenseCategory)
 
-jest.mock('@/store/store')
-jest.spyOn(console, 'error').mockImplementation(() => {})
+vi.mock('@/store/store')
+vi.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('when addNewCategory is called', () => {
   const fakeUserId = 'user-1'
@@ -24,7 +24,7 @@ describe('when addNewCategory is called', () => {
   }
 
   beforeEach(() => {
-    ;(getStore as jest.Mock).mockReturnValue({
+    vi.mocked(getStore).mockReturnValue({
       getAccountDetails: () => ({ userId: fakeUserId, accountId: fakeAccountId }),
     })
     mockCreateExpenseCategory.mockResolvedValue(fakeExpenseCategory)

@@ -36,7 +36,7 @@ Provide project context and coding guidelines that AI should follow when generat
 - Use try/catch blocks for async operations
 - Always log errors with contextual information
 
-6. ## Writing Jest Unit Tests
+6. ## Writing Jest Unit Tests In packages/backend
 
 - Structure unit tests using `describe` and `it` blocks
 - `describe` blocks should follow structure: "when ABC occurs"
@@ -56,3 +56,12 @@ Provide project context and coding guidelines that AI should follow when generat
 - Run all unit tests: npm run test:unit
 - Run all e2e tests: npm run test:e2e
 - Run specific e2e test: npm run e2e:test {path to test relativel to backend package root}
+
+9. ## Writing Vitest Unit Tests In packages/frontend
+
+- Use vitest for all unit tests. Do not use jest.
+- Structure unit tests using `describe` and `it` blocks
+- `describe` blocks should follow structure: "when ABC occurs"
+- `it` blocks should follow structure: "should do/return XYZ"
+- Use prefix "fake" for faked variables in a test
+- Use prefix "mock" for mocked functions in a test
