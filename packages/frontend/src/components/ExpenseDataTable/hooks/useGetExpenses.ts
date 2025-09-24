@@ -1,4 +1,4 @@
-import { getAllExpenses } from '@/service/expenses/getAllExpenses'
+import { getAllExpenses } from '../../../service/expenses/getExpenses.js'
 import type { Expense } from '@/types/expenseData'
 import { onMounted, ref, type Ref } from 'vue'
 

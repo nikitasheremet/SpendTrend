@@ -12,5 +12,5 @@ export interface CreateExpenseRequest extends Omit<NewExpense, 'category' | 'sub
 
 export async function createExpense(expense: CreateExpenseRequest): Promise<Expense> {
   const response = await post<CreateExpenseResponse>('createexpense', expense)
-  return createExpenseResponseToDomainExpense(response)
+  return createExpenseResponseToDomainExpense(response.expense)
 }
