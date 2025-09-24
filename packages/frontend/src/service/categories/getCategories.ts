@@ -1,6 +1,8 @@
-import { getCategories as repoGetCategories } from '@/repository/categories/getCategories'
-import type { Category } from '@/types/expenseData'
+import { getExpenseCategories } from '@/gateway/expenseCategory/getExpenseCategories'
+import { getStore } from '@/store/store'
+import type { ExpenseCategory } from '@/types/expenseData'
 
-export async function getCategories(): Promise<Category[]> {
-  return await repoGetCategories()
+export async function getCategories(): Promise<ExpenseCategory[]> {
+  const { userId, accountId } = getStore().getAccountDetails()
+  return await getExpenseCategories({ userId, accountId })
 }

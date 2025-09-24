@@ -44,7 +44,7 @@ const { categoryNames, getSubcategories } = useCategoriesInExpenseData()
       @on-save="(value) => updateExpense(value, 'paidBackAmount')"
     />
     <ExpenseDataCell
-      :data="expenseData.category"
+      :data="expenseData.category.name"
       type="dropdown"
       :options="categoryNames"
       @on-save="(value) => updateExpense(value, 'category')"
