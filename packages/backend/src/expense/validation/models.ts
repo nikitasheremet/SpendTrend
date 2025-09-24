@@ -1,8 +1,5 @@
 import { z } from 'zod'
-import {
-  VALIDATION_INPUT_MUST_BE_AN_OBJECT,
-  VALIDATION_ERROR_NO_FIELDS_TO_UPDATE,
-} from '../../models/errors/validationError'
+import { VALIDATION_ERROR_NO_FIELDS_TO_UPDATE } from '../../models/errors/validationError'
 import {
   accountIdSchema,
   amountSchema,
@@ -16,52 +13,40 @@ import {
   subCategoryIdSchema,
 } from './validationUtils'
 
-export const createExpenseInputSchema = z.strictObject(
-  {
-    name: nameSchema,
-    userId: userIdSchema,
-    accountId: accountIdSchema,
-    amount: amountSchema,
-    netAmount: netAmountSchema,
-    date: dateSchema,
-    categoryId: categoryIdSchema,
-    subCategoryId: subCategoryIdSchema.optional(),
-    paidBackAmount: paidBackAmountSchema,
-  },
-  { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
-)
+export const createExpenseInputSchema = z.strictObject({
+  name: nameSchema,
+  userId: userIdSchema,
+  accountId: accountIdSchema,
+  amount: amountSchema,
+  netAmount: netAmountSchema,
+  date: dateSchema,
+  categoryId: categoryIdSchema,
+  subCategoryId: subCategoryIdSchema.optional(),
+  paidBackAmount: paidBackAmountSchema,
+})
 
-export const DeleteExpensesInputSchema = z.strictObject(
-  {
-    userId: userIdSchema,
-    accountId: accountIdSchema,
-    expenseId: idSchema,
-  },
-  { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
-)
+export const DeleteExpensesInputSchema = z.strictObject({
+  userId: userIdSchema,
+  accountId: accountIdSchema,
+  expenseId: idSchema,
+})
 
-export const getExpensesInputSchema = z.strictObject(
-  {
-    userId: userIdSchema,
-    accountId: accountIdSchema,
-  },
-  { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
-)
+export const getExpensesInputSchema = z.strictObject({
+  userId: userIdSchema,
+  accountId: accountIdSchema,
+})
 
 export const updateExpenseInputSchema = z
-  .strictObject(
-    {
-      id: idSchema,
-      name: nameSchema.optional(),
-      amount: amountSchema.optional(),
-      netAmount: netAmountSchema.optional(),
-      date: dateSchema.optional(),
-      categoryId: categoryIdSchema.optional(),
-      subCategoryId: subCategoryIdSchema.optional(),
-      paidBackAmount: paidBackAmountSchema.optional(),
-    },
-    { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
-  )
+  .strictObject({
+    id: idSchema,
+    name: nameSchema.optional(),
+    amount: amountSchema.optional(),
+    netAmount: netAmountSchema.optional(),
+    date: dateSchema.optional(),
+    categoryId: categoryIdSchema.optional(),
+    subCategoryId: subCategoryIdSchema.optional(),
+    paidBackAmount: paidBackAmountSchema.optional(),
+  })
   .refine(
     (obj) => {
       const { id, ...fieldsToUpdate } = obj
