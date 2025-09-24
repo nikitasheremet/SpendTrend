@@ -1,10 +1,10 @@
-import type { Category } from '@/types/expenseData'
+import type { ExpenseCategory } from '@/types/expenseData'
 import { ref, type Ref } from 'vue'
 import { deleteCategory as serviceDeleteCategory } from '@/service/categories/deleteCategory'
 
 export function useDeleteCategory(
-  category: Category,
-  categoryDeletedCallback: (categoryDeleted: Category) => void,
+  category: ExpenseCategory,
+  categoryDeletedCallback: (categoryDeleted: ExpenseCategory) => void,
 ): {
   deleteCategory: () => Promise<void>
   error: Ref<Error | undefined>
@@ -18,7 +18,7 @@ export function useDeleteCategory(
       return
     }
     try {
-      await serviceDeleteCategory(category)
+      await serviceDeleteCategory(category.id)
       categoryDeletedCallback(category)
     } catch (err) {
       error.value = err as Error
