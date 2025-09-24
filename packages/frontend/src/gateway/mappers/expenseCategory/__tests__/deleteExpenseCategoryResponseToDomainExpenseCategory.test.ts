@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { createExpenseCategoryResponseToDomainExpenseCategory } from '../createExpenseCategoryResponseToDomainExpenseCategory'
+import { deleteExpenseCategoryResponseToDomainExpenseCategory } from '../deleteExpenseCategoryResponseToDomainExpenseCategory'
 import { ExpenseCategory as ContractExpenseCategory } from '@contracts/expenseCategory/models'
 import { ExpenseCategory } from '@/types/expenseData'
 
-describe('createExpenseCategoryResponseToDomainExpenseCategory', () => {
+describe('deleteExpenseCategoryResponseToDomainExpenseCategory', () => {
   describe('when given a valid contract expense category', () => {
     it('should map all fields correctly', () => {
       const fakeInput: ContractExpenseCategory = {
@@ -45,7 +45,7 @@ describe('createExpenseCategoryResponseToDomainExpenseCategory', () => {
         updatedAt: new Date('2025-09-22T10:00:00Z'),
       }
 
-      const result = createExpenseCategoryResponseToDomainExpenseCategory(fakeInput)
+      const result = deleteExpenseCategoryResponseToDomainExpenseCategory(fakeInput)
 
       expect(result).toEqual(expectedCategory)
     })
@@ -55,7 +55,7 @@ describe('createExpenseCategoryResponseToDomainExpenseCategory', () => {
     it('should throw an error', () => {
       const fakeInvalidInput = null as unknown as ContractExpenseCategory
 
-      expect(() => createExpenseCategoryResponseToDomainExpenseCategory(fakeInvalidInput)).toThrow()
+      expect(() => deleteExpenseCategoryResponseToDomainExpenseCategory(fakeInvalidInput)).toThrow()
     })
   })
 })
