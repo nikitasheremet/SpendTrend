@@ -8,9 +8,9 @@ export async function createExpenseHandler(ctx: Context) {
   try {
     const input = ctx.request.body
     validateCreateExpenseInput(input)
-    const expense = await createExpenseService(input)
+    const createdExpense = await createExpenseService(input)
     ctx.status = STATUS_CREATED_201
-    ctx.body = expense
+    ctx.body = { createdExpense }
   } catch (error) {
     ctx.status = errorStatusMapper(error)
     ctx.body = { error: (error as Error).message }

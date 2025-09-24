@@ -17,6 +17,7 @@ function handleRowError(newError: Error) {
     <tbody>
       <ExpenseRow
         v-for="expense of expenses"
+        :key="expense.id"
         :expense="expense"
         @expense-deleted="expenseDeleted"
         @on-error="handleRowError"

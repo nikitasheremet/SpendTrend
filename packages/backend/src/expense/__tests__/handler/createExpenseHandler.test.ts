@@ -34,7 +34,7 @@ describe('createExpenseHandler', () => {
 
       // Assert
       expect(fakeCtx.status).toBe(STATUS_CREATED_201)
-      expect(fakeCtx.body).toEqual({ id: 1, name: 'Lunch' })
+      expect(fakeCtx.body).toEqual({ createdExpense: { id: 1, name: 'Lunch' } })
     })
   })
 

@@ -4,7 +4,7 @@ import UpdateView from './UpdateView.vue'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 
 export type ComponentProps =
-  | { type: 'date'; data?: number; options?: never }
+  | { type: 'date'; data?: string; options?: never }
   | { type: 'text'; data?: string; options?: never }
   | { type: 'number'; data?: number; options?: never }
   | { type: 'dropdown'; options: string[]; data?: string }
