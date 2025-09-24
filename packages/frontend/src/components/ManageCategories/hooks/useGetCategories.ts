@@ -1,12 +1,12 @@
 import { getCategories } from '@/service/categories/getCategories'
-import type { Category, ExpenseCategory } from '@/types/expenseData'
+import type { ExpenseCategory } from '@/types/expenseData'
 import { onMounted, ref, type Ref } from 'vue'
 
 export function useGetCategories(): {
   categories: Ref<ExpenseCategory[]>
   error: Ref<Error | undefined>
   newCategoriesAdded: (newCategory: ExpenseCategory) => void
-  categoryDeleted: (categoryDeleted: Category) => void
+  categoryDeleted: (categoryDeleted: ExpenseCategory) => void
 } {
   const categories = ref<ExpenseCategory[]>([])
   const error = ref<Error | undefined>(undefined)
@@ -14,7 +14,7 @@ export function useGetCategories(): {
   async function fetchCategories() {
     try {
       getCategories().then((response) => {
-        categories.value = response as unknown as ExpenseCategory[]
+        categories.value = response
       })
     } catch (err) {
       error.value = err as Error
@@ -32,7 +32,7 @@ export function useGetCategories(): {
     categories.value = updatedCategories
   }
 
-  function categoryDeleted(categoryDeleted: Category) {
+  function categoryDeleted(categoryDeleted: ExpenseCategory) {
     categories.value = categories.value.filter((category) => category.name !== categoryDeleted.name)
   }
 

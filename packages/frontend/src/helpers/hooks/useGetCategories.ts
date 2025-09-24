@@ -1,13 +1,13 @@
 import { getCategories } from '@/service/categories/getCategories'
-import type { Category } from '@/types/expenseData'
+import type { ExpenseCategory, ExpenseSubCategory } from '@/types/expenseData'
 import { computed, onMounted, ref, type ComputedRef, type Ref } from 'vue'
 
 export function useCategoriesInExpenseData(): {
-  categories: Ref<Category[]>
+  categories: Ref<ExpenseCategory[]>
   categoryNames: ComputedRef<string[]>
-  getSubcategories: (categoryName?: string) => string[]
+  getSubcategories: (categoryId?: string) => ExpenseSubCategory[]
 } {
-  const categories = ref<Category[]>([])
+  const categories = ref<ExpenseCategory[]>([])
 
   onMounted(() => {
     getCategories().then((response) => {
@@ -18,12 +18,10 @@ export function useCategoriesInExpenseData(): {
   const categoryNames = computed(() => {
     return categories.value.map((category) => category.name)
   })
-  function getSubcategories(categoryName?: string): string[] {
-    const selectedCategoryObject = categories.value.find(
-      (category) => category.name === categoryName,
-    )
+  function getSubcategories(categoryId?: string): ExpenseSubCategory[] {
+    const selectedCategoryObject = categories.value.find((category) => category.id === categoryId)
     if (selectedCategoryObject) {
-      return selectedCategoryObject.subcategories
+      return selectedCategoryObject.subCategories
     }
     return []
   }
