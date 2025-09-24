@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-// import AddSubcategoryModal from '@/components/ManageCategories/AddSubcategoryModal.vue'
+import AddSubcategoryModal from '@/components/ManageCategories/AddSubcategoryModal.vue'
 import type { ExpenseCategory } from '@/types/expenseData'
 import { useDeleteCategory } from './hooks/useDeleteCategory'
-import SubcategoryView from './SubcategoryView.vue'
-import { useManageSubcategories } from './hooks/useManageSubcategories'
+import SubCategoryView from './SubCategoryView.vue'
+import { useManageSubCategories } from './hooks/useManageSubcategories'
 import { useControlModal } from '../DesignSystem/Modal/useControlModal'
 import { useControlCategoryOptions } from './hooks/useControlCategoryOptions'
 import Error from '../DesignSystem/Error.vue'
@@ -22,24 +22,23 @@ function categoryDeleted() {
 const { deleteCategory, error: deleteCategoryError } = useDeleteCategory(category, categoryDeleted)
 
 const {
-  subcategories,
-  deleteSubcategory,
-  // subcategoriesAdded,
-  error: deleteSubcategoryError,
-  // @ts-expect-error - REMOVE THIS AFTER SUBCATEGORIES ENDPOINTS ARE READY
-} = useManageSubcategories(category)
+  subCategories,
+  deleteSubCategory,
+  subCategoryAdded,
+  error: deleteSubCategoryError,
+} = useManageSubCategories(category)
 
-// eslint-disable-next-line
-const { isModalOpen, openModal: openAddSubcategoryModal } = useControlModal()
+const { isModalOpen: isAddSubCategoryModalOpen, openModal: openAddSubCategoryModal } =
+  useControlModal()
 
 const { isOptionsOpen, toggleOptions, closeOptions } = useControlCategoryOptions()
 
-const showSubcategories = ref(false)
+const showSubCategories = ref(false)
 function handleCategoryClick() {
-  showSubcategories.value = !showSubcategories.value
+  showSubCategories.value = !showSubCategories.value
 }
 
-const error = deleteCategoryError || deleteSubcategoryError
+const error = deleteCategoryError || deleteSubCategoryError
 </script>
 
 <template>
@@ -54,22 +53,22 @@ const error = deleteCategoryError || deleteSubcategoryError
         </p>
         <button style="font-size: 8px" @click="toggleOptions" @blur="closeOptions">Options</button>
         <div class="category-options" v-if="isOptionsOpen">
-          <button @click="openAddSubcategoryModal">Add Subcategory</button>
+          <button @click="openAddSubCategoryModal">Add SubCategory</button>
           <button @click="deleteCategory">Delete Category</button>
         </div>
       </span>
     </div>
-    <SubcategoryView
-      v-if="showSubcategories"
-      :subcategories="subcategories"
-      @subcategory-delete-clicked="deleteSubcategory"
+    <SubCategoryView
+      v-if="showSubCategories"
+      :subCategories="subCategories"
+      @sub-category-delete-clicked="deleteSubCategory"
     />
   </div>
-  <!-- <AddSubcategoryModal
+  <AddSubcategoryModal
     :category="category"
-    v-model="isAddSubcategoryModalOpen"
-    @subcategories-added="subcategoriesAdded"
-  /> -->
+    v-model="isAddSubCategoryModalOpen"
+    @sub-category-added="subCategoryAdded"
+  />
   <Error v-if="error" :error="error" />
 </template>
 

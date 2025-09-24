@@ -39,7 +39,7 @@ router.get('/health', (ctx) => {
 
 router.post('/createexpense', createExpenseHandler)
 router.post('/createexpensecategory', createExpenseCategoryHandler)
-router.post('/createsubcategory', createExpenseSubCategoryHandler)
+router.post('/createexpensesubcategory', createExpenseSubCategoryHandler)
 router.put('/updateexpensesubcategory', updateExpenseSubCategoryHandler)
 router.post('/deleteexpensesubcategory', deleteExpenseSubCategoryHandler)
 router.get('/expenses', getExpensesHandler)

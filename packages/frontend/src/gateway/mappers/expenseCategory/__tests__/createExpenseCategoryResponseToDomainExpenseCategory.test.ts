@@ -37,6 +37,7 @@ describe('createExpenseCategoryResponseToDomainExpenseCategory', () => {
             userId: '123e4567-e89b-12d3-a456-426614174001',
             accountId: '123e4567-e89b-12d3-a456-426614174002',
             name: 'Test SubCategory',
+            categoryId: '123e4567-e89b-12d3-a456-426614174000',
             createdAt: new Date('2025-09-22T10:00:00Z'),
             updatedAt: new Date('2025-09-22T10:00:00Z'),
           },

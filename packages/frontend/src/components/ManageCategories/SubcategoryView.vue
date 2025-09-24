@@ -1,20 +1,22 @@
 <script lang="ts" setup>
-const { subcategories } = defineProps<{
-  subcategories: string[]
+import { ExpenseSubCategory } from '@/types/expenseData'
+
+const { subCategories } = defineProps<{
+  subCategories: ExpenseSubCategory[]
 }>()
 const emits = defineEmits<{
-  subcategoryDeleteClicked: [string]
+  subCategoryDeleteClicked: [ExpenseSubCategory]
 }>()
 </script>
 
 <template>
   <ul>
-    <li v-for="subcategory in subcategories" :key="subcategory">
+    <li v-for="subCategory in subCategories" :key="subCategory.id">
       <div style="margin: 10px 0 10px 0">
-        <p style="display: inline; margin-right: 10px">{{ subcategory }}</p>
+        <p style="display: inline; margin-right: 10px">{{ subCategory.name }}</p>
         <button
           style="font-size: 8px"
-          @click="() => emits('subcategoryDeleteClicked', subcategory)"
+          @click="() => emits('subCategoryDeleteClicked', subCategory)"
         >
           Delete
         </button>

@@ -1,36 +1,33 @@
-import { splitString } from '@/helpers/splitString'
-import { addNewSubcategories } from '@/service/categories/addNewSubcategories'
-import type { Category } from '@/types/expenseData'
+import { addNewSubcategory } from '@/service/categories/addNewSubcategory'
+import type { ExpenseCategory, ExpenseSubCategory } from '@/types/expenseData'
 import { ref, type Ref } from 'vue'
 
-export function useAddSubcategory(
-  category: Category,
-  subcategoryAddedCallback: (newSubcategories: string[]) => void,
+export function useAddSubCategory(
+  category: ExpenseCategory,
+  subCategoryAddedCallback: (newSubCategory: ExpenseSubCategory) => void,
 ): {
-  newSubcategoriesValue: Ref<string>
-  addSubcategory: () => Promise<void>
+  newSubCategoryValue: Ref<string>
+  addSubCategory: () => Promise<void>
   error: Ref<Error | undefined>
 } {
-  const newSubcategoriesValue = ref<string>('')
+  const newSubCategoryValue = ref<string>('')
   const error = ref<Error | undefined>(undefined)
-  async function addSubcategory() {
+  async function addSubCategory() {
     try {
-      const newSubcategories = splitString(newSubcategoriesValue.value)
-      if (!newSubcategories) {
-        throw new Error('Subcategory name cannot be empty')
+      if (!newSubCategoryValue.value) {
+        throw new Error('SubCategory name cannot be empty')
       }
-      const orderedSubcategories = newSubcategories.sort((a, b) => a.localeCompare(b))
-      await addNewSubcategories(category, orderedSubcategories)
+      const newSubCategory = await addNewSubcategory(category.id, newSubCategoryValue.value)
 
-      subcategoryAddedCallback(newSubcategories)
+      subCategoryAddedCallback(newSubCategory)
     } catch (err) {
       error.value = err as Error
     }
   }
 
   return {
-    newSubcategoriesValue,
-    addSubcategory,
+    newSubCategoryValue,
+    addSubCategory,
     error,
   }
 }

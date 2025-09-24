@@ -30,6 +30,7 @@ export interface ExpenseSubCategory {
   userId: string
   accountId: string
   name: string
+  categoryId: string
   createdAt: Date
   updatedAt: Date
 }
