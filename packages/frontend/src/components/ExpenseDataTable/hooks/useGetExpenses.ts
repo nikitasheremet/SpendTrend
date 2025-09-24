@@ -1,4 +1,4 @@
-import { getAllExpenses } from '../../../service/expenses/getExpenses.js'
+import { getExpenses } from '../../../service/expenses/getExpenses'
 import type { Expense } from '@/types/expenseData'
 import { onMounted, ref, type Ref } from 'vue'
 
@@ -11,7 +11,7 @@ export function useGetExpenses(): {
   const error = ref<Error | undefined>(undefined)
   onMounted(() => {
     try {
-      getAllExpenses().then((data) => {
+      getExpenses().then((data) => {
         expenses.value = data
       })
     } catch (err) {

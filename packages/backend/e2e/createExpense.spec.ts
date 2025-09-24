@@ -61,8 +61,7 @@ test.describe('Create Expense Endpoint', () => {
 
       expect(response.status()).toBe(STATUS_CREATED_201)
       const body = await response.json()
-      expect(body).toHaveProperty('id')
-      expect(body).toEqual(
+      expect(body.createdExpense).toEqual(
         expect.objectContaining({
           ...excludeFieldsAndAdd(fakeCreateExpenseInput, ['categoryId', 'subCategoryId']),
           category: {

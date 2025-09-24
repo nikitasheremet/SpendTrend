@@ -5,5 +5,5 @@ import { apiExpenseToDomain } from './apiExpenseToDomain'
 export function getExpensesResponseToDomainExpenses(
   responseExpenses: ContractExpense[],
 ): Expense[] {
-  return responseExpenses.map((expense) => apiExpenseToDomain(expense))
+  return responseExpenses.map(apiExpenseToDomain)
 }

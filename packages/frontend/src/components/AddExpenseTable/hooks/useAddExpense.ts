@@ -34,6 +34,7 @@ export function useAddExpense(): {
       await addNewExpense(newExpenseData.value)
       newExpenseData.value = createNewEmptyExpenseData()
     } catch (err) {
+      console.log('Error adding new expense:', err)
       error.value = err as Error
     }
   }
