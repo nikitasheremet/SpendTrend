@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 // import AddSubcategoryModal from '@/components/ManageCategories/AddSubcategoryModal.vue'
-import type { Category, ExpenseCategory } from '@/types/expenseData'
+import type { ExpenseCategory } from '@/types/expenseData'
 import { useDeleteCategory } from './hooks/useDeleteCategory'
 import SubcategoryView from './SubcategoryView.vue'
 import { useManageSubcategories } from './hooks/useManageSubcategories'
@@ -14,13 +14,11 @@ const { category } = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  categoryDeleted: [Category]
+  categoryDeleted: [ExpenseCategory]
 }>()
 function categoryDeleted() {
-  /// @ts-expect-error - temp fix unit all endpoint are updated
   emits('categoryDeleted', category)
 }
-// @ts-expect-error - temp fix unit all endpoint are updated
 const { deleteCategory, error: deleteCategoryError } = useDeleteCategory(category, categoryDeleted)
 
 const {
@@ -28,7 +26,7 @@ const {
   deleteSubcategory,
   // subcategoriesAdded,
   error: deleteSubcategoryError,
-  // @ts-expect-error - temp fix unit all endpoint are updated
+  // @ts-expect-error - REMOVE THIS AFTER SUBCATEGORIES ENDPOINTS ARE READY
 } = useManageSubcategories(category)
 
 // eslint-disable-next-line

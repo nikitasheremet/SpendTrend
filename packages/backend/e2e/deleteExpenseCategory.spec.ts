@@ -29,7 +29,7 @@ test.describe('Delete Expense Category Endpoint', () => {
   test.describe('when input is invalid', () => {
     test('should return a 422 status code and a validation failure', async ({ request }) => {
       const badPayload = {}
-      const response = await request.delete(`${BASE_URL}/deleteexpensecategory`, {
+      const response = await request.post(`${BASE_URL}/deleteexpensecategory`, {
         data: badPayload,
       })
       expect(response.status()).toBe(STATUS_UNPROCESSABLE_ENTITY_422)
@@ -46,7 +46,7 @@ test.describe('Delete Expense Category Endpoint', () => {
         accountId: fakeAccountId,
         id: nonExistentId,
       }
-      const response = await request.delete(`${BASE_URL}/deleteexpensecategory`, {
+      const response = await request.post(`${BASE_URL}/deleteexpensecategory`, {
         data: deletePayload,
       })
       expect(response.status()).toBe(STATUS_NOT_FOUND_404)
@@ -83,7 +83,7 @@ test.describe('Delete Expense Category Endpoint', () => {
         accountId: fakeAccountId,
         id: createdCategory.id,
       }
-      const deleteResponse = await request.delete(`${BASE_URL}/deleteexpensecategory`, {
+      const deleteResponse = await request.post(`${BASE_URL}/deleteexpensecategory`, {
         data: deletePayload,
       })
       const deleteBody = await deleteResponse.json()
@@ -147,7 +147,7 @@ test.describe('Delete Expense Category Endpoint', () => {
         accountId: fakeAccountId,
         id: createdCategory.id,
       }
-      const deleteResponse = await request.delete(`${BASE_URL}/deleteexpensecategory`, {
+      const deleteResponse = await request.post(`${BASE_URL}/deleteexpensecategory`, {
         data: deletePayload,
       })
 
