@@ -68,7 +68,7 @@ test.describe('Delete Expense Subcategory Endpoint', () => {
       expect(response.status()).toBe(STATUS_SUCCESS_200)
 
       const body = await response.json()
-      expect(body.deleteExpenseSubCategory).toEqual(
+      expect(body.deletedExpenseSubCategory).toEqual(
         expect.objectContaining({
           id: createdExpenseSubcategory.id,
           userId: fakeDeleteExpenseSubcategoryInput.userId,

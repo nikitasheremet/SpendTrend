@@ -67,6 +67,6 @@ describe('when using deleteExpenseSubCategoryHandler', () => {
     await deleteExpenseSubCategoryHandler(fakeContext)
 
     expect(fakeContext.status).toBe(STATUS_SUCCESS_200)
-    expect(fakeContext.body).toEqual({ deleteExpenseSubCategory: fakeDeletedSubCategory })
+    expect(fakeContext.body).toEqual({ deletedExpenseSubCategory: fakeDeletedSubCategory })
   })
 })

@@ -9,11 +9,11 @@ export async function deleteExpenseSubCategoryHandler(ctx: Context): Promise<voi
   try {
     const input = ctx.request.body
     validateDeleteExpenseSubCategory(input)
-    const deleteExpenseSubCategory = await deleteExpenseSubCategoryService(
+    const deletedExpenseSubCategory = await deleteExpenseSubCategoryService(
       input as DeleteExpenseSubCategoryInput,
     )
     ctx.status = STATUS_SUCCESS_200
-    ctx.body = { deleteExpenseSubCategory }
+    ctx.body = { deletedExpenseSubCategory }
   } catch (error) {
     ctx.status = errorStatusMapper(error)
     ctx.body = { error: (error as Error).message }

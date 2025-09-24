@@ -2,15 +2,16 @@ import { ExpenseSubCategory as DomainExpenseSubCategory } from '@/types/expenseD
 import { ExpenseSubCategory as ContractExpenseSubCategory } from '@contracts/expenseSubCategory/models'
 
 export function mapExpenseSubCategory(
-  contractSub: ContractExpenseSubCategory,
+  contractSubCategory: ContractExpenseSubCategory,
 ): DomainExpenseSubCategory {
+  console.log('Mapping contract subcategory to domain:', contractSubCategory)
   return {
-    id: contractSub.id,
-    userId: contractSub.userId,
-    accountId: contractSub.accountId,
-    name: contractSub.name,
-    categoryId: contractSub.categoryId,
-    createdAt: contractSub.createdAt,
-    updatedAt: contractSub.updatedAt,
+    id: contractSubCategory.id,
+    userId: contractSubCategory.userId,
+    accountId: contractSubCategory.accountId,
+    name: contractSubCategory.name,
+    categoryId: contractSubCategory.categoryId,
+    createdAt: contractSubCategory.createdAt,
+    updatedAt: contractSubCategory.updatedAt,
   }
 }
