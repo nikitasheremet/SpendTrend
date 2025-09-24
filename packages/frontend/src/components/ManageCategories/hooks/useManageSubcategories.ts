@@ -1,6 +1,6 @@
 import type { ExpenseCategory, ExpenseSubCategory } from '@/types/expenseData'
 import { ref, type Ref } from 'vue'
-import { deleteSubcategory as serviceDeleteSubcategory } from '@/service/categories/deleteSubcategory'
+import { deleteSubcategory as serviceDeleteSubcategory } from '@/service/categories/deleteSubCategory'
 
 export function useManageSubCategories(category: ExpenseCategory): {
   subCategories: Ref<ExpenseSubCategory[]>
