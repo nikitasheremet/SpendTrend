@@ -2,10 +2,38 @@
 import { NewExpense } from '@/types/expenseData'
 import AddExpenseCell from './AddExpenseCell.vue'
 import { useCategoriesInExpenseData } from '@/helpers/hooks/useGetCategories'
+import { computed } from 'vue'
 
-const newExpenseData = defineModel<NewExpense>({ required: true })
+const {
+  categoryNames,
+  getCategoryName,
+  getCategoryId,
+  getSubCategoryId,
+  getSubCategoryName,
+  getSubcategories,
+} = useCategoriesInExpenseData()
 
-const { categoryNames, getSubcategories } = useCategoriesInExpenseData()
+const newExpenseData = defineModel<NewExpense>({
+  required: true,
+})
+
+const expenseCategoryDropdownValue = computed({
+  get() {
+    return getCategoryName(newExpenseData.value.category)
+  },
+  set(value: string) {
+    newExpenseData.value.category = getCategoryId(value)
+  },
+})
+
+const expenseSubCategoryDropdownValue = computed({
+  get() {
+    return getSubCategoryName(newExpenseData.value.category, newExpenseData.value.subCategory)
+  },
+  set(value: string) {
+    newExpenseData.value.subCategory = getSubCategoryId(newExpenseData.value.category, value)
+  },
+})
 </script>
 
 <template>
@@ -16,12 +44,12 @@ const { categoryNames, getSubcategories } = useCategoriesInExpenseData()
   <AddExpenseCell type="number" v-model="newExpenseData.paidBackAmount" />
   <AddExpenseCell
     type="dropdown"
-    v-model="newExpenseData.category"
+    v-model="expenseCategoryDropdownValue"
     :dropdown-options="categoryNames"
   />
   <AddExpenseCell
     type="dropdown"
-    v-model="newExpenseData.subCategory"
+    v-model="expenseSubCategoryDropdownValue"
     :dropdown-options="getSubcategories(newExpenseData.category)"
   />
 </template>
