@@ -1,9 +1,7 @@
 import { Expense } from '@/types/expenseData'
 import { CreateExpenseResponse } from '@contracts/expense/createExpense'
-import {
-  mapExpenseCategory,
-  mapExpenseSubCategory,
-} from '../expenseCategory/apiExpenseCategoryToDomain'
+import { mapExpenseCategory } from '../expenseCategory/apiExpenseCategoryToDomain'
+import { mapExpenseSubCategory } from '../expenseSubCategory/apiExpenseSubCategoryToDomain'
 
 export function createExpenseResponseToDomainExpense(response: CreateExpenseResponse): Expense {
   return {
