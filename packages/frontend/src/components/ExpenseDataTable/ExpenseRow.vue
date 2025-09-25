@@ -17,7 +17,23 @@ function onDeleted(deletedExpense: Expense) {
 }
 const { expenseData, updateExpense, deleteExpense } = useManageExpense(expense, onError, onDeleted)
 
-const { categoryNames, getSubcategories } = useCategoriesInExpenseData()
+const { categoryNames, getCategory, getSubcategories } = useCategoriesInExpenseData()
+
+const onSaveCategory = async (name: string) => {
+  const category = getCategory(name)
+  await updateExpense({ ...category }, 'category')
+  await updateExpense(undefined, 'subCategory')
+}
+
+const onSaveSubCategory = async (name: string) => {
+  const category = getCategory(expenseData.value.category.name)
+  const subcategoryToUpdate = category.subCategories?.find((sub) => sub.name === name)
+  if (!subcategoryToUpdate) {
+    return
+  }
+
+  updateExpense(subcategoryToUpdate, 'subCategory')
+}
 </script>
 
 <template>
@@ -47,13 +63,13 @@ const { categoryNames, getSubcategories } = useCategoriesInExpenseData()
       :data="expenseData.category.name"
       type="dropdown"
       :options="categoryNames"
-      @on-save="(value) => updateExpense(value, 'category')"
+      @on-save="(value) => onSaveCategory(value as string)"
     />
     <ExpenseDataCell
       :data="expenseData.subCategory?.name"
       type="dropdown"
       :options="getSubcategories(expenseData.category.id)"
-      @on-save="(value) => updateExpense(value, 'subCategory')"
+      @on-save="(value) => onSaveSubCategory(value as string)"
     />
     <td>
       <button class="delete-expense-button" @click="deleteExpense">Delete</button>

@@ -39,17 +39,19 @@ export const getExpensesInputSchema = z.strictObject({
 export const updateExpenseInputSchema = z
   .strictObject({
     id: idSchema,
+    userId: userIdSchema,
+    accountId: accountIdSchema,
     name: nameSchema.optional(),
     amount: amountSchema.optional(),
     netAmount: netAmountSchema.optional(),
     date: dateSchema.optional(),
     categoryId: categoryIdSchema.optional(),
-    subCategoryId: subCategoryIdSchema.optional(),
+    subCategoryId: subCategoryIdSchema.nullish(),
     paidBackAmount: paidBackAmountSchema.optional(),
   })
   .refine(
     (obj) => {
-      const { id, ...fieldsToUpdate } = obj
+      const { id, userId, accountId, ...fieldsToUpdate } = obj
       return Object.keys(fieldsToUpdate).length > 0
     },
     { message: VALIDATION_ERROR_NO_FIELDS_TO_UPDATE },

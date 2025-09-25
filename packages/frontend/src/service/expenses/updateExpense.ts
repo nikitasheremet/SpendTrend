@@ -11,7 +11,7 @@ export async function updateExpense(updatedExpense: Expense): Promise<Expense> {
     netAmount: updatedExpense.netAmount,
     date: updatedExpense.date,
     categoryId: updatedExpense.category.id,
-    subCategoryId: updatedExpense.subCategory?.id,
+    subCategoryId: updatedExpense.subCategory?.id || null,
     paidBackAmount: updatedExpense.paidBackAmount,
   }
 
