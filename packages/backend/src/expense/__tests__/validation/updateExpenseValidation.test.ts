@@ -16,11 +16,17 @@ import {
   VALIDATION_ERROR_PAIDBACKAMOUNT_TYPE,
   VALIDATION_ERROR_CATEGORY_ID_TYPE,
   VALIDATION_ERROR_SUBCATEGORY_ID_TYPE,
+  VALIDATION_ERROR_USERID_MISSING,
+  VALIDATION_ERROR_USERID_TYPE,
+  VALIDATION_ERROR_ACCOUNTID_MISSING,
+  VALIDATION_ERROR_ACCOUNTID_TYPE,
 } from '../../../models/errors/validationError'
 
 describe('validateUpdateExpenseInput', () => {
   const fakeValidInput = {
     id: '123e4567-e89b-12d3-a456-426614174000',
+    userId: '123e4567-e89b-12d3-a456-426614174003',
+    accountId: '123e4567-e89b-12d3-a456-426614174004',
     name: 'Groceries',
     amount: 100,
     netAmount: 90,
@@ -44,6 +50,50 @@ describe('validateUpdateExpenseInput', () => {
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
         VALIDATION_ERROR_EXPENSEID_TYPE,
+      )
+    })
+  })
+
+  describe('when userId is invalid', () => {
+    it('should throw an error if userId is missing', () => {
+      const fakeInvalidInput = {
+        id: fakeValidInput.id,
+        accountId: fakeValidInput.accountId,
+        name: fakeValidInput.name,
+      }
+      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
+      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
+        VALIDATION_ERROR_USERID_MISSING,
+      )
+    })
+
+    it('should throw an error if userId is not uuid', () => {
+      const fakeInvalidInput = { ...fakeValidInput, userId: 123 }
+      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
+      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
+        VALIDATION_ERROR_USERID_TYPE,
+      )
+    })
+  })
+
+  describe('when accountId is invalid', () => {
+    it('should throw an error if accountId is missing', () => {
+      const fakeInvalidInput = {
+        id: fakeValidInput.id,
+        userId: fakeValidInput.userId,
+        name: fakeValidInput.name,
+      }
+      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
+      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
+        VALIDATION_ERROR_ACCOUNTID_MISSING,
+      )
+    })
+
+    it('should throw an error if accountId is not uuid', () => {
+      const fakeInvalidInput = { ...fakeValidInput, accountId: 123 }
+      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
+      expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
+        VALIDATION_ERROR_ACCOUNTID_TYPE,
       )
     })
   })
@@ -163,7 +213,11 @@ describe('validateUpdateExpenseInput', () => {
   })
   describe('when no updateable fields are present', () => {
     it('should throw no updatabled field error', () => {
-      const fakeInvalidInput = { id: fakeValidInput.id }
+      const fakeInvalidInput = {
+        id: fakeValidInput.id,
+        userId: fakeValidInput.userId,
+        accountId: fakeValidInput.accountId,
+      }
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(ValidationError)
       expect(() => validateUpdateExpenseInput(fakeInvalidInput)).toThrow(
         VALIDATION_ERROR_NO_FIELDS_TO_UPDATE,
