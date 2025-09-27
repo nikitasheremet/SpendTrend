@@ -10,6 +10,7 @@
       <th>Paid Back</th>
       <th>Category</th>
       <th>Subcategory</th>
+      <th></th>
     </tr>
   </thead>
 </template>

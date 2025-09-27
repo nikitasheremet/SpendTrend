@@ -7,7 +7,7 @@ export interface CreateExpenseRequest extends Omit<NewExpense, 'category' | 'sub
   userId: string
   accountId: string
   categoryId: string
-  subCategoryId: string
+  subCategoryId?: string
 }
 
 export async function createExpense(expense: CreateExpenseRequest): Promise<Expense> {

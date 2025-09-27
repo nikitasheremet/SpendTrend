@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import AddExpenseView from '../views/AddExpenseView.vue'
+import AddDataView from '../views/AddDataView.vue'
 import ExpenseDataView from '../views/ExpenseDataView.vue'
 import ManageCategoriesView from '../views/ManageCategoriesView.vue'
 
@@ -16,8 +16,8 @@ const router = createRouter({
       component: ExpenseDataView,
     },
     {
-      path: '/addExpense',
-      component: AddExpenseView,
+      path: '/addData',
+      component: AddDataView,
     },
     {
       path: '/manageCategories',
