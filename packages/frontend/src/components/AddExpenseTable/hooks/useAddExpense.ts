@@ -1,4 +1,4 @@
-import { ref, watchEffect, type Ref } from 'vue'
+import { ref, watch, type Ref } from 'vue'
 import { addNewExpense } from '@/service/expenses/addNewExpense'
 import { NewExpense } from '@/types/expenseData'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
@@ -15,33 +15,60 @@ function createNewEmptyExpenseData(): NewExpense {
   }
 }
 
-export function useAddExpense(): {
-  newExpenseData: Ref<NewExpense>
+export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
+  newExpenseData: Ref<NewExpense[]>
   addExpense: () => Promise<void>
+  addNewExpenseRow: () => void
+  deleteNewExpenseRow: (index: number) => void
   error: Ref<Error | undefined>
 } {
-  const newExpenseData = ref<NewExpense>(createNewEmptyExpenseData())
+  const newExpenseData = ref<NewExpense[]>(
+    newExpenses.value.length ? newExpenses.value : [createNewEmptyExpenseData()],
+  )
   const error = ref<Error | undefined>(undefined)
 
-  watchEffect(() => {
-    const { amount, paidBackAmount } = newExpenseData.value
-    newExpenseData.value.netAmount = (amount || 0) - (paidBackAmount || 0)
-  })
+  watch(
+    newExpenses,
+    (newVal, oldVal) => {
+      newExpenseData.value = [...newVal, ...oldVal]
+    },
+    { deep: true },
+  )
+
+  watch(
+    newExpenseData,
+    () => {
+      newExpenseData.value.forEach((expense) => {
+        expense.netAmount = (expense.amount || 0) - (expense.paidBackAmount || 0)
+      })
+    },
+    { deep: true },
+  )
 
   async function addExpense() {
     try {
-      verifyNewExpenseData(newExpenseData.value)
-      await addNewExpense(newExpenseData.value)
-      newExpenseData.value = createNewEmptyExpenseData()
+      newExpenseData.value.forEach(verifyNewExpenseData)
+      await Promise.all(newExpenseData.value.map(addNewExpense))
+      newExpenseData.value = [createNewEmptyExpenseData()]
     } catch (err) {
       console.log('Error adding new expense:', err)
       error.value = err as Error
     }
   }
 
+  function addNewExpenseRow() {
+    newExpenseData.value.push(createNewEmptyExpenseData())
+  }
+
+  function deleteNewExpenseRow(index: number) {
+    newExpenseData.value.splice(index, 1)
+  }
+
   return {
     newExpenseData,
     addExpense,
+    addNewExpenseRow,
+    deleteNewExpenseRow,
     error,
   }
 }

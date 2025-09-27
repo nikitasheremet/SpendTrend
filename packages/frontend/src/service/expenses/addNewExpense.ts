@@ -11,7 +11,7 @@ export async function addNewExpense(newExpenseData: NewExpense): Promise<Expense
     date: newExpenseData.date,
     paidBackAmount: newExpenseData.paidBackAmount,
     categoryId: newExpenseData.category,
-    subCategoryId: newExpenseData.subCategory,
+    subCategoryId: newExpenseData.subCategory || undefined,
     userId,
     accountId,
   }
