@@ -1,4 +1,4 @@
-import { addNewSubcategory } from '@/service/categories/addNewSubcategory'
+import { addNewSubcategory } from '@/service/categories/addNewSubCategory'
 import type { ExpenseCategory, ExpenseSubCategory } from '@/types/expenseData'
 import { ref, type Ref } from 'vue'
 

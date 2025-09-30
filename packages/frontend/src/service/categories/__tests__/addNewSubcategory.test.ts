@@ -1,4 +1,4 @@
-import { addNewSubcategory } from '../addNewSubcategory'
+import { addNewSubcategory } from '../addNewSubCategory'
 import { createExpenseSubCategory } from '@/gateway/expenseSubCategory/createExpenseSubCategory'
 import { getStore } from '@/store/store'
 import type { ExpenseSubCategory } from '@/types/expenseData'
