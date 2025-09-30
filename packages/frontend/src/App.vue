@@ -9,6 +9,7 @@ import { RouterLink, RouterView } from 'vue-router'
       <RouterLink to="/expensedata">Expense Data</RouterLink>
       <RouterLink to="/adddata">Add Data</RouterLink>
       <RouterLink to="/managecategories">Manage Categories</RouterLink>
+      <RouterLink to="/incomedata">Income Data</RouterLink>
     </div>
 
     <div id="page-wrapper"><RouterView /></div>
