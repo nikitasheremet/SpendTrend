@@ -1,14 +1,14 @@
-import { getIncomeRepository, GetIncomeQuery } from '../../repository/getIncomeRepository'
+import { getIncomesRepository, GetIncomesQuery } from '../../repository/getIncomesRepository'
 import { db } from '../../../db'
 import { DB_ERROR, RepositoryError } from '../../../models/errors/repositoryErrors'
 
 jest.mock('../../../db')
 jest.spyOn(console, 'error').mockImplementation(() => {})
 
-describe('getIncomeRepository', () => {
+describe('getIncomesRepository', () => {
   const mockDbSelect = db.select as jest.Mock
-  
-  const fakeQuery: GetIncomeQuery = {
+
+  const fakeQuery: GetIncomesQuery = {
     accountId: 'account-1',
   }
 
@@ -32,8 +32,8 @@ describe('getIncomeRepository', () => {
         throw new Error(errorMessage)
       })
 
-      await expect(getIncomeRepository(fakeQuery)).rejects.toThrow(DB_ERROR)
-      await expect(getIncomeRepository(fakeQuery)).rejects.toBeInstanceOf(RepositoryError)
+      await expect(getIncomesRepository(fakeQuery)).rejects.toThrow(DB_ERROR)
+      await expect(getIncomesRepository(fakeQuery)).rejects.toBeInstanceOf(RepositoryError)
     })
   })
 
@@ -64,7 +64,7 @@ describe('getIncomeRepository', () => {
 
       orderByMock.mockResolvedValue(fakeDbIncomeRecords)
 
-      const result = await getIncomeRepository(fakeQuery)
+      const result = await getIncomesRepository(fakeQuery)
 
       expect(result).toEqual(fakeDbIncomeRecords)
     })
@@ -74,7 +74,7 @@ describe('getIncomeRepository', () => {
     it('should return an empty array', async () => {
       orderByMock.mockResolvedValue([])
 
-      const result = await getIncomeRepository(fakeQuery)
+      const result = await getIncomesRepository(fakeQuery)
 
       expect(result).toEqual([])
     })

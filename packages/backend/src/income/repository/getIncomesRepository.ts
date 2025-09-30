@@ -5,11 +5,11 @@ import { DB_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 import { Income } from '../../models/income/income'
 import { dbIncomeToDomainIncome } from '../../utilities/mappers/income/DBIncomeToDomainIncome'
 
-export interface GetIncomeQuery {
+export interface GetIncomesQuery {
   accountId: string
 }
 
-export async function getIncomeRepository(query: GetIncomeQuery): Promise<Income[]> {
+export async function getIncomesRepository(query: GetIncomesQuery): Promise<Income[]> {
   try {
     const incomeRecords = await db
       .select()

@@ -1,2 +1,2 @@
 export { createIncomeRepository } from './createIncomeRepository'
-export { getIncomeRepository } from './getIncomeRepository'
+export { getIncomeRepository } from './getIncomesRepository'

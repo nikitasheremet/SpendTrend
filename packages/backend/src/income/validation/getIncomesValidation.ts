@@ -1,10 +1,10 @@
 import { ZodError } from 'zod'
 import { ValidationError } from '../../models/errors/validationError'
-import { GetIncomeInput, getIncomeInputSchema } from './models'
+import { GetIncomesInput, getIncomesInputSchema } from './models'
 
-export function validateGetIncomesInput(input: unknown): asserts input is GetIncomeInput {
+export function validateGetIncomesInput(input: unknown): asserts input is GetIncomesInput {
   try {
-    getIncomeInputSchema.parse(input)
+    getIncomesInputSchema.parse(input)
   } catch (err: unknown) {
     const zodError = err as ZodError
     throw new ValidationError(zodError.issues[0].message)

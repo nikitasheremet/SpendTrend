@@ -1,7 +1,5 @@
 import { z } from 'zod'
-import {
-  VALIDATION_INPUT_MUST_BE_AN_OBJECT
-} from '../../models/errors/validationError'
+import { VALIDATION_INPUT_MUST_BE_AN_OBJECT } from '../../models/errors/validationError'
 import {
   accountIdSchema,
   amountSchema,
@@ -23,12 +21,9 @@ export const createIncomeInputSchema = z.strictObject(
 
 export type CreateIncomeInput = z.infer<typeof createIncomeInputSchema>
 
-export const getIncomeInputSchema = z.strictObject(
-  {
-    userId: userIdSchema,
-    accountId: accountIdSchema,
-  },
-  { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
-)
+export const getIncomesInputSchema = z.strictObject({
+  userId: userIdSchema,
+  accountId: accountIdSchema,
+})
 
-export type GetIncomeInput = z.infer<typeof getIncomeInputSchema>
+export type GetIncomesInput = z.infer<typeof getIncomesInputSchema>

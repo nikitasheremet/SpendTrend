@@ -1,19 +1,19 @@
-import { getIncomeService } from '../../service/getIncomeService'
+import { getIncomesService } from '../../service/getIncomesService'
 import { validateGetIncomesInput } from '../../validation/'
 import type { Context } from 'koa'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 import { getIncomesHandler } from '../../handler/getIncomesHandler'
 
-jest.mock('../../service/getIncomeService')
+jest.mock('../../service/getIncomesService')
 jest.mock('../../validation')
 
-const mockService = getIncomeService as jest.Mock
+const mockService = getIncomesService as jest.Mock
 const mockValidation = validateGetIncomesInput as jest.Mock
 
 describe('getIncomesHandler', () => {
   const fakeCtx = {
     request: {
-      body: {},
+      query: {},
     },
     status: undefined,
     body: undefined,
