@@ -67,7 +67,6 @@ describe('getIncomeRepository', () => {
       const result = await getIncomeRepository(fakeQuery)
 
       expect(result).toEqual(fakeDbIncomeRecords)
-      expect(result).toHaveLength(2)
     })
   })
 
@@ -78,7 +77,6 @@ describe('getIncomeRepository', () => {
       const result = await getIncomeRepository(fakeQuery)
 
       expect(result).toEqual([])
-      expect(result).toHaveLength(0)
     })
   })
 })

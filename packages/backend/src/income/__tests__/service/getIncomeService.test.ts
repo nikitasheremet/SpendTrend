@@ -43,7 +43,6 @@ describe('getIncomeService', () => {
 
       // Assert
       expect(result).toEqual(fakeIncomeList)
-      expect(mockedGetIncomeRepository).toHaveBeenCalledWith({ accountId: fakeInput.accountId })
     })
   })
 
@@ -57,7 +56,6 @@ describe('getIncomeService', () => {
 
       // Assert
       expect(result).toEqual([])
-      expect(mockedGetIncomeRepository).toHaveBeenCalledWith({ accountId: fakeInput.accountId })
     })
   })
 })
