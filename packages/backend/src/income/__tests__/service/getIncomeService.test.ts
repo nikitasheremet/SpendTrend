@@ -34,23 +34,6 @@ describe('getIncomeService', () => {
       const fakeIncomeList = [
         {
           id: 'income-1',
-          userId: 'user-1',
-          accountId: 'account-1',
-          name: 'Salary',
-          amount: 5000,
-          date: '2023-12-01',
-          createdAt: new Date('2023-12-01'),
-          updatedAt: new Date('2023-12-01'),
-        },
-        {
-          id: 'income-2',
-          userId: 'user-1',
-          accountId: 'account-1',
-          name: 'Bonus',
-          amount: 1000,
-          date: '2023-11-01',
-          createdAt: new Date('2023-11-01'),
-          updatedAt: new Date('2023-11-01'),
         },
       ]
       mockedGetIncomeRepository.mockResolvedValueOnce(fakeIncomeList)

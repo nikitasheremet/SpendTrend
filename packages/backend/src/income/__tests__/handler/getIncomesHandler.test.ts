@@ -1,16 +1,16 @@
 import { getIncomeService } from '../../service/getIncomeService'
-import { validateGetIncomeInput } from '../../validation/'
+import { validateGetIncomesInput } from '../../validation/'
 import type { Context } from 'koa'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
-import { getIncomeHandler } from '../../handler/getIncomeHandler'
+import { getIncomesHandler } from '../../handler/getIncomesHandler'
 
 jest.mock('../../service/getIncomeService')
 jest.mock('../../validation')
 
 const mockService = getIncomeService as jest.Mock
-const mockValidation = validateGetIncomeInput as jest.Mock
+const mockValidation = validateGetIncomesInput as jest.Mock
 
-describe('getIncomeHandler', () => {
+describe('getIncomesHandler', () => {
   const fakeCtx = {
     request: {
       body: {},
@@ -28,24 +28,17 @@ describe('getIncomeHandler', () => {
       const fakeIncomeList = [
         {
           id: 'income-1',
-          userId: 'user-1',
-          accountId: 'account-1',
-          name: 'Salary',
-          amount: 5000,
-          date: '2023-12-01',
-          createdAt: new Date('2023-12-01'),
-          updatedAt: new Date('2023-12-01'),
         },
       ]
       // Arrange
       mockService.mockResolvedValue(fakeIncomeList)
 
       // Act
-      await getIncomeHandler(fakeCtx)
+      await getIncomesHandler(fakeCtx)
 
       // Assert
       expect(fakeCtx.status).toBe(STATUS_SUCCESS_200)
-      expect(fakeCtx.body).toEqual({ income: fakeIncomeList })
+      expect(fakeCtx.body).toEqual({ incomes: fakeIncomeList })
     })
   })
 
@@ -55,7 +48,7 @@ describe('getIncomeHandler', () => {
       mockValidation.mockImplementation(() => {
         throw fakeValidationError
       })
-      await getIncomeHandler(fakeCtx)
+      await getIncomesHandler(fakeCtx)
       expect(fakeCtx.status).not.toBe(STATUS_SUCCESS_200)
       expect(fakeCtx.body).toEqual({ error: fakeValidationError.message })
     })
@@ -67,7 +60,7 @@ describe('getIncomeHandler', () => {
       mockService.mockImplementation(() => {
         throw fakeServiceError
       })
-      await getIncomeHandler(fakeCtx)
+      await getIncomesHandler(fakeCtx)
       expect(fakeCtx.status).not.toBe(STATUS_SUCCESS_200)
       expect(fakeCtx.body).toEqual({ error: fakeServiceError.message })
     })

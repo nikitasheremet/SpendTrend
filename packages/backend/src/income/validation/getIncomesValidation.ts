@@ -2,7 +2,7 @@ import { ZodError } from 'zod'
 import { ValidationError } from '../../models/errors/validationError'
 import { GetIncomeInput, getIncomeInputSchema } from './models'
 
-export function validateGetIncomeInput(input: unknown): asserts input is GetIncomeInput {
+export function validateGetIncomesInput(input: unknown): asserts input is GetIncomeInput {
   try {
     getIncomeInputSchema.parse(input)
   } catch (err: unknown) {

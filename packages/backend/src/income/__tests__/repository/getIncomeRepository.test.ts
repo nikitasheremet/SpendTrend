@@ -68,8 +68,6 @@ describe('getIncomeRepository', () => {
 
       expect(result).toEqual(fakeDbIncomeRecords)
       expect(result).toHaveLength(2)
-      expect(result[0].name).toBe('Salary')
-      expect(result[1].name).toBe('Bonus')
     })
   })
 
