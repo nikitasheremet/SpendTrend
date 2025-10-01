@@ -1,4 +1,5 @@
 import { ref, type Ref } from 'vue'
+import { deleteIncome as serviceDeleteIncome } from '@/service/income/deleteIncome'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 import { Income } from '@/types/income/income'
 
@@ -32,7 +33,7 @@ export function useManageIncome(
 
   async function deleteIncome(): Promise<void> {
     try {
-      // await serviceDeleteIncome(incomeData.value.id)
+      await serviceDeleteIncome(incomeData.value.id)
       onIncomeDeletedCallback(incomeData.value)
     } catch (err) {
       onErrorCallback(err as Error)
