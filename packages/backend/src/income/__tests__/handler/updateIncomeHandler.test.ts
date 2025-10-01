@@ -44,7 +44,6 @@ describe('updateIncomeHandler', () => {
     it('should return error status code and message', async () => {
       const mockServiceError = new Error('Service error')
 
-      // Mock the service to throw an error
       mockUpdateIncomeService.mockRejectedValue(mockServiceError)
 
       await updateIncomeHandler(fakeContext)
@@ -64,10 +63,7 @@ describe('updateIncomeHandler', () => {
         amount: 6000,
       }
 
-      // Mock the service to return the updated income
       mockUpdateIncomeService.mockResolvedValue(mockUpdatedIncome)
-
-      fakeContext.request.body = { id: '123', name: 'Updated Income', amount: 6000 }
 
       await updateIncomeHandler(fakeContext)
 
