@@ -1,4 +1,5 @@
 import { ref, type Ref } from 'vue'
+import { updateIncome as serviceUpdateIncome } from '@/service/income/updateIncome'
 import { deleteIncome as serviceDeleteIncome } from '@/service/income/deleteIncome'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 import { Income } from '@/types/income/income'
@@ -24,7 +25,7 @@ export function useManageIncome(
         )
       }
       const updatedIncome = { ...incomeData.value, [key]: valueToUpdate }
-      // await serviceUpdateIncome(updatedIncome)
+      await serviceUpdateIncome(updatedIncome)
       incomeData.value = updatedIncome
     } catch (err) {
       onErrorCallback(err as Error)
