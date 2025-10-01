@@ -12,7 +12,7 @@ export async function deleteIncomeHandler(ctx: Context) {
     const deletedIncome = await deleteIncomeService(input)
     ctx.status = STATUS_SUCCESS_200
     ctx.body = {
-      income: deletedIncome,
+      deletedIncome,
     }
   } catch (error) {
     ctx.status = errorStatusMapper(error)

@@ -21,7 +21,6 @@ describe('deleteIncomeHandler', () => {
   } as unknown as Context
 
   beforeEach(() => {
-    mockService.mockReset()
     jest.resetAllMocks()
   })
 
@@ -66,7 +65,7 @@ describe('deleteIncomeHandler', () => {
 
       expect(fakeCtx.status).toBe(STATUS_SUCCESS_200)
       expect(fakeCtx.body).toEqual({
-        income: fakeDeletedIncome,
+        deletedIncome: fakeDeletedIncome,
       })
     })
   })
