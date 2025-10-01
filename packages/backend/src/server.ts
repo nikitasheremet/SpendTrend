@@ -22,7 +22,7 @@ import {
   deleteExpenseSubCategoryHandler,
 } from './expenseSubCategories/handler'
 import { connectToDb } from './db'
-import { createIncomeHandler, getIncomesHandler } from './income/handler'
+import { createIncomeHandler, deleteIncomeHandler, getIncomesHandler } from './income/handler'
 
 dotenv.config({ path: path.resolve(__dirname, '../env/.env.local') })
 connectToDb()
@@ -49,6 +49,7 @@ router.post('/deleteexpensecategory', deleteExpenseCategoryHandler)
 router.put('/updateexpensecategory', updateExpenseCategoryHandler)
 router.post('/deleteexpense', deleteExpenseHandler)
 router.post('/createincome', createIncomeHandler)
+router.post('/deleteincome', deleteIncomeHandler)
 router.get('/incomes', getIncomesHandler)
 
 app.use(bodyParser())

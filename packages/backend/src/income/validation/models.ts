@@ -4,6 +4,7 @@ import {
   accountIdSchema,
   amountSchema,
   dateSchema,
+  idSchema,
   nameSchema,
   userIdSchema,
 } from './validationUtils'
@@ -26,4 +27,12 @@ export const getIncomesInputSchema = z.strictObject({
   accountId: accountIdSchema,
 })
 
+export const deleteIncomeInputSchema = z.strictObject({
+  userId: userIdSchema,
+  accountId: accountIdSchema,
+  id: idSchema,
+})
+
+export type CreateIncomeInput = z.infer<typeof createIncomeInputSchema>
 export type GetIncomesInput = z.infer<typeof getIncomesInputSchema>
+export type DeleteIncomeInput = z.infer<typeof deleteIncomeInputSchema>
