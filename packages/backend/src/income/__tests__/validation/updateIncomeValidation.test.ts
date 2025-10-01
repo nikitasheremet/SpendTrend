@@ -10,6 +10,7 @@ import {
   VALIDATION_ERROR_AMOUNT_NEGATIVE,
   VALIDATION_ERROR_DATE_TYPE,
   VALIDATION_ERROR_DATE_EMPTY,
+  VALIDATION_ERROR_DATE_FORMAT,
   VALIDATION_ERROR_USERID_MISSING,
   VALIDATION_ERROR_USERID_TYPE,
   VALIDATION_ERROR_ACCOUNTID_MISSING,
@@ -136,6 +137,14 @@ describe('validateUpdateIncomeInput', () => {
       expect(() => validateUpdateIncomeInput(fakeInvalidInput)).toThrow(ValidationError)
       expect(() => validateUpdateIncomeInput(fakeInvalidInput)).toThrow(
         VALIDATION_ERROR_DATE_EMPTY,
+      )
+    })
+
+    it('should throw an error if date format is invalid', () => {
+      const fakeInvalidInput = { ...fakeValidInput, date: '2025/08/22' }
+      expect(() => validateUpdateIncomeInput(fakeInvalidInput)).toThrow(ValidationError)
+      expect(() => validateUpdateIncomeInput(fakeInvalidInput)).toThrow(
+        VALIDATION_ERROR_DATE_FORMAT,
       )
     })
   })
