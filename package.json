@@ -12,5 +12,8 @@
   },
   "scripts": {
     "frontend:dev": "npm run dev --workspace packages/frontend"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
   }
 }

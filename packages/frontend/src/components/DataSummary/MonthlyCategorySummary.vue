@@ -5,7 +5,7 @@ import MonthlyCategorySummaryDetails from './MonthlyCategorySummaryDetails.vue'
 const monthModel = defineModel<number>('month', { required: true })
 const yearModel = defineModel<number>('year', { required: true })
 
-const { summaryForSelectedMonthByCategory } = useGetMonthlyExpenseSummary(monthModel, yearModel)
+const { summaryByCategory } = useGetMonthlyExpenseSummary(monthModel, yearModel)
 </script>
 
 <template>
@@ -20,11 +20,8 @@ const { summaryForSelectedMonthByCategory } = useGetMonthlyExpenseSummary(monthM
       </tr>
     </thead>
     <tbody>
-      <template v-for="category in Object.entries(summaryForSelectedMonthByCategory)">
-        <MonthlyCategorySummaryDetails
-          :category="category[0]"
-          :monthSummaryForSelectedCategory="category[1]"
-        />
+      <template v-for="category in Object.entries(summaryByCategory)">
+        <!-- <MonthlyCategorySummaryDetails :category="category" /> -->
       </template>
     </tbody>
   </table>

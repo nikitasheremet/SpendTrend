@@ -35,29 +35,71 @@ const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(monthModel, year
 
 <template>
   <div id="monthly-summary-grid">
-    <p>Year</p>
-    <p>Month</p>
-    <p>Total</p>
-    <p>3 Month Average</p>
-    <p>Diff Value</p>
-    <p>Diff Percent</p>
-    <select v-model="yearModel">
-      <option v-for="year in listOfYears" :value="year">{{ year }}</option>
-    </select>
-    <select v-model="monthModel">
-      <option v-for="month in listOfMonths" :value="month[1]">{{ month[0] }}</option>
-    </select>
-    <p>{{ summaryForSelectedMonth.totalAmount }}</p>
-    <p>{{ summaryForSelectedMonth.threeMonthAverage }}</p>
-    <p>{{ summaryForSelectedMonth.diffTotalToAverage }}</p>
-    <p>{{ summaryForSelectedMonth.diffTotalToAverageAsPercent }}</p>
+    <div style="display: flex">
+      <div class="selectors">
+        <p>Year</p>
+        <select v-model="yearModel">
+          <option v-for="year in listOfYears" :value="year">{{ year }}</option>
+        </select>
+      </div>
+      <div class="selectors">
+        <p>Month</p>
+        <select v-model="monthModel">
+          <option v-for="month in listOfMonths" :value="month[1]">{{ month[0] }}</option>
+        </select>
+      </div>
+    </div>
+    <table>
+      <tr>
+        <th>Total Expense</th>
+        <th>3 Month Average</th>
+        <th>Diff Value</th>
+        <th>Diff Percent</th>
+      </tr>
+      <tr>
+        <td>{{ summaryForSelectedMonth.totalAmount }}</td>
+        <td>{{ summaryForSelectedMonth.threeMonthAverage }}</td>
+        <td>{{ summaryForSelectedMonth.diffTotalToAverage }}</td>
+        <td>% {{ summaryForSelectedMonth.diffTotalToAverageAsPercent }}</td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+        <th>Total Income</th>
+        <th>3 Month Average</th>
+        <th>Income Diff Value</th>
+        <th>Income Diff Percent</th>
+        <th>Savings</th>
+      </tr>
+      <tr>
+        <td>{{ summaryForSelectedMonth.totalIncome }}</td>
+        <td>{{ summaryForSelectedMonth.incomeThreeMonthAverage }}</td>
+        <td>{{ summaryForSelectedMonth.incomeDiffTotalToAverage }}</td>
+        <td>% {{ summaryForSelectedMonth.incomeDiffTotalToAverageAsPercent }}</td>
+        <td>{{ summaryForSelectedMonth.savings }}</td>
+      </tr>
+    </table>
   </div>
 </template>
 
 <style scoped>
 #monthly-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
+}
+.selectors {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+td {
+  text-align: center;
+}
+table {
+  border-collapse: collapse;
+  border: 2px solid rgb(140 140 140);
+  font-family: sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
 }
 </style>
