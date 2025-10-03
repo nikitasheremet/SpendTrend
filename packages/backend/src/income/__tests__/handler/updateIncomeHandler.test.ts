@@ -1,4 +1,4 @@
-import { Context } from 'koa'
+import type { Context } from 'hono'
 import { updateIncomeHandler } from '../../handler/updateIncomeHandler'
 import { validateUpdateIncomeInput } from '../../validation/updateIncomeValidation'
 import { ValidationError } from '../../../models/errors/validationError'
@@ -12,12 +12,10 @@ const mockUpdateIncomeService = updateIncomeService as jest.Mock
 const mockValidateUpdateIncomeInput = validateUpdateIncomeInput as jest.Mock
 
 describe('updateIncomeHandler', () => {
-  const fakeContext: Context = {
-    request: {
-      body: {},
+  const fakeContext = {
+    req: {
+      json: jest.fn(),
     },
-    status: undefined,
-    body: undefined,
   } as unknown as Context
 
   beforeEach(() => {
@@ -31,10 +29,11 @@ describe('updateIncomeHandler', () => {
         throw mockValidationError
       })
 
-      await updateIncomeHandler(fakeContext)
+      const response = await updateIncomeHandler(fakeContext)
 
-      expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         error: mockValidationError.message,
       })
     })
@@ -46,10 +45,11 @@ describe('updateIncomeHandler', () => {
 
       mockUpdateIncomeService.mockRejectedValue(mockServiceError)
 
-      await updateIncomeHandler(fakeContext)
+      const response = await updateIncomeHandler(fakeContext)
 
-      expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         error: mockServiceError.message,
       })
     })
@@ -65,10 +65,11 @@ describe('updateIncomeHandler', () => {
 
       mockUpdateIncomeService.mockResolvedValue(mockUpdatedIncome)
 
-      await updateIncomeHandler(fakeContext)
+      const response = await updateIncomeHandler(fakeContext)
 
-      expect(fakeContext.status).toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({
+      expect(response.status).toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         updatedIncome: mockUpdatedIncome,
       })
     })

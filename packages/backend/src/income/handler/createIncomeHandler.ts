@@ -1,18 +1,16 @@
-import type { Context } from 'koa'
+import type { Context } from 'hono'
 import { createIncomeService } from '../service/createIncomeService'
 import { validateCreateIncomeInput } from '../validation'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { STATUS_CREATED_201 } from '../../models/statusCodes'
 
-export async function createIncomeHandler(ctx: Context) {
+export async function createIncomeHandler(ctx: Context): Promise<Response> {
   try {
-    const input = ctx.request.body
+    const input = await ctx.req.json()
     validateCreateIncomeInput(input)
     const income = await createIncomeService(input)
-    ctx.status = STATUS_CREATED_201
-    ctx.body = { createdIncome: income }
+    return ctx.json({ createdIncome: income }, STATUS_CREATED_201)
   } catch (error) {
-    ctx.status = errorStatusMapper(error)
-    ctx.body = { error: (error as Error).message }
+    return ctx.json({ error: (error as Error).message }, errorStatusMapper(error))
   }
 }

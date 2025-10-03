@@ -1,5 +1,15 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { authClient } from './lib/auth-client'
+import { onMounted } from 'vue'
+import router from './router'
+
+onMounted(async () => {
+  const { data: session } = await authClient.getSession()
+  if (!session?.session || new Date() > new Date(session.session.expiresAt)) {
+    router.push('/login')
+  }
+})
 </script>
 
 <template>

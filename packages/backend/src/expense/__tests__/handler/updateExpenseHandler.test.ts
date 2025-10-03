@@ -1,4 +1,4 @@
-import { Context } from 'koa'
+import type { Context } from 'hono'
 import { updateExpenseHandler } from '../../handler/updateExpenseHandler'
 import { validateUpdateExpenseInput } from '../../validation/updateExpenseValidation'
 import { ValidationError } from '../../../models/errors/validationError'
@@ -12,12 +12,10 @@ const mockUpdateExpenseService = updateExpenseService as jest.Mock
 const mockValidateUpdateExpenseInput = validateUpdateExpenseInput as jest.Mock
 
 describe('updateExpenseHandler', () => {
-  const fakeContext: Context = {
-    request: {
-      body: {},
+  const fakeContext = {
+    req: {
+      json: jest.fn(),
     },
-    status: undefined,
-    body: undefined,
   } as unknown as Context
 
   beforeEach(() => {
@@ -31,10 +29,11 @@ describe('updateExpenseHandler', () => {
         throw mockValidationError
       })
 
-      await updateExpenseHandler(fakeContext)
+      const response = await updateExpenseHandler(fakeContext)
 
-      expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         error: mockValidationError.message,
       })
     })
@@ -47,10 +46,11 @@ describe('updateExpenseHandler', () => {
       // Mock the service to throw an error
       mockUpdateExpenseService.mockRejectedValue(mockServiceError)
 
-      await updateExpenseHandler(fakeContext)
+      const response = await updateExpenseHandler(fakeContext)
 
-      expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         error: mockServiceError.message,
       })
     })
@@ -66,13 +66,17 @@ describe('updateExpenseHandler', () => {
 
       // Mock the service to return the updated expense
       mockUpdateExpenseService.mockResolvedValue(mockUpdatedExpense)
+      ;(fakeContext.req.json as jest.Mock).mockResolvedValue({
+        id: '123',
+        name: 'Updated Expense',
+        amount: 150,
+      })
 
-      fakeContext.request.body = { id: '123', name: 'Updated Expense', amount: 150 }
+      const response = await updateExpenseHandler(fakeContext)
 
-      await updateExpenseHandler(fakeContext)
-
-      expect(fakeContext.status).toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({
+      expect(response.status).toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         updatedExpense: mockUpdatedExpense,
       })
     })

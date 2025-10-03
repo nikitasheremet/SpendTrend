@@ -4,6 +4,7 @@ import AddDataView from '../views/AddDataView.vue'
 import ExpenseDataView from '../views/ExpenseDataView.vue'
 import ManageCategoriesView from '../views/ManageCategoriesView.vue'
 import IncomeDataView from '@/views/IncomeDataView.vue'
+import LoginView from '@/views/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,10 @@ const router = createRouter({
     {
       path: '/incomedata',
       component: IncomeDataView,
+    },
+    {
+      path: '/login',
+      component: LoginView,
     },
   ],
 })

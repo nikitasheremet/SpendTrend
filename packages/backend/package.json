@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsc && drizzle-kit migrate",
     "start": "node dist/server.js",
-    "dev": "tsx src/server.ts",
+    "dev": "tsx --env-file ./env/.env.local --env-file ./env/.env.local.notsafe src/server.ts",
     "test:e2e": "npx playwright test e2e",
     "test:unit": "jest src --passWithNoTests",
     "test:all": "npm run test:unit && npm run test:e2e",
@@ -14,10 +14,12 @@
     "prettier": "prettier --write ."
   },
   "dependencies": {
+    "@hono/node-server": "^1.19.5",
     "@koa/cors": "^5.0.0",
     "@koa/router": "^12.0.0",
     "dotenv": "^17.2.0",
     "drizzle-orm": "^0.44.2",
+    "hono": "^4.9.9",
     "koa": "^2.15.0",
     "koa-bodyparser": "^4.4.1",
     "pg": "^8.16.3",

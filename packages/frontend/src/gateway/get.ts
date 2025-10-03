@@ -1,3 +1,5 @@
+import { handleUnauthorized } from './handleUnathorized'
+
 const BASE_URL = 'http://localhost:3000/' // Adjust based on your backend URL
 
 export async function get<T>(endpoint: string, queryParams: Record<string, string>): Promise<T> {
@@ -12,10 +14,15 @@ export async function get<T>(endpoint: string, queryParams: Record<string, strin
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     })
 
     if (!response.ok) {
-      throw new Error(`HTTP Error: Status: ${response.status}`)
+      if (response.status === 401) {
+        handleUnauthorized() // Handle unauthorized access
+      } else {
+        throw new Error(`HTTP Error: Status: ${response.status}`)
+      }
     }
 
     const data = await response.json()

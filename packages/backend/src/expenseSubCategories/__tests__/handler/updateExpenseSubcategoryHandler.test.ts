@@ -1,3 +1,4 @@
+import type { Context } from 'hono'
 import { updateExpenseSubCategoryHandler } from '../../handler/updateExpenseSubCategoryHandler'
 import { validateUpdateExpenseSubCategory } from '../../validation/updateExpenseSubCategoryValidation'
 import { updateExpenseSubCategoryService } from '../../service/updateExpenseSubCategoryService'
@@ -19,14 +20,14 @@ describe('updateSubCategoryHandler', () => {
     name: 'Updated Subcategory Name',
   }
 
-  let fakeContext: any
+  let fakeContext: Context
 
   beforeEach(() => {
     fakeContext = {
-      request: { body: fakeRequestBody },
-      status: 0,
-      body: {},
-    }
+      req: {
+        json: jest.fn(),
+      },
+    } as unknown as Context
 
     jest.resetAllMocks()
   })
@@ -38,10 +39,11 @@ describe('updateSubCategoryHandler', () => {
         throw fakeValidationError
       })
 
-      await updateExpenseSubCategoryHandler(fakeContext)
+      const response = await updateExpenseSubCategoryHandler(fakeContext)
 
-      expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({ error: 'Invalid input' })
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({ error: 'Invalid input' })
     })
   })
 
@@ -50,10 +52,11 @@ describe('updateSubCategoryHandler', () => {
       const fakeServiceError = new RepositoryError('Database error')
       mockUpdateExpenseSubCategoryService.mockRejectedValue(fakeServiceError)
 
-      await updateExpenseSubCategoryHandler(fakeContext)
+      const response = await updateExpenseSubCategoryHandler(fakeContext)
 
-      expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({ error: 'Database error' })
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({ error: 'Database error' })
     })
   })
 
@@ -64,10 +67,11 @@ describe('updateSubCategoryHandler', () => {
       }
       mockUpdateExpenseSubCategoryService.mockResolvedValue(fakeUpdatedSubcategory)
 
-      await updateExpenseSubCategoryHandler(fakeContext)
+      const response = await updateExpenseSubCategoryHandler(fakeContext)
 
-      expect(fakeContext.status).toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({ updatedExpenseSubCategory: fakeUpdatedSubcategory })
+      expect(response.status).toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({ updatedExpenseSubCategory: fakeUpdatedSubcategory })
     })
   })
 })

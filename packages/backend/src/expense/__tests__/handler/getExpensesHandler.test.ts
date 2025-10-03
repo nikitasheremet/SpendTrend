@@ -1,4 +1,4 @@
-import { Context } from 'koa'
+import type { Context } from 'hono'
 import { getExpensesHandler } from '../../handler/getExpensesHandler'
 import { validateGetExpensesInput } from '../../validation/getExpensesValidation'
 import { getExpensesService } from '../../service/getExpensesService'
@@ -10,12 +10,10 @@ jest.mock('../../validation/getExpensesValidation')
 jest.mock('../../service/getExpensesService')
 
 describe('getExpensesHandler', () => {
-  const fakeContext: Context = {
-    request: {
-      body: {},
+  const fakeContext = {
+    req: {
+      query: jest.fn(),
     },
-    status: undefined,
-    body: undefined,
   } as unknown as Context
 
   beforeEach(() => {
@@ -29,10 +27,11 @@ describe('getExpensesHandler', () => {
         throw mockValidationError
       })
 
-      await getExpensesHandler(fakeContext)
+      const response = await getExpensesHandler(fakeContext)
 
-      expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         error: mockValidationError.message,
       })
     })
@@ -45,11 +44,12 @@ describe('getExpensesHandler', () => {
       // Setup service to throw error
       ;(getExpensesService as jest.Mock).mockRejectedValue(mockServiceError)
 
-      await getExpensesHandler(fakeContext)
+      const response = await getExpensesHandler(fakeContext)
 
       // Check error handling
-      expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         error: mockServiceError.message,
       })
     })
@@ -71,10 +71,11 @@ describe('getExpensesHandler', () => {
       ]
       ;(getExpensesService as jest.Mock).mockResolvedValue(mockExpenses)
 
-      await getExpensesHandler(fakeContext)
+      const response = await getExpensesHandler(fakeContext)
 
-      expect(fakeContext.status).toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({
+      expect(response.status).toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         expenses: mockExpenses,
       })
     })

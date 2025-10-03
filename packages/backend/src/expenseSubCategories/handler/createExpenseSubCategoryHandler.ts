@@ -1,21 +1,17 @@
-import type { Context } from 'koa'
+import type { Context } from 'hono'
 import { validateCreateExpenseSubCategoryInput } from '../validation'
 import { createExpenseSubCategoryService } from '../service'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { STATUS_CREATED_201 } from '../../models/statusCodes'
 import { CreateExpenseSubCategoryInput } from '../validation/models'
 
-export async function createExpenseSubCategoryHandler(ctx: Context): Promise<void> {
+export async function createExpenseSubCategoryHandler(ctx: Context): Promise<Response> {
   try {
-    const input = ctx.request.body
+    const input = await ctx.req.json()
     validateCreateExpenseSubCategoryInput(input)
-    const expenseSubCategory = await createExpenseSubCategoryService(
-      input as CreateExpenseSubCategoryInput,
-    )
-    ctx.status = STATUS_CREATED_201
-    ctx.body = { expenseSubCategory }
+    const expenseSubCategory = await createExpenseSubCategoryService(input)
+    return ctx.json({ expenseSubCategory }, STATUS_CREATED_201)
   } catch (error) {
-    ctx.status = errorStatusMapper(error)
-    ctx.body = { error: (error as Error).message }
+    return ctx.json({ error: (error as Error).message }, errorStatusMapper(error))
   }
 }

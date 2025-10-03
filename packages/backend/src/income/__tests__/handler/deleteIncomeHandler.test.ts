@@ -1,4 +1,4 @@
-import { Context } from 'koa'
+import type { Context } from 'hono'
 import { ValidationError } from '../../../models/errors/validationError'
 import { validateDeleteIncomeInput } from '../../validation/'
 import { deleteIncomeHandler } from '../../handler/deleteIncomeHandler'
@@ -13,11 +13,9 @@ const mockService = deleteIncomeService as jest.Mock
 
 describe('deleteIncomeHandler', () => {
   const fakeCtx = {
-    request: {
-      body: {},
+    req: {
+      json: jest.fn(),
     },
-    status: undefined,
-    body: undefined,
   } as unknown as Context
 
   beforeEach(() => {
@@ -31,10 +29,11 @@ describe('deleteIncomeHandler', () => {
         throw mockValidationError
       })
 
-      await deleteIncomeHandler(fakeCtx)
+      const response = await deleteIncomeHandler(fakeCtx)
 
-      expect(fakeCtx.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeCtx.body).toEqual({
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         error: mockValidationError.message,
       })
     })
@@ -47,10 +46,11 @@ describe('deleteIncomeHandler', () => {
         throw fakeServiceError
       })
 
-      await deleteIncomeHandler(fakeCtx)
+      const response = await deleteIncomeHandler(fakeCtx)
 
-      expect(fakeCtx.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeCtx.body).toEqual({
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         error: fakeServiceError.message,
       })
     })
@@ -61,10 +61,11 @@ describe('deleteIncomeHandler', () => {
       const fakeDeletedIncome = { id: 123 }
       mockService.mockResolvedValue(fakeDeletedIncome)
 
-      await deleteIncomeHandler(fakeCtx)
+      const response = await deleteIncomeHandler(fakeCtx)
 
-      expect(fakeCtx.status).toBe(STATUS_SUCCESS_200)
-      expect(fakeCtx.body).toEqual({
+      expect(response.status).toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         deletedIncome: fakeDeletedIncome,
       })
     })
