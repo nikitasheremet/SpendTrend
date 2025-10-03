@@ -1,3 +1,4 @@
+import type { Context } from 'hono'
 import { deleteExpenseCategoryHandler } from '../../handler/deleteExpenseCategoryHandler'
 import { deleteExpenseCategoryService } from '../../service/deleteExpenseCategoryService'
 import { validateDeleteExpenseCategoryInput } from '../../validation/deleteExpenseCategoryValidation'
@@ -21,13 +22,11 @@ describe('deleteExpenseCategoryHandler', () => {
     id: '00000000-0000-4000-8000-000000000002',
   }
 
-  const fakeValidContext: any = {
-    request: {
-      body: fakeValidRequest,
+  const fakeValidContext = {
+    req: {
+      json: jest.fn(),
     },
-    status: 0,
-    body: undefined,
-  }
+  } as unknown as Context
 
   describe('when request is successful', () => {
     it('should return 200 and deleted expenseCategory', async () => {
@@ -36,10 +35,11 @@ describe('deleteExpenseCategoryHandler', () => {
       }
       mockService.mockResolvedValueOnce(fakeResult)
 
-      await deleteExpenseCategoryHandler(fakeValidContext)
+      const response = await deleteExpenseCategoryHandler(fakeValidContext)
 
-      expect(fakeValidContext.status).toBe(STATUS_SUCCESS_200)
-      expect(fakeValidContext.body).toEqual({ expenseCategory: fakeResult })
+      expect(response.status).toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({ expenseCategory: fakeResult })
     })
   })
 
@@ -50,10 +50,11 @@ describe('deleteExpenseCategoryHandler', () => {
         throw fakeValidationError
       })
 
-      await deleteExpenseCategoryHandler(fakeValidContext)
+      const response = await deleteExpenseCategoryHandler(fakeValidContext)
 
-      expect(fakeValidContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeValidContext.body).toEqual({ error: 'Validation failed' })
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({ error: 'Validation failed' })
     })
   })
 
@@ -62,10 +63,11 @@ describe('deleteExpenseCategoryHandler', () => {
       const fakeServiceError = new Error('Database error')
       mockService.mockRejectedValueOnce(fakeServiceError)
 
-      await deleteExpenseCategoryHandler(fakeValidContext)
+      const response = await deleteExpenseCategoryHandler(fakeValidContext)
 
-      expect(fakeValidContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeValidContext.body).toEqual({ error: 'Database error' })
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({ error: 'Database error' })
     })
   })
 })

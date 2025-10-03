@@ -1,17 +1,16 @@
-import type { Context } from 'koa'
+import type { Context } from 'hono'
 import { validateGetExpensesInput } from '../validation/getExpensesValidation'
 import { getExpensesService } from '../service/getExpensesService'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { STATUS_SUCCESS_200 } from '../../models/statusCodes'
 
-export async function getExpensesHandler(ctx: Context) {
+export async function getExpensesHandler(ctx: Context): Promise<Response> {
   try {
-    validateGetExpensesInput(ctx.request.query)
-    const expenses = await getExpensesService(ctx.request.query)
-    ctx.status = STATUS_SUCCESS_200
-    ctx.body = { expenses }
+    const query = ctx.req.query()
+    validateGetExpensesInput(query)
+    const expenses = await getExpensesService(query)
+    return ctx.json({ expenses }, STATUS_SUCCESS_200)
   } catch (error) {
-    ctx.status = errorStatusMapper(error)
-    ctx.body = { error: (error as Error).message }
+    return ctx.json({ error: (error as Error).message }, errorStatusMapper(error))
   }
 }

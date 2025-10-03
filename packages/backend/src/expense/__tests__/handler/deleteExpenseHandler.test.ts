@@ -1,4 +1,4 @@
-import { Context } from 'koa'
+import type { Context } from 'hono'
 import { ValidationError } from '../../../models/errors/validationError'
 import { validateDeleteExpenseInput } from '../../validation/'
 import { deleteExpenseHandler } from '../../handler/deleteExpenseHandler'
@@ -13,11 +13,9 @@ const mockService = deleteExpenseService as jest.Mock
 
 describe('deleteExpenseHandler', () => {
   const fakeCtx = {
-    request: {
-      body: {},
+    req: {
+      formData: jest.fn(),
     },
-    status: undefined,
-    body: undefined,
   } as unknown as Context
 
   beforeEach(() => {
@@ -32,10 +30,11 @@ describe('deleteExpenseHandler', () => {
         throw mockValidationError
       })
 
-      await deleteExpenseHandler(fakeCtx)
+      const response = await deleteExpenseHandler(fakeCtx)
 
-      expect(fakeCtx.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeCtx.body).toEqual({
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         error: mockValidationError.message,
       })
     })
@@ -48,10 +47,11 @@ describe('deleteExpenseHandler', () => {
         throw fakeServiceError
       })
 
-      await deleteExpenseHandler(fakeCtx)
+      const response = await deleteExpenseHandler(fakeCtx)
 
-      expect(fakeCtx.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeCtx.body).toEqual({
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         error: fakeServiceError.message,
       })
     })
@@ -62,10 +62,11 @@ describe('deleteExpenseHandler', () => {
       const fakeDeletedExpense = { id: 123 }
       mockService.mockResolvedValue(fakeDeletedExpense)
 
-      await deleteExpenseHandler(fakeCtx)
+      const response = await deleteExpenseHandler(fakeCtx)
 
-      expect(fakeCtx.status).toBe(STATUS_SUCCESS_200)
-      expect(fakeCtx.body).toEqual({
+      expect(response.status).toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({
         expense: fakeDeletedExpense,
       })
     })

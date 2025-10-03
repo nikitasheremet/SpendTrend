@@ -1,3 +1,4 @@
+import type { Context } from 'hono'
 import { createExpenseSubCategoryHandler } from '../../handler/createExpenseSubCategoryHandler'
 import * as service from '../../service/createExpenseSubCategoryService'
 import * as validation from '../../validation/createExpenseSubCategoryValidation'
@@ -23,13 +24,11 @@ describe('createExpenseSubcategoryHandler', () => {
     name: 'Test Subcategory',
   }
 
-  const fakeValidContext: any = {
-    request: {
-      body: fakeValidRequest,
+  const fakeValidContext = {
+    req: {
+      json: jest.fn(),
     },
-    status: 0,
-    body: undefined,
-  }
+  } as unknown as Context
 
   const fakeExpenseSubCategory = {
     id: '00000000-0000-4000-8000-000000000003',
@@ -45,10 +44,11 @@ describe('createExpenseSubcategoryHandler', () => {
     it('should return 201 status and expense subCategory', async () => {
       mockService.mockResolvedValue(fakeExpenseSubCategory)
 
-      await createExpenseSubCategoryHandler(fakeValidContext)
+      const response = await createExpenseSubCategoryHandler(fakeValidContext)
 
-      expect(fakeValidContext.status).toBe(STATUS_CREATED_201)
-      expect(fakeValidContext.body).toEqual({ expenseSubCategory: fakeExpenseSubCategory })
+      expect(response.status).toBe(STATUS_CREATED_201)
+      const body = await response.json()
+      expect(body).toEqual({ expenseSubCategory: fakeExpenseSubCategory })
     })
   })
 
@@ -59,10 +59,11 @@ describe('createExpenseSubcategoryHandler', () => {
         throw fakeValidationError
       })
 
-      await createExpenseSubCategoryHandler(fakeValidContext)
+      const response = await createExpenseSubCategoryHandler(fakeValidContext)
 
-      expect(fakeValidContext.status).not.toBeUndefined()
-      expect(fakeValidContext.body).toEqual({ error: fakeValidationError.message })
+      expect(response.status).not.toBeUndefined()
+      const body = await response.json()
+      expect(body).toEqual({ error: fakeValidationError.message })
     })
   })
 
@@ -73,10 +74,11 @@ describe('createExpenseSubcategoryHandler', () => {
         throw fakeServiceError
       })
 
-      await createExpenseSubCategoryHandler(fakeValidContext)
+      const response = await createExpenseSubCategoryHandler(fakeValidContext)
 
-      expect(fakeValidContext.status).not.toBeUndefined()
-      expect(fakeValidContext.body).toEqual({ error: fakeServiceError.message })
+      expect(response.status).not.toBeUndefined()
+      const body = await response.json()
+      expect(body).toEqual({ error: fakeServiceError.message })
     })
   })
 })

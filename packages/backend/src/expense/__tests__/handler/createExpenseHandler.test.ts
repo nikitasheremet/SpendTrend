@@ -1,8 +1,9 @@
 import { createExpenseService } from '../../service/createExpenseService'
 import { validateCreateExpenseInput } from '../../validation/'
-import type { Context } from 'koa'
+import { Hono } from 'hono'
 import { STATUS_CREATED_201 } from '../../../models/statusCodes'
 import { createExpenseHandler } from '../../handler/createExpenseHandler'
+import { testClient } from 'hono/testing'
 
 jest.mock('../../service/createExpenseService')
 jest.mock('../../validation')
@@ -11,13 +12,8 @@ const mockService = createExpenseService as jest.Mock
 const mockValidation = validateCreateExpenseInput as jest.Mock
 
 describe('createExpenseHandler', () => {
-  const fakeCtx = {
-    request: {
-      body: {},
-    },
-    status: undefined,
-    body: undefined,
-  } as unknown as Context
+  const fakeApp = new Hono().post('/createexpense', createExpenseHandler)
+  const fakeClient = testClient(fakeApp)
 
   beforeEach(() => {
     mockService.mockReset()
@@ -30,11 +26,11 @@ describe('createExpenseHandler', () => {
       mockService.mockResolvedValue({ id: 1, name: 'Lunch' })
 
       // Act
-      await createExpenseHandler(fakeCtx)
-
+      const res = await fakeClient.createexpense.$post()
       // Assert
-      expect(fakeCtx.status).toBe(STATUS_CREATED_201)
-      expect(fakeCtx.body).toEqual({ createdExpense: { id: 1, name: 'Lunch' } })
+      expect(res.status).toBe(STATUS_CREATED_201)
+      const body = await res.json()
+      expect(body).toEqual({ createdExpense: { id: 1, name: 'Lunch' } })
     })
   })
 
@@ -44,9 +40,10 @@ describe('createExpenseHandler', () => {
       mockValidation.mockImplementation(() => {
         throw fakeValidationError
       })
-      await createExpenseHandler(fakeCtx)
-      expect(fakeCtx.status).not.toBeUndefined()
-      expect(fakeCtx.body).toEqual({ error: fakeValidationError.message })
+      const res = await fakeClient.createexpense.$post()
+      expect(res.status).not.toBeUndefined()
+      const body = await res.json()
+      expect(body).toEqual({ error: fakeValidationError.message })
     })
   })
 
@@ -56,9 +53,10 @@ describe('createExpenseHandler', () => {
       mockService.mockImplementation(() => {
         throw fakeServiceError
       })
-      await createExpenseHandler(fakeCtx)
-      expect(fakeCtx.status).not.toBeUndefined()
-      expect(fakeCtx.body).toEqual({ error: fakeServiceError.message })
+      const res = await fakeClient.createexpense.$post()
+      expect(res.status).not.toBeUndefined()
+      const body = await res.json()
+      expect(body).toEqual({ error: fakeServiceError.message })
     })
   })
 })

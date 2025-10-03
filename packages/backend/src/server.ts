@@ -1,68 +1,34 @@
-import Koa from 'koa'
-import Router from '@koa/router'
-import cors from '@koa/cors'
-import dotenv from 'dotenv'
-import path from 'path'
-import bodyParser from 'koa-bodyparser'
-import {
-  deleteExpenseHandler,
-  createExpenseHandler,
-  getExpensesHandler,
-  updateExpenseHandler,
-} from './expense/handler/'
-import {
-  createExpenseCategoryHandler,
-  getExpenseCategoriesHandler,
-  deleteExpenseCategoryHandler,
-  updateExpenseCategoryHandler,
-} from './expenseCategories/handler'
-import {
-  createExpenseSubCategoryHandler,
-  updateExpenseSubCategoryHandler,
-  deleteExpenseSubCategoryHandler,
-} from './expenseSubCategories/handler'
+import { serve } from '@hono/node-server'
 import { connectToDb } from './db'
-import {
-  createIncomeHandler,
-  deleteIncomeHandler,
-  getIncomesHandler,
-  updateIncomeHandler,
-} from './income/handler'
+import { createAuth } from './lib/auth'
+import { createApp } from './app'
 
-dotenv.config({ path: path.resolve(__dirname, '../env/.env.local') })
+// Initialize database and authentication -- ORDER MATTERS
 connectToDb()
+createAuth()
 
-const PORT = process.env.PORT || 3000
+const PORT = 3000
 
-const app = new Koa()
-const router = new Router()
-
-router.get('/health', (ctx) => {
-  ctx.status = 200
-  ctx.body = { status: `ok: ${new Date().toISOString()}` }
+// Create app and start server
+const server = serve({
+  fetch: createApp().fetch,
+  port: PORT,
 })
 
-router.post('/createexpense', createExpenseHandler)
-router.post('/createexpensecategory', createExpenseCategoryHandler)
-router.post('/createexpensesubcategory', createExpenseSubCategoryHandler)
-router.put('/updateexpensesubcategory', updateExpenseSubCategoryHandler)
-router.post('/deleteexpensesubcategory', deleteExpenseSubCategoryHandler)
-router.get('/expenses', getExpensesHandler)
-router.put('/updateexpense', updateExpenseHandler)
-router.get('/getexpensecategories', getExpenseCategoriesHandler)
-router.post('/deleteexpensecategory', deleteExpenseCategoryHandler)
-router.put('/updateexpensecategory', updateExpenseCategoryHandler)
-router.post('/deleteexpense', deleteExpenseHandler)
-router.post('/createincome', createIncomeHandler)
-router.post('/deleteincome', deleteIncomeHandler)
-router.get('/incomes', getIncomesHandler)
-router.put('/updateincome', updateIncomeHandler)
+server.on('listening', () => {
+  console.log(`Server is running on http://localhost:${PORT}`)
+})
 
-app.use(bodyParser())
-app.use(cors())
-app.use(router.routes())
-app.use(router.allowedMethods())
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+process.on('SIGINT', () => {
+  server.close()
+  process.exit(0)
+})
+process.on('SIGTERM', () => {
+  server.close((err) => {
+    if (err) {
+      console.error(err)
+      process.exit(1)
+    }
+    process.exit(0)
+  })
 })

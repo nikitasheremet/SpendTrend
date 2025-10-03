@@ -1,19 +1,16 @@
-import type { Context } from 'koa'
+import type { Context } from 'hono'
 import { validateUpdateExpenseSubCategory } from '../validation/updateExpenseSubCategoryValidation'
 import { updateExpenseSubCategoryService } from '../service/updateExpenseSubCategoryService'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { STATUS_SUCCESS_200 } from '../../models/statusCodes'
 
-export async function updateExpenseSubCategoryHandler(ctx: Context): Promise<void> {
+export async function updateExpenseSubCategoryHandler(ctx: Context): Promise<Response> {
   try {
-    console.log(ctx)
-    const input = ctx.request.body
+    const input = await ctx.req.json()
     validateUpdateExpenseSubCategory(input)
     const updatedExpenseSubCategory = await updateExpenseSubCategoryService(input)
-    ctx.status = STATUS_SUCCESS_200
-    ctx.body = { updatedExpenseSubCategory }
+    return ctx.json({ updatedExpenseSubCategory }, STATUS_SUCCESS_200)
   } catch (error) {
-    ctx.status = errorStatusMapper(error)
-    ctx.body = { error: (error as Error).message }
+    return ctx.json({ error: (error as Error).message }, errorStatusMapper(error))
   }
 }

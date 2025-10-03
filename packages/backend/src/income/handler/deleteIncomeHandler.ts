@@ -1,21 +1,17 @@
-import type { Context } from 'koa'
+import type { Context } from 'hono'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { validateDeleteIncomeInput } from '../validation'
 import { deleteIncomeService } from '../service/deleteIncomeService'
 import { STATUS_SUCCESS_200 } from '../../models/statusCodes'
 
-export async function deleteIncomeHandler(ctx: Context) {
+export async function deleteIncomeHandler(ctx: Context): Promise<Response> {
   try {
-    const input = ctx.request.body
+    const input = await ctx.req.json()
     validateDeleteIncomeInput(input)
 
     const deletedIncome = await deleteIncomeService(input)
-    ctx.status = STATUS_SUCCESS_200
-    ctx.body = {
-      deletedIncome,
-    }
+    return ctx.json({ deletedIncome }, STATUS_SUCCESS_200)
   } catch (error) {
-    ctx.status = errorStatusMapper(error)
-    ctx.body = { error: (error as Error).message }
+    return ctx.json({ error: (error as Error).message }, errorStatusMapper(error))
   }
 }

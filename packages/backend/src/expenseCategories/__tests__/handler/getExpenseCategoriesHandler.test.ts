@@ -1,3 +1,4 @@
+import type { Context } from 'hono'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 import { getExpenseCategoriesHandler } from '../../handler/getExpenseCategoriesHandler'
 import { getExpenseCategoriesService } from '../../service/getExpenseCategoriesService'
@@ -20,11 +21,11 @@ describe('getExpenseCategoriesHandler', () => {
     accountId: '00000000-0000-4000-8000-000000000001',
   }
 
-  const fakeValidContext: any = {
-    query: fakeValidQuery,
-    status: 0,
-    body: undefined,
-  }
+  const fakeValidContext = {
+    req: {
+      query: jest.fn().mockReturnValue(fakeValidQuery),
+    },
+  } as unknown as Context
 
   describe('when request is successful', () => {
     it('should return 200 and expenseCategories', async () => {
@@ -33,10 +34,11 @@ describe('getExpenseCategoriesHandler', () => {
       ]
       mockService.mockResolvedValueOnce(fakeResult)
 
-      await getExpenseCategoriesHandler(fakeValidContext)
+      const response = await getExpenseCategoriesHandler(fakeValidContext)
 
-      expect(fakeValidContext.status).toBe(STATUS_SUCCESS_200)
-      expect(fakeValidContext.body).toEqual({ expenseCategories: fakeResult })
+      expect(response.status).toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({ expenseCategories: fakeResult })
     })
   })
 
@@ -47,12 +49,17 @@ describe('getExpenseCategoriesHandler', () => {
         throw new Error(FAKE_VALIDATION_FAILURE)
       })
 
-      const fakeInvalidCtx: any = { query: {}, status: 0, body: undefined }
+      const fakeInvalidCtx = {
+        req: {
+          query: jest.fn().mockReturnValue({}),
+        },
+      } as unknown as Context
 
-      await getExpenseCategoriesHandler(fakeInvalidCtx)
+      const response = await getExpenseCategoriesHandler(fakeInvalidCtx)
 
-      expect(fakeInvalidCtx.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeInvalidCtx.body.error).toBe(FAKE_VALIDATION_FAILURE)
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body.error).toBe(FAKE_VALIDATION_FAILURE)
     })
   })
 
@@ -63,10 +70,11 @@ describe('getExpenseCategoriesHandler', () => {
         throw new Error(FAKE_SERVICE_FAILURE)
       })
 
-      await getExpenseCategoriesHandler(fakeValidContext)
+      const response = await getExpenseCategoriesHandler(fakeValidContext)
 
-      expect(fakeValidContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeValidContext.body.error).toBe(FAKE_SERVICE_FAILURE)
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body.error).toBe(FAKE_SERVICE_FAILURE)
     })
   })
 })

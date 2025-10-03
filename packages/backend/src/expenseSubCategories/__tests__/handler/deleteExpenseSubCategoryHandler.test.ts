@@ -1,3 +1,4 @@
+import type { Context } from 'hono'
 import { deleteExpenseSubCategoryHandler } from '../../handler/deleteExpenseSubCategoryHandler'
 import { validateDeleteExpenseSubCategory } from '../../validation'
 import { deleteExpenseSubCategoryService } from '../../service/deleteExpenseSubCategoryService'
@@ -26,17 +27,15 @@ describe('when using deleteExpenseSubCategoryHandler', () => {
     updated_at: new Date(),
   }
 
-  let fakeContext: any
+  let fakeContext: Context
 
   beforeEach(() => {
     jest.resetAllMocks()
     fakeContext = {
-      request: {
-        body: fakeInput,
+      req: {
+        json: jest.fn(),
       },
-      body: {},
-      status: 0,
-    }
+    } as unknown as Context
   })
 
   it('should handle validation errors', async () => {
@@ -45,28 +44,31 @@ describe('when using deleteExpenseSubCategoryHandler', () => {
       throw fakeValidationError
     })
 
-    await deleteExpenseSubCategoryHandler(fakeContext)
+    const response = await deleteExpenseSubCategoryHandler(fakeContext)
 
-    expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-    expect(fakeContext.body).toEqual({ error: fakeValidationError.message })
+    expect(response.status).not.toBe(STATUS_SUCCESS_200)
+    const body = await response.json()
+    expect(body).toEqual({ error: fakeValidationError.message })
   })
 
   it('should handle error from service', async () => {
     const fakeNotFoundError = new Error(`Subcategory not found`)
     mockService.mockRejectedValue(fakeNotFoundError)
 
-    await deleteExpenseSubCategoryHandler(fakeContext)
+    const response = await deleteExpenseSubCategoryHandler(fakeContext)
 
-    expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-    expect(fakeContext.body).toEqual({ error: fakeNotFoundError.message })
+    expect(response.status).not.toBe(STATUS_SUCCESS_200)
+    const body = await response.json()
+    expect(body).toEqual({ error: fakeNotFoundError.message })
   })
 
   it('should return deleted subcategory on success', async () => {
     mockService.mockResolvedValue(fakeDeletedSubCategory)
 
-    await deleteExpenseSubCategoryHandler(fakeContext)
+    const response = await deleteExpenseSubCategoryHandler(fakeContext)
 
-    expect(fakeContext.status).toBe(STATUS_SUCCESS_200)
-    expect(fakeContext.body).toEqual({ deletedExpenseSubCategory: fakeDeletedSubCategory })
+    expect(response.status).toBe(STATUS_SUCCESS_200)
+    const body = await response.json()
+    expect(body).toEqual({ deletedExpenseSubCategory: fakeDeletedSubCategory })
   })
 })

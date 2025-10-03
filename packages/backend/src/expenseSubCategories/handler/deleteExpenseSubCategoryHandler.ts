@@ -1,21 +1,17 @@
-import type { Context } from 'koa'
+import type { Context } from 'hono'
 import { validateDeleteExpenseSubCategory } from '../validation'
 import { deleteExpenseSubCategoryService } from '../service/deleteExpenseSubCategoryService'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { STATUS_SUCCESS_200 } from '../../models/statusCodes'
 import { DeleteExpenseSubCategoryInput } from '../validation/models'
 
-export async function deleteExpenseSubCategoryHandler(ctx: Context): Promise<void> {
+export async function deleteExpenseSubCategoryHandler(ctx: Context): Promise<Response> {
   try {
-    const input = ctx.request.body
+    const input = await ctx.req.json()
     validateDeleteExpenseSubCategory(input)
-    const deletedExpenseSubCategory = await deleteExpenseSubCategoryService(
-      input as DeleteExpenseSubCategoryInput,
-    )
-    ctx.status = STATUS_SUCCESS_200
-    ctx.body = { deletedExpenseSubCategory }
+    const deletedExpenseSubCategory = await deleteExpenseSubCategoryService(input)
+    return ctx.json({ deletedExpenseSubCategory }, STATUS_SUCCESS_200)
   } catch (error) {
-    ctx.status = errorStatusMapper(error)
-    ctx.body = { error: (error as Error).message }
+    return ctx.json({ error: (error as Error).message }, errorStatusMapper(error))
   }
 }

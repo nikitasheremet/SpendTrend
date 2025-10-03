@@ -1,3 +1,4 @@
+import { ContentfulStatusCode } from 'hono/utils/http-status'
 import { NOT_FOUND_ERROR, RepositoryError } from '../models/errors/repositoryErrors'
 import { ValidationError } from '../models/errors/validationError'
 import {
@@ -6,7 +7,7 @@ import {
   STATUS_UNPROCESSABLE_ENTITY_422,
 } from '../models/statusCodes'
 
-export function errorStatusMapper(error: unknown): number {
+export function errorStatusMapper(error: unknown): ContentfulStatusCode {
   if (error instanceof ValidationError) {
     return STATUS_UNPROCESSABLE_ENTITY_422
   }

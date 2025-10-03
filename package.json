@@ -14,6 +14,7 @@
     "frontend:dev": "npm run dev --workspace packages/frontend"
   },
   "dependencies": {
+    "better-auth": "^1.3.24",
     "date-fns": "^4.1.0"
   }
 }

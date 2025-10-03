@@ -1,3 +1,4 @@
+import type { Context } from 'hono'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 import { updateExpenseCategoryHandler } from '../../handler/updateExpenseCategoryHandler'
 import { updateExpenseCategoryService } from '../../service/updateExpenseCategoryService'
@@ -15,13 +16,11 @@ describe('updateExpenseCategoryHandler', () => {
     mockValidation.mockReset()
   })
 
-  const fakeContext: any = {
-    request: {
-      body: {},
+  const fakeContext = {
+    req: {
+      json: jest.fn(),
     },
-    status: 0,
-    body: undefined,
-  }
+  } as unknown as Context
 
   describe('when request is successful', () => {
     it('should return 200 status code and updatedExpense', async () => {
@@ -31,10 +30,11 @@ describe('updateExpenseCategoryHandler', () => {
       }
       mockService.mockResolvedValueOnce(fakeResult)
 
-      await updateExpenseCategoryHandler(fakeContext)
+      const response = await updateExpenseCategoryHandler(fakeContext)
 
-      expect(fakeContext.status).toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body).toEqual({ expenseCategory: fakeResult })
+      expect(response.status).toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({ expenseCategory: fakeResult })
     })
   })
 
@@ -45,10 +45,11 @@ describe('updateExpenseCategoryHandler', () => {
         throw new Error(FAKE_VALIDATION_FAILURE)
       })
 
-      await updateExpenseCategoryHandler(fakeContext)
+      const response = await updateExpenseCategoryHandler(fakeContext)
 
-      expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body.error).toBe(FAKE_VALIDATION_FAILURE)
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body.error).toBe(FAKE_VALIDATION_FAILURE)
     })
   })
 
@@ -59,10 +60,11 @@ describe('updateExpenseCategoryHandler', () => {
         throw new Error(FAKE_SERVICE_FAILURE)
       })
 
-      await updateExpenseCategoryHandler(fakeContext)
+      const response = await updateExpenseCategoryHandler(fakeContext)
 
-      expect(fakeContext.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeContext.body.error).toBe(FAKE_SERVICE_FAILURE)
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body.error).toBe(FAKE_SERVICE_FAILURE)
     })
   })
 })

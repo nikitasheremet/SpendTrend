@@ -1,3 +1,4 @@
+import type { Context } from 'hono'
 import { createExpenseCategoryHandler } from '../../handler/createExpenseCategoryHandler'
 import * as service from '../../service/createExpenseCategoryService'
 import * as validation from '../../validation/createExpenseCategoryValidation'
@@ -21,13 +22,11 @@ describe('createExpenseCategoryHandler', () => {
     subcategories: [],
   }
 
-  const fakeValidContext: any = {
-    request: {
-      body: fakeValidRequest,
+  const fakeValidContext = {
+    req: {
+      formData: jest.fn(),
     },
-    status: 0,
-    body: undefined,
-  }
+  } as unknown as Context
 
   describe('when request is successful', () => {
     it('should return 201 and created expenseCategory', async () => {
@@ -38,10 +37,11 @@ describe('createExpenseCategoryHandler', () => {
       }
       mockService.mockResolvedValueOnce(fakeResult)
 
-      await createExpenseCategoryHandler(fakeValidContext)
+      const response = await createExpenseCategoryHandler(fakeValidContext)
 
-      expect(fakeValidContext.status).toBe(201)
-      expect(fakeValidContext.body).toEqual({ expenseCategory: fakeResult })
+      expect(response.status).toBe(201)
+      const body = await response.json()
+      expect(body).toEqual({ expenseCategory: fakeResult })
     })
   })
 
@@ -52,12 +52,17 @@ describe('createExpenseCategoryHandler', () => {
         throw new Error(FAKE_VALIDATION_FAILURE)
       })
 
-      const fakeInvalidCtx: any = { request: { body: {} }, status: 0, body: undefined }
+      const fakeInvalidCtx = {
+        req: {
+          formData: jest.fn(),
+        },
+      } as unknown as Context
 
-      await createExpenseCategoryHandler(fakeInvalidCtx)
+      const response = await createExpenseCategoryHandler(fakeInvalidCtx)
 
-      expect(fakeInvalidCtx.status).not.toBe(201)
-      expect(fakeInvalidCtx.body.error).toBe(FAKE_VALIDATION_FAILURE)
+      expect(response.status).not.toBe(201)
+      const body = await response.json()
+      expect(body.error).toBe(FAKE_VALIDATION_FAILURE)
     })
   })
 
@@ -68,10 +73,11 @@ describe('createExpenseCategoryHandler', () => {
         throw new Error(FAKE_SERVICE_FAILURE)
       })
 
-      await createExpenseCategoryHandler(fakeValidContext)
+      const response = await createExpenseCategoryHandler(fakeValidContext)
 
-      expect(fakeValidContext.status).not.toBe(201)
-      expect(fakeValidContext.body.error).toBe(FAKE_SERVICE_FAILURE)
+      expect(response.status).not.toBe(201)
+      const body = await response.json()
+      expect(body.error).toBe(FAKE_SERVICE_FAILURE)
     })
   })
 })

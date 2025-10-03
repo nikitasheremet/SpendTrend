@@ -1,6 +1,6 @@
 import { getIncomesService } from '../../service/getIncomesService'
 import { validateGetIncomesInput } from '../../validation/'
-import type { Context } from 'koa'
+import type { Context } from 'hono'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 import { getIncomesHandler } from '../../handler/getIncomesHandler'
 
@@ -12,11 +12,9 @@ const mockValidation = validateGetIncomesInput as jest.Mock
 
 describe('getIncomesHandler', () => {
   const fakeCtx = {
-    request: {
-      query: {},
+    req: {
+      query: jest.fn(),
     },
-    status: undefined,
-    body: undefined,
   } as unknown as Context
 
   beforeEach(() => {
@@ -34,11 +32,12 @@ describe('getIncomesHandler', () => {
       mockService.mockResolvedValue(fakeIncomeList)
 
       // Act
-      await getIncomesHandler(fakeCtx)
+      const response = await getIncomesHandler(fakeCtx)
 
       // Assert
-      expect(fakeCtx.status).toBe(STATUS_SUCCESS_200)
-      expect(fakeCtx.body).toEqual({ incomes: fakeIncomeList })
+      expect(response.status).toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({ incomes: fakeIncomeList })
     })
   })
 
@@ -48,9 +47,10 @@ describe('getIncomesHandler', () => {
       mockValidation.mockImplementation(() => {
         throw fakeValidationError
       })
-      await getIncomesHandler(fakeCtx)
-      expect(fakeCtx.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeCtx.body).toEqual({ error: fakeValidationError.message })
+      const response = await getIncomesHandler(fakeCtx)
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({ error: fakeValidationError.message })
     })
   })
 
@@ -60,9 +60,10 @@ describe('getIncomesHandler', () => {
       mockService.mockImplementation(() => {
         throw fakeServiceError
       })
-      await getIncomesHandler(fakeCtx)
-      expect(fakeCtx.status).not.toBe(STATUS_SUCCESS_200)
-      expect(fakeCtx.body).toEqual({ error: fakeServiceError.message })
+      const response = await getIncomesHandler(fakeCtx)
+      expect(response.status).not.toBe(STATUS_SUCCESS_200)
+      const body = await response.json()
+      expect(body).toEqual({ error: fakeServiceError.message })
     })
   })
 })
