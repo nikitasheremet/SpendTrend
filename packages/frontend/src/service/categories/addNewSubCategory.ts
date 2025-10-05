@@ -6,7 +6,7 @@ export async function addNewSubcategory(
   categoryId: string,
   subCategoryName: string,
 ): Promise<ExpenseSubCategory> {
-  const { userId, accountId } = getStore().getAccountDetails()
+  const { userId, accountId } = await getStore().getAccountDetails()
   try {
     const request = {
       userId,

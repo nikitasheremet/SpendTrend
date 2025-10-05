@@ -3,7 +3,7 @@ import { getStore } from '@/store/store'
 import type { Expense, NewExpense } from '@/types/expenseData'
 
 export async function addNewExpense(newExpenseData: NewExpense): Promise<Expense> {
-  const { userId, accountId } = getStore().getAccountDetails()
+  const { userId, accountId } = await getStore().getAccountDetails()
   const newExpenseRequest = {
     name: newExpenseData.name,
     amount: newExpenseData.amount,

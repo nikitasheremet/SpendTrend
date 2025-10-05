@@ -1,7 +1,9 @@
-import { createExpenseSubCategoryInputSchema } from './models'
+import { CreateExpenseSubCategoryInput, createExpenseSubCategoryInputSchema } from './models'
 import { ValidationError } from '../../models/errors/validationError'
 
-export function validateCreateExpenseSubCategoryInput(input: unknown): void {
+export function validateCreateExpenseSubCategoryInput(
+  input: unknown,
+): asserts input is CreateExpenseSubCategoryInput {
   try {
     createExpenseSubCategoryInputSchema.parse(input)
   } catch (error) {

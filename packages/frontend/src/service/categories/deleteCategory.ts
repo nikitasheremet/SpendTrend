@@ -3,6 +3,6 @@ import { deleteExpenseCategory } from '@/gateway/expenseCategory/deleteExpenseCa
 import { getStore } from '@/store/store'
 
 export async function deleteCategory(id: string): Promise<ExpenseCategory> {
-  const { userId, accountId } = getStore().getAccountDetails()
+  const { userId, accountId } = await getStore().getAccountDetails()
   return await deleteExpenseCategory({ userId, accountId, id })
 }

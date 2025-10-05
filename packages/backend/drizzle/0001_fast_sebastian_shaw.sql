@@ -1,1 +1,0 @@
-ALTER TABLE "income" ALTER COLUMN "amount" SET DATA TYPE integer;

@@ -3,7 +3,7 @@ import { getStore } from '@/store/store'
 import { Income } from '@/types/income/income'
 
 export async function updateIncome(income: Income): Promise<Income> {
-  const { userId, accountId } = getStore().getAccountDetails()
+  const { userId, accountId } = await getStore().getAccountDetails()
   try {
     const request = {
       userId,

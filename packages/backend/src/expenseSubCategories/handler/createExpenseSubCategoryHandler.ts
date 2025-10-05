@@ -3,7 +3,6 @@ import { validateCreateExpenseSubCategoryInput } from '../validation'
 import { createExpenseSubCategoryService } from '../service'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { STATUS_CREATED_201 } from '../../models/statusCodes'
-import { CreateExpenseSubCategoryInput } from '../validation/models'
 
 export async function createExpenseSubCategoryHandler(ctx: Context): Promise<Response> {
   try {

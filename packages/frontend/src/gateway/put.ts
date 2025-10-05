@@ -8,6 +8,7 @@ export async function put<T>(endpoint: string, payload: unknown): Promise<T> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
+      credentials: 'include',
     })
 
     if (!response.ok) {
