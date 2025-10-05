@@ -6,7 +6,7 @@ import { STATUS_SUCCESS_200 } from '../../models/statusCodes'
 
 export async function deleteExpenseHandler(ctx: Context): Promise<Response> {
   try {
-    const input = ctx.req.formData()
+    const input = await ctx.req.json()
     validateDeleteExpenseInput(input)
 
     const deletedExpense = await deleteExpenseService(input)

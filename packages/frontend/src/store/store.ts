@@ -1,14 +1,26 @@
 import { reactive } from 'vue'
 import type { Store } from './storeInterface'
+import { authClient } from '@/lib/auth-client'
 
 let store: Store
 
 export function createStore() {
   store = reactive<Store>({
-    getAccountDetails: () => {
+    getAccountDetails: async () => {
+      const session = await authClient.getSession()
+      console.log(
+        'Session in store:',
+        session,
+        session?.data?.user.id,
+        session?.data?.user.accountId,
+      )
+      if (!session || !session?.data?.user) {
+        throw new Error('User not authenticated')
+      }
       return {
-        userId: '76ddba1c-4e62-428e-80d1-57662dcc7f7c',
-        accountId: '76ddba1c-4e62-428e-80d1-57662dcc7f8a',
+        userId: session.data.user.id,
+        // @ts-ignore -- This is defined in the custom session callback in the backend
+        accountId: session.data.user.accountId,
       }
     },
   })

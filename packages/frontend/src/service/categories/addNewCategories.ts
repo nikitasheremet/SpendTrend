@@ -3,7 +3,7 @@ import { getStore } from '@/store/store'
 import type { ExpenseCategory, NewExpenseCategory } from '@/types/expenseData'
 
 export async function addNewCategory(category: NewExpenseCategory): Promise<ExpenseCategory> {
-  const { userId, accountId } = getStore().getAccountDetails()
+  const { userId, accountId } = await getStore().getAccountDetails()
   try {
     const request = {
       userId,

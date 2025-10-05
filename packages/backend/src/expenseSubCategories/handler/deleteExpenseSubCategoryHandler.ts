@@ -3,7 +3,6 @@ import { validateDeleteExpenseSubCategory } from '../validation'
 import { deleteExpenseSubCategoryService } from '../service/deleteExpenseSubCategoryService'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { STATUS_SUCCESS_200 } from '../../models/statusCodes'
-import { DeleteExpenseSubCategoryInput } from '../validation/models'
 
 export async function deleteExpenseSubCategoryHandler(ctx: Context): Promise<Response> {
   try {

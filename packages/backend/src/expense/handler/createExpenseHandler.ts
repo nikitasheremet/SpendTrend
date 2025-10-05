@@ -6,7 +6,7 @@ import { STATUS_CREATED_201 } from '../../models/statusCodes'
 
 export async function createExpenseHandler(ctx: Context): Promise<Response> {
   try {
-    const input = ctx.req.parseBody()
+    const input = await ctx.req.json()
     validateCreateExpenseInput(input)
     const createdExpense = await createExpenseService(input)
     return ctx.json({ createdExpense }, STATUS_CREATED_201)
