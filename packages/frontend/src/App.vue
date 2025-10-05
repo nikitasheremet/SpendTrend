@@ -1,15 +1,24 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import { authClient } from './lib/auth-client'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import router from './router'
 
+const isLoggedIn = ref(false)
 onMounted(async () => {
   const { data: session } = await authClient.getSession()
   if (!session?.session || new Date() > new Date(session.session.expiresAt)) {
     router.push('/login')
+  } else {
+    isLoggedIn.value = true
   }
 })
+async function logout() {
+  if (window.confirm('Are you sure you want to logout?')) {
+    await authClient.signOut()
+    router.push('/login')
+  }
+}
 </script>
 
 <template>
@@ -20,6 +29,7 @@ onMounted(async () => {
       <RouterLink to="/adddata">Add Data</RouterLink>
       <RouterLink to="/managecategories">Manage Categories</RouterLink>
       <RouterLink to="/incomedata">Income Data</RouterLink>
+      <button v-if="isLoggedIn" @click="logout">Logout</button>
     </div>
 
     <div id="page-wrapper"><RouterView /></div>
