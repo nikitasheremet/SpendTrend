@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import type { CategorySummary } from '@/types/expenseSummary'
+import type { ExpenseCategorySummary } from '@/types/dataSummary'
 import MonthlySubcategorySummary from './MonthlySubcategorySummary.vue'
 import { ref } from 'vue'
 
-const { category, monthSummaryForSelectedCategory } = defineProps<{
-  category: string
-  monthSummaryForSelectedCategory: CategorySummary
+const { category } = defineProps<{
+  category: ExpenseCategorySummary
 }>()
 
 const isSubcategoryDetailsShown = ref(false)
@@ -16,16 +15,14 @@ function showSubcategories() {
 
 <template>
   <tr>
-    <td @click="showSubcategories">{{ category }}</td>
-    <td>{{ monthSummaryForSelectedCategory.totalAmount }}</td>
-    <td>{{ monthSummaryForSelectedCategory.threeMonthAverage }}</td>
-    <td>{{ monthSummaryForSelectedCategory.diffTotalToAverage }}</td>
-    <td>{{ monthSummaryForSelectedCategory.diffTotalToAverageAsPercent }}</td>
+    <td @click="showSubcategories">{{ category.name }}</td>
+    <td>{{ category.total }}</td>
+    <td>{{ category.threeMonthAvg }}</td>
+    <td>{{ category.diffTotalToAvg }}</td>
+    <td>{{ category.diffTotalToAvgAsPercent }}</td>
   </tr>
   <template v-if="isSubcategoryDetailsShown">
-    <MonthlySubcategorySummary
-      :summaryForSelectedMonthBySubcategory="monthSummaryForSelectedCategory.subcategories"
-    />
+    <MonthlySubcategorySummary :summaryForSelectedMonthBySubcategory="category.subCategories" />
   </template>
 </template>
 

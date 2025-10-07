@@ -14,7 +14,7 @@ export function getTotalAmountForMonth(
   return data.reduce((total, item) => {
     const itemDate = new Date(item.date)
     if (isSameMonth(selectedMonthYearDate, itemDate)) {
-      return total + item.amount
+      return (total = total + item.amount)
     }
     return total
   }, 0)

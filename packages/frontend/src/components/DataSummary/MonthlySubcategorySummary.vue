@@ -1,17 +1,20 @@
 <script lang="ts" setup>
-import type { ExpenseSummaryBySubcategory } from '@/types/expenseSummary'
+import type { ExpenseSubCategorySummary } from '@/types/dataSummary'
 
 const { summaryForSelectedMonthBySubcategory } = defineProps<{
-  summaryForSelectedMonthBySubcategory: ExpenseSummaryBySubcategory
+  summaryForSelectedMonthBySubcategory: ExpenseSubCategorySummary[]
 }>()
 </script>
 
 <template>
-  <tr v-for="subcategoryDetails in Object.entries(summaryForSelectedMonthBySubcategory)">
-    <td>{{ subcategoryDetails[0] }}:</td>
-    <td>{{ subcategoryDetails[1].totalAmount }}</td>
-    <td>{{ subcategoryDetails[1].threeMonthAverage }}</td>
-    <td>{{ subcategoryDetails[1].diffTotalToAverage }}</td>
-    <td>{{ subcategoryDetails[1].diffTotalToAverageAsPercent }}</td>
+  <tr
+    v-for="subcategoryDetails in summaryForSelectedMonthBySubcategory"
+    :key="subcategoryDetails.name"
+  >
+    <td>{{ subcategoryDetails.name }}:</td>
+    <td>{{ subcategoryDetails.total }}</td>
+    <td>{{ subcategoryDetails.threeMonthAvg }}</td>
+    <td>{{ subcategoryDetails.diffTotalToAvg }}</td>
+    <td>{{ subcategoryDetails.diffTotalToAvgAsPercent }}</td>
   </tr>
 </template>
