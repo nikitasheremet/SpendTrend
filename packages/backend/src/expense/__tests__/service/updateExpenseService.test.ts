@@ -34,6 +34,6 @@ describe('updateExpenseService', () => {
     const result = await updateExpenseService(fakeInput)
 
     // Assert
-    expect(result).toEqual(fakeRepoResult)
+    expect(result).toEqual(expect.objectContaining({ ...fakeRepoResult, amount: 3.0 }))
   })
 })

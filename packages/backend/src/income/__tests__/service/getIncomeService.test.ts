@@ -34,6 +34,7 @@ describe('getIncomesService', () => {
       const fakeIncomeList = [
         {
           id: 'income-1',
+          amount: 5067,
         },
       ]
       mockedGetIncomesRepository.mockResolvedValueOnce(fakeIncomeList)
@@ -42,7 +43,9 @@ describe('getIncomesService', () => {
       const result = await getIncomesService(fakeInput)
 
       // Assert
-      expect(result).toEqual(fakeIncomeList)
+      expect(result).toEqual(
+        expect.arrayContaining([expect.objectContaining({ id: 'income-1', amount: 50.67 })]),
+      )
     })
   })
 
