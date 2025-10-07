@@ -8,12 +8,7 @@ export function createStore() {
   store = reactive<Store>({
     getAccountDetails: async () => {
       const session = await authClient.getSession()
-      console.log(
-        'Session in store:',
-        session,
-        session?.data?.user.id,
-        session?.data?.user.accountId,
-      )
+
       if (!session || !session?.data?.user) {
         throw new Error('User not authenticated')
       }

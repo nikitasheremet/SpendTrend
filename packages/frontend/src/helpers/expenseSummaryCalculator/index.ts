@@ -5,7 +5,7 @@ import type {
   ExpenseSummaryBySubcategory,
   ExpenseSummaryForMonth,
   MonthDetails,
-} from '@/types/expenseSummary'
+} from '../../types/dataSummary.js'
 import { calculateTotalForListOfExpenses } from './helpers/calculateTotalForListOfExpenses'
 import { roundNumber } from './helpers/roundNumber'
 import type { ExpenseSummaryCalculatorI } from './interaface'

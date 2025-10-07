@@ -1,4 +1,4 @@
-import type { ExpenseSummaryByCategory, ExpenseSummaryForMonth } from '@/types/expenseSummary'
+import type { ExpenseSummaryByCategory, ExpenseSummaryForMonth } from '../../types/dataSummary.js'
 
 export interface ExpenseSummaryCalculatorI {
   getExpenseSummaryForSelectedMonth: () => Promise<ExpenseSummaryForMonth>

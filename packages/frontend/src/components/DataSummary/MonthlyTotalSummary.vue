@@ -57,10 +57,10 @@ const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(monthModel, year
         <th>Diff Percent</th>
       </tr>
       <tr>
-        <td>{{ summaryForSelectedMonth.totalAmount }}</td>
-        <td>{{ summaryForSelectedMonth.threeMonthAverage }}</td>
-        <td>{{ summaryForSelectedMonth.diffTotalToAverage }}</td>
-        <td>% {{ summaryForSelectedMonth.diffTotalToAverageAsPercent }}</td>
+        <td>{{ summaryForSelectedMonth.expenses.total }}</td>
+        <td>{{ summaryForSelectedMonth.expenses.threeMonthAvg }}</td>
+        <td>{{ summaryForSelectedMonth.expenses.diffTotalToAvg }}</td>
+        <td>% {{ summaryForSelectedMonth.expenses.diffTotalToAvgAsPercent }}</td>
       </tr>
     </table>
     <table>
@@ -72,10 +72,10 @@ const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(monthModel, year
         <th>Savings</th>
       </tr>
       <tr>
-        <td>{{ summaryForSelectedMonth.totalIncome }}</td>
-        <td>{{ summaryForSelectedMonth.incomeThreeMonthAverage }}</td>
-        <td>{{ summaryForSelectedMonth.incomeDiffTotalToAverage }}</td>
-        <td>% {{ summaryForSelectedMonth.incomeDiffTotalToAverageAsPercent }}</td>
+        <td>{{ summaryForSelectedMonth.income.total }}</td>
+        <td>{{ summaryForSelectedMonth.income.threeMonthAvg }}</td>
+        <td>{{ summaryForSelectedMonth.income.diffTotalToAvg }}</td>
+        <td>% {{ summaryForSelectedMonth.income.diffTotalToAvgAsPercent }}</td>
         <td>{{ summaryForSelectedMonth.savings }}</td>
       </tr>
     </table>
