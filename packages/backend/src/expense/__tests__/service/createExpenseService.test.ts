@@ -6,7 +6,11 @@ jest.mock('../../repository/createExpenseRepository', () => ({
   createExpenseRepository: jest.fn(),
 }))
 
-const fakeInput = {} as CreateExpenseInput
+const fakeInput = {
+  amount: 10.5,
+  netAmount: 9.5,
+  paidBackAmount: 5.0,
+} as CreateExpenseInput
 
 describe('createExpenseService', () => {
   const mockedCreateExpenseRepository = repository.createExpenseRepository as jest.Mock
@@ -28,6 +32,9 @@ describe('createExpenseService', () => {
     // Arrange
     const expense = {
       id: '1',
+      amount: 1050,
+      netAmount: 950,
+      paidBackAmount: 500,
     }
     mockedCreateExpenseRepository.mockResolvedValueOnce(expense)
 
@@ -35,6 +42,11 @@ describe('createExpenseService', () => {
     const result = await createExpenseService(fakeInput)
 
     // Assert
-    expect(result).toEqual(expense)
+    expect(result).toEqual({
+      ...expense,
+      amount: 10.5,
+      netAmount: 9.5,
+      paidBackAmount: 5.0,
+    })
   })
 })

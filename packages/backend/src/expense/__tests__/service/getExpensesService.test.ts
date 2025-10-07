@@ -40,7 +40,18 @@ describe('getExpensesService', () => {
       const result = await getExpensesService(fakeInput)
 
       // Assert
-      expect(result).toEqual(fakeExpenses)
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ...fakeExpenses[0],
+            amount: 1.0,
+          }),
+          expect.objectContaining({
+            ...fakeExpenses[1],
+            amount: 0.5,
+          }),
+        ]),
+      )
     })
   })
 })

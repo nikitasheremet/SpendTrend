@@ -37,7 +37,12 @@ describe('deleteExpensesService', () => {
       const result = await deleteExpenseService(fakeInput)
 
       // Assert
-      expect(result).toEqual(fakeExpense)
+      expect(result).toEqual(
+        expect.objectContaining({
+          ...fakeExpense,
+          amount: 1.0,
+        }),
+      )
     })
   })
 })
