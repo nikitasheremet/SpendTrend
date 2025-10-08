@@ -29,7 +29,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build Vue app
+      - name: TSC Contracts
+        run: tsc -b ../contracts
+
+      - name: Run Build
         run: npm run build
 
       - name: Prepare 404 fallback
