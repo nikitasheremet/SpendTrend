@@ -11,6 +11,7 @@
     "typescript": "~5.6.3"
   },
   "scripts": {
-    "frontend:dev": "npm run dev --workspace packages/frontend"
+    "frontend:dev": "npm run dev --workspace packages/frontend",
+    "frontend:build": "tsc -b ./contracts && npm run build --workspace packages/frontend"
   }
 }
