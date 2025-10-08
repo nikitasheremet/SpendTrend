@@ -2,7 +2,7 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URL
 
 export async function post<T>(endpoint: string, payload: unknown): Promise<T> {
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+    const response = await fetch(`${BASE_URL}/${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
