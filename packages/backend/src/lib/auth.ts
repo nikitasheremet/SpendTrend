@@ -16,10 +16,8 @@ export function createAuth() {
       schema: { user, session, account, verification },
     }),
     advanced: {
-      defaultCookieAttributes: {
-        sameSite: 'none',
-        secure: true,
-        partitioned: true,
+      crossSubDomainCookies: {
+        enabled: true,
       },
       database: {
         generateId: false,
