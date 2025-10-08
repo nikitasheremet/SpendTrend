@@ -2,7 +2,7 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URL
 
 export async function put<T>(endpoint: string, payload: unknown): Promise<T> {
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+    const response = await fetch(`${BASE_URL}/${endpoint}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

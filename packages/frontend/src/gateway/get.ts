@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URL
 
 export async function get<T>(endpoint: string, queryParams: Record<string, string>): Promise<T> {
   try {
-    const url = new URL(`${BASE_URL}${endpoint}`)
+    const url = new URL(`${BASE_URL}/${endpoint}`)
     Object.entries(queryParams).forEach(([key, value]) => {
       url.searchParams.append(key, value)
     })
