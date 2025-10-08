@@ -20,7 +20,7 @@ export function createAuth() {
         generateId: false,
       },
     },
-    trustedOrigins: ['http://localhost:5173'],
+    trustedOrigins: ['http://localhost:5173', 'https://nikitasheremet.github.io'],
     socialProviders: {
       google: {
         clientId: process.env.GOOGLE_CLIENT_ID!,
