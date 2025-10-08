@@ -13,7 +13,7 @@ onMounted(async () => {
 async function signIn() {
   await authClient.signIn.social({
     provider: 'google',
-    callbackURL: 'http://localhost:5173',
+    callbackURL: import.meta.env.VITE_CALLBACK_URL,
   })
   const { data: session } = await authClient.getSession()
   if (session?.session) {
