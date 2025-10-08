@@ -40,7 +40,13 @@ export function createApp() {
       console.log('Path', ctx.req.path)
       console.log('Headers', ctx.req.header())
       console.log('Query', ctx.req.query())
-      console.log('Body', ctx.req.raw)
+      const body = ctx.req.raw.clone()
+      if (body) {
+        const text = await body.text()
+        console.log('Body', text)
+      } else {
+        console.log('Body is empty')
+      }
     }
     await next()
   })
