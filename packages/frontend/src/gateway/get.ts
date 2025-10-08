@@ -1,6 +1,6 @@
 import { handleUnauthorized } from './handleUnathorized'
 
-const BASE_URL = 'http://localhost:3000/' // Adjust based on your backend URL
+const BASE_URL = import.meta.env.VITE_BACKEND_URL
 
 export async function get<T>(endpoint: string, queryParams: Record<string, string>): Promise<T> {
   try {

@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000/' // Adjust based on your backend URL
+const BASE_URL = import.meta.env.VITE_BACKEND_URL
 
 export async function post<T>(endpoint: string, payload: unknown): Promise<T> {
   try {

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "tsc && drizzle-kit migrate",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "dev": "tsx --env-file ./env/.env.local --env-file ./env/.env.local.notsafe src/server.ts",
     "test:e2e": "npx playwright test e2e",
     "test:unit": "jest src --passWithNoTests",
