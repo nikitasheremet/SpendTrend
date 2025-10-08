@@ -22,7 +22,6 @@ export function createAuth() {
       defaultCookieAttributes: {
         sameSite: 'none',
         secure: true,
-        partitioned: true,
       },
       database: {
         generateId: false,
