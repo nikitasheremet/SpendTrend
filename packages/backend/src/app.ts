@@ -40,7 +40,7 @@ export function createApp() {
       console.log('Path', ctx.req.path)
       console.log('Headers', ctx.req.header())
       console.log('Query', ctx.req.query())
-      console.log('Body', await ctx.req.json())
+      console.log('Body', ctx.req.raw)
     }
     await next()
   })
