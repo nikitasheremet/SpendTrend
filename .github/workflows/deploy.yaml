@@ -30,7 +30,7 @@ jobs:
         run: npm install
 
       - name: TSC Contracts
-        run: tsc -b ../contracts
+        run: tsc -b ../../contracts
 
       - name: Run Build
         run: npm run build
