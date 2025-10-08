@@ -30,7 +30,11 @@ export function createApp() {
 
   app.use(
     cors({
-      origin: ['http://localhost:5173', 'https://nikitasheremet.github.io'],
+      origin: [
+        'http://localhost:5173',
+        'https://nikitasheremet.github.io',
+        'https://spendtrend-9fwf.onrender.com',
+      ],
       credentials: true,
     }),
   )
@@ -49,6 +53,8 @@ export function createApp() {
       }
     }
     await next()
+    console.log('Response status:', ctx.res.status)
+    console.log('Response headers:', ctx.res.headers)
   })
 
   app.all('/api/auth/*', (ctx) => auth.handler(ctx.req.raw))
