@@ -18,7 +18,7 @@ export default defineConfig({
       '@types': fileURLToPath(new URL('./src/types', import.meta.url)),
     },
   },
-  base: process.env.NODE_ENV === 'production' ? '/SpendTrend/' : '/',
+  base: process.env.NODE_ENV === 'production' ? '/' : '/',
   test: {
     globals: true,
     environment: 'jsdom',
