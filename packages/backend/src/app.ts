@@ -34,6 +34,7 @@ export function createApp() {
         'http://localhost:5173',
         'https://nikitasheremet.github.io',
         'https://spendtrend-9fwf.onrender.com',
+        'https://spendtrend-mz44.onrender.com',
       ],
       credentials: true,
     }),

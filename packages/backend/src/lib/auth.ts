@@ -28,7 +28,11 @@ export function createAuth() {
         generateId: false,
       },
     },
-    trustedOrigins: ['http://localhost:5173', 'https://nikitasheremet.github.io'],
+    trustedOrigins: [
+      'http://localhost:5173',
+      'https://nikitasheremet.github.io',
+      'https://spendtrend-mz44.onrender.com',
+    ],
     socialProviders: {
       google: {
         clientId: process.env.GOOGLE_CLIENT_ID!,
