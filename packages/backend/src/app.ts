@@ -35,6 +35,16 @@ export function createApp() {
     }),
   )
 
+  app.use(async (ctx, next) => {
+    if (ctx.req.path.startsWith('/api/auth')) {
+      console.log('Path', ctx.req.path)
+      console.log('Headers', ctx.req.header())
+      console.log('Query', ctx.req.query())
+      console.log('Body', await ctx.req.json())
+    }
+    await next()
+  })
+
   app.all('/api/auth/*', (ctx) => auth.handler(ctx.req.raw))
 
   app.use(async (ctx, next) => {
