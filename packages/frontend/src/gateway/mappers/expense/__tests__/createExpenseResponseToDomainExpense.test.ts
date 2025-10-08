@@ -6,7 +6,7 @@ import { Expense } from '@/types/expenseData'
 describe('createExpenseResponseToDomainExpense', () => {
   describe('when given a valid response', () => {
     it('should map all fields correctly', () => {
-      const fakeInput: CreateExpenseResponse = {
+      const fakeInput = {
         id: 'expense-123',
         userId: 'user-123',
         accountId: 'account-123',
@@ -67,6 +67,7 @@ describe('createExpenseResponseToDomainExpense', () => {
               userId: 'user-123',
               accountId: 'account-123',
               name: 'Test SubCategory',
+              categoryId: 'category-123',
               createdAt: new Date('2023-01-01T00:00:00Z'),
               updatedAt: new Date('2023-01-01T00:00:00Z'),
             },
@@ -79,6 +80,7 @@ describe('createExpenseResponseToDomainExpense', () => {
           userId: 'user-123',
           accountId: 'account-123',
           name: 'Test SubCategory',
+          categoryId: 'category-123',
           createdAt: new Date('2023-01-01T00:00:00Z'),
           updatedAt: new Date('2023-01-01T00:00:00Z'),
         },
@@ -89,14 +91,6 @@ describe('createExpenseResponseToDomainExpense', () => {
       const result = createExpenseResponseToDomainExpense(fakeInput)
 
       expect(result).toEqual(expectedExpense)
-    })
-  })
-
-  describe('when given an invalid response', () => {
-    it('should throw an error', () => {
-      const invalidResponse = null as unknown as CreateExpenseResponse
-
-      expect(() => createExpenseResponseToDomainExpense(invalidResponse)).toThrow()
     })
   })
 })

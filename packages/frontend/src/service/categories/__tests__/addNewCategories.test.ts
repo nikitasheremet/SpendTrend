@@ -25,7 +25,7 @@ describe('when addNewCategory is called', () => {
 
   beforeEach(() => {
     vi.mocked(getStore).mockReturnValue({
-      getAccountDetails: () => ({ userId: fakeUserId, accountId: fakeAccountId }),
+      getAccountDetails: () => Promise.resolve({ userId: fakeUserId, accountId: fakeAccountId }),
     })
     mockCreateExpenseCategory.mockResolvedValue(fakeExpenseCategory)
   })

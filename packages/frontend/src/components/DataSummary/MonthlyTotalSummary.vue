@@ -1,19 +1,26 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
 import { useGetMonthlyExpenseSummary } from './helpers/useGetMonthlyExpenseSummary'
-import { getListOfYears } from '@/service/expenses/getListOfYears'
+import { getExpenses } from '@/service/expenses/getExpenses'
 
 const monthModel = defineModel<number>('month', { required: true })
 const yearModel = defineModel<number>('year', { required: true })
 
 const listOfYears = ref<number[]>([])
 
-onMounted(() => {
-  getListOfYears().then((years) => {
-    const currentYear = new Date().getUTCFullYear()
-    const yearsWithCurrentYear = Array.from(new Set([...years, currentYear].sort((a, b) => a - b)))
-    listOfYears.value = yearsWithCurrentYear
-  })
+onMounted(async () => {
+  const allExpenses = await getExpenses()
+  const years = allExpenses.reduce((acc, expense) => {
+    const year = new Date(expense.date).getUTCFullYear()
+    acc.add(year)
+    return acc
+  }, new Set<number>())
+
+  const currentYear = new Date().getUTCFullYear()
+  const yearsWithCurrentYear = Array.from(
+    new Set([...Array.from(years), currentYear].sort((a, b) => a - b)),
+  )
+  listOfYears.value = yearsWithCurrentYear
 })
 const listOfMonths = [
   ['Jan', 0],
