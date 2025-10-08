@@ -16,6 +16,7 @@ export function createAuth() {
       schema: { user, session, account, verification },
     }),
     advanced: {
+      useSecureCookies: true,
       database: {
         generateId: false,
       },
