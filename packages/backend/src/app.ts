@@ -30,7 +30,7 @@ export function createApp() {
 
   app.use(
     cors({
-      origin: ['http://localhost:5173', 'https://nikitasheremet.github.io/SpendTrend'],
+      origin: ['http://localhost:5173', 'https://nikitasheremet.github.io'],
       credentials: true,
     }),
   )
