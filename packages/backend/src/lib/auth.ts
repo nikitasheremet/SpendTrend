@@ -16,7 +16,11 @@ export function createAuth() {
       schema: { user, session, account, verification },
     }),
     advanced: {
-      useSecureCookies: true,
+      defaultCookieAttributes: {
+        sameSite: 'none',
+        secure: true,
+        partitioned: true,
+      },
       database: {
         generateId: false,
       },
