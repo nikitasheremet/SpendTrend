@@ -3,15 +3,19 @@
   "include": ["env.d.ts", "src/**/*", "../../contracts/**/*"],
   "compilerOptions": {
     "composite": true,
+    "skipLibCheck": true,
     "paths": {
       "@/*": ["./src/*"],
       "@contracts/*": ["../../contracts/*"],
-      "@gateway/*": ["./src/gateway/*"]
+      "@gateway/*": ["./src/gateway/*"],
+      "@types/*": ["./src/types/*"]
     },
-    "esModuleInterop": true,
+    "esModuleInterop": true,  
     "module": "esnext",
     "moduleResolution": "bundler",
-    "types": ["vitest/globals", "@testing-library/jest-dom"]
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "outDir": "dist",
+    "lib": ["DOM", "ESNext"],
   },
   "references": [{ "path": "../../contracts" }]
 }
