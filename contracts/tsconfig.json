@@ -6,7 +6,8 @@
     "outDir": "dist",
     "strict": true,
     "target": "ESNext",
-    "module": "ESNext"
+    "module": "ESNext",
+    "skipLibCheck": true
   },
   "exclude": ["node_modules", "dist"],
   "include": ["./**/*.ts"]
