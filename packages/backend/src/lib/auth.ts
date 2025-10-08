@@ -19,6 +19,11 @@ export function createAuth() {
       crossSubDomainCookies: {
         enabled: true,
       },
+      defaultCookieAttributes: {
+        sameSite: 'none',
+        secure: true,
+        partitioned: true,
+      },
       database: {
         generateId: false,
       },
