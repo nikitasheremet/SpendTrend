@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "npm run type-check && npm run vite build",
+    "build:dev": "npm run type-check && NODE_ENV=dev vite build --mode dev",
     "preview": "vite preview",
     "test:unit": "vitest",
     "test:e2e": "playwright test",
-    "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.json",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
@@ -35,7 +35,6 @@
     "eslint-plugin-playwright": "^2.0.0",
     "eslint-plugin-vue": "^9.30.0",
     "jsdom": "^25.0.1",
-    "npm-run-all2": "^7.0.1",
     "vite": "^5.4.10",
     "vite-plugin-vue-devtools": "^7.5.4",
     "vite-tsconfig-paths": "^5.1.4",
