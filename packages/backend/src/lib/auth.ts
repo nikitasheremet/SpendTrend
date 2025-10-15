@@ -31,6 +31,7 @@ export function createAuth() {
       'http://localhost:5173',
       'https://nikitasheremet.github.io',
       'https://spendtrend-mz44.onrender.com',
+      'https://dev-spendtrend-frontend.onrender.com',
     ],
     socialProviders: {
       google: {
