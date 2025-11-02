@@ -1,8 +1,8 @@
 import { addNewCategory } from '@/service/categories/addNewCategories'
-import type { ExpenseCategory } from '@/types/expenseData'
+import { getStore } from '@/store/store'
 import { ref, type Ref } from 'vue'
 
-export function useAddCategory(addCategoryCallback: (newCategoryAdded: ExpenseCategory) => void): {
+export function useAddCategory(): {
   newCategoriesValue: Ref<string>
   addCategory: () => void
   error: Ref<Error | undefined>
@@ -19,7 +19,7 @@ export function useAddCategory(addCategoryCallback: (newCategoryAdded: ExpenseCa
 
     try {
       const newCategoryAdded = await addNewCategory({ name: newCategoriesValue.value.trim() })
-      addCategoryCallback(newCategoryAdded)
+      getStore().addCategory(newCategoryAdded)
 
       newCategoriesValue.value = ''
     } catch (err) {

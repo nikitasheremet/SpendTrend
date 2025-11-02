@@ -3,6 +3,7 @@ import { deleteExpense } from '../deleteExpense'
 import { deleteExpense as gatewayDeleteExpense } from '@/gateway/expense/deleteExpense'
 import { getStore } from '@/store/store'
 import type { Expense } from '@/types/expenseData'
+import { Store } from '@/store/storeInterface'
 
 vi.mock('@/gateway/expense/deleteExpense')
 vi.mock('@/store/store')
@@ -27,7 +28,7 @@ describe('deleteExpense', () => {
       const fakeAccountDetails = { userId: 'user-123', accountId: 'account-123' }
       mockGetStore.mockReturnValue({
         getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
-      })
+      } as unknown as Store)
       mockGatewayDeleteExpense.mockResolvedValue(fakeExpense)
 
       const result = await deleteExpense(fakeExpenseId)
@@ -43,7 +44,7 @@ describe('deleteExpense', () => {
         getAccountDetails: vi.fn().mockImplementation(() => {
           throw fakeError
         }),
-      })
+      } as unknown as Store)
 
       await expect(deleteExpense(fakeExpenseId)).rejects.toThrow(fakeError)
     })
@@ -54,7 +55,7 @@ describe('deleteExpense', () => {
       const fakeAccountDetails = { userId: 'user-123', accountId: 'account-123' }
       mockGetStore.mockReturnValue({
         getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
-      })
+      } as unknown as Store)
       const fakeError = new Error('Failed to delete expense')
       mockGatewayDeleteExpense.mockRejectedValue(fakeError)
 

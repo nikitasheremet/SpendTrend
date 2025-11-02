@@ -9,14 +9,15 @@ const { summaryForSelectedMonthByCategory } = useGetMonthlyExpenseSummary(monthM
 </script>
 
 <template>
+  <h3>Category Breakdown</h3>
   <table>
     <thead>
       <tr>
         <th>Category</th>
         <th>Total</th>
         <th>3 Month Average</th>
-        <th>Diff Value</th>
-        <th>Diff Percent</th>
+        <th>Difference</th>
+        <th>% Difference</th>
       </tr>
     </thead>
     <tbody>
@@ -27,4 +28,18 @@ const { summaryForSelectedMonthByCategory } = useGetMonthlyExpenseSummary(monthM
   </table>
 </template>
 
-<style scoped></style>
+<style scoped>
+.selectors {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 60vw;
+  margin-bottom: 20px;
+}
+th {
+  text-align: left;
+}
+</style>

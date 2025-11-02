@@ -13,10 +13,8 @@ const { category } = defineProps<{
 const emits = defineEmits<{
   subCategoryAdded: [ExpenseSubCategory]
 }>()
-function subCategoryAdded(subCategory: ExpenseSubCategory) {
-  emits('subCategoryAdded', subCategory)
-}
-const { newSubCategoryValue, addSubCategory, error } = useAddSubCategory(category, subCategoryAdded)
+
+const { newSubCategoryValue, addSubCategory, error } = useAddSubCategory(category)
 
 async function handleAddSubCategory() {
   await addSubCategory()

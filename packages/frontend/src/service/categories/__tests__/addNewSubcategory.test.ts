@@ -1,6 +1,7 @@
 import { addNewSubcategory } from '../addNewSubCategory'
 import { createExpenseSubCategory } from '@/gateway/expenseSubCategory/createExpenseSubCategory'
 import { getStore } from '@/store/store'
+import { Store } from '@/store/storeInterface'
 import type { ExpenseSubCategory } from '@/types/expenseData'
 
 vi.mock('@/gateway/expenseSubCategory/createExpenseSubCategory')
@@ -21,7 +22,7 @@ describe('when addNewSubcategory is called', () => {
   beforeEach(() => {
     vi.mocked(getStore).mockReturnValue({
       getAccountDetails: () => Promise.resolve({ userId: fakeUserId, accountId: fakeAccountId }),
-    })
+    } as unknown as Store)
     mockCreateExpenseSubCategory.mockResolvedValue(fakeExpenseSubCategory)
   })
 

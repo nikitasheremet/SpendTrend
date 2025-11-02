@@ -3,6 +3,7 @@ import { deleteCategory } from '../deleteCategory'
 import { deleteExpenseCategory } from '@/gateway/expenseCategory/deleteExpenseCategory'
 import { getStore } from '@/store/store'
 import type { ExpenseCategory } from '@/types/expenseData'
+import { Store } from '@/store/storeInterface'
 
 vi.mock('@/gateway/expenseCategory/deleteExpenseCategory')
 vi.mock('@/store/store')
@@ -24,7 +25,7 @@ describe('deleteCategory', () => {
       const fakeAccountDetails = { userId: 'user-123', accountId: 'account-123' }
       mockGetStore.mockReturnValue({
         getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
-      })
+      } as unknown as Store)
       mockDeleteExpenseCategory.mockResolvedValue(fakeExpenseCategory)
 
       const result = await deleteCategory('category-123')
@@ -40,7 +41,7 @@ describe('deleteCategory', () => {
         getAccountDetails: vi.fn().mockImplementation(() => {
           throw fakeError
         }),
-      })
+      } as unknown as Store)
 
       await expect(deleteCategory('category-123')).rejects.toThrow(fakeError)
     })
@@ -51,7 +52,7 @@ describe('deleteCategory', () => {
       const fakeAccountDetails = { userId: 'user-123', accountId: 'account-123' }
       mockGetStore.mockReturnValue({
         getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
-      })
+      } as unknown as Store)
       const fakeError = new Error('Failed to delete expense category')
       mockDeleteExpenseCategory.mockRejectedValue(fakeError)
 

@@ -5,7 +5,7 @@ import ManageCategories from '@/components/ManageCategories/ManageCategories.vue
 <template>
   <div>
     <h2>Manage Categories</h2>
-    <ManageCategories />
+    <!-- <ManageCategories /> -->
   </div>
 </template>
 

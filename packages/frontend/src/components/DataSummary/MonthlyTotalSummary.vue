@@ -42,27 +42,27 @@ const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(monthModel, year
 
 <template>
   <div id="monthly-summary-grid">
-    <div style="display: flex">
+    <div style="display: flex; align-items: baseline; margin-bottom: 1rem">
+      <h4>Data for:</h4>
       <div class="selectors">
-        <p>Year</p>
-        <select v-model="yearModel">
-          <option v-for="year in listOfYears" :value="year">{{ year }}</option>
-        </select>
-      </div>
-      <div class="selectors">
-        <p>Month</p>
         <select v-model="monthModel">
           <option v-for="month in listOfMonths" :value="month[1]">{{ month[0] }}</option>
         </select>
       </div>
+      <div class="selectors">
+        <select v-model="yearModel">
+          <option v-for="year in listOfYears" :value="year">{{ year }}</option>
+        </select>
+      </div>
     </div>
-    <table>
+    <table id="monthly-totals-table">
       <tr>
-        <th>Total Expense</th>
+        <th>Monthly Expenses</th>
         <th>3 Month Average</th>
-        <th>Diff Value</th>
-        <th>Diff Percent</th>
+        <th>Difference</th>
+        <th>% Difference</th>
       </tr>
+      <tr></tr>
       <tr>
         <td>{{ summaryForSelectedMonth.expenses.total }}</td>
         <td>{{ summaryForSelectedMonth.expenses.threeMonthAvg }}</td>
@@ -72,10 +72,10 @@ const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(monthModel, year
     </table>
     <table>
       <tr>
-        <th>Total Income</th>
+        <th>Monthly Income</th>
         <th>3 Month Average</th>
-        <th>Income Diff Value</th>
-        <th>Income Diff Percent</th>
+        <th>Difference</th>
+        <th>% Difference</th>
         <th>Savings</th>
       </tr>
       <tr>
@@ -97,16 +97,17 @@ const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(monthModel, year
 .selectors {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  margin-left: 0.5rem;
 }
 td {
-  text-align: center;
+  min-width: 150px;
+  font-size: 20px;
 }
 table {
-  border-collapse: collapse;
-  border: 2px solid rgb(140 140 140);
-  font-family: sans-serif;
-  font-size: 0.8rem;
-  letter-spacing: 1px;
+  width: 60vw;
+  margin-bottom: 20px;
+}
+th {
+  text-align: left;
 }
 </style>
