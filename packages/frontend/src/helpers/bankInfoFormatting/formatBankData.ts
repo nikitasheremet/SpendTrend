@@ -14,6 +14,7 @@ export interface FormattedBankData {
 
 export function formatBankData(bankData: string): FormattedBankData[] {
   const splitData = bankData.split(/([\t\n]+)/)
+  console.log('Split data:', splitData)
   const rows: string[][] = []
   let nextRow: string[] = []
   const regex = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{1,2}, \d{4}$/
@@ -61,15 +62,40 @@ export function formatBankData(bankData: string): FormattedBankData[] {
       .replaceAll(/([\t\n]+)/g, '')
       .trim()
     newData.name = dataDescription
-    const dataAmount = (row[indexOfFirstAmount] as string).replace('$', '').replace(',', '')
+    const dataAmount = (row[indexOfFirstAmount] as string)
+      .replace('$', '')
+      .replace(',', '')
+      .replace('−', '-') // This is because CIBC somehow uses a different minus sign character
     newData.amount = parseFloat(dataAmount)
     const indexOfSecondAmount = row.findLastIndex((cell) => (cell as string).includes('$'))
     const isThereTwoAmounts = indexOfSecondAmount > indexOfFirstAmount
     const isRbcData = row[1] === '\t\n'
+    const isCIBCCreditCardData = newData.name === newData.name.toUpperCase() && !isThereTwoAmounts
+    const isCIBCDebitData = row.join().includes('Not applicable') && isThereTwoAmounts
+    const isCIBCData = isCIBCCreditCardData || isCIBCDebitData
+
+    if (isCIBCData) {
+      if (isCIBCDebitData) {
+        const indexOfNotApplicableText = row.findIndex((cell) =>
+          (cell as string).includes('Not applicable'),
+        )
+        if (indexOfFirstAmount < indexOfNotApplicableText) {
+          newData.type = DataType.EXPENSE
+        } else {
+          newData.type = DataType.INCOME
+        }
+      } else {
+        if (newData.amount < 0) {
+          newData.type = DataType.EXPENSE
+        } else {
+          newData.type = DataType.INCOME
+        }
+      }
+    }
 
     if (isRbcData) {
       if (newData.amount < 0) {
-        if (lastRowCell.includes('\t\t\t')) {
+        if (lastRowCell.includes('\t\t\t') || isThereTwoAmounts) {
           newData.type = DataType.EXPENSE
         } else {
           newData.type = DataType.INCOME
