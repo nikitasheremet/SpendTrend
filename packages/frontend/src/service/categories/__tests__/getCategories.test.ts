@@ -3,6 +3,7 @@ import { getCategories } from '../getCategories'
 import { getExpenseCategories } from '@/gateway/expenseCategory/getExpenseCategories'
 import { getStore } from '@/store/store'
 import type { ExpenseCategory } from '@/types/expenseData'
+import { Store } from '@/store/storeInterface'
 
 vi.mock('@/gateway/expenseCategory/getExpenseCategories')
 vi.mock('@/store/store')
@@ -32,7 +33,7 @@ describe('getCategories', () => {
       const fakeAccountDetails = { userId: 'user-123', accountId: 'account-123' }
       mockGetStore.mockReturnValue({
         getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
-      })
+      } as unknown as Store)
       mockGetExpenseCategories.mockResolvedValue(fakeExpenseCategories)
 
       const result = await getCategories()
@@ -48,7 +49,7 @@ describe('getCategories', () => {
         getAccountDetails: vi.fn().mockImplementation(() => {
           throw fakeError
         }),
-      })
+      } as unknown as Store)
 
       await expect(getCategories()).rejects.toThrow(fakeError)
     })
@@ -59,7 +60,7 @@ describe('getCategories', () => {
       const fakeAccountDetails = { userId: 'user-123', accountId: 'account-123' }
       mockGetStore.mockReturnValue({
         getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
-      })
+      } as unknown as Store)
       const fakeError = new Error('Failed to get expense categories')
       mockGetExpenseCategories.mockRejectedValue(fakeError)
 

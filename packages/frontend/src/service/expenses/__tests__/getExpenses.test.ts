@@ -3,6 +3,7 @@ import { getExpenses } from '../getExpenses'
 import { getExpensesGateway } from '@/gateway/expense/getExpenses'
 import { getStore } from '@/store/store'
 import type { Expense } from '@/types/expenseData'
+import { Store } from '@/store/storeInterface'
 
 vi.mock('@/gateway/expense/getExpenses')
 vi.mock('@/store/store')
@@ -26,7 +27,7 @@ describe('getExpenses', () => {
       const fakeAccountDetails = { userId: 'user-123', accountId: 'account-123' }
       mockGetStore.mockReturnValue({
         getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
-      })
+      } as unknown as Store)
       mockGetExpensesGateway.mockResolvedValue(fakeExpenses)
 
       const result = await getExpenses()
@@ -42,7 +43,7 @@ describe('getExpenses', () => {
         getAccountDetails: vi.fn().mockImplementation(() => {
           throw fakeError
         }),
-      })
+      } as unknown as Store)
 
       await expect(getExpenses()).rejects.toThrow(fakeError)
     })
@@ -53,7 +54,7 @@ describe('getExpenses', () => {
       const fakeAccountDetails = { userId: 'user-123', accountId: 'account-123' }
       mockGetStore.mockReturnValue({
         getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
-      })
+      } as unknown as Store)
       const fakeError = new Error('Failed to get expenses')
       mockGetExpensesGateway.mockRejectedValue(fakeError)
 
