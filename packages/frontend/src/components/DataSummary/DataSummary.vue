@@ -9,6 +9,7 @@ const selectedYear = ref(new Date().getUTCFullYear())
 
 <template>
   <MonthlyTotalSummary v-model:month="selectedMonth" v-model:year="selectedYear" />
+
   <MonthlyCategorySummary :month="selectedMonth" :year="selectedYear" />
 </template>
 

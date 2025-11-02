@@ -6,7 +6,7 @@
     "build:dev": "tsc && NODE_ENV=dev drizzle-kit migrate",
     "start": "node dist/src/server.js",
     "start:dev": "NODE_ENV=dev node dist/src/server.js",
-    "local": "tsx --env-file ./env/.env.local --env-file ./env/.env.local.notsafe NODE_ENV=local src/server.ts",
+    "local": "NODE_ENV=local tsx --env-file ./env/.env.local --env-file ./env/.env.local.notsafe src/server.ts",
     "test:e2e": "npx playwright test e2e",
     "test:unit": "jest src --passWithNoTests",
     "test:all": "npm run test:unit && npm run test:e2e",

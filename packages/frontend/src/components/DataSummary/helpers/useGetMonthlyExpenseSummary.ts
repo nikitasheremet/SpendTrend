@@ -85,7 +85,8 @@ export function useGetMonthlyExpenseSummary(
         selectedYear,
         3,
       )
-      categorySummary.diffTotalToAvg = categorySummary.total - categorySummary.threeMonthAvg
+      categorySummary.diffTotalToAvg =
+        Math.round((categorySummary.total - categorySummary.threeMonthAvg) * 100) / 100
       categorySummary.diffTotalToAvgAsPercent =
         categorySummary.threeMonthAvg === 0
           ? undefined
@@ -112,7 +113,7 @@ export function useGetMonthlyExpenseSummary(
           3,
         )
         subCategorySummary.diffTotalToAvg =
-          subCategorySummary.total - subCategorySummary.threeMonthAvg
+          Math.round((subCategorySummary.total - subCategorySummary.threeMonthAvg) * 100) / 100
         subCategorySummary.diffTotalToAvgAsPercent =
           subCategorySummary.threeMonthAvg === 0
             ? undefined
@@ -146,7 +147,7 @@ class ExpenseSummary {
     this.totalAmount = totalAmount
     const threeMonthAverage = getExpenseAverage(allExpenses, selectedMonth, selectedYear, 3)
     this.threeMonthAverage = threeMonthAverage
-    this.diffTotalToAverage = totalAmount - threeMonthAverage
+    this.diffTotalToAverage = Math.round((totalAmount - threeMonthAverage) * 100) / 100
     this.diffTotalToAverageAsPercent =
       threeMonthAverage === 0
         ? undefined
@@ -165,7 +166,7 @@ class IncomeSummary {
     this.totalAmount = totalAmount
     const threeMonthAverage = getIncomeAverage(allIncomes, selectedMonth, selectedYear, 3)
     this.threeMonthAverage = threeMonthAverage
-    this.diffTotalToAverage = totalAmount - threeMonthAverage
+    this.diffTotalToAverage = Math.round((totalAmount - threeMonthAverage) * 100) / 100
     this.diffTotalToAverageAsPercent =
       threeMonthAverage === 0
         ? undefined

@@ -23,8 +23,8 @@ defineEmits<{
   position: absolute;
   top: 0;
   left: 0;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   z-index: 2000;
   background: rgba(0, 0, 0, 0.8);
   display: flex;
