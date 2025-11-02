@@ -3,6 +3,7 @@ import { deleteSubCategory } from '../deleteSubCategory'
 import { deleteExpenseSubCategory } from '@/gateway/expenseSubCategory/deleteExpenseSubCategory'
 import { getStore } from '@/store/store'
 import type { ExpenseSubCategory } from '@/types/expenseData'
+import { Store } from '@/store/storeInterface'
 
 vi.mock('@/gateway/expenseSubCategory/deleteExpenseSubCategory')
 vi.mock('@/store/store')
@@ -21,7 +22,7 @@ describe('deleteSubcategory', () => {
     vi.resetAllMocks()
     mockGetStore.mockReturnValue({
       getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
-    })
+    } as unknown as Store)
   })
 
   describe('when deleteSubcategory is successful', () => {
@@ -41,7 +42,7 @@ describe('deleteSubcategory', () => {
         getAccountDetails: vi.fn().mockImplementation(() => {
           throw fakeError
         }),
-      })
+      } as unknown as Store)
 
       await expect(deleteSubCategory('subcategory-123')).rejects.toThrow(fakeError)
     })
