@@ -11,5 +11,5 @@ export function getTotalExpensesForSelectedMonth(
     amount: expense.amount,
   }))
   const totalForMonth = getTotalAmountForMonth(formattedData, selectedMonth, selectedYear)
-  return totalForMonth
+  return Math.round(totalForMonth * 100) / 100
 }

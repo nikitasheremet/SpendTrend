@@ -6,16 +6,12 @@ import router from './router'
 import { createStore } from './store/store'
 
 async function initializeApp() {
-  const app = createApp(App)
-
-  createStore()
+  await createStore()
 
   app.use(router)
   app.mount('#app')
 }
 
 const app = createApp(App)
-
-app.use(router)
 
 initializeApp()

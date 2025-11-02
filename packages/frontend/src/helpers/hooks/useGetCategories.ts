@@ -1,6 +1,7 @@
 import { getCategories } from '@/service/categories/getCategories'
+import { getStore } from '@/store/store'
 import type { ExpenseCategory } from '@/types/expenseData'
-import { computed, onMounted, ref, type ComputedRef, type Ref } from 'vue'
+import { computed, onMounted, ref, watch, type ComputedRef, type Ref } from 'vue'
 
 export function useCategoriesInExpenseData(): {
   categories: Ref<ExpenseCategory[]>
@@ -12,13 +13,15 @@ export function useCategoriesInExpenseData(): {
   getSubCategoryId: (categoryId?: string, subCategoryName?: string) => string
   getCategory: (categoryName: string) => ExpenseCategory
 } {
-  const categories = ref<ExpenseCategory[]>([])
+  const store = getStore()
+  const categories = ref<ExpenseCategory[]>(store.categories)
 
-  onMounted(() => {
-    getCategories().then((response) => {
-      categories.value = response
-    })
-  })
+  watch(
+    () => store.categories,
+    (newCategories) => {
+      categories.value = newCategories
+    },
+  )
 
   const categoryNames = computed(() => {
     return categories.value.map((category) => category.name)

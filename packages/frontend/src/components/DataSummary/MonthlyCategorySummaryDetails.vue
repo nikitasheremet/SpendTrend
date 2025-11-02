@@ -15,15 +15,43 @@ function showSubcategories() {
 
 <template>
   <tr>
-    <td @click="showSubcategories">{{ category.name }}</td>
+    <td
+      class="category-name"
+      :class="{ expandable: category.subCategories.length }"
+      @click="showSubcategories"
+    >
+      {{ category.name }}
+      <span class="expand-icon"
+        ><span v-if="isSubcategoryDetailsShown">▼</span
+        ><span v-else-if="category.subCategories.length">▶</span></span
+      >
+    </td>
     <td>{{ category.total }}</td>
     <td>{{ category.threeMonthAvg }}</td>
     <td>{{ category.diffTotalToAvg }}</td>
-    <td>{{ category.diffTotalToAvgAsPercent }}</td>
+    <td>% {{ category.diffTotalToAvgAsPercent }}</td>
   </tr>
   <template v-if="isSubcategoryDetailsShown">
     <MonthlySubcategorySummary :summaryForSelectedMonthBySubcategory="category.subCategories" />
   </template>
 </template>
 
-<style scoped></style>
+<style scoped>
+.expandable {
+  cursor: pointer;
+}
+.category-name {
+  display: flex;
+  justify-content: space-between;
+}
+td {
+  min-width: 150px;
+  font-size: 20px;
+}
+th {
+  text-align: left;
+}
+.expand-icon {
+  margin-right: 20px;
+}
+</style>

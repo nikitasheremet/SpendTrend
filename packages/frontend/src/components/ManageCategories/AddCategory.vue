@@ -5,6 +5,7 @@ import { useControlModal } from '../DesignSystem/Modal/useControlModal'
 import type { ExpenseCategory } from '@/types/expenseData'
 import { useAddCategory } from './hooks/useAddCategory'
 import Error from '../DesignSystem/Error.vue'
+import Input from '../DesignSystem/Input.vue'
 
 const { isModalOpen: isAddCategoryModalOpen, openModal, closeModal } = useControlModal()
 
@@ -12,12 +13,7 @@ const emits = defineEmits<{
   categoryAdded: [ExpenseCategory]
 }>()
 
-function newCategoryAdded(newCategory: ExpenseCategory) {
-  emits('categoryAdded', newCategory)
-  closeModal()
-}
-
-const { newCategoriesValue, addCategory, error } = useAddCategory(newCategoryAdded)
+const { newCategoriesValue, addCategory, error } = useAddCategory()
 
 const isSaveCategoryDisabled = computed(() => Boolean(!newCategoriesValue.value))
 
@@ -29,7 +25,7 @@ function handleAddCategory() {
 <template>
   <button @click="handleAddCategory">Add Category</button>
   <Modal :is-modal-open="isAddCategoryModalOpen" @modal-closed="closeModal">
-    <input id="add-category-input" type="text" v-model="newCategoriesValue" />
+    <Input id="add-category-input" type="text" v-model="newCategoriesValue" />
     <button @click="addCategory" :disabled="isSaveCategoryDisabled">Save Category</button>
     <Error v-if="error" :error="error" />
   </Modal>

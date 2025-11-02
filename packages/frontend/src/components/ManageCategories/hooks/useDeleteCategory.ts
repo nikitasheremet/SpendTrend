@@ -1,6 +1,7 @@
 import type { ExpenseCategory } from '@/types/expenseData'
 import { ref, type Ref } from 'vue'
 import { deleteCategory as serviceDeleteCategory } from '@/service/categories/deleteCategory'
+import { getStore } from '@/store/store'
 
 export function useDeleteCategory(
   category: ExpenseCategory,
@@ -19,7 +20,7 @@ export function useDeleteCategory(
     }
     try {
       await serviceDeleteCategory(category.id)
-      categoryDeletedCallback(category)
+      getStore().deleteCategory(category.id)
     } catch (err) {
       error.value = err as Error
     }
