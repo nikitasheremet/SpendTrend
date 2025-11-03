@@ -31,12 +31,32 @@ function formatData() {
     .map((data) => ({
       date: data.date,
       name: data.name,
-      amount: data.amount,
+      amount: Math.abs(data.amount),
     }))
   newIncomes.value = newIncomesToAdd
 }
 
 const currentTab = ref<'expense' | 'income'>('expense')
+
+function moveToIncome(expense: NewExpense) {
+  newIncomes.value.push({
+    date: expense.date,
+    name: expense.name,
+    amount: expense.amount,
+  })
+}
+
+function moveToExpense(income: NewIncome) {
+  newExpenses.value.push({
+    date: income.date || '',
+    name: income.name || '',
+    amount: income.amount || 0,
+    netAmount: income.amount || 0,
+    paidBackAmount: 0,
+    category: '',
+    subCategory: '',
+  })
+}
 </script>
 
 <template>
@@ -51,10 +71,10 @@ const currentTab = ref<'expense' | 'income'>('expense')
     </button>
   </div>
   <div :class="{ hidden: currentTab !== 'expense' }">
-    <AddExpenseTable :newExpenses="newExpenses" />
+    <AddExpenseTable v-model="newExpenses" @moveToIncome="moveToIncome" />
   </div>
   <div :class="{ hidden: currentTab !== 'income' }">
-    <AddIncomeTable :newIncomes="newIncomes" />
+    <AddIncomeTable v-model="newIncomes" @moveToExpense="moveToExpense" />
   </div>
 </template>
 

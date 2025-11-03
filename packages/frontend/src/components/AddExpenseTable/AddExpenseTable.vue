@@ -6,22 +6,21 @@ import Error from '../DesignSystem/Error.vue'
 import { NewExpense } from '@/types/expenseData'
 import { ref, watch } from 'vue'
 
-const { newExpenses } = defineProps<{
-  newExpenses: NewExpense[]
+const newExpenses = defineModel<NewExpense[]>({ required: true })
+
+const emit = defineEmits<{
+  moveToIncome: [expense: NewExpense]
 }>()
 
-const newExpenseRows = ref<NewExpense[]>(newExpenses)
-
-watch(
-  () => newExpenses,
-  (newVal, oldVal) => {
-    newExpenseRows.value = [...newVal, ...oldVal]
-  },
-  { deep: true },
-)
-
 const { newExpenseData, addExpense, addNewExpenseRow, deleteNewExpenseRow, error } =
-  useAddExpense(newExpenseRows)
+  useAddExpense(newExpenses)
+
+function moveToIncome(indexOfExpenseToMove: number) {
+  const expenseToMove = newExpenseData.value[indexOfExpenseToMove]
+  emit('moveToIncome', expenseToMove)
+
+  deleteNewExpenseRow(indexOfExpenseToMove)
+}
 </script>
 
 <template>
@@ -32,6 +31,9 @@ const { newExpenseData, addExpense, addNewExpenseRow, deleteNewExpenseRow, error
         <AddNewExpenseRow v-model="newExpenseData[index]" />
         <td v-if="newExpenseData.length > 1">
           <button @click="deleteNewExpenseRow(index)">Delete</button>
+        </td>
+        <td>
+          <button @click="moveToIncome(index)">Move to Income</button>
         </td>
       </tr>
     </tbody>

@@ -22,23 +22,12 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
   deleteNewExpenseRow: (index: number) => void
   error: Ref<Error | undefined>
 } {
-  const newExpenseData = ref<NewExpense[]>(
-    newExpenses.value.length ? newExpenses.value : [createNewEmptyExpenseData()],
-  )
   const error = ref<Error | undefined>(undefined)
 
   watch(
     newExpenses,
-    (newVal, oldVal) => {
-      newExpenseData.value = [...newVal, ...oldVal]
-    },
-    { deep: true },
-  )
-
-  watch(
-    newExpenseData,
     () => {
-      newExpenseData.value.forEach((expense) => {
+      newExpenses.value.forEach((expense) => {
         expense.netAmount = (expense.amount || 0) - (expense.paidBackAmount || 0)
       })
     },
@@ -47,9 +36,9 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
 
   async function addExpense() {
     try {
-      newExpenseData.value.forEach(verifyNewExpenseData)
-      await Promise.all(newExpenseData.value.map(addNewExpense))
-      newExpenseData.value = [createNewEmptyExpenseData()]
+      newExpenses.value.forEach(verifyNewExpenseData)
+      await Promise.all(newExpenses.value.map(addNewExpense))
+      newExpenses.value = [createNewEmptyExpenseData()]
     } catch (err) {
       console.log('Error adding new expense:', err)
       error.value = err as Error
@@ -57,15 +46,15 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
   }
 
   function addNewExpenseRow() {
-    newExpenseData.value.push(createNewEmptyExpenseData())
+    newExpenses.value.push(createNewEmptyExpenseData())
   }
 
   function deleteNewExpenseRow(index: number) {
-    newExpenseData.value.splice(index, 1)
+    newExpenses.value.splice(index, 1)
   }
 
   return {
-    newExpenseData,
+    newExpenseData: newExpenses,
     addExpense,
     addNewExpenseRow,
     deleteNewExpenseRow,
