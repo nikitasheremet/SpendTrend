@@ -1,4 +1,4 @@
-import { ref, watch, type Ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import { addNewIncome } from '@/service/income/addNewIncome'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 import { NewIncome } from '@/types/income/income'
@@ -18,26 +18,15 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
   deleteNewIncomeRow: (index: number) => void
   error: Ref<Error | undefined>
 } {
-  const newIncomeData = ref<NewIncome[]>(
-    newIncome.value.length ? newIncome.value : [createNewEmptyIncomeData()],
-  )
   const error = ref<Error | undefined>(undefined)
-
-  watch(
-    newIncome,
-    (newVal, oldVal) => {
-      newIncomeData.value = [...newVal, ...oldVal]
-    },
-    { deep: true },
-  )
 
   async function addIncome() {
     try {
-      newIncomeData.value.forEach(verifyNewIncomeData)
+      newIncome.value.forEach(verifyNewIncomeData)
       await Promise.all(
-        newIncomeData.value.map((newIncome) => addNewIncome(newIncome as Required<NewIncome>)),
+        newIncome.value.map((newIncome) => addNewIncome(newIncome as Required<NewIncome>)),
       )
-      newIncomeData.value = [createNewEmptyIncomeData()]
+      newIncome.value = [createNewEmptyIncomeData()]
     } catch (err) {
       console.log('Error adding new income:', err)
       error.value = err as Error
@@ -45,15 +34,15 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
   }
 
   function addNewIncomeRow() {
-    newIncomeData.value.push(createNewEmptyIncomeData())
+    newIncome.value.push(createNewEmptyIncomeData())
   }
 
   function deleteNewIncomeRow(index: number) {
-    newIncomeData.value.splice(index, 1)
+    newIncome.value.splice(index, 1)
   }
 
   return {
-    newIncomeData,
+    newIncomeData: newIncome,
     addIncome,
     addNewIncomeRow,
     deleteNewIncomeRow,

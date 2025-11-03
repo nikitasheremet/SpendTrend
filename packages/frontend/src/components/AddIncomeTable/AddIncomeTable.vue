@@ -6,22 +6,21 @@ import { NewIncome } from '@/types/income/income'
 import { ref, watch } from 'vue'
 import IncomeDataTableHead from '../IncomeDataTable/IncomeDataTableHead.vue'
 
-const { newIncomes } = defineProps<{
-  newIncomes: NewIncome[]
+const newIncomes = defineModel<NewIncome[]>({ required: true })
+
+const emit = defineEmits<{
+  moveToExpense: [income: NewIncome]
 }>()
 
-const newIncomesRows = ref<NewIncome[]>(newIncomes)
-
-watch(
-  () => newIncomes,
-  (newVal, oldVal) => {
-    newIncomesRows.value = [...newVal, ...oldVal]
-  },
-  { deep: true },
-)
-
 const { newIncomeData, addIncome, addNewIncomeRow, deleteNewIncomeRow, error } =
-  useAddIncome(newIncomesRows)
+  useAddIncome(newIncomes)
+
+function moveToExpense(indexOfIncomeToMove: number) {
+  const incomeToMove = newIncomeData.value[indexOfIncomeToMove]
+  emit('moveToExpense', incomeToMove)
+
+  deleteNewIncomeRow(indexOfIncomeToMove)
+}
 </script>
 
 <template>
@@ -32,6 +31,9 @@ const { newIncomeData, addIncome, addNewIncomeRow, deleteNewIncomeRow, error } =
         <AddNewIncomeRow v-model="newIncomeData[index]" />
         <td v-if="newIncomeData.length > 1">
           <button @click="deleteNewIncomeRow(index)">Delete</button>
+        </td>
+        <td>
+          <button @click="moveToExpense(index)">Move to Expense</button>
         </td>
       </tr>
     </tbody>

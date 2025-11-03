@@ -16,22 +16,27 @@ const { categories, error, newCategoriesAdded, categoryDeleted } = useGetCategor
 </script>
 
 <template>
-  <div id="manage-categories" :class="{ visible: isOpen }">
-    <div id="manage-categories-header">
-      <h2>Manage Categories</h2>
-      <button @click="emit('closeManageCategories')">Close</button>
+  <div class="manage-categories-wrapper">
+    <div id="manage-categories" :class="{ visible: isOpen }">
+      <div id="manage-categories-header">
+        <h2>Manage Categories</h2>
+        <button @click="emit('closeManageCategories')">Close</button>
+      </div>
+      <AddCategory @category-added="newCategoriesAdded" />
+      <ul>
+        <li v-for="category in categories" :key="category.name">
+          <CategoryView :category="category" @category-deleted="categoryDeleted" />
+        </li>
+      </ul>
     </div>
-    <AddCategory @category-added="newCategoriesAdded" />
-    <ul>
-      <li v-for="category in categories" :key="category.name">
-        <CategoryView :category="category" @category-deleted="categoryDeleted" />
-      </li>
-    </ul>
+    <Error v-if="error" :error="error" />
   </div>
-  <Error v-if="error" :error="error" />
 </template>
 
 <style scoped>
+.manage-categories-wrapper {
+  position: relative;
+}
 #manage-categories-header {
   display: flex;
   justify-content: space-between;
