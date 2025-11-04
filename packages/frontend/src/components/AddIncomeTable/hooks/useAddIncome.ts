@@ -17,16 +17,22 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
   addNewIncomeRow: () => void
   deleteNewIncomeRow: (index: number) => void
   error: Ref<Error | undefined>
+  validationErrorsIndexes: Ref<number[]>
 } {
   const error = ref<Error | undefined>(undefined)
+  const validationErrorsIndexes = ref<number[]>([])
 
   async function addIncome() {
     try {
-      newIncome.value.forEach(verifyNewIncomeData)
+      validationErrorsIndexes.value = verifyNewIncomeData(newIncome.value)
+      if (validationErrorsIndexes.value.length > 0) {
+        throw new Error('Validation errors in highlighted rows. Please fill in required fields')
+      }
       await Promise.all(
         newIncome.value.map((newIncome) => addNewIncome(newIncome as Required<NewIncome>)),
       )
       newIncome.value = [createNewEmptyIncomeData()]
+      error.value = undefined
     } catch (err) {
       console.log('Error adding new income:', err)
       error.value = err as Error
@@ -47,17 +53,26 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
     addNewIncomeRow,
     deleteNewIncomeRow,
     error,
+    validationErrorsIndexes,
   }
 }
 
-function verifyNewIncomeData(newIncomeData: NewIncome): void {
-  if (!newIncomeData.name) {
-    throw new Error('Name is required')
-  }
-  if (!newIncomeData.amount) {
-    throw new Error('Amount is required')
-  }
-  if (!newIncomeData.date) {
-    throw new Error('Date is required')
-  }
+function verifyNewIncomeData(newIncomeData: NewIncome[]): number[] {
+  const arrayOfErrorRows: number[] = []
+  newIncomeData.forEach((income, index) => {
+    try {
+      if (!income.name) {
+        throw new Error('Name is required')
+      }
+      if (!income.amount) {
+        throw new Error('Amount is required')
+      }
+      if (!income.date) {
+        throw new Error('Date is required')
+      }
+    } catch (err) {
+      arrayOfErrorRows.push(index)
+    }
+  })
+  return arrayOfErrorRows
 }

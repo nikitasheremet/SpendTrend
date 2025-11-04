@@ -3,9 +3,9 @@
 <template>
   <thead>
     <tr>
-      <th>Date</th>
-      <th>Name</th>
-      <th>Amount</th>
+      <th>Date*</th>
+      <th>Name*</th>
+      <th>Amount*</th>
       <th></th>
     </tr>
   </thead>
