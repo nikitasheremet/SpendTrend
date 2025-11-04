@@ -3,12 +3,12 @@
 <template>
   <thead>
     <tr>
-      <th>Date</th>
-      <th>Name</th>
+      <th>Date*</th>
+      <th>Name*</th>
       <th>Net Amount</th>
-      <th>Amount</th>
+      <th>Amount*</th>
       <th>Paid Back</th>
-      <th>Category</th>
+      <th>Category*</th>
       <th>Subcategory</th>
       <th></th>
     </tr>

@@ -12,8 +12,14 @@ const emit = defineEmits<{
   moveToExpense: [income: NewIncome]
 }>()
 
-const { newIncomeData, addIncome, addNewIncomeRow, deleteNewIncomeRow, error } =
-  useAddIncome(newIncomes)
+const {
+  newIncomeData,
+  addIncome,
+  addNewIncomeRow,
+  deleteNewIncomeRow,
+  error,
+  validationErrorsIndexes,
+} = useAddIncome(newIncomes)
 
 function moveToExpense(indexOfIncomeToMove: number) {
   const incomeToMove = newIncomeData.value[indexOfIncomeToMove]
@@ -27,7 +33,12 @@ function moveToExpense(indexOfIncomeToMove: number) {
   <table>
     <IncomeDataTableHead />
     <tbody>
-      <tr class="new-income-row" v-for="(_, index) in newIncomeData" :key="index">
+      <tr
+        class="new-income-row"
+        :class="{ 'has-errors': validationErrorsIndexes.includes(index) }"
+        v-for="(_, index) in newIncomeData"
+        :key="index"
+      >
         <AddNewIncomeRow v-model="newIncomeData[index]" />
         <td v-if="newIncomeData.length > 1">
           <button @click="deleteNewIncomeRow(index)">Delete</button>
@@ -44,6 +55,9 @@ function moveToExpense(indexOfIncomeToMove: number) {
 </template>
 
 <style scoped>
+.has-errors {
+  background-color: #ffcccc;
+}
 table {
   border-collapse: collapse;
 }
