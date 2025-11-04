@@ -27,7 +27,7 @@ function moveToIncome(indexOfExpenseToMove: number) {
   <table>
     <ExpenseDataTableHead />
     <tbody>
-      <tr v-for="(_, index) in newExpenseData" :key="index">
+      <tr class="new-expense-row" v-for="(_, index) in newExpenseData" :key="index">
         <AddNewExpenseRow v-model="newExpenseData[index]" />
         <td v-if="newExpenseData.length > 1">
           <button @click="deleteNewExpenseRow(index)">Delete</button>
@@ -43,4 +43,14 @@ function moveToIncome(indexOfExpenseToMove: number) {
   <Error v-if="error" :error="error" />
 </template>
 
-<style scoped></style>
+<style scoped>
+table {
+  border-collapse: collapse;
+}
+td {
+  padding: 5px;
+}
+.new-expense-row:hover {
+  background-color: lightgray;
+}
+</style>
