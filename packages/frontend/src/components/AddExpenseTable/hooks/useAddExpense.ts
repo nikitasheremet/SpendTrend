@@ -21,8 +21,10 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
   addNewExpenseRow: () => void
   deleteNewExpenseRow: (index: number) => void
   error: Ref<Error | undefined>
+  validationErrorsIndexes: Ref<number[]>
 } {
   const error = ref<Error | undefined>(undefined)
+  const validationErrorsIndexes = ref<number[]>([])
 
   watch(
     newExpenses,
@@ -36,9 +38,13 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
 
   async function addExpense() {
     try {
-      newExpenses.value.forEach(verifyNewExpenseData)
+      validationErrorsIndexes.value = verifyNewExpenseData(newExpenses.value)
+      if (validationErrorsIndexes.value.length > 0) {
+        throw new Error('Validation errors in highlighted rows. Please fill in required fields')
+      }
       await Promise.all(newExpenses.value.map(addNewExpense))
       newExpenses.value = [createNewEmptyExpenseData()]
+      error.value = undefined
     } catch (err) {
       console.log('Error adding new expense:', err)
       error.value = err as Error
@@ -59,11 +65,29 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
     addNewExpenseRow,
     deleteNewExpenseRow,
     error,
+    validationErrorsIndexes,
   }
 }
 
-function verifyNewExpenseData(newExpenseData: NewExpense): void {
-  if (!newExpenseData.date) {
-    throw new Error('Date is required')
-  }
+function verifyNewExpenseData(newExpenseData: NewExpense[]): number[] {
+  const arrayOfErrorRows: number[] = []
+  newExpenseData.forEach((expense, index) => {
+    try {
+      if (!expense.date) {
+        throw new Error('Date is required')
+      }
+      if (!expense.name) {
+        throw new Error('Name is required')
+      }
+      if (!expense.amount) {
+        throw new Error('Amount is required')
+      }
+      if (!expense.category) {
+        throw new Error('Category is required')
+      }
+    } catch (err) {
+      arrayOfErrorRows.push(index)
+    }
+  })
+  return arrayOfErrorRows
 }

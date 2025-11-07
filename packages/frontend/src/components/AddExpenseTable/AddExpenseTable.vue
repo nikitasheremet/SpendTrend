@@ -12,8 +12,14 @@ const emit = defineEmits<{
   moveToIncome: [expense: NewExpense]
 }>()
 
-const { newExpenseData, addExpense, addNewExpenseRow, deleteNewExpenseRow, error } =
-  useAddExpense(newExpenses)
+const {
+  newExpenseData,
+  addExpense,
+  addNewExpenseRow,
+  deleteNewExpenseRow,
+  error,
+  validationErrorsIndexes,
+} = useAddExpense(newExpenses)
 
 function moveToIncome(indexOfExpenseToMove: number) {
   const expenseToMove = newExpenseData.value[indexOfExpenseToMove]
@@ -27,7 +33,12 @@ function moveToIncome(indexOfExpenseToMove: number) {
   <table>
     <ExpenseDataTableHead />
     <tbody>
-      <tr v-for="(_, index) in newExpenseData" :key="index">
+      <tr
+        class="new-expense-row"
+        :class="{ 'has-error': validationErrorsIndexes.includes(index) }"
+        v-for="(_, index) in newExpenseData"
+        :key="index"
+      >
         <AddNewExpenseRow v-model="newExpenseData[index]" />
         <td v-if="newExpenseData.length > 1">
           <button @click="deleteNewExpenseRow(index)">Delete</button>
@@ -43,4 +54,17 @@ function moveToIncome(indexOfExpenseToMove: number) {
   <Error v-if="error" :error="error" />
 </template>
 
-<style scoped></style>
+<style scoped>
+.has-error {
+  background-color: #ffcccc;
+}
+table {
+  border-collapse: collapse;
+}
+td {
+  padding: 5px;
+}
+.new-expense-row:hover {
+  background-color: lightgray;
+}
+</style>
