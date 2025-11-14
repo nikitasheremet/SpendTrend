@@ -42,7 +42,7 @@ const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(monthModel, year
 
 <template>
   <div id="monthly-summary-grid">
-    <div style="display: flex; align-items: baseline; margin-bottom: 1rem">
+    <div class="flex items-center mb-8">
       <h4>Data for:</h4>
       <div class="selectors">
         <select v-model="monthModel">

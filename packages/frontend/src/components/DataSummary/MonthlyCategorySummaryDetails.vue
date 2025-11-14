@@ -45,8 +45,7 @@ function showSubcategories() {
   justify-content: space-between;
 }
 td {
-  min-width: 150px;
-  font-size: 20px;
+  /* min-width: 150px; */
 }
 th {
   text-align: left;

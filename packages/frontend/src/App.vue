@@ -12,18 +12,16 @@ const isLoggedIn = ref(false)
 const isManageCategoriesOpen = ref(false)
 
 onMounted(async () => {
-  const isUserLoggedIn = await isUserSessionActive()
-  if (!isUserLoggedIn) {
+  isLoggedIn.value = await isUserSessionActive()
+  if (!isLoggedIn.value) {
     router.push(LOGIN_PATH)
-    return
   }
-
-  isLoggedIn.value = true
 })
 
 async function logout() {
   if (window.confirm('Are you sure you want to logout?')) {
     await authClient.signOut()
+    isLoggedIn.value = false
     router.push(LOGIN_PATH)
   }
 }
@@ -35,6 +33,7 @@ function toggleManageCategories() {
 
 <template>
   <NavigationBar
+    v-if="isLoggedIn"
     :is-logged-in="isLoggedIn"
     @logout="logout"
     @manage-categories-clicked="toggleManageCategories"
