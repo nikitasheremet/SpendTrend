@@ -1,4 +1,4 @@
-import { ref, watch, type Ref } from 'vue'
+import { onMounted, ref, watch, type Ref } from 'vue'
 import { addNewExpense } from '@/service/expenses/addNewExpense'
 import { NewExpense } from '@/types/expenseData'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
@@ -26,9 +26,18 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
   const error = ref<Error | undefined>(undefined)
   const validationErrorsIndexes = ref<number[]>([])
 
+  onMounted(() => {
+    if (newExpenses.value.length === 0) {
+      newExpenses.value.push(createNewEmptyExpenseData())
+    }
+  })
+
   watch(
     newExpenses,
     () => {
+      if (newExpenses.value.length === 0) {
+        newExpenses.value.push(createNewEmptyExpenseData())
+      }
       newExpenses.value.forEach((expense) => {
         expense.netAmount = (expense.amount || 0) - (expense.paidBackAmount || 0)
       })

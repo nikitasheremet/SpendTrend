@@ -3,6 +3,7 @@ import type { Expense } from '@/types/expenseData'
 import ExpenseDataCell from './EditableCell/ExpenseDataCell.vue'
 import { useManageExpense } from './hooks/useUpdateExpense'
 import { useCategoriesInExpenseData } from '@/helpers/hooks/useGetCategories'
+import Button from '../DesignSystem/Button/Button.vue'
 
 const { expense } = defineProps<{ expense: Expense }>()
 const emits = defineEmits<{
@@ -48,7 +49,7 @@ const onSaveSubCategory = async (name: string) => {
       type="text"
       @on-save="(value) => updateExpense(value, 'name')"
     />
-    <td>{{ expenseData.netAmount }}</td>
+    <td class="border p-1">{{ expenseData.netAmount }}</td>
     <ExpenseDataCell
       :data="expenseData.amount!"
       type="number"
@@ -71,8 +72,8 @@ const onSaveSubCategory = async (name: string) => {
       :options="getSubcategories(expenseData.category.id)"
       @on-save="(value) => onSaveSubCategory(value as string)"
     />
-    <td>
-      <button class="delete-expense-button" @click="deleteExpense">Delete</button>
+    <td class="text-center p-1">
+      <Button class="delete-expense-button" @click="deleteExpense">Delete</Button>
     </td>
   </tr>
 </template>

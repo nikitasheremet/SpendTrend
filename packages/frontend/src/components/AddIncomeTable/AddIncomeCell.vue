@@ -20,7 +20,7 @@ const dropdownModel = computed({
 </script>
 
 <template>
-  <td>
+  <td class="border p-1">
     <DropdownWithInput
       v-if="type === 'dropdown'"
       :dropdown-options="dropdownOptions"

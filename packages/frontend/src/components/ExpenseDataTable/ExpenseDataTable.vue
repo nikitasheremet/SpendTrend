@@ -1,19 +1,30 @@
 <script setup lang="ts">
-import ExpenseDataTableHead from '../ExpenseDataTableHead.vue'
+import ExpenseDataTableHead from '../TableHeaders.vue'
 import { useGetExpenses } from './hooks/useGetExpenses'
 import Error from '../DesignSystem/Error.vue'
 import ExpenseRow from './ExpenseRow.vue'
+import TableHeaders from '../TableHeaders.vue'
 
 const { expenses, error, expenseDeleted } = useGetExpenses()
 
 function handleRowError(newError: Error) {
   error.value = newError
 }
+const tableHeaders = [
+  { label: 'Date', customClass: 'w-1/7' },
+  { label: 'Name', customClass: 'w-1/4' },
+  { label: 'Net Amount' },
+  { label: 'Amount' },
+  { label: 'Paid Back' },
+  { label: 'Category' },
+  { label: 'Subcategory' },
+  { label: '' },
+]
 </script>
 
 <template>
-  <table>
-    <ExpenseDataTableHead />
+  <table class="w-full table-fixed mb-5">
+    <TableHeaders :headers="tableHeaders" />
     <tbody>
       <ExpenseRow
         v-for="expense of expenses"

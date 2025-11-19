@@ -49,7 +49,12 @@ const navigationLinks = [
       >
         Manage Categories
       </Button>
-      <Button classToAdd="hover:text-black/50" v-if="isLoggedIn" @click="emit('logout')">
+      <Button
+        classToAdd="hover:text-black/50"
+        type="empty"
+        v-if="isLoggedIn"
+        @click="emit('logout')"
+      >
         Logout
       </Button>
     </div>

@@ -2,6 +2,7 @@
 import type { Income } from '@/types/income/income'
 import IncomeDataCell from './EditableCell/IncomeDataCell.vue'
 import { useManageIncome } from './hooks/useUpdateIncome'
+import Button from '../DesignSystem/Button/Button.vue'
 
 const { income } = defineProps<{ income: Income }>()
 const emits = defineEmits<{
@@ -34,8 +35,8 @@ const { incomeData, updateIncome, deleteIncome } = useManageIncome(income, onErr
       type="number"
       @on-save="(value) => updateIncome(value, 'amount')"
     />
-    <td>
-      <button class="delete-income-button" @click="deleteIncome">Delete</button>
+    <td class="px-5">
+      <Button class="delete-income-button" @click="deleteIncome">Delete</Button>
     </td>
   </tr>
 </template>

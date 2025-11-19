@@ -53,7 +53,7 @@ async function handleUpdateComplete(value: string | number) {
 </script>
 
 <template>
-  <td @click="turnOnEditMode" :class="{ editModeOn: isEditMode }">
+  <td class="border p-1" @click="turnOnEditMode" :class="{ editModeOn: isEditMode }">
     <UpdateView
       v-if="isEditMode"
       @on-update-complete="handleUpdateComplete"

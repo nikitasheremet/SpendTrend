@@ -4,9 +4,13 @@ defineEmits(['dropdownOptionClick'])
 </script>
 
 <template>
-  <div class="bg-red-50">
-    <div class="dropdown-options" v-for="option of options">
-      <span @click="$emit('dropdownOptionClick', option)">{{ option }}</span>
+  <div class="absolute z-2000 bg-white w-full border p-1">
+    <div
+      class="p-1 hover:bg-gray-100/50"
+      v-for="option of options"
+      @click="$emit('dropdownOptionClick', option)"
+    >
+      <span>{{ option }}</span>
     </div>
   </div>
 </template>
