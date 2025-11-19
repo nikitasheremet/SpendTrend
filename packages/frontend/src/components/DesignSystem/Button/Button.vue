@@ -1,10 +1,16 @@
 <script setup lang="ts">
-const { classToAdd } = defineProps<{
-  classToAdd: string
+const primaryClass = 'bg-gray-200 px-3.5 py-1.5 rounded-md hover:bg-gray-200/50'
+const classMap = {
+  primary: primaryClass,
+  empty: '',
+}
+const { classToAdd, type = 'primary' } = defineProps<{
+  classToAdd?: string
+  type?: keyof typeof classMap
 }>()
 
 const defaultClass = 'cursor-pointer'
-const buttonClass = defaultClass + ' ' + classToAdd
+const buttonClass = defaultClass + ' ' + (classToAdd || '') + ' ' + (classMap[type] || '')
 </script>
 <template>
   <button :class="buttonClass"><slot></slot></button>

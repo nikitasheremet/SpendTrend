@@ -3,8 +3,8 @@ import AddNewIncomeRow from './AddNewIncomeRow.vue'
 import { useAddIncome } from './hooks/useAddIncome'
 import Error from '../DesignSystem/Error.vue'
 import { NewIncome } from '@/types/income/income'
-import { ref, watch } from 'vue'
-import IncomeDataTableHead from '../IncomeDataTable/IncomeDataTableHead.vue'
+import Button from '../DesignSystem/Button/Button.vue'
+import TableHeaders from '../TableHeaders.vue'
 
 const newIncomes = defineModel<NewIncome[]>({ required: true })
 
@@ -27,44 +27,39 @@ function moveToExpense(indexOfIncomeToMove: number) {
 
   deleteNewIncomeRow(indexOfIncomeToMove)
 }
+
+const tableHeaders = [
+  { label: 'Date', required: true },
+  { label: 'Name', required: true },
+  { label: 'Amount', required: true },
+]
 </script>
 
 <template>
-  <table>
-    <IncomeDataTableHead />
+  <table class="w-200 table-fixed mb-5">
+    <TableHeaders :headers="tableHeaders" />
     <tbody>
       <tr
-        class="new-income-row"
-        :class="{ 'has-errors': validationErrorsIndexes.includes(index) }"
+        class="hover:bg-gray-100/50"
+        :class="{ 'bg-red-300/50 hover:bg-red-300/50': validationErrorsIndexes.includes(index) }"
         v-for="(_, index) in newIncomeData"
         :key="index"
       >
         <AddNewIncomeRow v-model="newIncomeData[index]" />
-        <td v-if="newIncomeData.length > 1">
-          <button @click="deleteNewIncomeRow(index)">Delete</button>
+        <td class="text-center p-1" v-if="newIncomeData.length > 1">
+          <Button class="w-8/10 text-sm" @click="deleteNewIncomeRow(index)">Delete</Button>
         </td>
-        <td>
-          <button @click="moveToExpense(index)">Move to Expense</button>
+        <td class="p-1">
+          <Button class="text-sm" @click="moveToExpense(index)">>> Expense</Button>
         </td>
       </tr>
     </tbody>
   </table>
-  <button @click="addNewIncomeRow">Add New Income Row</button>
-  <button @click="addIncome">Save Income</button>
+  <div class="flex gap-5">
+    <Button @click="addNewIncomeRow">Add New Income Row</Button>
+    <Button @click="addIncome">Save Income</Button>
+  </div>
   <Error v-if="error" :error="error" />
 </template>
 
-<style scoped>
-.has-errors {
-  background-color: #ffcccc;
-}
-table {
-  border-collapse: collapse;
-}
-td {
-  padding: 5px;
-}
-.new-income-row:hover {
-  background-color: lightgray;
-}
-</style>
+<style scoped></style>
