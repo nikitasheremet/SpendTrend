@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import ExpenseDataTableHead from '../ExpenseDataTableHead.vue'
 import AddNewExpenseRow from './AddNewExpenseRow.vue'
 import { useAddExpense } from './hooks/useAddExpense'
 import Error from '../DesignSystem/Error.vue'
 import { NewExpense } from '@/types/expenseData'
-import { ref, watch } from 'vue'
+import Button from '../DesignSystem/Button/Button.vue'
+import TableHeaders from '../TableHeaders.vue'
 
 const newExpenses = defineModel<NewExpense[]>({ required: true })
 
@@ -27,44 +27,44 @@ function moveToIncome(indexOfExpenseToMove: number) {
 
   deleteNewExpenseRow(indexOfExpenseToMove)
 }
+
+const tableHeaders = [
+  { label: 'Date', required: true },
+  { label: 'Name', required: true, customClass: 'w-1/4' },
+  { label: 'Net Amount', required: false },
+  { label: 'Amount', required: true },
+  { label: 'Paid Back', required: false },
+  { label: 'Category', required: true },
+  { label: 'Subcategory', required: false },
+  { label: '', required: false },
+]
 </script>
 
 <template>
-  <table>
-    <ExpenseDataTableHead />
+  <table class="w-full table-fixed mb-5">
+    <TableHeaders :headers="tableHeaders" />
     <tbody>
       <tr
-        class="new-expense-row"
-        :class="{ 'has-error': validationErrorsIndexes.includes(index) }"
+        class="hover:bg-gray-100/50"
+        :class="{ 'bg-red-300/50 hover:bg-red-300/50': validationErrorsIndexes.includes(index) }"
         v-for="(_, index) in newExpenseData"
         :key="index"
       >
         <AddNewExpenseRow v-model="newExpenseData[index]" />
-        <td v-if="newExpenseData.length > 1">
-          <button @click="deleteNewExpenseRow(index)">Delete</button>
+        <td class="text-center p-1" v-if="newExpenseData.length > 1">
+          <Button class="w-8/10 text-sm" @click="deleteNewExpenseRow(index)">Delete</Button>
         </td>
-        <td>
-          <button @click="moveToIncome(index)">Move to Income</button>
+        <td class="p-1 text-nowrap">
+          <Button class="w-full text-sm" @click="moveToIncome(index)">>> Income</Button>
         </td>
       </tr>
     </tbody>
   </table>
-  <button @click="addNewExpenseRow">Add New Expense Row</button>
-  <button @click="addExpense">Save Expense</button>
+  <div class="flex gap-5">
+    <Button @click="addNewExpenseRow">Add New Expense Row</Button>
+    <Button @click="addExpense">Save Expense</Button>
+  </div>
   <Error v-if="error" :error="error" />
 </template>
 
-<style scoped>
-.has-error {
-  background-color: #ffcccc;
-}
-table {
-  border-collapse: collapse;
-}
-td {
-  padding: 5px;
-}
-.new-expense-row:hover {
-  background-color: lightgray;
-}
-</style>
+<style scoped></style>

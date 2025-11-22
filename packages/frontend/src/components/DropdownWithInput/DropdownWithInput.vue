@@ -63,7 +63,7 @@ function handleInputBlur(event: FocusEvent) {
   // If no relatedTarget, or the relatedTarget it not the parent element class name then the blur happned because of an interaction with an
   // element external to this component
   const isBlurOutsideDropdownInput =
-    !eventRelatedTarget || eventRelatedTarget.className !== 'dropdown-input'
+    !eventRelatedTarget || eventRelatedTarget.classList.contains('dropdown-input') === false
 
   if (isBlurOutsideDropdownInput) {
     eventTarget.parentNode?.dispatchEvent(new Event('blur'))
@@ -80,7 +80,7 @@ function handleInputBlur(event: FocusEvent) {
 </script>
 
 <template>
-  <div class="dropdown-input" @blur="hideCategoryOptions" tabindex="-1">
+  <div class="relative dropdown-input" @blur="hideCategoryOptions" tabindex="-1">
     <Input
       :autofocus="autofocus"
       v-model="model"
@@ -90,25 +90,13 @@ function handleInputBlur(event: FocusEvent) {
       @keyup.enter="blurInput"
       @keyup.esc="(e: KeyboardEvent) => blurInput(e, true)"
     />
-    <div class="options">
-      <DropdownOptions
-        v-if="dropdownInputFocus"
-        @dropdown-option-click="setInput"
-        :options="listOfOptionsToDisplay"
-      />
-    </div>
+
+    <DropdownOptions
+      v-if="dropdownInputFocus"
+      @dropdown-option-click="setInput"
+      :options="listOfOptionsToDisplay"
+    />
   </div>
 </template>
 
-<style scoped>
-.dropdown-input {
-  position: relative;
-}
-.options {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 1000;
-  background-color: black;
-}
-</style>
+<style scoped></style>

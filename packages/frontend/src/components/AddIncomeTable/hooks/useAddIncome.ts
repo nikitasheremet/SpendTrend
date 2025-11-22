@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue'
+import { onMounted, ref, watch, type Ref } from 'vue'
 import { addNewIncome } from '@/service/income/addNewIncome'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 import { NewIncome } from '@/types/income/income'
@@ -21,6 +21,22 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
 } {
   const error = ref<Error | undefined>(undefined)
   const validationErrorsIndexes = ref<number[]>([])
+
+  onMounted(() => {
+    if (newIncome.value.length === 0) {
+      newIncome.value.push(createNewEmptyIncomeData())
+    }
+  })
+
+  watch(
+    newIncome,
+    () => {
+      if (newIncome.value.length === 0) {
+        newIncome.value.push(createNewEmptyIncomeData())
+      }
+    },
+    { deep: true },
+  )
 
   async function addIncome() {
     try {
