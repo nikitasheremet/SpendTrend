@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import { authClient } from '../lib/auth-client'
 import router from '@/router'
+import Button from '@/components/DesignSystem/Button/Button.vue'
 
 onMounted(async () => {
   const { data: session } = await authClient.getSession()
@@ -23,10 +24,10 @@ async function signIn() {
 </script>
 
 <template>
-  <div id="login-view">
-    <h1>Login</h1>
+  <div class="flex flex-col items-center justify-center h-full gap-4">
+    <h1 class="text-2xl font-bold">Login</h1>
     <p>Please click the button below to sign in with Google.</p>
-    <button @click="signIn">Sign In with Google</button>
+    <Button @click="signIn">Sign In with Google</Button>
   </div>
 </template>
 

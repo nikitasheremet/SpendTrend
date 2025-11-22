@@ -15,15 +15,4 @@ defineEmits(['dropdownOptionClick'])
   </div>
 </template>
 
-<style>
-.dropdown-options {
-  color: black;
-}
-.options {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 1000;
-  background-color: black;
-}
-</style>
+<style></style>

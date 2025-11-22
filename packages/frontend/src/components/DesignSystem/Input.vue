@@ -2,7 +2,8 @@
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 
-const inputId = Math.random().toString(36).substring(2, 15)
+import { useAttrs } from 'vue'
+const attrs = useAttrs()
 
 const { autofocus, type = 'string' } = defineProps<{
   autofocus?: boolean
@@ -43,20 +44,18 @@ const transformedModel = computed({
 </script>
 
 <template>
-  <div class="group relative w-full">
-    <input
-      :id="inputId"
-      class="w-full px-2 truncate is-truncated"
-      ref="input-ref"
-      v-model="transformedModel"
-      :type="type"
-    />
-    <div
-      v-if="showTooltip"
-      class="group-hover:visible absolute left-0 invisible z-5000 whitespace-normal bg-gray-800 text-white text-sm p-2 rounded"
-    >
-      {{ transformedModel }}
-    </div>
+  <input
+    class="w-full px-2 truncate is-truncated peer"
+    ref="input-ref"
+    v-model="transformedModel"
+    :type="type"
+    v-bind="attrs"
+  />
+  <div
+    v-if="showTooltip"
+    class="peer-hover:visible absolute left-0 invisible z-5000 whitespace-normal bg-gray-800 text-white text-sm p-2 rounded"
+  >
+    {{ transformedModel }}
   </div>
 </template>
 
