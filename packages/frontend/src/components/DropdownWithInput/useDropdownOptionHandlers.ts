@@ -16,7 +16,7 @@ export function useDropdownOptionHandlers({ dropdownOptions }: { dropdownOptions
       dropdownInputFocus.value = true
     }
     listOfOptionsToDisplay.value = dropdownOptions.filter((listItem) =>
-      listItem.includes(inputValue),
+      listItem.toLowerCase().includes(inputValue.toLowerCase()),
     )
   }
 
