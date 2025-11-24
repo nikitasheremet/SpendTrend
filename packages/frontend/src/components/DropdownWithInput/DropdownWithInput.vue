@@ -4,8 +4,8 @@ import Input from '@/components/DesignSystem/Input.vue'
 import DropdownOptions from './DropdownOptions.vue'
 import { useDropdownOptionHandlers } from './useDropdownOptionHandlers'
 
-const model = defineModel<string | undefined>()
-const { dropdownOptions, autofocus } = defineProps<{
+const dropdownInputModel = defineModel<string | undefined>()
+const props = defineProps<{
   dropdownOptions: string[]
   autofocus?: boolean
 }>()
@@ -24,11 +24,11 @@ const {
   dropdownInputFocus,
   filterListBasedOnInput,
 } = useDropdownOptionHandlers({
-  dropdownOptions,
+  dropdownOptions: () => props.dropdownOptions,
 })
 
 watch(
-  () => dropdownOptions,
+  () => props.dropdownOptions,
   (newDropdownOptions) => {
     listOfOptionsToDisplay.value = newDropdownOptions
   },
@@ -38,7 +38,7 @@ function isInputValid(input: string) {
   if (!input) {
     return true
   }
-  return Boolean(dropdownOptions.find((dropdownOption) => dropdownOption === input))
+  return Boolean(props.dropdownOptions.find((dropdownOption) => dropdownOption === input))
 }
 
 function handleInput(event: Event) {
@@ -48,7 +48,7 @@ function handleInput(event: Event) {
   filterListBasedOnInput(targetValue)
 }
 function setInput(valueSelected: string) {
-  model.value = valueSelected
+  dropdownInputModel.value = valueSelected
   hideCategoryOptions()
 }
 
@@ -83,7 +83,7 @@ function handleInputBlur(event: FocusEvent) {
   <div class="relative dropdown-input" @blur="hideCategoryOptions" tabindex="-1">
     <Input
       :autofocus="autofocus"
-      v-model="model"
+      v-model="dropdownInputModel"
       @input="handleInput"
       @focus="showCategoryOptions"
       @blur="handleInputBlur"
