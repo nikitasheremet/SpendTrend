@@ -1,8 +1,12 @@
-import { ref } from 'vue'
+import { MaybeRefOrGetter, Ref, ref, toValue } from 'vue'
 
-export function useDropdownOptionHandlers({ dropdownOptions }: { dropdownOptions: string[] }) {
+export function useDropdownOptionHandlers({
+  dropdownOptions,
+}: {
+  dropdownOptions: MaybeRefOrGetter<string[]>
+}) {
   const dropdownInputFocus = ref(false)
-  const listOfOptionsToDisplay = ref(dropdownOptions)
+  const listOfOptionsToDisplay = ref(toValue(dropdownOptions))
 
   function hideCategoryOptions() {
     dropdownInputFocus.value = false
@@ -15,7 +19,11 @@ export function useDropdownOptionHandlers({ dropdownOptions }: { dropdownOptions
     if (!dropdownInputFocus.value) {
       dropdownInputFocus.value = true
     }
-    listOfOptionsToDisplay.value = dropdownOptions.filter((listItem) =>
+    if (!inputValue.trim()) {
+      listOfOptionsToDisplay.value = toValue(dropdownOptions)
+      return
+    }
+    listOfOptionsToDisplay.value = toValue(dropdownOptions).filter((listItem) =>
       listItem.toLowerCase().includes(inputValue.toLowerCase()),
     )
   }
