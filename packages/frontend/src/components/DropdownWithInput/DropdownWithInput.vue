@@ -59,11 +59,11 @@ function blurInput(event: KeyboardEvent, isEscapeKey?: boolean) {
 function handleInputBlur(event: FocusEvent) {
   const eventTarget = event.target as HTMLInputElement
   const eventRelatedTarget = event.relatedTarget as HTMLElement
+  const parentElement = eventTarget.parentElement
 
-  // If no relatedTarget, or the relatedTarget it not the parent element class name then the blur happned because of an interaction with an
-  // element external to this component
+  // Check if the relatedTarget is a descendant of the dropdown-input parent
   const isBlurOutsideDropdownInput =
-    !eventRelatedTarget || eventRelatedTarget.classList.contains('dropdown-input') === false
+    !eventRelatedTarget || !parentElement?.contains(eventRelatedTarget)
 
   if (isBlurOutsideDropdownInput) {
     eventTarget.parentNode?.dispatchEvent(new Event('blur'))
@@ -73,8 +73,6 @@ function handleInputBlur(event: FocusEvent) {
     } else {
       emit('blur')
     }
-  } else {
-    eventTarget.focus()
   }
 }
 </script>
