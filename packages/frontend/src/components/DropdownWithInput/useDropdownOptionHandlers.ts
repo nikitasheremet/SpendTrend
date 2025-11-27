@@ -10,6 +10,7 @@ export function useDropdownOptionHandlers({
 
   function hideCategoryOptions() {
     dropdownInputFocus.value = false
+    listOfOptionsToDisplay.value = toValue(dropdownOptions)
   }
   function showCategoryOptions() {
     dropdownInputFocus.value = true
