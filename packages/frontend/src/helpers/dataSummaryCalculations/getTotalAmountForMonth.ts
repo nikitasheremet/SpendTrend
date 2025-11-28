@@ -1,8 +1,11 @@
-import { isSameMonth } from 'date-fns/isSameMonth'
-
 interface DataToTotal {
   date: string
   amount: number
+}
+
+function isSameMonthCustom(dateStr: string, year: number, month: number): boolean {
+  const [expenseYear, expenseMonth] = dateStr.split('-')
+  return parseInt(expenseYear) === year && parseInt(expenseMonth) === month + 1 // month is 0-based
 }
 
 export function getTotalAmountForMonth(
@@ -10,11 +13,9 @@ export function getTotalAmountForMonth(
   selectedMonth: number,
   selectedYear: number,
 ): number {
-  const selectedMonthYearDate = new Date(selectedYear, selectedMonth, 15)
   return data.reduce((total, item) => {
-    const itemDate = new Date(item.date)
-    if (isSameMonth(selectedMonthYearDate, itemDate)) {
-      return (total = total + item.amount)
+    if (isSameMonthCustom(item.date, selectedYear, selectedMonth)) {
+      return total + item.amount
     }
     return total
   }, 0)
