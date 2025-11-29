@@ -4,6 +4,8 @@ import Input from '../DesignSystem/Input.vue'
 import type { ExpenseCategory, ExpenseSubCategory } from '@/types/expenseData'
 import { useAddSubCategory } from './hooks/useAddSubCategory'
 import Error from '../DesignSystem/Error.vue'
+import { computed, watch } from 'vue'
+import Spinner from '../DesignSystem/Spinner.vue'
 
 const isOpen = defineModel<boolean>({ required: true })
 const { category } = defineProps<{
@@ -14,11 +16,18 @@ const emits = defineEmits<{
   subCategoryAdded: [ExpenseSubCategory]
 }>()
 
-const { newSubCategoryValue, addSubCategory, error } = useAddSubCategory(category)
+const { newSubCategoryValue, addSubCategory, error, loading } = useAddSubCategory(category)
+
+const isSaveDisabled = computed(() => !newSubCategoryValue.value.trim() || loading.value)
+
+watch(loading, (newVal) => {
+  if (!newVal && !error.value) {
+    closeAddSubCategoryModal()
+  }
+})
 
 async function handleAddSubCategory() {
   await addSubCategory()
-  closeAddSubCategoryModal()
 }
 
 function closeAddSubCategoryModal() {
@@ -28,9 +37,15 @@ function closeAddSubCategoryModal() {
 
 <template>
   <Modal :is-modal-open="isOpen" @modal-closed="closeAddSubCategoryModal">
-    <Input type="text" placeholder="Subcategory name" v-model="newSubCategoryValue" />
-    <button @click="handleAddSubCategory">Save Subcategory</button>
-    <Error v-if="error" :error="error" />
+    <div v-if="loading" class="flex flex-col items-center gap-4">
+      <Spinner />
+      <p>Adding subcategory...</p>
+    </div>
+    <div v-else>
+      <Input type="text" placeholder="Subcategory name" v-model="newSubCategoryValue" />
+      <button @click="handleAddSubCategory" :disabled="isSaveDisabled">Save Subcategory</button>
+      <Error v-if="error" :error="error" />
+    </div>
   </Modal>
 </template>
 
