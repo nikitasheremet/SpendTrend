@@ -2,6 +2,7 @@ import { onMounted, ref, watch, type Ref } from 'vue'
 import { addNewExpense } from '@/service/expenses/addNewExpense'
 import { NewExpense } from '@/types/expenseData'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
+import { useLoading } from '@/helpers/hooks/useLoading'
 
 function createNewEmptyExpenseData(): NewExpense {
   return {
@@ -22,9 +23,11 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
   deleteNewExpenseRow: (index: number) => void
   error: Ref<Error | undefined>
   validationErrorsIndexes: Ref<number[]>
+  loading: Ref<boolean>
 } {
   const error = ref<Error | undefined>(undefined)
   const validationErrorsIndexes = ref<number[]>([])
+  const { loading, startLoading, stopLoading } = useLoading()
 
   onMounted(() => {
     if (newExpenses.value.length === 0) {
@@ -46,6 +49,7 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
   )
 
   async function addExpense() {
+    startLoading()
     try {
       validationErrorsIndexes.value = verifyNewExpenseData(newExpenses.value)
       if (validationErrorsIndexes.value.length > 0) {
@@ -54,9 +58,11 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
       await Promise.all(newExpenses.value.map(addNewExpense))
       newExpenses.value = [createNewEmptyExpenseData()]
       error.value = undefined
+      stopLoading()
     } catch (err) {
       console.log('Error adding new expense:', err)
       error.value = err as Error
+      stopLoading()
     }
   }
 
@@ -75,6 +81,7 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
     deleteNewExpenseRow,
     error,
     validationErrorsIndexes,
+    loading,
   }
 }
 
