@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Spinner from '../Spinner.vue'
+
 const { isModalOpen, message } = defineProps<{
   isModalOpen: boolean
   message?: string
@@ -15,9 +17,7 @@ const { isModalOpen, message } = defineProps<{
       id="loading-modal-inner-container"
       class="p-6 bg-white rounded-lg flex flex-col items-center gap-4"
     >
-      <div
-        class="loading-spinner w-10 h-10 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"
-      ></div>
+      <Spinner />
       <p class="loading-message text-base text-gray-800 m-0">{{ message || 'Loading...' }}</p>
     </div>
   </div>
