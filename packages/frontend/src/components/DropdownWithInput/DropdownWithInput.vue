@@ -80,6 +80,7 @@ function handleInputBlur(event: FocusEvent) {
 <template>
   <div class="relative dropdown-input" @blur="hideCategoryOptions" tabindex="-1">
     <Input
+      class="border-none"
       :autofocus="autofocus"
       v-model="dropdownInputModel"
       @input="handleInput"

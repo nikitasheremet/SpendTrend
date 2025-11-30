@@ -6,6 +6,7 @@ import { useAddSubCategory } from './hooks/useAddSubCategory'
 import Error from '../DesignSystem/Error.vue'
 import { computed, watch } from 'vue'
 import Spinner from '../DesignSystem/Spinner.vue'
+import Button from '../DesignSystem/Button/Button.vue'
 
 const isOpen = defineModel<boolean>({ required: true })
 const { category } = defineProps<{
@@ -36,14 +37,20 @@ function closeAddSubCategoryModal() {
 </script>
 
 <template>
-  <Modal :is-modal-open="isOpen" @modal-closed="closeAddSubCategoryModal">
+  <Modal
+    class="w-9/10"
+    :is-modal-open="isOpen"
+    @modal-closed="closeAddSubCategoryModal"
+    close-text="X"
+  >
     <div v-if="loading" class="flex flex-col items-center gap-4">
       <Spinner />
       <p>Adding subcategory...</p>
     </div>
-    <div v-else>
-      <Input type="text" placeholder="Subcategory name" v-model="newSubCategoryValue" />
-      <button @click="handleAddSubCategory" :disabled="isSaveDisabled">Save Subcategory</button>
+    <div v-else class="flex flex-col gap-4">
+      <p>Enter new Subcategory name:</p>
+      <Input type="text" v-model="newSubCategoryValue" />
+      <Button @click="handleAddSubCategory" :disabled="isSaveDisabled">Save Subcategory</Button>
       <Error v-if="error" :error="error" />
     </div>
   </Modal>

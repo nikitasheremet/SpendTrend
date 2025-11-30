@@ -38,11 +38,11 @@ function toggleManageCategories() {
     @logout="logout"
     @manage-categories-clicked="toggleManageCategories"
   />
+  <ManageCategories
+    :is-open="isManageCategoriesOpen"
+    @close-manage-categories="isManageCategoriesOpen = false"
+  />
   <div id="page-wrapper">
-    <ManageCategories
-      :is-open="isManageCategoriesOpen"
-      @close-manage-categories="isManageCategoriesOpen = false"
-    />
     <RouterView />
   </div>
 </template>

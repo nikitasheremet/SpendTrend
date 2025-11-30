@@ -32,7 +32,7 @@ const inputModel = computed({
       :dropdown-options="dropdownOptions" 
       v-model="(model as string | undefined)"
     />
-    <Input v-else :type="type" v-model="inputModel" />
+    <Input class="border-none" v-else :type="type" v-model="inputModel" />
   </td>
 </template>
 

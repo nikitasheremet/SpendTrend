@@ -35,7 +35,7 @@ const { incomeData, updateIncome, deleteIncome } = useManageIncome(income, onErr
       type="number"
       @on-save="(value) => updateIncome(value, 'amount')"
     />
-    <td class="px-5">
+    <td class="p-1">
       <Button class="delete-income-button" @click="deleteIncome">Delete</Button>
     </td>
   </tr>

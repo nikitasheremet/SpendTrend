@@ -74,7 +74,7 @@ watch(
 
 <template>
   <input
-    class="w-full px-2 truncate is-truncated peer"
+    class="w-full px-2 truncate is-truncated peer border border-gray-500 rounded-sm"
     ref="input-ref"
     v-model="transformedModel"
     :type="type"

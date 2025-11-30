@@ -3,6 +3,7 @@ import CategoryView from './CategoryView.vue'
 import AddCategory from './AddCategory.vue'
 import { useGetCategories } from './hooks/useGetCategories'
 import Error from '../DesignSystem/Error.vue'
+import Button from '@/components/DesignSystem/Button/Button.vue'
 
 const { isOpen } = defineProps<{
   isOpen: boolean
@@ -16,50 +17,32 @@ const { categories, error, newCategoriesAdded, categoryDeleted } = useGetCategor
 </script>
 
 <template>
-  <div class="manage-categories-wrapper">
-    <div id="manage-categories" :class="{ visible: isOpen }">
-      <div id="manage-categories-header">
-        <h2>Manage Categories</h2>
-        <button @click="emit('closeManageCategories')">Close</button>
+  <Transition
+    enter-from-class="translate-x-full"
+    enter-to-class="translate-x-0"
+    leave-from-class="translate-x-0"
+    leave-to-class="translate-x-full"
+    enter-active-class="transition-transform duration-300 ease-in-out"
+    leave-active-class="transition-transform duration-300 ease-in-out"
+  >
+    <div
+      id="manage-categories"
+      v-show="isOpen"
+      class="fixed border bg-gray-50 z-2000 p-5 top-21 right-0 h-[calc(100vh-85px)] box-border min-w-[30vw] max-w-[50vw] shadow-xl"
+    >
+      <div id="manage-categories-header" class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold">Your Expense Categories</h2>
+        <Button class="font-semibold" @click="emit('closeManageCategories')">X</Button>
       </div>
       <AddCategory @category-added="newCategoriesAdded" />
       <ul>
-        <li v-for="category in categories" :key="category.name">
+        <li class="mb-4" v-for="category in categories" :key="category.name">
           <CategoryView :category="category" @category-deleted="categoryDeleted" />
         </li>
       </ul>
     </div>
-    <Error v-if="error" :error="error" />
-  </div>
+  </Transition>
+  <Error v-if="error" :error="error" />
 </template>
 
-<style scoped>
-.manage-categories-wrapper {
-  position: relative;
-}
-#manage-categories-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-#manage-categories {
-  background-color: #f9f9f9;
-  z-index: 2000;
-  padding: 20px;
-  transition: opacity 0.3s ease;
-  opacity: 0;
-  pointer-events: none;
-  position: absolute;
-  right: -20px;
-  top: -20px;
-  /* I got 76 to make it look correct but I would think it should be - 60 -20 but that left a tiny bit of space */
-  height: calc(100vh - 76px);
-  box-sizing: border-box;
-  min-width: 30vw;
-  max-width: 50vw;
-}
-#manage-categories.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-</style>
+<style scoped></style>
