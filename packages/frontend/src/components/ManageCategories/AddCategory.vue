@@ -7,6 +7,7 @@ import { useAddCategory } from './hooks/useAddCategory'
 import Error from '../DesignSystem/Error.vue'
 import Input from '../DesignSystem/Input.vue'
 import Spinner from '../DesignSystem/Spinner.vue'
+import Button from '../DesignSystem/Button/Button.vue'
 
 const { isModalOpen: isAddCategoryModalOpen, openModal, closeModal } = useControlModal()
 
@@ -30,15 +31,21 @@ function handleAddCategory() {
 </script>
 
 <template>
-  <button @click="handleAddCategory">Add Category</button>
-  <Modal :is-modal-open="isAddCategoryModalOpen" @modal-closed="closeModal">
+  <Button class="mb-4" @click="handleAddCategory">Add Category</Button>
+  <Modal
+    class="w-9/10"
+    :is-modal-open="isAddCategoryModalOpen"
+    @modal-closed="closeModal"
+    close-text="X"
+  >
     <div v-if="loading" class="flex flex-col items-center gap-4">
       <Spinner />
       <p>Adding category...</p>
     </div>
-    <div v-else>
+    <div v-else class="flex flex-col gap-4">
+      <p>Enter new Category name:</p>
       <Input id="add-category-input" type="text" v-model="newCategoriesValue" />
-      <button @click="addCategory" :disabled="isSaveCategoryDisabled">Save Category</button>
+      <Button @click="addCategory" :disabled="isSaveCategoryDisabled">Save Category</Button>
       <Error v-if="error" :error="error" />
     </div>
   </Modal>

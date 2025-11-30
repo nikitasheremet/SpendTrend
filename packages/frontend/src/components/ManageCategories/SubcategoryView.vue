@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ExpenseSubCategory } from '@/types/expenseData'
+import Button from '../DesignSystem/Button/Button.vue'
 
 const { subCategories } = defineProps<{
   subCategories: ExpenseSubCategory[]
@@ -10,30 +11,20 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <ul>
+  <ul class="ml-10 mb-5">
     <li v-for="subCategory in subCategories" :key="subCategory.id">
-      <div style="margin: 10px 0 10px 0">
+      <div class="my-2.5">
         <p style="display: inline; margin-right: 10px">{{ subCategory.name }}</p>
-        <button
-          style="font-size: 8px"
+        <Button
+          type="secondary"
+          class="text-xs p-1!"
           @click="() => emits('subCategoryDeleteClicked', subCategory)"
         >
-          Delete
-        </button>
+          🗑
+        </Button>
       </div>
     </li>
   </ul>
 </template>
 
-<style scoped>
-.subcategory-wrapper {
-  margin: 10px 0 10px 0;
-}
-.subcategory-text {
-  display: inline;
-  margin-right: 10px;
-}
-.subcategory-delete-button {
-  font-size: 8px;
-}
-</style>
+<style scoped></style>
