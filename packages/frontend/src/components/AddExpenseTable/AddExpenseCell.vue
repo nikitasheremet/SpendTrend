@@ -10,17 +10,9 @@ const { type = 'string', dropdownOptions = [] } = defineProps<{
   dropdownOptions?: string[]
 }>()
 
-const dropdownModel = computed({
-  get() {
-    return model.value as string | undefined
-  },
-  set(value: string | undefined) {
-    model.value = value
-  },
-})
 const inputModel = computed({
   get() {
-    return model.value as string | undefined
+    return model.value as string | number | undefined
   },
   set(value: string | undefined) {
     if (type === 'date') {
@@ -34,12 +26,13 @@ const inputModel = computed({
 
 <template>
   <td class="border p-1">
+    <!-- prettier-ignore -->
     <DropdownWithInput
       v-if="type === 'dropdown'"
-      :dropdown-options="dropdownOptions"
-      v-model="dropdownModel"
+      :dropdown-options="dropdownOptions" 
+      v-model="(model as string | undefined)"
     />
-    <Input v-else :type="type" v-model="inputModel" />
+    <Input class="border-none" v-else :type="type" v-model="inputModel" />
   </td>
 </template>
 

@@ -5,6 +5,7 @@ import Error from '../DesignSystem/Error.vue'
 import { NewIncome } from '@/types/income/income'
 import Button from '../DesignSystem/Button/Button.vue'
 import TableHeaders from '../TableHeaders.vue'
+import LoadingModal from '../DesignSystem/Modal/LoadingModal.vue'
 
 const newIncomes = defineModel<NewIncome[]>({ required: true })
 
@@ -19,6 +20,7 @@ const {
   deleteNewIncomeRow,
   error,
   validationErrorsIndexes,
+  loading,
 } = useAddIncome(newIncomes)
 
 function moveToExpense(indexOfIncomeToMove: number) {
@@ -60,6 +62,7 @@ const tableHeaders = [
     <Button @click="addIncome">Save Income</Button>
   </div>
   <Error v-if="error" :error="error" />
+  <LoadingModal :isModalOpen="loading" message="Saving incomes..." />
 </template>
 
 <style scoped></style>

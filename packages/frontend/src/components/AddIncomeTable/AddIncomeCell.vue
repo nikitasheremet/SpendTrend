@@ -26,7 +26,7 @@ const dropdownModel = computed({
       :dropdown-options="dropdownOptions"
       v-model="dropdownModel"
     />
-    <Input v-else :type="type" v-model="model" />
+    <Input class="border-none" :type="type" v-model="model" />
   </td>
 </template>
 

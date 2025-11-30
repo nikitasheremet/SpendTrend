@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
-import { computed, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import { useAttrs } from 'vue'
 const attrs = useAttrs()
@@ -11,6 +11,11 @@ const { autofocus, type = 'string' } = defineProps<{
 }>()
 const model = defineModel<string | number | Date>()
 
+const emits = defineEmits<{
+  blur: [event: FocusEvent]
+  focus: [event: FocusEvent]
+}>()
+
 const showTooltip = ref(false)
 
 const inputRef = useTemplateRef('input-ref')
@@ -19,6 +24,17 @@ onMounted(() => {
     inputRef.value?.focus()
   }
 })
+
+function showHideTooltip() {
+  const el = inputRef.value
+  const elementTooLong = el && el.scrollWidth > el.clientWidth
+  const isFocused = document.activeElement === el
+  if (elementTooLong && transformedModel.value && !isFocused) {
+    showTooltip.value = true
+  } else {
+    showTooltip.value = false
+  }
+}
 
 const transformedModel = computed({
   get() {
@@ -32,28 +48,43 @@ const transformedModel = computed({
       model.value = new Date(value).getTime()
     } else {
       model.value = value
-      const el = inputRef.value
-      if (el && el.scrollWidth > el.clientWidth) {
-        showTooltip.value = true
-      } else {
-        showTooltip.value = false
-      }
     }
   },
 })
+
+function inputBlurred(event: FocusEvent) {
+  showHideTooltip()
+  emits('blur', event)
+}
+
+function inputFocused(event: FocusEvent) {
+  showHideTooltip()
+  emits('focus', event)
+}
+
+watch(
+  [transformedModel, model],
+  async (newValue) => {
+    await nextTick()
+    showHideTooltip()
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
   <input
-    class="w-full px-2 truncate is-truncated peer"
+    class="w-full px-2 truncate is-truncated peer border border-gray-500 rounded-sm"
     ref="input-ref"
     v-model="transformedModel"
     :type="type"
+    @blur="inputBlurred"
+    @focus="inputFocused"
     v-bind="attrs"
   />
   <div
     v-if="showTooltip"
-    class="peer-hover:visible absolute left-0 invisible z-5000 whitespace-normal bg-gray-800 text-white text-sm p-2 rounded"
+    class="peer-hover:visible absolute invisible z-5000 whitespace-normal bg-gray-800 text-white text-sm p-2 rounded"
   >
     {{ transformedModel }}
   </div>

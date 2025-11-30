@@ -8,6 +8,7 @@ import { useManageSubCategories } from './hooks/useManageSubcategories'
 import { useControlModal } from '../DesignSystem/Modal/useControlModal'
 import { useControlCategoryOptions } from './hooks/useControlCategoryOptions'
 import Error from '../DesignSystem/Error.vue'
+import Button from '../DesignSystem/Button/Button.vue'
 
 const { category } = defineProps<{
   category: ExpenseCategory
@@ -38,23 +39,44 @@ function handleCategoryClick() {
   showSubCategories.value = !showSubCategories.value
 }
 
+const categoryOptions = [
+  { name: 'Add SubCategory', action: openAddSubCategoryModal },
+  { name: 'Delete Category', action: deleteCategory },
+]
+
 const error = deleteCategoryError || deleteSubCategoryError
 </script>
 
 <template>
   <div>
     <div>
-      <span style="position: relative">
+      <span class="relative flex items-center">
         <p
           @click="handleCategoryClick"
-          style="display: inline; margin-right: 10px; cursor: pointer"
+          class="inline mr-2.5"
+          :class="{ 'cursor-pointer': subCategories.length }"
         >
           {{ category.name }}
+          <span v-if="subCategories.length" class="text-xs">{{
+            showSubCategories ? '▼' : '▶'
+          }}</span>
         </p>
-        <button style="font-size: 8px" @click="toggleOptions" @blur="closeOptions">Options</button>
-        <div class="category-options" v-if="isOptionsOpen">
-          <button @click="openAddSubCategoryModal">Add SubCategory</button>
-          <button @click="deleteCategory">Delete Category</button>
+        <Button type="secondary" class="text-xs p-1!" @click="toggleOptions" @blur="closeOptions"
+          >⋮</Button
+        >
+        <div
+          class="category-options absolute top-8 left-0 z-1000 bg-gray-50 flex flex-col gap-1 w-38 shadow-xs border"
+          v-if="isOptionsOpen"
+        >
+          <span
+            v-for="option in categoryOptions"
+            :key="option.name"
+            class="hover:bg-gray-200 px-3.5 py-1.5 rounded-md"
+          >
+            <Button :key="option.name" type="text" @click="option.action">
+              {{ option.name }}
+            </Button>
+          </span>
         </div>
       </span>
     </div>
@@ -72,11 +94,4 @@ const error = deleteCategoryError || deleteSubCategoryError
   <Error v-if="error" :error="error" />
 </template>
 
-<style scoped>
-.category-options {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 1000;
-}
-</style>
+<style scoped></style>

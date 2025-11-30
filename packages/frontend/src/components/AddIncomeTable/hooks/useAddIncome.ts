@@ -2,6 +2,7 @@ import { onMounted, ref, watch, type Ref } from 'vue'
 import { addNewIncome } from '@/service/income/addNewIncome'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 import { NewIncome } from '@/types/income/income'
+import { useLoading } from '@/helpers/hooks/useLoading'
 
 function createNewEmptyIncomeData(): NewIncome {
   return {
@@ -18,9 +19,11 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
   deleteNewIncomeRow: (index: number) => void
   error: Ref<Error | undefined>
   validationErrorsIndexes: Ref<number[]>
+  loading: Ref<boolean>
 } {
   const error = ref<Error | undefined>(undefined)
   const validationErrorsIndexes = ref<number[]>([])
+  const { loading, startLoading, stopLoading } = useLoading()
 
   onMounted(() => {
     if (newIncome.value.length === 0) {
@@ -39,6 +42,7 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
   )
 
   async function addIncome() {
+    startLoading()
     try {
       validationErrorsIndexes.value = verifyNewIncomeData(newIncome.value)
       if (validationErrorsIndexes.value.length > 0) {
@@ -49,9 +53,11 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
       )
       newIncome.value = [createNewEmptyIncomeData()]
       error.value = undefined
+      stopLoading()
     } catch (err) {
       console.log('Error adding new income:', err)
       error.value = err as Error
+      stopLoading()
     }
   }
 
@@ -70,6 +76,7 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
     deleteNewIncomeRow,
     error,
     validationErrorsIndexes,
+    loading,
   }
 }
 

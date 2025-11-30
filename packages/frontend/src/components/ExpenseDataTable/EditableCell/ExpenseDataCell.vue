@@ -36,7 +36,9 @@ function turnOffEditMode() {
 
 const formattedCellData = computed(() => {
   if (type === 'date') {
-    return cellData.value ? formatDate(cellData.value!, DateFormat.DD_MMMM_YYYY) : ''
+    return cellData.value
+      ? formatDate(cellData.value!, DateFormat.DD_MMMM_YYYY, { ignoreTimezone: true })
+      : ''
   }
   return cellData.value
 })
