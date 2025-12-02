@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { DASHBOARD_PATH } from '@/router/paths'
 import Button from '@/components/DesignSystem/Button/Button.vue'
+import { useScrollPast } from '@/helpers/hooks/useScrollPast'
 
 const isLoggedIn = defineProps<{
   isLoggedIn: boolean
@@ -18,6 +19,9 @@ router.afterEach((to) => {
   currentRoute.value = to.path
 })
 
+const navigationRef = ref<HTMLElement | null>(null)
+const { hasScrolledPast } = useScrollPast(navigationRef)
+
 const navigationLinks = [
   { name: 'Dashboard', path: DASHBOARD_PATH },
   { name: 'Add Expenses/Income', path: '/adddata' },
@@ -27,7 +31,11 @@ const navigationLinks = [
 </script>
 
 <template>
-  <div class="flex h-15 justify-between items-center">
+  <div
+    ref="navigationRef"
+    class="flex-none flex h-15 justify-between items-center bg-white"
+    :class="{ 'fixed top-0 left-0 right-0 bg-white z-50 px-7.5 h-15': hasScrolledPast }"
+  >
     <div class="flex gap-7.5">
       <RouterLink
         class="group hover:text-black/50"
