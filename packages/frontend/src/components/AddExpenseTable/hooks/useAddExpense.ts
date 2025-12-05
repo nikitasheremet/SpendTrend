@@ -42,7 +42,8 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
         newExpenses.value.push(createNewEmptyExpenseData())
       }
       newExpenses.value.forEach((expense) => {
-        expense.netAmount = (expense.amount || 0) - (expense.paidBackAmount || 0)
+        expense.netAmount =
+          Math.round(((expense.amount || 0) - (expense.paidBackAmount ?? 0)) * 100) / 100
       })
     },
     { deep: true },
