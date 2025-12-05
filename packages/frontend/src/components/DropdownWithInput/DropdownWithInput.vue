@@ -1,8 +1,6 @@
 <script lang="ts" setup>
-import { ref, defineProps, watch } from 'vue'
-import Input from '@/components/DesignSystem/Input.vue'
-import DropdownOptions from './DropdownOptions.vue'
-import { useDropdownOptionHandlers } from './useDropdownOptionHandlers'
+import { defineProps, useTemplateRef, onMounted } from 'vue'
+import Select from './Select.vue'
 
 const dropdownInputModel = defineModel<string | undefined>()
 const props = defineProps<{
@@ -10,29 +8,20 @@ const props = defineProps<{
   autofocus?: boolean
 }>()
 const emit = defineEmits<{
+  onSelect: [string]
   onChange: [string]
-  blur: []
   isInputValid: [boolean]
   escapeKeyPressed: []
 }>()
 
-const isEscapeKeyPressed = ref(false)
-const {
-  showCategoryOptions,
-  hideCategoryOptions,
-  listOfOptionsToDisplay,
-  dropdownInputFocus,
-  filterListBasedOnInput,
-} = useDropdownOptionHandlers({
-  dropdownOptions: () => props.dropdownOptions,
+onMounted(() => {
+  if (props.autofocus) {
+    selectRef.value?.focus()
+  }
 })
 
-watch(
-  () => props.dropdownOptions,
-  (newDropdownOptions) => {
-    listOfOptionsToDisplay.value = newDropdownOptions
-  },
-)
+const selectRef = useTemplateRef<HTMLElement>('select-ref')
+const innerSelectRef = useTemplateRef<typeof Select>('inner-select-ref')
 
 function isInputValid(input: string) {
   if (!input) {
@@ -41,60 +30,40 @@ function isInputValid(input: string) {
   return Boolean(props.dropdownOptions.find((dropdownOption) => dropdownOption === input))
 }
 
-function handleInput(event: Event) {
-  const targetValue = (event.target as HTMLInputElement).value
-  emit('onChange', targetValue)
-  emit('isInputValid', isInputValid(targetValue))
-  filterListBasedOnInput(targetValue)
-}
-function setInput(valueSelected: string) {
-  dropdownInputModel.value = valueSelected
-  hideCategoryOptions()
+function handleInput(optionSelected: string) {
+  dropdownInputModel.value = optionSelected
+  emit('onChange', optionSelected)
+  emit('isInputValid', isInputValid(optionSelected))
+  selectRef.value?.blur()
 }
 
-function blurInput(event: KeyboardEvent, isEscapeKey?: boolean) {
-  isEscapeKeyPressed.value = Boolean(isEscapeKey)
-  ;(event.target as HTMLInputElement).blur()
-}
-function handleInputBlur(event: FocusEvent) {
-  const eventTarget = event.target as HTMLInputElement
-  const eventRelatedTarget = event.relatedTarget as HTMLElement
-  const parentElement = eventTarget.parentElement
-
-  // Check if the relatedTarget is a descendant of the dropdown-input parent
-  const isBlurOutsideDropdownInput =
-    !eventRelatedTarget || !parentElement?.contains(eventRelatedTarget)
-
-  if (isBlurOutsideDropdownInput) {
-    eventTarget.parentNode?.dispatchEvent(new Event('blur'))
-    if (isEscapeKeyPressed.value) {
-      emit('escapeKeyPressed')
-      isEscapeKeyPressed.value = false
-    } else {
-      emit('blur')
-    }
+function handleKey(keyboardEvent: KeyboardEvent) {
+  if (keyboardEvent.key === 'Escape') {
+    emit('escapeKeyPressed')
   }
+}
+
+function handleBlur() {
+  innerSelectRef.value?.hideOptions()
 }
 </script>
 
 <template>
-  <div class="relative dropdown-input" @blur="hideCategoryOptions" tabindex="-1">
-    <Input
-      class="border-none"
-      :autofocus="autofocus"
-      v-model="dropdownInputModel"
-      @input="handleInput"
-      @focus="showCategoryOptions"
-      @blur="handleInputBlur"
-      @keyup.enter="blurInput"
-      @keyup.esc="(e: KeyboardEvent) => blurInput(e, true)"
-    />
-
-    <DropdownOptions
-      v-if="dropdownInputFocus"
-      @dropdown-option-click="setInput"
-      :options="listOfOptionsToDisplay"
-    />
+  <div
+    ref="select-ref"
+    class="relative dropdown-input"
+    tabindex="-1"
+    @keydown="handleKey"
+    editable
+    @blur="handleBlur"
+  >
+    <Select
+      ref="inner-select-ref"
+      :autofocus="props.autofocus"
+      :value="dropdownInputModel"
+      :dropdownOptions="props.dropdownOptions"
+      @onChange="handleInput"
+    ></Select>
   </div>
 </template>
 
