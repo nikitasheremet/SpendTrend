@@ -32,12 +32,14 @@ function toggleManageCategories() {
 </script>
 
 <template>
-  <NavigationBar
-    v-if="isLoggedIn"
-    :is-logged-in="isLoggedIn"
-    @logout="logout"
-    @manage-categories-clicked="toggleManageCategories"
-  />
+  <div class="flex-none h-15">
+    <NavigationBar
+      v-if="isLoggedIn"
+      :is-logged-in="isLoggedIn"
+      @logout="logout"
+      @manage-categories-clicked="toggleManageCategories"
+    />
+  </div>
   <ManageCategories
     :is-open="isManageCategoriesOpen"
     @close-manage-categories="isManageCategoriesOpen = false"
