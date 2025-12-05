@@ -9,7 +9,7 @@ export async function addNewExpense(newExpenseData: NewExpense): Promise<Expense
     amount: newExpenseData.amount,
     netAmount: newExpenseData.netAmount,
     date: newExpenseData.date,
-    paidBackAmount: newExpenseData.paidBackAmount,
+    paidBackAmount: newExpenseData.paidBackAmount ?? 0,
     categoryId: newExpenseData.category,
     subCategoryId: newExpenseData.subCategory || undefined,
     userId,

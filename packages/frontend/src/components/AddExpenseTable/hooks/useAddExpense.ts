@@ -10,7 +10,7 @@ function createNewEmptyExpenseData(): NewExpense {
     name: '',
     netAmount: 0,
     amount: 0,
-    paidBackAmount: 0,
+    paidBackAmount: undefined,
     category: '',
     subCategory: '',
   }
