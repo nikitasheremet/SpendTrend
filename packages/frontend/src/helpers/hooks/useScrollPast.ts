@@ -16,14 +16,6 @@ export function useScrollPast(elementRef: Ref<HTMLElement | null>) {
     const scrollPosition = window.scrollY || window.pageYOffset
     const scrollThreshold = initialOffsetTop.value
 
-    console.log(
-      'Scroll Position:',
-      scrollPosition,
-      'Threshold:',
-      scrollThreshold,
-      scrollPosition >= scrollThreshold,
-    )
-
     hasScrolledPast.value = scrollPosition > scrollThreshold
   }
 

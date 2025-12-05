@@ -70,6 +70,12 @@ watch(
   },
   { immediate: true },
 )
+
+defineExpose({
+  blur: () => {
+    inputRef.value?.blur()
+  },
+})
 </script>
 
 <template>
