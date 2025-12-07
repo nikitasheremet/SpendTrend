@@ -63,7 +63,7 @@ async function handleUpdateComplete(value: string | number) {
       :inputType="type"
       :inputCategories="options"
     />
-    <p v-else>{{ formattedCellData }}</p>
+    <p class="wrap-break-word" v-else>{{ formattedCellData }}</p>
   </td>
 </template>
 
