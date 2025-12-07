@@ -29,11 +29,32 @@ export async function createStore() {
       store.categories.push(newCategory)
       store.categories = store.categories.sort((a, b) => a.name.localeCompare(b.name))
     },
+    updateCategory: (updatedCategory: ExpenseCategory) => {
+      const categoryIndex = store.categories.findIndex((cat) => cat.id === updatedCategory.id)
+      if (categoryIndex !== -1) {
+        store.categories[categoryIndex] = updatedCategory
+        store.categories = store.categories.sort((a, b) => a.name.localeCompare(b.name))
+      }
+    },
     addSubCategory: (categoryId: string, newSubCategory: ExpenseSubCategory) => {
       const category = store.categories.find((cat) => cat.id === categoryId)
       if (category) {
         category.subCategories.push(newSubCategory)
         category.subCategories = category.subCategories.sort((a, b) => a.name.localeCompare(b.name))
+      }
+    },
+    updateSubCategory: (categoryId: string, updatedSubCategory: ExpenseSubCategory) => {
+      const category = store.categories.find((cat) => cat.id === categoryId)
+      if (category) {
+        const subCategoryIndex = category.subCategories.findIndex(
+          (subCat) => subCat.id === updatedSubCategory.id,
+        )
+        if (subCategoryIndex !== -1) {
+          category.subCategories[subCategoryIndex] = updatedSubCategory
+          category.subCategories = category.subCategories.sort((a, b) =>
+            a.name.localeCompare(b.name),
+          )
+        }
       }
     },
   })
