@@ -6,5 +6,7 @@ export interface Store {
   categories: ExpenseCategory[]
   deleteCategory: (categoryId: string) => void
   addCategory: (newCategory: ExpenseCategory) => void
+  updateCategory: (updatedCategory: ExpenseCategory) => void
   addSubCategory: (categoryId: string, newSubCategoryName: ExpenseSubCategory) => void
+  updateSubCategory: (categoryId: string, updatedSubCategory: ExpenseSubCategory) => void
 }

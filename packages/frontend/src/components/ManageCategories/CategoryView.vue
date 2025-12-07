@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import AddSubcategoryModal from '@/components/ManageCategories/AddSubcategoryModal.vue'
+import UpdateNameModal from '@/components/ManageCategories/UpdateNameModal.vue'
 import type { ExpenseCategory } from '@/types/expenseData'
 import { useDeleteCategory } from './hooks/useDeleteCategory'
+import { useUpdateCategory } from './hooks/useUpdateCategory'
 import SubCategoryView from './SubcategoryView.vue'
 import { useManageSubCategories } from './hooks/useManageSubcategories'
 import { useControlModal } from '../DesignSystem/Modal/useControlModal'
@@ -21,15 +23,24 @@ function categoryDeleted() {
   emits('categoryDeleted', category)
 }
 const { deleteCategory, error: deleteCategoryError } = useDeleteCategory(category, categoryDeleted)
+const {
+  updateCategory,
+  error: updateCategoryError,
+  loading: updateCategoryLoading,
+} = useUpdateCategory(category)
 
 const {
   subCategories,
   deleteSubCategory,
   subCategoryAdded,
+  updateSubCategory,
   error: deleteSubCategoryError,
+  loading: subCategoryLoading,
 } = useManageSubCategories(category)
 
 const { isModalOpen: isAddSubCategoryModalOpen, openModal: openAddSubCategoryModal } =
+  useControlModal()
+const { isModalOpen: isUpdateCategoryModalOpen, openModal: openUpdateCategoryModal } =
   useControlModal()
 
 const { isOptionsOpen, toggleOptions, closeOptions } = useControlCategoryOptions()
@@ -39,12 +50,20 @@ function handleCategoryClick() {
   showSubCategories.value = !showSubCategories.value
 }
 
+async function handleUpdateCategory(newName: string) {
+  await updateCategory(newName)
+  if (!updateCategoryError.value) {
+    isUpdateCategoryModalOpen.value = false
+  }
+}
+
 const categoryOptions = [
+  { name: 'Update Category', action: openUpdateCategoryModal },
   { name: 'Add SubCategory', action: openAddSubCategoryModal },
   { name: 'Delete Category', action: deleteCategory },
 ]
 
-const error = deleteCategoryError || deleteSubCategoryError
+const error = deleteCategoryError || deleteSubCategoryError || updateCategoryError
 </script>
 
 <template>
@@ -83,13 +102,22 @@ const error = deleteCategoryError || deleteSubCategoryError
     <SubCategoryView
       v-if="showSubCategories"
       :subCategories="subCategories"
+      :loading="subCategoryLoading"
       @sub-category-delete-clicked="deleteSubCategory"
+      @sub-category-update="updateSubCategory"
     />
   </div>
   <AddSubcategoryModal
     :category="category"
     v-model="isAddSubCategoryModalOpen"
     @sub-category-added="subCategoryAdded"
+  />
+  <UpdateNameModal
+    title="Update the category name"
+    :current-name="category.name"
+    :loading="updateCategoryLoading"
+    v-model="isUpdateCategoryModalOpen"
+    @update="handleUpdateCategory"
   />
   <Error v-if="error" :error="error" />
 </template>
