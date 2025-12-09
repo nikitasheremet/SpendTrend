@@ -7,11 +7,11 @@ import { DataType, formatBankData } from '@/helpers/bankInfoFormatting/formatBan
 import { NewExpense } from '@/types/expenseData'
 import { NewIncome } from '@/types/income/income'
 import { ref } from 'vue'
+import { getStore } from '@/store/store'
 
+const store = getStore()
 const pastedData = ref('')
-
-const newExpenses = ref<NewExpense[]>([])
-const newIncomes = ref<NewIncome[]>([])
+const currentTab = ref<'expense' | 'income'>('expense')
 
 function formatData() {
   const createdData = formatBankData(pastedData.value)
@@ -27,7 +27,8 @@ function formatData() {
       category: '',
       subCategory: '',
     }))
-  newExpenses.value = newExpensesToAdd
+  newExpensesToAdd.forEach((expense) => store.addNewExpense(expense))
+
   const newIncomesToAdd = createdData
     .filter((data) => data.type === DataType.INCOME)
     .map((data) => ({
@@ -35,13 +36,11 @@ function formatData() {
       name: data.name,
       amount: Math.abs(data.amount),
     }))
-  newIncomes.value = newIncomesToAdd
+  newIncomesToAdd.forEach((income) => store.addNewIncome(income))
 }
 
-const currentTab = ref<'expense' | 'income'>('expense')
-
 function moveToIncome(expense: NewExpense) {
-  newIncomes.value.push({
+  store.addNewIncome({
     date: expense.date,
     name: expense.name,
     amount: expense.amount,
@@ -49,7 +48,7 @@ function moveToIncome(expense: NewExpense) {
 }
 
 function moveToExpense(income: NewIncome) {
-  newExpenses.value.push({
+  store.addNewExpense({
     date: income.date || '',
     name: income.name || '',
     amount: income.amount || 0,
@@ -59,6 +58,7 @@ function moveToExpense(income: NewIncome) {
     subCategory: '',
   })
 }
+
 const formatDataPlaceholder =
   'Paste your bank data here. Copy it directly from your bank website and click format data.'
 </script>
@@ -80,19 +80,16 @@ const formatDataPlaceholder =
     :currentTab="currentTab"
     @tabClicked="(tabValue) => (currentTab = tabValue as typeof currentTab)"
   />
-  <div :class="{ hidden: currentTab !== 'expense' }">
-    <AddExpenseTable v-model="newExpenses" @moveToIncome="moveToIncome" />
+  <div v-if="currentTab === 'expense'">
+    <AddExpenseTable v-model="store.newExpenses.value" @moveToIncome="moveToIncome" />
   </div>
-  <div :class="{ hidden: currentTab !== 'income' }">
-    <AddIncomeTable v-model="newIncomes" @moveToExpense="moveToExpense" />
+  <div v-if="currentTab === 'income'">
+    <AddIncomeTable v-model="store.newIncomes.value" @moveToExpense="moveToExpense" />
   </div>
 </template>
 
 <style>
 .is-active {
   background-color: darkgrey;
-}
-.hidden {
-  display: none;
 }
 </style>
