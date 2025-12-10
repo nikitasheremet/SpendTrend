@@ -1,8 +1,11 @@
-import { onMounted, ref, watch, type Ref } from 'vue'
+import { onMounted, ref, watch, type Ref, inject } from 'vue'
 import { addNewIncome } from '@/service/income/addNewIncome'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 import { NewIncome } from '@/types/income/income'
 import { useLoading } from '@/helpers/hooks/useLoading'
+import { POPOVER_SYMBOL } from '@/types/providedSymbols'
+import type { PopoverRef } from '@/types/designSystem'
+import RowDeletedPopover from '@/components/AddIncomeTable/hooks/RowDeletedPopover.vue'
 
 function createNewEmptyIncomeData(): NewIncome {
   return {
@@ -21,6 +24,7 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
   validationErrorsIndexes: Ref<number[]>
   loading: Ref<boolean>
 } {
+  const popover = inject<PopoverRef>(POPOVER_SYMBOL)
   const error = ref<Error | undefined>(undefined)
   const validationErrorsIndexes = ref<number[]>([])
   const { loading, startLoading, stopLoading } = useLoading()
@@ -67,6 +71,7 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
 
   function deleteNewIncomeRow(index: number) {
     newIncome.value.splice(index, 1)
+    popover?.value?.showPopover(RowDeletedPopover)
   }
 
   return {
