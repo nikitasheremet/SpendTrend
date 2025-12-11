@@ -60,6 +60,14 @@ export async function createStore() {
       }
     },
     addNewExpense: (expense: NewExpense) => {
+      if (newExpensesRef.value.length === 1) {
+        const [onlyExpenseRow] = newExpensesRef.value
+        if (!onlyExpenseRow.name && !onlyExpenseRow.netAmount) {
+          // Assume this is the first empty row and overwrite it
+          newExpensesRef.value = [expense]
+          return
+        }
+      }
       newExpensesRef.value.push(expense)
     },
     addNewIncome: (income: NewIncome) => {

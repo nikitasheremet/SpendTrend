@@ -3,18 +3,18 @@ import AddExpenseTable from '@/components/AddExpenseTable/AddExpenseTable.vue'
 import AddIncomeTable from '@/components/AddIncomeTable/AddIncomeTable.vue'
 import Button from '@/components/DesignSystem/Button/Button.vue'
 import TabViewNav from '@/components/DesignSystem/TabViewNav/TabViewNav.vue'
-import { DataType, formatBankData } from '@/helpers/bankInfoFormatting/formatBankData'
+import { DataType } from '@/helpers/bankInfoFormatting/formatBankData'
 import { NewExpense } from '@/types/expenseData'
 import { NewIncome } from '@/types/income/income'
 import { ref } from 'vue'
 import { getStore } from '@/store/store'
+import { formatPastedData } from '@/helpers/bankInfoFormatting/formatPastedData'
 
 const store = getStore()
-const pastedData = ref('')
 const currentTab = ref<'expense' | 'income'>('expense')
 
-function formatData() {
-  const createdData = formatBankData(pastedData.value)
+function formatData(dataToFormat: string) {
+  const createdData = formatPastedData(dataToFormat)
   console.log('Created data:', createdData)
   const newExpensesToAdd = createdData
     .filter((data) => data.type === DataType.EXPENSE)
@@ -59,18 +59,23 @@ function moveToExpense(income: NewIncome) {
   })
 }
 
-const formatDataPlaceholder =
-  'Paste your bank data here. Copy it directly from your bank website and click format data.'
+function handlePaste(event: ClipboardEvent) {
+  const clipboardData = event.clipboardData
+  if (clipboardData) {
+    formatData(clipboardData.getData('text/html'))
+  }
+}
+
+const formatDataPlaceholder = 'Paste your bank data here. Copy it directly from your bank website'
 </script>
 
 <template>
   <div class="flex items-center gap-7 mb-5">
     <textarea
+      @paste.prevent="handlePaste"
       :placeholder="formatDataPlaceholder"
       class="border border-gray-300 rounded-md p-2 w-1/2"
-      v-model="pastedData"
     />
-    <Button @click="formatData">Format Data</Button>
   </div>
   <TabViewNav
     :tabs="[
