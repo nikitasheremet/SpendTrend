@@ -7,7 +7,7 @@ export enum DataType {
 
 export interface FormattedBankData {
   type: DataType
-  date: string
+  date?: string
   name: string
   amount: number
 }
