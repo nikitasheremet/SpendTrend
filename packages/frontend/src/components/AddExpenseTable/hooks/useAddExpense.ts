@@ -1,8 +1,11 @@
-import { onMounted, ref, watch, type Ref } from 'vue'
+import { onMounted, ref, watch, type Ref, inject } from 'vue'
 import { addNewExpense } from '@/service/expenses/addNewExpense'
 import { NewExpense } from '@/types/expenseData'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 import { useLoading } from '@/helpers/hooks/useLoading'
+import { POPOVER_SYMBOL } from '@/types/providedSymbols'
+import type { PopoverRef } from '@/types/designSystem'
+import RowDeletedPopover from '@/components/AddExpenseTable/hooks/RowDeletedPopover.vue'
 
 function createNewEmptyExpenseData(): NewExpense {
   return {
@@ -10,7 +13,7 @@ function createNewEmptyExpenseData(): NewExpense {
     name: '',
     netAmount: 0,
     amount: 0,
-    paidBackAmount: 0,
+    paidBackAmount: undefined,
     category: '',
     subCategory: '',
   }
@@ -25,6 +28,7 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
   validationErrorsIndexes: Ref<number[]>
   loading: Ref<boolean>
 } {
+  const popover = inject<PopoverRef>(POPOVER_SYMBOL)
   const error = ref<Error | undefined>(undefined)
   const validationErrorsIndexes = ref<number[]>([])
   const { loading, startLoading, stopLoading } = useLoading()
@@ -42,7 +46,8 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
         newExpenses.value.push(createNewEmptyExpenseData())
       }
       newExpenses.value.forEach((expense) => {
-        expense.netAmount = (expense.amount || 0) - (expense.paidBackAmount || 0)
+        expense.netAmount =
+          Math.round(((expense.amount || 0) - (expense.paidBackAmount ?? 0)) * 100) / 100
       })
     },
     { deep: true },
@@ -72,6 +77,7 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
 
   function deleteNewExpenseRow(index: number) {
     newExpenses.value.splice(index, 1)
+    popover?.value?.showPopover(RowDeletedPopover)
   }
 
   return {

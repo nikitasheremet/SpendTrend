@@ -1,8 +1,11 @@
 import type { Expense } from '@/types/expenseData'
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, inject } from 'vue'
 import { updateExpense as serviceUpdateExpense } from '@/service/expenses/updateExpense'
 import { deleteExpense as serviceDeleteExpense } from '@/service/expenses/deleteExpense'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
+import { POPOVER_SYMBOL } from '@/types/providedSymbols'
+import type { PopoverRef } from '@/types/designSystem'
+import RowNotificationPopover from '@/components/ExpenseDataTable/hooks/RowNotificationPopover.vue'
 
 export function useManageExpense(
   expense: Expense,
@@ -13,6 +16,7 @@ export function useManageExpense(
   updateExpense: (newValue: unknown, key: keyof Expense) => Promise<void>
   deleteExpense: () => Promise<void>
 } {
+  const popover = inject<PopoverRef>(POPOVER_SYMBOL)
   const expenseData = ref<Expense>(expense)
 
   async function updateExpense(newValue: unknown, key: keyof Expense): Promise<void> {
@@ -31,6 +35,7 @@ export function useManageExpense(
       }
       await serviceUpdateExpense(updatedExpense)
       expenseData.value = updatedExpense
+      popover?.value?.showPopover(RowNotificationPopover, { message: 'Row updated' })
     } catch (err) {
       onErrorCallback(err as Error)
     }
@@ -39,6 +44,7 @@ export function useManageExpense(
   async function deleteExpense(): Promise<void> {
     try {
       await serviceDeleteExpense(expenseData.value.id)
+      popover?.value?.showPopover(RowNotificationPopover, { message: 'Row deleted' })
       onExpenseDeletedCallback(expenseData.value)
     } catch (err) {
       onErrorCallback(err as Error)

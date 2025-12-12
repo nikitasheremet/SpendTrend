@@ -36,7 +36,7 @@ export interface ExpenseSubCategory {
 }
 
 export interface NewExpense {
-  date: ExpenseDate
+  date?: ExpenseDate
   name: string
   netAmount: number
   amount: number
