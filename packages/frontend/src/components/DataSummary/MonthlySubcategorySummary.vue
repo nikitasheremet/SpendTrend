@@ -8,23 +8,20 @@ const { summaryForSelectedMonthBySubcategory } = defineProps<{
 
 <template>
   <tr
+    class="border border-gray-400 text-sm hover:bg-gray-100"
     v-for="subcategoryDetails in summaryForSelectedMonthBySubcategory"
     :key="subcategoryDetails.name"
   >
-    <td class="subcategory-name">{{ subcategoryDetails.name }}</td>
-    <td>{{ subcategoryDetails.total }}</td>
-    <td>{{ subcategoryDetails.threeMonthAvg }}</td>
-    <td>{{ subcategoryDetails.diffTotalToAvg }}</td>
-    <td>% {{ subcategoryDetails.diffTotalToAvgAsPercent }}</td>
+    <td class="subcategory-name p-2">{{ subcategoryDetails.name }}</td>
+    <td class="p-2 text-center">{{ subcategoryDetails.total }}</td>
+    <td class="p-2 text-center">{{ subcategoryDetails.threeMonthAvg }}</td>
+    <td class="p-2 text-center">{{ subcategoryDetails.diffTotalToAvg }}</td>
+    <td class="p-2 text-center">{{ subcategoryDetails.diffTotalToAvgAsPercent }}</td>
   </tr>
 </template>
 
 <style scoped>
-td {
-  min-width: 150px;
-  font-size: 20px;
-}
 .subcategory-name {
-  padding-left: 20px;
+  padding-left: 30px;
 }
 </style>
