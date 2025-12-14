@@ -2,6 +2,7 @@
 import type { ExpenseCategorySummary } from '@/types/dataSummary'
 import MonthlySubcategorySummary from './MonthlySubcategorySummary.vue'
 import { ref } from 'vue'
+import { showNumberAsDollar } from '@/helpers/showNumberAsDollar'
 
 const { category } = defineProps<{
   category: ExpenseCategorySummary
@@ -14,9 +15,9 @@ function showSubcategories() {
 </script>
 
 <template>
-  <tr>
+  <tr class="border hover:bg-gray-100">
     <td
-      class="category-name"
+      class="category-name flex justify-between p-2"
       :class="{ expandable: category.subCategories.length }"
       @click="showSubcategories"
     >
@@ -26,10 +27,10 @@ function showSubcategories() {
         ><span v-else-if="category.subCategories.length">▶</span></span
       >
     </td>
-    <td>{{ category.total }}</td>
-    <td>{{ category.threeMonthAvg }}</td>
-    <td>{{ category.diffTotalToAvg }}</td>
-    <td>% {{ category.diffTotalToAvgAsPercent }}</td>
+    <td class="p-2 text-center">{{ category.total }}</td>
+    <td class="p-2 text-center">{{ category.threeMonthAvg }}</td>
+    <td class="p-2 text-center">{{ category.diffTotalToAvg }}</td>
+    <td class="p-2 text-center">{{ category.diffTotalToAvgAsPercent }}</td>
   </tr>
   <template v-if="isSubcategoryDetailsShown">
     <MonthlySubcategorySummary :summaryForSelectedMonthBySubcategory="category.subCategories" />
@@ -39,10 +40,6 @@ function showSubcategories() {
 <style scoped>
 .expandable {
   cursor: pointer;
-}
-.category-name {
-  display: flex;
-  justify-content: space-between;
 }
 td {
   /* min-width: 150px; */

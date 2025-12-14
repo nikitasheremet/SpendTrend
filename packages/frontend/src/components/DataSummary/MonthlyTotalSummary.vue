@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 import { useGetMonthlyExpenseSummary } from './helpers/useGetMonthlyExpenseSummary'
 import { getExpenses } from '@/service/expenses/getExpenses'
+import MonthlyTotalCard from './MonthlyTotalCard.vue'
 
 const monthModel = defineModel<number>('month', { required: true })
 const yearModel = defineModel<number>('year', { required: true })
@@ -38,11 +39,17 @@ const listOfMonths = [
 ]
 
 const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(monthModel, yearModel)
+
+const expenses = computed(() => summaryForSelectedMonth.value.expenses)
+const isExpensesDoingBetter = computed(() => expenses.value.diffTotalToAvg < 0)
+
+const income = computed(() => summaryForSelectedMonth.value.income)
+const isIncomeDoingBetter = computed(() => income.value.diffTotalToAvg > 0)
 </script>
 
 <template>
   <div id="monthly-summary-grid">
-    <div class="flex items-center mb-8">
+    <div class="flex items-center mb-8 justify-center text-xl font-bold">
       <h4>Data for:</h4>
       <div class="selectors">
         <select v-model="monthModel">
@@ -55,37 +62,32 @@ const { summaryForSelectedMonth } = useGetMonthlyExpenseSummary(monthModel, year
         </select>
       </div>
     </div>
-    <table id="monthly-totals-table">
-      <tr>
-        <th>Monthly Expenses</th>
-        <th>3 Month Average</th>
-        <th>Difference</th>
-        <th>% Difference</th>
-      </tr>
-      <tr></tr>
-      <tr>
-        <td>{{ summaryForSelectedMonth.expenses.total }}</td>
-        <td>{{ summaryForSelectedMonth.expenses.threeMonthAvg }}</td>
-        <td>{{ summaryForSelectedMonth.expenses.diffTotalToAvg }}</td>
-        <td>% {{ summaryForSelectedMonth.expenses.diffTotalToAvgAsPercent }}</td>
-      </tr>
-    </table>
-    <table>
-      <tr>
-        <th>Monthly Income</th>
-        <th>3 Month Average</th>
-        <th>Difference</th>
-        <th>% Difference</th>
-        <th>Savings</th>
-      </tr>
-      <tr>
-        <td>{{ summaryForSelectedMonth.income.total }}</td>
-        <td>{{ summaryForSelectedMonth.income.threeMonthAvg }}</td>
-        <td>{{ summaryForSelectedMonth.income.diffTotalToAvg }}</td>
-        <td>% {{ summaryForSelectedMonth.income.diffTotalToAvgAsPercent }}</td>
-        <td>{{ summaryForSelectedMonth.savings }}</td>
-      </tr>
-    </table>
+    <div class="flex flex-row gap-10 items-center justify-center mb-5">
+      <MonthlyTotalCard
+        title="Expenses"
+        :topAmount="expenses.total"
+        :threeMonthAvg="expenses.threeMonthAvg"
+        :changeAmount="expenses.diffTotalToAvg"
+        :changePercent="expenses.diffTotalToAvgAsPercent || 0"
+        :isBetter="isExpensesDoingBetter"
+      />
+      <MonthlyTotalCard
+        title="Income"
+        :topAmount="summaryForSelectedMonth.income.total"
+        :threeMonthAvg="summaryForSelectedMonth.income.threeMonthAvg"
+        :changeAmount="summaryForSelectedMonth.income.diffTotalToAvg"
+        :changePercent="summaryForSelectedMonth.income.diffTotalToAvgAsPercent || 0"
+        :isBetter="isIncomeDoingBetter"
+      />
+      <MonthlyTotalCard
+        title="Savings"
+        :topAmount="summaryForSelectedMonth.savings"
+        :threeMonthAvg="0"
+        :changeAmount="0"
+        :changePercent="0"
+        :isBetter="true"
+      />
+    </div>
   </div>
 </template>
 
