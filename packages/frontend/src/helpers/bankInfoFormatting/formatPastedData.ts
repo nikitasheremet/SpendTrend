@@ -10,7 +10,8 @@ export function formatPastedData(pastedHtml: string) {
 
   const extractedNewDataRows = rowsOfData.map((pastedRow) => {
     const cellsInRow = Array.from(pastedRow.cells)
-    if (cellsInRow.length === 0) return undefined
+    const noCellsHaveText = Boolean(cellsInRow.find((cell) => cell.innerText.trim()))
+    if (!noCellsHaveText) return undefined
     const newData = {} as FormattedBankData
 
     let newDate: string | undefined
