@@ -44,7 +44,7 @@ const formattedCellData = computed(() => {
 })
 
 async function handleUpdateComplete(value: string | number) {
-  if (value) {
+  if (value !== undefined) {
     onSave(value)
     cellData.value = value
     await nextTick()
