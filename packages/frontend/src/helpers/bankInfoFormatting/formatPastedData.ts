@@ -1,6 +1,7 @@
 import DOMPurify from 'dompurify'
 import { DataType, FormattedBankData } from './formatBankData'
 import { DateFormat, formatDate } from '../date/formatDate'
+import { de } from 'date-fns/locale'
 
 export function formatPastedData(pastedHtml: string) {
   const purified = DOMPurify.sanitize(pastedHtml, { FORBID_ATTR: ['style', 'class'] })
@@ -23,17 +24,20 @@ export function formatPastedData(pastedHtml: string) {
     }
 
     newData.date = newDate
-    newData.name = cellsInRow[1].innerText
+    const [description, descriptionIndex] = extractDescription(cellsInRow, 1)
+    newData.name = description
 
-    const expenseAmount = cleanNumber(cellsInRow[2].innerText)
+    const expenseAmountIndex = descriptionIndex + 1
+    const expenseAmount = cleanNumber(cellsInRow[expenseAmountIndex].innerText)
 
     if (expenseAmount !== undefined) {
       newData.amount = expenseAmount
       newData.type = DataType.EXPENSE
     } else {
       newData.type = DataType.INCOME
+      const restOfNumbersIndex = expenseAmountIndex + 1
       const incomeAmount = cellsInRow
-        .slice(3)
+        .slice(restOfNumbersIndex)
         .map((cell) => cleanNumber(cell.innerText))
         .find((amount) => amount !== undefined)
       if (incomeAmount == undefined) {
@@ -53,4 +57,16 @@ function cleanNumber(value: string): number | undefined {
     return Math.abs(cleanedValue)
   }
   return undefined
+}
+
+function extractDescription(
+  cells: HTMLTableCellElement[],
+  cellIndexToLookFrom: number,
+): [string, number] {
+  const descIndex = cells.slice(cellIndexToLookFrom).findIndex((cell) => cell.innerText)
+  if (descIndex === -1) {
+    console.error('No description found in cells starting from index ' + cellIndexToLookFrom)
+  }
+  const adjustedIndex = descIndex + cellIndexToLookFrom
+  return [cells[adjustedIndex].innerText, adjustedIndex]
 }
