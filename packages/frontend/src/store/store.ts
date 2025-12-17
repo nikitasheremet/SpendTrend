@@ -2,7 +2,7 @@ import { reactive, ref, watch } from 'vue'
 import type { Store } from './storeInterface'
 import { authClient } from '@/lib/auth-client'
 import { getCategories } from '@/service/categories/getCategories'
-import { Category, ExpenseCategory, ExpenseSubCategory, NewExpense } from '@/types/expenseData'
+import { ExpenseCategory, ExpenseSubCategory, NewExpense } from '@/types/expenseData'
 import { NewIncome } from '@/types/income/income'
 
 const STORAGE_KEY_EXPENSES = 'spendtrend_new_expenses'
@@ -11,6 +11,8 @@ const STORAGE_KEY_INCOMES = 'spendtrend_new_incomes'
 let store: Store
 const newExpensesRef = ref<NewExpense[]>([])
 const newIncomesRef = ref<NewIncome[]>([])
+const selectedMonthRef = ref<number>(new Date().getUTCMonth())
+const selectedYearRef = ref<number>(new Date().getUTCFullYear())
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 watch(
@@ -24,7 +26,9 @@ watch(
   { deep: true },
 )
 
-const storeObj = reactive<Omit<Store, 'newExpenses' | 'newIncomes'>>({
+const storeObj = reactive<
+  Omit<Store, 'newExpenses' | 'newIncomes' | 'selectedMonth' | 'selectedYear'>
+>({
   getAccountDetails: async () => {
     const session = await authClient.getSession()
 
@@ -72,7 +76,6 @@ const storeObj = reactive<Omit<Store, 'newExpenses' | 'newIncomes'>>({
     }
   },
   addNewExpense: (expense: NewExpense) => {
-    console.log('IN add new expensse', expense)
     if (newExpensesRef.value.length === 1) {
       const [onlyExpenseRow] = newExpensesRef.value
       if (!onlyExpenseRow.name && !onlyExpenseRow.netAmount) {
@@ -100,10 +103,13 @@ const storeObj = reactive<Omit<Store, 'newExpenses' | 'newIncomes'>>({
 })
 
 export async function createStore() {
+  console.log('selectedMonth:', selectedMonthRef.value, 'selectedYear:', selectedYearRef.value)
   store = {
     ...storeObj,
     newExpenses: newExpensesRef,
     newIncomes: newIncomesRef,
+    selectedMonth: selectedMonthRef,
+    selectedYear: selectedYearRef,
   } as Store
   try {
     store.categories = await fetchCategories()
