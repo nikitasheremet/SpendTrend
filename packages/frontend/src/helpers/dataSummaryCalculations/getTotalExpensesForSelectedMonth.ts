@@ -8,7 +8,7 @@ export function getTotalExpensesForSelectedMonth(
 ): number {
   const formattedData = expenses.map((expense) => ({
     date: expense.date as string,
-    amount: expense.amount,
+    amount: expense.netAmount,
   }))
   const totalForMonth = getTotalAmountForMonth(formattedData, selectedMonth, selectedYear)
   return Math.round(totalForMonth * 100) / 100

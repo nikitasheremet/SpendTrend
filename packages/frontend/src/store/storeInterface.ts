@@ -17,4 +17,6 @@ export interface Store {
   addNewIncome: (income: NewIncome) => void
   clearNewExpenses: () => void
   clearNewIncomes: () => void
+  selectedMonth: Ref<number>
+  selectedYear: Ref<number>
 }

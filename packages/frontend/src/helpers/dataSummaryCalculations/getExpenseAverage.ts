@@ -14,7 +14,7 @@ export function getExpenseAverage(
 
   const formattedData = expenses.map((expense) => ({
     date: expense.date as string,
-    amount: expense.amount,
+    amount: expense.netAmount,
   }))
 
   const totalsPerMonth = []
