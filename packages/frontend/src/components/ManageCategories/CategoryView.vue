@@ -92,7 +92,7 @@ const error = deleteCategoryError || deleteSubCategoryError || updateCategoryErr
             :key="option.name"
             class="hover:bg-gray-200 px-3.5 py-1.5 rounded-md"
           >
-            <Button :key="option.name" type="text" @click="option.action">
+            <Button :key="option.name" type="text" @mousedown="option.action">
               {{ option.name }}
             </Button>
           </span>
