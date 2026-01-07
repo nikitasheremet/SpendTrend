@@ -15,3 +15,15 @@ export interface Expense {
   createdAt: Date
   updatedAt: Date
 }
+
+export interface NewExpense {
+  userId: string // UUID
+  accountId: string // UUID
+  name: string
+  amount: number
+  netAmount: number
+  date: string // YYYY-MM-DD
+  categoryId: string // categoryId
+  subCategoryId?: string // subCategoryId
+  paidBackAmount: number
+}

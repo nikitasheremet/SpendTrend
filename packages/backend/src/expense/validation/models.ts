@@ -13,16 +13,20 @@ import {
   subCategoryIdSchema,
 } from './validationUtils'
 
-export const createExpenseInputSchema = z.strictObject({
-  name: nameSchema,
+export const createExpensesInputSchema = z.strictObject({
   userId: userIdSchema,
   accountId: accountIdSchema,
-  amount: amountSchema,
-  netAmount: netAmountSchema,
-  date: dateSchema,
-  categoryId: categoryIdSchema,
-  subCategoryId: subCategoryIdSchema.optional(),
-  paidBackAmount: paidBackAmountSchema,
+  expensesToCreate: z.array(
+    z.strictObject({
+      name: nameSchema,
+      amount: amountSchema,
+      netAmount: netAmountSchema,
+      date: dateSchema,
+      categoryId: categoryIdSchema,
+      subCategoryId: subCategoryIdSchema.optional(),
+      paidBackAmount: paidBackAmountSchema,
+    }),
+  ),
 })
 
 export const DeleteExpensesInputSchema = z.strictObject({
@@ -57,7 +61,7 @@ export const updateExpenseInputSchema = z
     { message: VALIDATION_ERROR_NO_FIELDS_TO_UPDATE },
   )
 
-export type CreateExpenseInput = z.infer<typeof createExpenseInputSchema>
+export type CreateExpensesInput = z.infer<typeof createExpensesInputSchema>
 export type DeleteExpensesInput = z.infer<typeof DeleteExpensesInputSchema>
 export type GetExpensesInput = z.infer<typeof getExpensesInputSchema>
 export type UpdateExpenseInput = z.infer<typeof updateExpenseInputSchema>
