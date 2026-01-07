@@ -60,8 +60,14 @@ export function useAddExpense(newExpenses: Ref<NewExpense[]> = ref([])): {
       if (validationErrorsIndexes.value.length > 0) {
         throw new Error('Validation errors in highlighted rows. Please fill in required fields')
       }
-      await Promise.all(newExpenses.value.map(addNewExpense))
-      newExpenses.value = [createNewEmptyExpenseData()]
+      const { failedExpenses } = await addNewExpense(newExpenses.value)
+
+      if (failedExpenses.length > 0) {
+        newExpenses.value = failedExpenses.map((fe) => fe.expenseInput)
+      } else {
+        newExpenses.value = [createNewEmptyExpenseData()]
+      }
+
       error.value = undefined
       stopLoading()
     } catch (err) {

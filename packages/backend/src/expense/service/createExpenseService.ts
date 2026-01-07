@@ -1,21 +1,44 @@
-import { decimalToInteger } from '../../utilities/decimalToInteger'
 import { CreateExpense, createExpenseRepository } from '../repository/createExpenseRepository'
-import { CreateExpenseInput } from '../validation/models'
-
-import { integerToDecimal } from '../../utilities/integerToDecimal'
+import { CreateExpensesInput } from '../validation/models'
 import { convertDbAmountToDecimals } from './helpers/convertDbAmountToDecimals'
 import { convertDomainAmountToInteger } from './helpers/convertDomainAmountToInteger'
-export async function createExpenseService(input: CreateExpenseInput) {
-  const createExpenseInputs: CreateExpense = {
-    ...input,
-    ...convertDomainAmountToInteger({
-      amount: input.amount,
-      paidBackAmount: input.paidBackAmount,
-      netAmount: input.netAmount,
-    }),
-  }
-  let createdExpense = await createExpenseRepository(createExpenseInputs)
-  createdExpense = convertDbAmountToDecimals(createdExpense)
+import { Expense } from '../../models/expense/expense'
 
-  return createdExpense
+export async function createExpenseService(input: CreateExpensesInput): Promise<{
+  createdExpenses: Array<Expense>
+  failedExpenses: Array<{ expenseInput: CreateExpense; errorMessage: string }>
+}> {
+  const createdExpenses: Array<Expense> = []
+  const failedExpenses: Array<{ expenseInput: CreateExpense; errorMessage: string }> = []
+
+  for (const expenseInput of input.expensesToCreate) {
+    let createExpenseDetails: CreateExpense = {
+      userId: input.userId,
+      accountId: input.accountId,
+      ...expenseInput,
+    }
+    try {
+      const createExpenseDetailsAsIntegers = {
+        ...createExpenseDetails,
+        ...convertDomainAmountToInteger({
+          amount: expenseInput.amount,
+          paidBackAmount: expenseInput.paidBackAmount,
+          netAmount: expenseInput.netAmount,
+        }),
+      }
+
+      let createdExpense = await createExpenseRepository(createExpenseDetailsAsIntegers)
+
+      createdExpense = convertDbAmountToDecimals(createdExpense)
+
+      createdExpenses.push(createdExpense)
+    } catch (error) {
+      failedExpenses.push({
+        expenseInput: createExpenseDetails,
+        errorMessage: (error as Error).message,
+      })
+    }
+  }
+
+  return { createdExpenses, failedExpenses }
 }

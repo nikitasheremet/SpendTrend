@@ -8,8 +8,8 @@ export async function createExpenseHandler(ctx: Context): Promise<Response> {
   try {
     const input = await ctx.req.json()
     validateCreateExpenseInput(input)
-    const createdExpense = await createExpenseService(input)
-    return ctx.json({ createdExpense }, STATUS_CREATED_201)
+    const createdExpenses = await createExpenseService(input)
+    return ctx.json({ createdExpenses }, STATUS_CREATED_201)
   } catch (error) {
     return ctx.json({ error: (error as Error).message }, errorStatusMapper(error))
   }
