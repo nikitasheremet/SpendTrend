@@ -35,7 +35,6 @@ function moveToIncome(indexOfExpenseToMove: number) {
 
 function clearAllExpenses() {
   store.clearNewExpenses()
-  console.log(store.newExpenses)
   addNewExpenseRow()
 }
 

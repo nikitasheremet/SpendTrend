@@ -28,7 +28,6 @@ const {
 
 function clearAllIncomes() {
   store.clearNewIncomes()
-  console.log(store.newIncomes)
   addNewIncomeRow()
 }
 
