@@ -6,8 +6,11 @@ import { NewExpense } from '@/types/expenseData'
 import Button from '../DesignSystem/Button/Button.vue'
 import TableHeaders from '../TableHeaders.vue'
 import LoadingModal from '../DesignSystem/Modal/LoadingModal.vue'
+import { getStore } from '@/store/store'
 
 const newExpenses = defineModel<NewExpense[]>({ required: true })
+
+const store = getStore()
 
 const emit = defineEmits<{
   moveToIncome: [expense: NewExpense]
@@ -28,6 +31,12 @@ function moveToIncome(indexOfExpenseToMove: number) {
   emit('moveToIncome', expenseToMove)
 
   deleteNewExpenseRow(indexOfExpenseToMove)
+}
+
+function clearAllExpenses() {
+  store.clearNewExpenses()
+  console.log(store.newExpenses)
+  addNewExpenseRow()
 }
 
 const tableHeaders = [
@@ -64,6 +73,7 @@ const tableHeaders = [
   </table>
   <div class="flex gap-5">
     <Button @click="addNewExpenseRow">Add New Expense Row</Button>
+    <Button @click="clearAllExpenses">Clear All Expenses</Button>
     <Button @click="addExpense">Save Expense</Button>
   </div>
   <Error v-if="error" :error="error" />
