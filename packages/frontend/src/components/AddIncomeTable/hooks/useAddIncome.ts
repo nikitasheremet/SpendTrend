@@ -52,10 +52,13 @@ export function useAddIncome(newIncome: Ref<NewIncome[]> = ref([])): {
       if (validationErrorsIndexes.value.length > 0) {
         throw new Error('Validation errors in highlighted rows. Please fill in required fields')
       }
-      await Promise.all(
-        newIncome.value.map((newIncome) => addNewIncome(newIncome as Required<NewIncome>)),
-      )
-      newIncome.value = [createNewEmptyIncomeData()]
+      const { failedIncomes } = await addNewIncome(newIncome.value)
+
+      if (failedIncomes.length > 0) {
+        newIncome.value = failedIncomes.map((failedIncome) => failedIncome.incomeInput)
+      } else {
+        newIncome.value = [createNewEmptyIncomeData()]
+      }
       error.value = undefined
       stopLoading()
     } catch (err) {

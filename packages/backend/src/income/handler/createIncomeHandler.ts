@@ -8,8 +8,8 @@ export async function createIncomeHandler(ctx: Context): Promise<Response> {
   try {
     const input = await ctx.req.json()
     validateCreateIncomeInput(input)
-    const income = await createIncomeService(input)
-    return ctx.json({ createdIncome: income }, STATUS_CREATED_201)
+    const { createdIncomes, failedIncomes } = await createIncomeService(input)
+    return ctx.json({ createdIncomes, failedIncomes }, STATUS_CREATED_201)
   } catch (error) {
     return ctx.json({ error: (error as Error).message }, errorStatusMapper(error))
   }

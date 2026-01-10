@@ -1,5 +1,6 @@
-import { Income } from './models'
+import { Income, NewIncome } from './models'
 
 export type CreateIncomeResponse = {
-  createdIncome: Income
+  createdIncomes: Array<Income>
+  failedIncomes: Array<{ incomeInput: NewIncome; errorMessage: string }>
 }

@@ -1,15 +1,21 @@
 import { createIncome } from '@/gateway/income/createIncome'
 import { getStore } from '@/store/store'
-import type { Income, NewIncome } from '@/types/income/income'
+import type { FailedIncome, Income, NewIncome } from '@/types/income/income'
 
-export async function addNewIncome(newIncomeData: Required<NewIncome>): Promise<Income> {
+export async function addNewIncome(newIncomeData: NewIncome[]): Promise<{
+  createdIncomes: Array<Income>
+  failedIncomes: Array<FailedIncome>
+}> {
   const { userId, accountId } = await getStore().getAccountDetails()
   const createIncomeRequest = {
-    name: newIncomeData.name,
-    amount: newIncomeData.amount,
-    date: newIncomeData.date,
     userId,
     accountId,
+    incomesToCreate: newIncomeData.map((income) => ({
+      name: income.name as string,
+      amount: income.amount as number,
+      date: income.date as string,
+    })),
   }
+
   return await createIncome(createIncomeRequest)
 }

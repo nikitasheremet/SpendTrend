@@ -15,25 +15,30 @@ describe('createIncomeHandler', () => {
     req: {
       json: jest.fn(),
     },
+    json: jest.fn(
+      (body: unknown, status: number) => new Response(JSON.stringify(body), { status }),
+    ),
   } as unknown as Context
 
   beforeEach(() => {
     jest.resetAllMocks()
+    ;(fakeCtx.req.json as jest.Mock).mockResolvedValue({})
   })
 
   describe('on success', () => {
-    it('should return 201 and expense', async () => {
-      const fakeInput = { id: 1, name: 'Lunch' }
+    it('should return 201 and flat arrays', async () => {
+      const fakeServiceOutput = {
+        createdIncomes: [{ id: '1', name: 'Salary' }],
+        failedIncomes: [],
+      }
       // Arrange
-      mockService.mockResolvedValue(fakeInput)
+      mockService.mockResolvedValue(fakeServiceOutput)
 
       // Act
-      const response = await createIncomeHandler(fakeCtx)
+      await createIncomeHandler(fakeCtx)
 
       // Assert
-      expect(response.status).toBe(STATUS_CREATED_201)
-      const body = await response.json()
-      expect(body).toEqual({ createdIncome: fakeInput })
+      expect(fakeCtx.json as jest.Mock).toHaveBeenCalledWith(fakeServiceOutput, STATUS_CREATED_201)
     })
   })
 
@@ -43,10 +48,10 @@ describe('createIncomeHandler', () => {
       mockValidation.mockImplementation(() => {
         throw fakeValidationError
       })
-      const response = await createIncomeHandler(fakeCtx)
-      expect(response.status).not.toBe(STATUS_CREATED_201)
-      const body = await response.json()
-      expect(body).toEqual({ error: fakeValidationError.message })
+      await createIncomeHandler(fakeCtx)
+      const call = (fakeCtx.json as jest.Mock).mock.calls[0]
+      expect(call[0]).toEqual({ error: fakeValidationError.message })
+      expect(call[1]).not.toBe(STATUS_CREATED_201)
     })
   })
 
@@ -56,10 +61,10 @@ describe('createIncomeHandler', () => {
       mockService.mockImplementation(() => {
         throw fakeServiceError
       })
-      const response = await createIncomeHandler(fakeCtx)
-      expect(response.status).not.toBe(STATUS_CREATED_201)
-      const body = await response.json()
-      expect(body).toEqual({ error: fakeServiceError.message })
+      await createIncomeHandler(fakeCtx)
+      const call = (fakeCtx.json as jest.Mock).mock.calls[0]
+      expect(call[0]).toEqual({ error: fakeServiceError.message })
+      expect(call[1]).not.toBe(STATUS_CREATED_201)
     })
   })
 })
