@@ -8,3 +8,9 @@ export interface Income {
   createdAt: Date
   updatedAt: Date
 }
+
+export interface NewIncome {
+  name: string
+  amount: number
+  date: string // YYYY-MM-DD
+}

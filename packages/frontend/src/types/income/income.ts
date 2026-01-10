@@ -14,3 +14,8 @@ export interface Income {
   createdAt: Date
   updatedAt: Date
 }
+
+export interface FailedIncome {
+  incomeInput: NewIncome
+  errorMessage: string
+}
