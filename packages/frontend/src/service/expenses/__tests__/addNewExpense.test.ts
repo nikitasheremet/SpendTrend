@@ -35,11 +35,11 @@ describe('addNewExpense', () => {
       mockGetStore.mockReturnValue({
         getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
       } as unknown as Store)
-      mockCreateExpense.mockResolvedValue(fakeExpense)
+      mockCreateExpense.mockResolvedValue({ createdExpenses: [fakeExpense], failedExpenses: [] })
 
-      const result = await addNewExpense(fakeNewExpense)
+      const result = await addNewExpense([fakeNewExpense])
 
-      expect(result).toEqual(fakeExpense)
+      expect(result).toEqual({ createdExpenses: [fakeExpense], failedExpenses: [] })
     })
   })
 
@@ -52,7 +52,7 @@ describe('addNewExpense', () => {
         }),
       } as unknown as Store)
 
-      await expect(addNewExpense(fakeNewExpense)).rejects.toThrow(fakeError)
+      await expect(addNewExpense([fakeNewExpense])).rejects.toThrow(fakeError)
     })
   })
 
@@ -65,7 +65,7 @@ describe('addNewExpense', () => {
       const fakeError = new Error('Failed to create expense')
       mockCreateExpense.mockRejectedValue(fakeError)
 
-      await expect(addNewExpense(fakeNewExpense)).rejects.toThrow(fakeError)
+      await expect(addNewExpense([fakeNewExpense])).rejects.toThrow(fakeError)
     })
   })
 })
