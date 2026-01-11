@@ -127,7 +127,7 @@ async function createTestData(
     .values({
       userId,
       accountId,
-      name: `Groceries-${Math.random()}`,
+      name: `Utilities-${Math.random()}`,
     })
     .returning()
 
@@ -137,7 +137,7 @@ async function createTestData(
     .values({
       userId,
       accountId,
-      name: `Utilities-${Math.random()}`,
+      name: `Groceries-${Math.random()}`,
     })
     .returning()
 
