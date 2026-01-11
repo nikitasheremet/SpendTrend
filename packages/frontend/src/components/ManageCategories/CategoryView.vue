@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import { Teleport } from 'vue'
 import AddSubcategoryModal from '@/components/ManageCategories/AddSubcategoryModal.vue'
 import UpdateNameModal from '@/components/ManageCategories/UpdateNameModal.vue'
@@ -51,7 +51,10 @@ const {
   closeOptions,
 } = useControlCategoryOptions()
 
-const { optionsTop, optionsLeft, positionDropdown } = useDropdownPosition()
+const optionsRef = ref<HTMLElement>()
+const optionsDivRef = ref<HTMLElement>()
+
+const { optionsTop, optionsLeft, positionDropdown } = useDropdownPosition(optionsRef, optionsDivRef)
 
 async function toggleOptions() {
   originalToggleOptions()

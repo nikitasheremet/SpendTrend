@@ -1,33 +1,49 @@
-import { ref, nextTick, type Ref } from 'vue'
+import { ref, nextTick, type Ref, onMounted, onUnmounted } from 'vue'
 
-export function useDropdownPosition() {
-  const optionsRef = ref<HTMLElement>()
-  const optionsDivRef = ref<HTMLElement>()
+export function useDropdownPosition(
+  optionsRef: Ref<HTMLElement | undefined>,
+  optionsDivRef: Ref<HTMLElement | undefined>,
+) {
   const optionsTop = ref(0)
   const optionsLeft = ref(0)
+
+  function updatePosition() {
+    if (optionsRef.value && optionsDivRef.value) {
+      const triggerElementRect = getTriggerElementRect(optionsRef)
+      const { initialDropdownTop, initialDropdownLeft } =
+        calculateInitialPosition(triggerElementRect)
+      optionsTop.value = initialDropdownTop
+      optionsLeft.value = initialDropdownLeft
+      const dropdownElement = optionsDivRef.value
+      const dropdownHeightWithPadding = dropdownElement.offsetHeight + 5
+      const viewportHeight = window.innerHeight
+      optionsTop.value = adjustPositionIfCutoff(
+        triggerElementRect,
+        dropdownHeightWithPadding,
+        viewportHeight,
+        optionsTop.value,
+      )
+    }
+  }
+
+  onMounted(() => {
+    const handleScroll = () => {
+      updatePosition()
+    }
+    window.addEventListener('scroll', handleScroll, true)
+    onUnmounted(() => {
+      window.removeEventListener('scroll', handleScroll, true)
+    })
+  })
 
   async function positionDropdown(isOptionsOpen: boolean) {
     if (isOptionsOpen) {
       await nextTick()
-      setInitialPosition(optionsRef, optionsTop, optionsLeft)
-      await nextTick()
-      if (optionsDivRef.value) {
-        const dropdownElement = optionsDivRef.value
-        const dropdownHeightWithPadding = dropdownElement.offsetHeight + 5
-        const viewportHeight = window.innerHeight
-        optionsTop.value = adjustPositionIfCutoff(
-          getTriggerElementRect(optionsRef),
-          dropdownHeightWithPadding,
-          viewportHeight,
-          optionsTop.value,
-        )
-      }
+      updatePosition()
     }
   }
 
   return {
-    optionsRef,
-    optionsDivRef,
     optionsTop,
     optionsLeft,
     positionDropdown,
@@ -58,17 +74,4 @@ function adjustPositionIfCutoff(
 
 function getTriggerElementRect(optionsRef: Ref<HTMLElement | undefined>): DOMRect {
   return optionsRef.value!.getBoundingClientRect()
-}
-
-function setInitialPosition(
-  optionsRef: Ref<HTMLElement | undefined>,
-  optionsTop: Ref<number>,
-  optionsLeft: Ref<number>,
-) {
-  if (optionsRef.value) {
-    const triggerElementRect = getTriggerElementRect(optionsRef)
-    const { initialDropdownTop, initialDropdownLeft } = calculateInitialPosition(triggerElementRect)
-    optionsTop.value = initialDropdownTop
-    optionsLeft.value = initialDropdownLeft
-  }
 }
