@@ -13,6 +13,7 @@ const newExpensesRef = ref<NewExpense[]>([])
 const newIncomesRef = ref<NewIncome[]>([])
 const selectedMonthRef = ref<number>(new Date().getUTCMonth())
 const selectedYearRef = ref<number>(new Date().getUTCFullYear())
+const expenseCategories = ref<ExpenseCategory[]>([])
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 watch(
@@ -27,7 +28,7 @@ watch(
 )
 
 const storeObj = reactive<
-  Omit<Store, 'newExpenses' | 'newIncomes' | 'selectedMonth' | 'selectedYear'>
+  Omit<Store, 'newExpenses' | 'newIncomes' | 'selectedMonth' | 'selectedYear' | 'categories'>
 >({
   getAccountDetails: async () => {
     const session = await authClient.getSession()
@@ -41,39 +42,43 @@ const storeObj = reactive<
       accountId: session.data.user.accountId,
     }
   },
-  categories: [],
   deleteCategory: (categoryId: string) => {
-    store.categories = store.categories.filter((category) => category.id !== categoryId)
+    expenseCategories.value = expenseCategories.value.filter(
+      (category) => category.id !== categoryId,
+    )
   },
   addCategory: (newCategory: ExpenseCategory) => {
-    store.categories.push(newCategory)
-    store.categories = store.categories.sort((a, b) => a.name.localeCompare(b.name))
+    expenseCategories.value = [...expenseCategories.value, newCategory].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    )
   },
   updateCategory: (updatedCategory: ExpenseCategory) => {
-    const categoryIndex = store.categories.findIndex((cat) => cat.id === updatedCategory.id)
-    if (categoryIndex !== -1) {
-      store.categories[categoryIndex] = updatedCategory
-      store.categories = store.categories.sort((a, b) => a.name.localeCompare(b.name))
-    }
+    const categoryIndex = expenseCategories.value.findIndex((cat) => cat.id === updatedCategory.id)
+    if (categoryIndex === -1) return
+
+    const updatedCategories = [...expenseCategories.value]
+    updatedCategories[categoryIndex] = updatedCategory
+    expenseCategories.value = updatedCategories.sort((a, b) => a.name.localeCompare(b.name))
   },
   addSubCategory: (categoryId: string, newSubCategory: ExpenseSubCategory) => {
-    const category = store.categories.find((cat) => cat.id === categoryId)
+    const category = expenseCategories.value.find((cat) => cat.id === categoryId)
     if (category) {
       category.subCategories.push(newSubCategory)
       category.subCategories = category.subCategories.sort((a, b) => a.name.localeCompare(b.name))
     }
   },
   updateSubCategory: (categoryId: string, updatedSubCategory: ExpenseSubCategory) => {
-    const category = store.categories.find((cat) => cat.id === categoryId)
-    if (category) {
-      const subCategoryIndex = category.subCategories.findIndex(
-        (subCat) => subCat.id === updatedSubCategory.id,
-      )
-      if (subCategoryIndex !== -1) {
-        category.subCategories[subCategoryIndex] = updatedSubCategory
-        category.subCategories = category.subCategories.sort((a, b) => a.name.localeCompare(b.name))
-      }
-    }
+    const category = expenseCategories.value.find((cat) => cat.id === categoryId)
+    if (!category) return
+
+    const subCategoryIndex = category.subCategories.findIndex(
+      (subCat) => subCat.id === updatedSubCategory.id,
+    )
+    if (subCategoryIndex === -1) return
+
+    const updatedSubCategories = [...category.subCategories]
+    updatedSubCategories[subCategoryIndex] = updatedSubCategory
+    category.subCategories = updatedSubCategories.sort((a, b) => a.name.localeCompare(b.name))
   },
   addNewExpense: (expense: NewExpense) => {
     if (newExpensesRef.value.length === 1) {
@@ -103,16 +108,16 @@ const storeObj = reactive<
 })
 
 export async function createStore() {
-  console.log('selectedMonth:', selectedMonthRef.value, 'selectedYear:', selectedYearRef.value)
   store = {
     ...storeObj,
+    categories: expenseCategories,
     newExpenses: newExpensesRef,
     newIncomes: newIncomesRef,
     selectedMonth: selectedMonthRef,
     selectedYear: selectedYearRef,
   } as Store
   try {
-    store.categories = await fetchCategories()
+    store.categories.value = await fetchCategories()
     // Load expenses and incomes from localStorage
     newExpensesRef.value = loadExpensesFromStorage()
     newIncomesRef.value = loadIncomesFromStorage()

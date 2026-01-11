@@ -5,7 +5,7 @@ import { NewIncome } from '@/types/income/income'
 
 export interface Store {
   getAccountDetails: () => Promise<AccountDetails>
-  categories: ExpenseCategory[]
+  categories: Ref<ExpenseCategory[]>
   deleteCategory: (categoryId: string) => void
   addCategory: (newCategory: ExpenseCategory) => void
   updateCategory: (updatedCategory: ExpenseCategory) => void
