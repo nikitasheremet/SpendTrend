@@ -34,8 +34,10 @@ function moveToIncome(indexOfExpenseToMove: number) {
 }
 
 function clearAllExpenses() {
-  store.clearNewExpenses()
-  addNewExpenseRow()
+  if (confirm("Are you sure that you want to clear all expenses? This can't be undone")) {
+    store.clearNewExpenses()
+    addNewExpenseRow()
+  }
 }
 
 const tableHeaders = [
