@@ -27,8 +27,10 @@ const {
 } = useAddIncome(newIncomes)
 
 function clearAllIncomes() {
-  store.clearNewIncomes()
-  addNewIncomeRow()
+  if (confirm("Are you sure that you want to clear all incomes? This can't be undone")) {
+    store.clearNewIncomes()
+    addNewIncomeRow()
+  }
 }
 
 function moveToExpense(indexOfIncomeToMove: number) {

@@ -94,6 +94,15 @@ const storeObj = reactive<
     saveExpensesToStorage()
   },
   addNewIncome: (income: NewIncome) => {
+    if (newIncomesRef.value.length === 1) {
+      const [onlyIncomeRow] = newIncomesRef.value
+      if (!onlyIncomeRow.name && !onlyIncomeRow.amount) {
+        // Assume this is the first empty row and overwrite it
+        newIncomesRef.value = [income]
+        saveIncomesToStorage()
+        return
+      }
+    }
     newIncomesRef.value.push(income)
     saveIncomesToStorage()
   },
