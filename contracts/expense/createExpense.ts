@@ -1,5 +1,8 @@
-import { Expense } from './models'
+import { Expense, NewExpense } from './models'
 
 export type CreateExpenseResponse = {
-  createdExpense: Expense
+  createdExpenses: {
+    createdExpenses: Array<Expense>
+    failedExpenses: Array<{ expenseInput: NewExpense; errorMessage: string }>
+  }
 }

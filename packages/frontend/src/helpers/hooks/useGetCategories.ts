@@ -14,14 +14,11 @@ export function useCategoriesInExpenseData(): {
   getCategory: (categoryName: string) => ExpenseCategory
 } {
   const store = getStore()
-  const categories = ref<ExpenseCategory[]>(store.categories)
+  const categories = ref(store.categories.value)
 
-  watch(
-    () => store.categories,
-    (newCategories) => {
-      categories.value = newCategories
-    },
-  )
+  watch(store.categories, (newCategories: ExpenseCategory[]) => {
+    categories.value = newCategories
+  })
 
   const categoryNames = computed(() => {
     return categories.value.map((category) => category.name)

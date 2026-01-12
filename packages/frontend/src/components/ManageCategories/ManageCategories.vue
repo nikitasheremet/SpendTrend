@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import CategoryView from './CategoryView.vue'
 import AddCategory from './AddCategory.vue'
-import { useGetCategories } from './hooks/useGetCategories'
-import Error from '../DesignSystem/Error.vue'
 import Button from '@/components/DesignSystem/Button/Button.vue'
+import { getStore } from '@/store/store'
+
+const store = getStore()
 
 const { isOpen } = defineProps<{
   isOpen: boolean
@@ -12,8 +13,6 @@ const { isOpen } = defineProps<{
 const emit = defineEmits<{
   closeManageCategories: []
 }>()
-
-const { categories, error, newCategoriesAdded, categoryDeleted } = useGetCategories()
 </script>
 
 <template>
@@ -34,15 +33,14 @@ const { categories, error, newCategoriesAdded, categoryDeleted } = useGetCategor
         <h2 class="text-lg font-semibold">Your Expense Categories</h2>
         <Button class="font-semibold" @click="emit('closeManageCategories')">X</Button>
       </div>
-      <AddCategory @category-added="newCategoriesAdded" />
+      <AddCategory />
       <ul class="overflow-y-auto">
-        <li class="mb-4" v-for="category in categories" :key="category.name">
-          <CategoryView :category="category" @category-deleted="categoryDeleted" />
+        <li class="mb-4" v-for="category in store.categories.value" :key="category.name">
+          <CategoryView :category="category" />
         </li>
       </ul>
     </div>
   </Transition>
-  <Error v-if="error" :error="error" />
 </template>
 
 <style scoped></style>

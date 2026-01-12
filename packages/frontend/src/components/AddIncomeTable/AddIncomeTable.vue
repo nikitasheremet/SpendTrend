@@ -6,8 +6,11 @@ import { NewIncome } from '@/types/income/income'
 import Button from '../DesignSystem/Button/Button.vue'
 import TableHeaders from '../TableHeaders.vue'
 import LoadingModal from '../DesignSystem/Modal/LoadingModal.vue'
+import { getStore } from '@/store/store'
 
 const newIncomes = defineModel<NewIncome[]>({ required: true })
+
+const store = getStore()
 
 const emit = defineEmits<{
   moveToExpense: [income: NewIncome]
@@ -22,6 +25,13 @@ const {
   validationErrorsIndexes,
   loading,
 } = useAddIncome(newIncomes)
+
+function clearAllIncomes() {
+  if (confirm("Are you sure that you want to clear all incomes? This can't be undone")) {
+    store.clearNewIncomes()
+    addNewIncomeRow()
+  }
+}
 
 function moveToExpense(indexOfIncomeToMove: number) {
   const incomeToMove = newIncomeData.value[indexOfIncomeToMove]
@@ -59,6 +69,7 @@ const tableHeaders = [
   </table>
   <div class="flex gap-5">
     <Button @click="addNewIncomeRow">Add New Income Row</Button>
+    <Button @click="clearAllIncomes">Clear All Income</Button>
     <Button @click="addIncome">Save Income</Button>
   </div>
   <Error v-if="error" :error="error" />

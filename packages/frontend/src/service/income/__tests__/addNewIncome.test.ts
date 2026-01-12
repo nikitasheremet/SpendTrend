@@ -33,11 +33,20 @@ describe('addNewIncome', () => {
       const fakeIncome = {
         id: 'income-123',
       } as Income
-      mockCreateIncome.mockResolvedValue(fakeIncome)
+      const fakeResponse = {
+        createdIncomes: [fakeIncome],
+        failedIncomes: [],
+      }
+      mockCreateIncome.mockResolvedValue(fakeResponse)
 
-      const result = await addNewIncome(fakeNewIncome)
+      const result = await addNewIncome([fakeNewIncome])
 
-      expect(result).toEqual(fakeIncome)
+      expect(mockCreateIncome).toHaveBeenCalledWith({
+        userId: fakeAccountDetails.userId,
+        accountId: fakeAccountDetails.accountId,
+        incomesToCreate: [fakeNewIncome],
+      })
+      expect(result).toEqual(fakeResponse)
     })
   })
 
@@ -46,7 +55,7 @@ describe('addNewIncome', () => {
       const fakeError = new Error('Gateway error')
       mockCreateIncome.mockRejectedValue(fakeError)
 
-      await expect(addNewIncome(fakeNewIncome)).rejects.toThrow(fakeError)
+      await expect(addNewIncome([fakeNewIncome])).rejects.toThrow(fakeError)
     })
   })
 
@@ -60,7 +69,7 @@ describe('addNewIncome', () => {
       }
       mockGetStore.mockReturnValue(mockStore as any)
 
-      await expect(addNewIncome(fakeNewIncome)).rejects.toThrow(fakeError)
+      await expect(addNewIncome([fakeNewIncome])).rejects.toThrow(fakeError)
     })
   })
 })

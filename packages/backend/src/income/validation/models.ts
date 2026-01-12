@@ -12,13 +12,17 @@ import {
   userIdSchema,
 } from './validationUtils'
 
-export const createIncomeInputSchema = z.strictObject(
+export const createIncomesInputSchema = z.strictObject(
   {
-    name: nameSchema,
     userId: userIdSchema,
     accountId: accountIdSchema,
-    amount: amountSchema,
-    date: dateSchema,
+    incomesToCreate: z.array(
+      z.strictObject({
+        name: nameSchema,
+        amount: amountSchema,
+        date: dateSchema,
+      }),
+    ),
   },
   { error: VALIDATION_INPUT_MUST_BE_AN_OBJECT },
 )
@@ -51,7 +55,7 @@ export const updateIncomeInputSchema = z
     { message: VALIDATION_ERROR_NO_FIELDS_TO_UPDATE },
   )
 
-export type CreateIncomeInput = z.infer<typeof createIncomeInputSchema>
+export type CreateIncomesInput = z.infer<typeof createIncomesInputSchema>
 export type GetIncomesInput = z.infer<typeof getIncomesInputSchema>
 export type DeleteIncomeInput = z.infer<typeof deleteIncomeInputSchema>
 export type UpdateIncomeInput = z.infer<typeof updateIncomeInputSchema>

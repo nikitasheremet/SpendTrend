@@ -74,7 +74,8 @@ const formatDataPlaceholder = 'Paste your bank data here. Copy it directly from 
     <textarea
       @paste.prevent="handlePaste"
       :placeholder="formatDataPlaceholder"
-      class="border border-gray-300 rounded-md p-2 w-1/2"
+      class="border border-gray-300 rounded-md p-2 w-1/2 resize-none"
+      readonly
     />
   </div>
   <TabViewNav
