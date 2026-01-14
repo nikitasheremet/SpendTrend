@@ -7,10 +7,15 @@ export function formatPastedData(pastedHtml: string) {
   const purified = DOMPurify.sanitize(pastedHtml, { FORBID_ATTR: ['style', 'class'] })
   const htmlAsDocument = new DOMParser().parseFromString(purified, 'text/html')
 
+  console.log('Pasted HTML as Document:', htmlAsDocument)
+
   const rowsOfData = Array.from(htmlAsDocument.querySelectorAll('tr'))
+
+  console.log('Extracted Rows of Data:', rowsOfData)
 
   const extractedNewDataRows = rowsOfData.map((pastedRow) => {
     const cellsInRow = Array.from(pastedRow.cells)
+    console.log('Cells in Row:', cellsInRow)
     const noCellsHaveText = Boolean(cellsInRow.find((cell) => cell.innerText.trim()))
     if (!noCellsHaveText) return undefined
     const newData = {} as FormattedBankData
