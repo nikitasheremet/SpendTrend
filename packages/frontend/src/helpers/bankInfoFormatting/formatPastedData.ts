@@ -14,8 +14,12 @@ export function formatPastedData(pastedHtml: string) {
   console.log('Extracted Rows of Data:', rowsOfData)
 
   const extractedNewDataRows = rowsOfData.map((pastedRow) => {
+    console.log('Processing Row:', pastedRow.innerText)
     const cellsInRow = Array.from(pastedRow.cells)
-    console.log('Cells in Row:', cellsInRow)
+    console.log(
+      'Cells in Row:',
+      cellsInRow.map((cell) => cell.innerText),
+    )
     const noCellsHaveText = Boolean(cellsInRow.find((cell) => cell.innerText.trim()))
     if (!noCellsHaveText) return undefined
     const newData = {} as FormattedBankData
