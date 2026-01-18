@@ -44,6 +44,8 @@ const tableHeaders = [
   { label: 'Date', required: true },
   { label: 'Name', required: true },
   { label: 'Amount ($)', required: true },
+  { label: '' },
+  { label: '' },
 ]
 </script>
 

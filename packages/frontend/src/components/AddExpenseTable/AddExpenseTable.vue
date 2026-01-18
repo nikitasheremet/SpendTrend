@@ -49,6 +49,7 @@ const tableHeaders = [
   { label: 'Category', required: true },
   { label: 'Subcategory', required: false },
   { label: '', required: false },
+  { label: '', required: false },
 ]
 </script>
 
