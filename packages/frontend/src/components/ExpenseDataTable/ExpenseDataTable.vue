@@ -13,9 +13,9 @@ function handleRowError(newError: Error) {
 const tableHeaders = [
   { label: 'Date', customClass: 'w-1/7' },
   { label: 'Name', customClass: 'w-1/4' },
-  { label: 'Amount' },
-  { label: 'Paid Back' },
-  { label: 'Net Amount' },
+  { label: 'Amount ($)' },
+  { label: 'Paid Back ($)' },
+  { label: 'Net Amount ($)' },
   { label: 'Category' },
   { label: 'Subcategory' },
   { label: '' },

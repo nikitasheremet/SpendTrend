@@ -43,7 +43,7 @@ function moveToExpense(indexOfIncomeToMove: number) {
 const tableHeaders = [
   { label: 'Date', required: true },
   { label: 'Name', required: true },
-  { label: 'Amount', required: true },
+  { label: 'Amount ($)', required: true },
 ]
 </script>
 

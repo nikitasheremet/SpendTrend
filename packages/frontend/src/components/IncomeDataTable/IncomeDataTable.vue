@@ -10,7 +10,7 @@ function handleRowError(newError: Error) {
   error.value = newError
 }
 
-const tableHeaders = [{ label: 'Date' }, { label: 'Name' }, { label: 'Amount' }, { label: '' }]
+const tableHeaders = [{ label: 'Date' }, { label: 'Name' }, { label: 'Amount ($)' }, { label: '' }]
 </script>
 
 <template>
