@@ -41,24 +41,6 @@ export function createApp() {
     }),
   )
 
-  app.use(async (ctx, next) => {
-    if (ctx.req.path.startsWith('/api/auth')) {
-      console.log('Path', ctx.req.path)
-      console.log('Headers', ctx.req.header())
-      console.log('Query', ctx.req.query())
-      const body = ctx.req.raw.clone()
-      if (body) {
-        const text = await body.text()
-        console.log('Body', text)
-      } else {
-        console.log('Body is empty')
-      }
-    }
-    await next()
-    console.log('Response status:', ctx.res.status)
-    console.log('Response headers:', ctx.res.headers)
-  })
-
   app.all('/api/auth/*', (ctx) => auth.handler(ctx.req.raw))
 
   app.use(async (ctx, next) => {
