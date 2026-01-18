@@ -21,7 +21,7 @@ export async function getExpensesRepository(input: GetExpensesRepositoryInput): 
         subCategory: true,
       },
       where: eq(expensesTable.accountId, accountId),
-      orderBy: [desc(expensesTable.date)],
+      orderBy: [desc(expensesTable.date), desc(expensesTable.createdAt)],
     })
 
     return dbExpensesToDomainExpenses(expenses)
