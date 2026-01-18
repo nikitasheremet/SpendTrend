@@ -49,7 +49,6 @@ const onSaveSubCategory = async (name: string) => {
       type="text"
       @on-save="(value) => updateExpense(value, 'name')"
     />
-    <td class="border p-1">{{ expenseData.netAmount }}</td>
     <ExpenseDataCell
       :data="expenseData.amount!"
       type="number"
@@ -60,6 +59,7 @@ const onSaveSubCategory = async (name: string) => {
       type="number"
       @on-save="(value) => updateExpense(value, 'paidBackAmount')"
     />
+    <td class="border p-1">{{ expenseData.netAmount }}</td>
     <ExpenseDataCell
       :data="expenseData.category.name"
       type="dropdown"
