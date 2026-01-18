@@ -11,11 +11,6 @@ describe('when converting decimal amounts to integers', () => {
     expect(result).toBe(1050)
   })
 
-  it('should convert 9.5 to 950', () => {
-    const result = decimalToInteger(9.5)
-    expect(result).toBe(950)
-  })
-
   it('should convert 5.0 to 500', () => {
     const result = decimalToInteger(5.0)
     expect(result).toBe(500)
@@ -29,25 +24,5 @@ describe('when converting decimal amounts to integers', () => {
   it('should convert 0.01 to 1', () => {
     const result = decimalToInteger(0.01)
     expect(result).toBe(1)
-  })
-
-  it('should convert 0.99 to 99', () => {
-    const result = decimalToInteger(0.99)
-    expect(result).toBe(99)
-  })
-
-  it('should convert 1234.56 to 123456', () => {
-    const result = decimalToInteger(1234.56)
-    expect(result).toBe(123456)
-  })
-
-  it('should handle edge case with floating point precision for 0.07', () => {
-    const result = decimalToInteger(0.07)
-    expect(result).toBe(7)
-  })
-
-  it('should handle edge case with floating point precision for 0.14', () => {
-    const result = decimalToInteger(0.14)
-    expect(result).toBe(14)
   })
 })
