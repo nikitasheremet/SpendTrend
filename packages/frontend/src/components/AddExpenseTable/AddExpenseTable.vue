@@ -43,9 +43,9 @@ function clearAllExpenses() {
 const tableHeaders = [
   { label: 'Date', required: true },
   { label: 'Name', required: true, customClass: 'w-1/4' },
-  { label: 'Net Amount', required: false },
   { label: 'Amount', required: true },
   { label: 'Paid Back', required: false },
+  { label: 'Net Amount', required: false },
   { label: 'Category', required: true },
   { label: 'Subcategory', required: false },
   { label: '', required: false },

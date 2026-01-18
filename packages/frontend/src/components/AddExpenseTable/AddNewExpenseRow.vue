@@ -39,9 +39,9 @@ const expenseSubCategoryDropdownValue = computed({
 <template>
   <AddExpenseCell type="date" v-model="newExpenseData.date" />
   <AddExpenseCell v-model="newExpenseData.name" />
-  <td class="border p-1">{{ newExpenseData.netAmount }}</td>
   <AddExpenseCell type="number" v-model="newExpenseData.amount" />
   <AddExpenseCell type="number" v-model="newExpenseData.paidBackAmount" />
+  <td class="border p-1">{{ newExpenseData.netAmount }}</td>
   <AddExpenseCell
     type="dropdown"
     v-model="expenseCategoryDropdownValue"
