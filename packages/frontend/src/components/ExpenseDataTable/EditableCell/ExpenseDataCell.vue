@@ -40,6 +40,9 @@ const formattedCellData = computed(() => {
       ? formatDate(cellData.value!, DateFormat.DD_MMMM_YYYY, { ignoreTimezone: true })
       : ''
   }
+  if (type === 'number') {
+    return cellData.value !== undefined ? (cellData.value as number).toFixed(2) : ''
+  }
   return cellData.value
 })
 

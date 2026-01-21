@@ -37,6 +37,8 @@ function turnOffEditMode() {
 const formattedCellData = computed(() => {
   if (type === 'date') {
     return cellData.value ? formatDate(cellData.value!, DateFormat.DD_MMMM_YYYY) : ''
+  } else if (type === 'number') {
+    return cellData.value !== undefined ? (cellData.value as number).toFixed(2) : ''
   }
   return cellData.value
 })
