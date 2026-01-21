@@ -21,14 +21,19 @@ export function useManageExpense(
 
   async function updateExpense(newValue: unknown, key: keyof Expense): Promise<void> {
     try {
-      let valueToUpdate = newValue
+      const valueHasNotChanged = JSON.stringify(expenseData.value[key]) == JSON.stringify(newValue)
+      if (valueHasNotChanged) {
+        // No change detected, do not update
+        return
+      }
+
       if (key === 'date') {
-        valueToUpdate = formatDate(
+        newValue = formatDate(
           new Date(newValue as string | Date).toISOString(),
           DateFormat.YYYY_MM_DD,
         )
       }
-      const updatedExpense = { ...expenseData.value, [key]: valueToUpdate }
+      const updatedExpense = { ...expenseData.value, [key]: newValue }
       if (key === 'amount' || key === 'paidBackAmount') {
         updatedExpense.netAmount =
           (updatedExpense.amount || 0) - (updatedExpense.paidBackAmount || 0)
