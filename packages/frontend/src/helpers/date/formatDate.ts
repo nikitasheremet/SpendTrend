@@ -15,6 +15,17 @@ function parseDate(date: Date | string | number, options?: DateFormatOptions): D
       return new Date(year, month - 1, day)
     }
   }
+
+  // Handle malformed date strings like "December 172025" (missing space between day and year)
+  if (typeof date === 'string') {
+    const malformedDateMatch = date.match(/^([A-Za-z]+)\s+(\d{1,2})(\d{4})$/)
+    if (malformedDateMatch) {
+      const [, month, day, year] = malformedDateMatch
+      const correctedDate = `${month} ${day} ${year}`
+      return new Date(correctedDate)
+    }
+  }
+
   return new Date(date)
 }
 

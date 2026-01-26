@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
+import { is } from 'date-fns/locale'
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import { useAttrs } from 'vue'
@@ -17,13 +18,25 @@ const emits = defineEmits<{
 }>()
 
 const showTooltip = ref(false)
+const transformedModel = ref<string>('')
 
 const inputRef = useTemplateRef('input-ref')
 onMounted(() => {
   if (autofocus) {
     inputRef.value?.focus()
   }
+  syncTransformedModel()
 })
+
+function syncTransformedModel() {
+  if (type === 'date' && model.value) {
+    transformedModel.value = formatDate(new Date(model.value), DateFormat.YYYY_MM_DD)
+  } else if (type === 'number' && model.value !== undefined) {
+    transformedModel.value = (model.value as number).toFixed(2)
+  } else {
+    transformedModel.value = model.value?.toString() ?? ''
+  }
+}
 
 function showHideTooltip() {
   const el = inputRef.value
@@ -36,23 +49,36 @@ function showHideTooltip() {
   }
 }
 
-const transformedModel = computed({
-  get() {
-    if (type === 'date' && model.value) {
-      return formatDate(new Date(model.value), DateFormat.YYYY_MM_DD)
+function onChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const value = target.value
+
+  if (type === 'number') {
+    const isValidNumber = /^\d*\.?\d*$/.test(value)
+    console.log(isValidNumber, value)
+    const hasMoreThanTwoDecimals = /\.\d{3,}/.test(value)
+    if (hasMoreThanTwoDecimals || !isValidNumber) {
+      target.value = transformedModel.value
+      return
     }
-    return model.value
-  },
-  set(value) {
-    if (type === 'date' && value) {
-      model.value = new Date(value).getTime()
-    } else {
-      model.value = value
-    }
-  },
-})
+  }
+
+  transformedModel.value = value
+
+  if (type === 'date' && value) {
+    model.value = new Date(value).getTime()
+    return
+  }
+  if (type === 'number') {
+    const numberValue = parseFloat(transformedModel.value)
+    model.value = isNaN(numberValue) ? '' : numberValue
+    return
+  }
+  model.value = value as any
+}
 
 function inputBlurred(event: FocusEvent) {
+  syncTransformedModel()
   showHideTooltip()
   emits('blur', event)
 }
@@ -62,14 +88,9 @@ function inputFocused(event: FocusEvent) {
   emits('focus', event)
 }
 
-watch(
-  [transformedModel, model],
-  async (newValue) => {
-    await nextTick()
-    showHideTooltip()
-  },
-  { immediate: true },
-)
+watch(model, () => {
+  showHideTooltip()
+})
 
 defineExpose({
   blur: () => {
@@ -82,10 +103,11 @@ defineExpose({
   <input
     class="w-full px-2 truncate is-truncated peer border border-gray-500 rounded-sm"
     ref="input-ref"
-    v-model="transformedModel"
-    :type="type"
+    :value="transformedModel"
+    :type="type === 'date' ? 'date' : type === 'number' ? 'text' : type"
     @blur="inputBlurred"
     @focus="inputFocused"
+    @input="onChange"
     v-bind="attrs"
   />
   <div
