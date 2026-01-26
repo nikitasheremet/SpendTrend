@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import AddExpenseTable from '@/components/AddExpenseTable/AddExpenseTable.vue'
 import AddIncomeTable from '@/components/AddIncomeTable/AddIncomeTable.vue'
-import Button from '@/components/DesignSystem/Button/Button.vue'
 import TabViewNav from '@/components/DesignSystem/TabViewNav/TabViewNav.vue'
-import { DataType } from '@/helpers/bankInfoFormatting/formatBankData'
 import { NewExpense } from '@/types/expenseData'
 import { NewIncome } from '@/types/income/income'
 import { ref } from 'vue'
 import { getStore } from '@/store/store'
-import { formatPastedData } from '@/helpers/bankInfoFormatting/formatPastedData'
+import { formatPastedBankData } from '@/helpers/bankInfoFormatting/formatPastedBankData'
+import { DataType } from '@/helpers/bankInfoFormatting/bankInfoTypes'
 
 const store = getStore()
 const currentTab = ref<'expense' | 'income'>('expense')
 
 function formatData(dataToFormat: string) {
-  const createdData = formatPastedData(dataToFormat)
+  const createdData = formatPastedBankData(dataToFormat)
   console.log('Created data:', createdData)
   const newExpensesToAdd = createdData
     .filter((data) => data.type === DataType.EXPENSE)
