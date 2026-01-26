@@ -1,16 +1,5 @@
 import { DateFormat, formatDate } from '../date/formatDate'
-
-export enum DataType {
-  EXPENSE = 'expense',
-  INCOME = 'income',
-}
-
-export interface FormattedBankData {
-  type: DataType
-  date?: string
-  name: string
-  amount: number
-}
+import { DataType, FormattedBankData } from './bankInfoTypes'
 
 export function formatBankData(bankData: string): FormattedBankData[] {
   const splitData = bankData.split(/([\t\n]+)/)
