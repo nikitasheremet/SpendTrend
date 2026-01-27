@@ -12,7 +12,7 @@ const mockExtractExpensesAndIncomes = vi.mocked(extractExpensesAndIncomes)
 describe('formatPastedBankData', () => {
   beforeEach(() => {
     mockExtractExpensesAndIncomes.mockImplementation((row: HTMLTableRowElement) => {
-      const text = row.textContent.trim()
+      const text = row.textContent?.trim()
       if (!text) return undefined
       return {
         type: DataType.EXPENSE,
