@@ -23,7 +23,7 @@ export function extractExpensesAndIncomes(dataRow: HTMLTableRowElement) {
 
   cellsInRow = remainingCells
 
-  const expenseAmount = cleanNumber(cellsInRow[0].innerText)
+  const expenseAmount = cleanNumber(cellsInRow[0]?.innerText)
 
   if (expenseAmount !== undefined) {
     newData.amount = expenseAmount
