@@ -3,6 +3,7 @@ import { extractExpensesAndIncomes } from './extractExpensesAndIncomes.js'
 import { FormattedBankData } from './bankInfoTypes.js'
 
 export function formatPastedBankData(pastedHtml: string) {
+  console.log('Original Pasted HTML:', pastedHtml)
   const rowsOfData = cleanAndExtractRows(pastedHtml)
   const extractedNewDataRows = rowsOfData.map(extractExpensesAndIncomes)
 
