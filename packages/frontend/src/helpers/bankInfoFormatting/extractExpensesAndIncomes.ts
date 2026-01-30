@@ -51,7 +51,7 @@ function extractDescription(cells: HTMLTableCellElement[]): [string, HTMLTableCe
   }
 
   // Regex to match amount numbers like $123.45, -$1,234.56, 2500.00, 15.50, etc.
-  const amountRegex = /^[-−]?\$?(?:\d{1,3}(?:,\d{3})+|\d+)\.\d+$/
+  const amountRegex = /^([-−]?\$?(?:\d{1,3}(?:,\d{3})+|\d+)\.\d+(?!%))+$/
 
   // Find the amount cell starting from the description
   let amountIndex = -1
