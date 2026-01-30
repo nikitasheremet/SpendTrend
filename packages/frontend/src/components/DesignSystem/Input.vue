@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
-import { is } from 'date-fns/locale'
-import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import { useAttrs } from 'vue'
 const attrs = useAttrs()
@@ -22,10 +21,13 @@ const transformedModel = ref<string>('')
 
 const inputRef = useTemplateRef('input-ref')
 onMounted(() => {
+  console.log('in mounted')
   if (autofocus) {
     inputRef.value?.focus()
   }
+
   syncTransformedModel()
+  showHideTooltip()
 })
 
 function syncTransformedModel() {
@@ -38,7 +40,8 @@ function syncTransformedModel() {
   }
 }
 
-function showHideTooltip() {
+async function showHideTooltip() {
+  await nextTick()
   const el = inputRef.value
   const elementTooLong = el && el.scrollWidth > el.clientWidth
   const isFocused = document.activeElement === el
@@ -88,7 +91,8 @@ function inputFocused(event: FocusEvent) {
   emits('focus', event)
 }
 
-watch(model, () => {
+watch(model, async () => {
+  syncTransformedModel()
   showHideTooltip()
 })
 
@@ -109,8 +113,10 @@ defineExpose({
     @focus="inputFocused"
     @input="onChange"
     v-bind="attrs"
+    :aria-label="type === 'date' ? 'date-picker' : undefined"
   />
   <div
+    id="input-tooltip"
     v-if="showTooltip"
     class="peer-hover:visible absolute invisible z-5000 whitespace-normal bg-gray-800 text-white text-sm p-2 rounded"
   >
