@@ -178,6 +178,49 @@ describe('extractExpensesAndIncomes', () => {
     })
   })
 
+  describe('when amount cell contains multiple amounts and extra text', () => {
+    it('should treat the cell as part of the description since it contains extra text', () => {
+      const fakeRow = createFakeRow(['Jan 15, 2026', 'Coffee Shop', '$6.32$0.03 false', '', ''])
+
+      const result = extractExpensesAndIncomes(fakeRow)
+
+      expect(result?.name).toBe('Coffee Shop $6.32$0.03 false')
+      expect(result?.type).toBe(DataType.INCOME)
+      expect(result?.amount).toBe(0)
+    })
+  })
+
+  describe('when amount cell contains only concatenated amounts', () => {
+    it('should correctly identify the amount cell and extract description', () => {
+      const fakeRow = createFakeRow(['Jan 15, 2026', 'Coffee Shop', '$6.32$0.03', '', ''])
+
+      const result = extractExpensesAndIncomes(fakeRow)
+
+      expect(result?.name).toBe('Coffee Shop')
+      expect(result?.amount).toBe(6.32)
+      expect(result?.type).toBe(DataType.EXPENSE)
+    })
+  })
+
+  describe('when amount cell contains a percentage', () => {
+    it('should not treat the percentage as an amount and extract full description', () => {
+      const fakeRow = createFakeRow([
+        'Jan 15, 2026',
+        '0.5%TIM HORTONS #1723 TORONTO ONFast Food (Quick Service)open dialog',
+        '',
+        '',
+      ])
+
+      const result = extractExpensesAndIncomes(fakeRow)
+
+      expect(result?.name).toBe(
+        '0.5%TIM HORTONS #1723 TORONTO ONFast Food (Quick Service)open dialog',
+      )
+      expect(result?.type).toBe(DataType.INCOME)
+      expect(result?.amount).toBe(0)
+    })
+  })
+
   describe('when description is not found', () => {
     it('should return an empty string and the same cells that were passed into it', () => {
       const fakeRow = createFakeRow(['Jan 15, 2026', '', '', ''])
