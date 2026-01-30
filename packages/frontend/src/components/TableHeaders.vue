@@ -21,7 +21,7 @@ const { headers } = defineProps<{
         v-for="(header, index) in headers"
         :key="index"
         class="sticky"
-        :class="{ 'top-15 z-40 bg-white h-11 align-bottom': hasScrolledPast }"
+        :class="[header.customClass, { 'top-15 z-40 bg-white h-11 align-bottom': hasScrolledPast }]"
       >
         {{ header.label }} <span v-if="header.required" class="text-red-700 text-2xl">*</span>
       </th>
