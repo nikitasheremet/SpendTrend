@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { defineProps, useTemplateRef, onMounted } from 'vue'
+import { useTemplateRef, onMounted } from 'vue'
 import Select from './Select.vue'
 
 const dropdownInputModel = defineModel<string | undefined>()
@@ -8,7 +8,6 @@ const props = defineProps<{
   autofocus?: boolean
 }>()
 const emit = defineEmits<{
-  onSelect: [string]
   onChange: [string]
   isInputValid: [boolean]
   escapeKeyPressed: []
