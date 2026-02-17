@@ -1,81 +1,170 @@
 <script lang="ts" setup>
-import AddNewIncomeRow from './AddNewIncomeRow.vue'
-import { useAddIncome } from './hooks/useAddIncome'
-import Error from '../DesignSystem/Error.vue'
+import { computed, watch } from 'vue'
+import {
+  GenericTable,
+  useTableOperations,
+  type ColumnConfig,
+  type RowAction,
+  type TableAction,
+} from '../DesignSystem/Table'
 import { NewIncome } from '@/types/income/income'
-import Button from '../DesignSystem/Button/Button.vue'
-import TableHeaders from '../TableHeaders.vue'
-import LoadingModal from '../DesignSystem/Modal/LoadingModal.vue'
 import { getStore } from '@/store/store'
+import { addNewIncome } from '@/service/income/addNewIncome'
+import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 
 const newIncomes = defineModel<NewIncome[]>({ required: true })
-
 const store = getStore()
 
 const emit = defineEmits<{
   moveToExpense: [income: NewIncome]
 }>()
 
-const {
-  newIncomeData,
-  addIncome,
-  addNewIncomeRow,
-  deleteNewIncomeRow,
-  error,
-  validationErrorsIndexes,
-  loading,
-} = useAddIncome(newIncomes)
-
-function clearAllIncomes() {
-  if (confirm("Are you sure that you want to clear all incomes? This can't be undone")) {
-    store.clearNewIncomes()
-    addNewIncomeRow()
+// Create empty income row
+function createEmptyIncome(): NewIncome {
+  return {
+    date: formatDate(new Date(), DateFormat.YYYY_MM_DD),
+    name: '',
+    amount: 0,
   }
 }
 
-function moveToExpense(indexOfIncomeToMove: number) {
-  const incomeToMove = newIncomeData.value[indexOfIncomeToMove]
-  emit('moveToExpense', incomeToMove)
-
-  deleteNewIncomeRow(indexOfIncomeToMove)
+// Validation function
+function validateIncomes(incomes: NewIncome[]): number[] {
+  const errorIndexes: number[] = []
+  incomes.forEach((income, index) => {
+    if (!income.name || !income.amount || !income.date) {
+      errorIndexes.push(index)
+    }
+  })
+  return errorIndexes
 }
 
-const tableHeaders = [
-  { label: 'Date', required: true },
-  { label: 'Name', required: true },
-  { label: 'Amount ($)', required: true },
-  { label: '' },
-  { label: '' },
+// Save handler
+async function handleSave(items: NewIncome[]): Promise<{ failedItems?: NewIncome[] }> {
+  const { failedIncomes } = await addNewIncome(items)
+  return {
+    failedItems: failedIncomes.map((fi) => fi.incomeInput),
+  }
+}
+
+// Use table operations hook
+const {
+  rows: tableData,
+  addRow,
+  deleteRow,
+  updateCell,
+  saveAll,
+  clearAll,
+  isLoading,
+  error,
+  validationErrors,
+} = useTableOperations<NewIncome>({
+  initialData: newIncomes.value,
+  mode: 'editable',
+  createEmptyRow: createEmptyIncome,
+  onSave: handleSave,
+  validate: validateIncomes,
+})
+
+// Sync with model
+watch(
+  tableData,
+  (newData) => {
+    newIncomes.value = newData
+  },
+  { deep: true },
+)
+
+watch(
+  newIncomes,
+  (newData) => {
+    if (tableData.value !== newData) {
+      tableData.value = newData
+    }
+  },
+  { deep: true },
+)
+
+// Move to expense handler
+async function moveToExpense(row: NewIncome, index: number) {
+  emit('moveToExpense', row)
+  await deleteRow(index)
+}
+
+// Clear all with confirmation
+function handleClearAll() {
+  if (confirm("Are you sure that you want to clear all incomes? This can't be undone")) {
+    store.clearNewIncomes()
+    clearAll()
+  }
+}
+
+// Column configuration
+const columns = computed<ColumnConfig<NewIncome>[]>(() => [
+  {
+    key: 'date',
+    label: 'Date',
+    type: 'date',
+    required: true,
+  },
+  {
+    key: 'name',
+    label: 'Name',
+    type: 'longtext',
+    required: true,
+  },
+  {
+    key: 'amount',
+    label: 'Amount ($)',
+    type: 'number',
+    required: true,
+  },
+])
+
+// Row actions
+const rowActions = computed<RowAction<NewIncome>[]>(() => [
+  {
+    label: 'Delete',
+    handler: async (_row: NewIncome, index: number) => {
+      await deleteRow(index)
+    },
+    show: () => tableData.value.length > 1,
+  },
+  {
+    label: '>> Expense',
+    handler: moveToExpense,
+  },
+])
+
+// Table actions
+const tableActions: TableAction[] = [
+  {
+    label: 'Add New Income Row',
+    handler: () => addRow(),
+  },
+  {
+    label: 'Clear All Income',
+    handler: handleClearAll,
+  },
+  {
+    label: 'Save Income',
+    handler: saveAll,
+  },
 ]
 </script>
 
 <template>
-  <table class="w-200 table-fixed mb-5">
-    <TableHeaders :headers="tableHeaders" />
-    <tbody>
-      <tr
-        class="hover:bg-gray-100/50"
-        :class="{ 'bg-red-300/50 hover:bg-red-300/50': validationErrorsIndexes.includes(index) }"
-        v-for="(_, index) in newIncomeData"
-        :key="index"
-      >
-        <AddNewIncomeRow v-model="newIncomeData[index]" />
-        <td class="text-center p-1" v-if="newIncomeData.length > 1">
-          <Button class="w-8/10 text-sm" @click="deleteNewIncomeRow(index)">Delete</Button>
-        </td>
-        <td class="p-1">
-          <Button class="text-sm" @click="moveToExpense(index)">>> Expense</Button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <div class="flex gap-5">
-    <Button @click="addNewIncomeRow">Add New Income Row</Button>
-    <Button @click="clearAllIncomes">Clear All Income</Button>
-    <Button @click="addIncome">Save Income</Button>
-  </div>
-  <Error v-if="error" :error="error" />
-  <LoadingModal :isModalOpen="loading" message="Saving incomes..." />
+  <GenericTable
+    :data="tableData"
+    :columns="columns"
+    :row-actions="rowActions"
+    :table-actions="tableActions"
+    :validation-errors="validationErrors"
+    :error="error"
+    :loading="isLoading"
+    mode="editable"
+    @cell:changed="updateCell"
+  />
 </template>
 
 <style scoped></style>

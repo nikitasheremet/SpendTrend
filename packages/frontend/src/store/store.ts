@@ -15,14 +15,11 @@ const selectedMonthRef = ref<number>(new Date().getUTCMonth())
 const selectedYearRef = ref<number>(new Date().getUTCFullYear())
 const expenseCategories = ref<ExpenseCategory[]>([])
 
-let debounceTimer: ReturnType<typeof setTimeout> | null = null
 watch(
   [() => newExpensesRef.value, () => newIncomesRef.value],
   () => {
-    if (debounceTimer) clearTimeout(debounceTimer)
-    debounceTimer = setTimeout(() => {
-      saveExpensesToStorage()
-    }, 500)
+    saveExpensesToStorage()
+    saveIncomesToStorage()
   },
   { deep: true },
 )
