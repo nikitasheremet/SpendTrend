@@ -1,27 +1,20 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
-import { getExpenses } from '@/service/expenses/getExpenses'
+import { computed } from 'vue'
 import { getStore } from '@/store/store'
 import MonthlyCategorySummary from './MonthlyCategorySummary.vue'
 import MonthlyTotalSummary from './MonthlyTotalSummary.vue'
 
 const store = getStore()
 
-const listOfYears = ref<number[]>([])
-
-onMounted(async () => {
-  const allExpenses = await getExpenses()
-  const years = allExpenses.reduce((acc, expense) => {
+const listOfYears = computed<number[]>(() => {
+  const years = store.expenses.value.reduce((acc, expense) => {
     const year = new Date(expense.date).getUTCFullYear()
     acc.add(year)
     return acc
   }, new Set<number>())
 
   const currentYear = new Date().getUTCFullYear()
-  const yearsWithCurrentYear = Array.from(
-    new Set([...Array.from(years), currentYear].sort((a, b) => a - b)),
-  )
-  listOfYears.value = yearsWithCurrentYear
+  return Array.from(new Set([...Array.from(years), currentYear].sort((a, b) => a - b)))
 })
 
 const listOfMonths = [

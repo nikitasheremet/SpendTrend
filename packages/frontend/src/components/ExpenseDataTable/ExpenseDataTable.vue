@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, inject } from 'vue'
+import { computed, ref, inject, watch } from 'vue'
 import { GenericTable, type ColumnConfig, type RowAction } from '../DesignSystem/Table'
 import type { Expense } from '@/types/expenseData'
-import { getExpenses } from '@/service/expenses/getExpenses'
 import { updateExpense as serviceUpdateExpense } from '@/service/expenses/updateExpense'
 import { deleteExpense as serviceDeleteExpense } from '@/service/expenses/deleteExpense'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
@@ -10,8 +9,14 @@ import { useCategoriesInExpenseData } from '@/helpers/hooks/useGetCategories'
 import { POPOVER_SYMBOL } from '@/types/providedSymbols'
 import type { PopoverRef } from '@/types/designSystem'
 import RowNotificationPopover from './hooks/RowNotificationPopover.vue'
+import { getStore } from '@/store/store'
 
-const expenses = ref<any[]>([])
+type DisplayExpense = Omit<Expense, 'category' | 'subCategory'> & {
+  category: string
+  subCategory: string
+}
+
+const store = getStore()
 const error = ref<Error | undefined>(undefined)
 const popover = inject<PopoverRef>(POPOVER_SYMBOL)
 
@@ -19,39 +24,40 @@ const popover = inject<PopoverRef>(POPOVER_SYMBOL)
 const { categoryNames, getCategory, getSubcategories } = useCategoriesInExpenseData()
 
 // Preformat expenses to extract category and subCategory names for display
-function preformatExpenses(
-  rawExpenses: Expense[],
-): Array<Omit<Expense, 'category' | 'subCategory'> & { category: string; subCategory: string }> {
+function preformatExpenses(rawExpenses: Expense[]): DisplayExpense[] {
   return rawExpenses.map((expense) => ({
     ...expense,
     category: expense.category?.name || '',
     subCategory: expense.subCategory?.name || '',
-  })) as unknown as Array<
-    Omit<Expense, 'category' | 'subCategory'> & { category: string; subCategory: string }
-  >
+  })) as DisplayExpense[]
 }
 
-// Fetch expenses on mount
-onMounted(async () => {
-  try {
-    const rawExpenses = await getExpenses()
-    expenses.value = preformatExpenses(rawExpenses)
-  } catch (err) {
-    error.value = err as Error
+function getCurrentDisplayValue(expense: Expense, key: keyof DisplayExpense) {
+  if (key === 'category') {
+    return expense.category?.name || ''
   }
-})
+
+  if (key === 'subCategory') {
+    return expense.subCategory?.name || ''
+  }
+
+  return expense[key]
+}
+
+const expenses = computed(() => preformatExpenses(store.expenses.value))
 
 // Handle cell updates
-async function handleCellUpdate(rowIndex: number, key: string | number | symbol, value: any) {
+async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, value: any) {
   try {
-    const expense = expenses.value[rowIndex]
+    const expense = store.expenses.value[rowIndex]
 
     // Check if value actually changed
-    if (JSON.stringify(expense[key]) === JSON.stringify(value)) {
+    const currentDisplayValue = getCurrentDisplayValue(expense, key)
+    if (JSON.stringify(currentDisplayValue) === JSON.stringify(value)) {
       return
     }
 
-    let updatedExpense: any = { ...expense }
+    let updatedExpense: Expense = { ...expense }
 
     // Handle special cases
     if (key === 'date') {
@@ -62,55 +68,26 @@ async function handleCellUpdate(rowIndex: number, key: string | number | symbol,
       const category = getCategory(value as string)
       updatedExpense.category = category
       // Clear subcategory when category changes
-      updatedExpense.subCategory = ''
+      updatedExpense.subCategory = undefined
     } else if (key === 'subCategory') {
       // Value is subcategory name string, need to find subcategory object for service
-      const categoryName =
-        typeof updatedExpense.category === 'string'
-          ? updatedExpense.category
-          : updatedExpense.category?.name
-      const categoryObj = getCategory(categoryName)
+      const categoryObj = updatedExpense.category
       const subcategory = categoryObj.subCategories?.find((sub) => sub.name === value)
       if (subcategory) {
         updatedExpense.subCategory = subcategory
+      } else {
+        updatedExpense.subCategory = undefined
       }
     } else {
-      updatedExpense = { ...updatedExpense, [key]: value }
-    }
-
-    // Prepare for service (convert category/subCategory back to objects)
-    const servicePayload: Expense = {
-      ...updatedExpense,
-      category:
-        typeof updatedExpense.category === 'string'
-          ? getCategory(updatedExpense.category)
-          : updatedExpense.category,
-      subCategory:
-        typeof updatedExpense.subCategory === 'string' ? undefined : updatedExpense.subCategory,
+      updatedExpense = {
+        ...updatedExpense,
+        [key]: value,
+      }
     }
 
     // Update via service
-    await serviceUpdateExpense(servicePayload)
-
-    // Update local state with names for display
-    const displayCategory =
-      typeof updatedExpense.category === 'string'
-        ? updatedExpense.category
-        : updatedExpense.category?.name
-
-    // If category changed, ensure subcategory is cleared
-    const displaySubCategory =
-      key === 'category'
-        ? ''
-        : typeof updatedExpense.subCategory === 'string'
-          ? updatedExpense.subCategory
-          : updatedExpense.subCategory?.name || ''
-
-    expenses.value[rowIndex] = {
-      ...updatedExpense,
-      category: displayCategory,
-      subCategory: displaySubCategory,
-    }
+    const updatedFromService = await serviceUpdateExpense(updatedExpense)
+    store.updateExpense(updatedFromService)
 
     // Show notification
     popover?.value?.showPopover(RowNotificationPopover, { message: 'Row updated' })
@@ -122,10 +99,10 @@ async function handleCellUpdate(rowIndex: number, key: string | number | symbol,
 }
 
 // Handle row deletion
-async function handleDelete(row: Expense, index: number) {
+async function handleDelete(row: DisplayExpense) {
   try {
     await serviceDeleteExpense(row.id)
-    expenses.value.splice(index, 1)
+    store.deleteExpense(row.id)
     popover?.value?.showPopover(RowNotificationPopover, { message: 'Row deleted' })
     error.value = undefined
   } catch (err) {
@@ -134,7 +111,7 @@ async function handleDelete(row: Expense, index: number) {
 }
 
 // Column configuration
-const columns = computed<ColumnConfig<any>[]>(() => [
+const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
   {
     key: 'date',
     label: 'Date',
@@ -162,7 +139,7 @@ const columns = computed<ColumnConfig<any>[]>(() => [
     label: 'Net Amount ($)',
     type: 'number',
     editable: false,
-    calculate: (row) => (row.amount || 0) - (row.paidBackAmount || 0),
+    calculate: (row: DisplayExpense) => (row.amount || 0) - (row.paidBackAmount || 0),
     format: (value: number) => value.toFixed(2),
   },
   {
@@ -175,16 +152,15 @@ const columns = computed<ColumnConfig<any>[]>(() => [
     key: 'subCategory',
     label: 'Subcategory',
     type: 'dropdown',
-    dropdownOptions: (row: Expense) => {
-      const categoryName =
-        typeof row.category === 'string' ? row.category : (row.category as any)?.name
-      return getSubcategories(getCategory(categoryName).id)
+    dropdownOptions: (row: DisplayExpense) => {
+      const category = getCategory(row.category)
+      return getSubcategories(category?.id)
     },
   },
 ])
 
 // Row actions
-const rowActions: RowAction<any>[] = [
+const rowActions: RowAction<DisplayExpense>[] = [
   {
     label: 'Delete',
     handler: handleDelete,

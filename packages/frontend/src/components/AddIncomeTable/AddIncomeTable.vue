@@ -41,7 +41,11 @@ function validateIncomes(incomes: NewIncome[]): number[] {
 
 // Save handler
 async function handleSave(items: NewIncome[]): Promise<{ failedItems?: NewIncome[] }> {
-  const { failedIncomes } = await addNewIncome(items)
+  const { createdIncomes, failedIncomes } = await addNewIncome(items)
+  if (createdIncomes.length > 0) {
+    store.addIncomes(createdIncomes)
+  }
+
   return {
     failedItems: failedIncomes.map((fi) => fi.incomeInput),
   }

@@ -91,7 +91,11 @@ function validateExpenses(expenses: NewExpense[]): number[] {
 
 // Save handler
 async function handleSave(items: NewExpense[]): Promise<{ failedItems?: NewExpense[] }> {
-  const { failedExpenses } = await addNewExpense(toModelExpenses(items))
+  const { createdExpenses, failedExpenses } = await addNewExpense(toModelExpenses(items))
+  if (createdExpenses.length > 0) {
+    store.addExpenses(createdExpenses)
+  }
+
   return {
     failedItems: failedExpenses.map((fe) => toDisplayExpense(fe.expenseInput)),
   }

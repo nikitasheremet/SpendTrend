@@ -5,15 +5,13 @@ import type {
   ExpenseSummaryByCategory,
   MonthDataSummary,
 } from '../../../types/dataSummary.js'
-import { getExpenses } from '@/service/expenses/getExpenses'
 import { getTotalExpensesForSelectedMonth } from '../../../helpers/dataSummaryCalculations/getTotalExpensesForSelectedMonth.js'
 import { getExpenseAverage } from '@/helpers/dataSummaryCalculations/getExpenseAverage.js'
-import { getAllIncomes } from '@/service/income/getAllIncomes.js'
 import { getTotalIncomesForSelectedMonth } from '@/helpers/dataSummaryCalculations/getTotalIncomeForSelectedMonth.js'
 import { getIncomeAverage } from '@/helpers/dataSummaryCalculations/getIncomeAverage.js'
-import { getCategories } from '@/service/categories/getCategories.js'
 import { Expense } from '@/types/expenseData.js'
 import { Income } from '@/types/income/income.js'
+import { getStore } from '@/store/store'
 
 const EMPTY_SUMMARY_FOR_SELECTED_MONTH: MonthDataSummary = {
   expenses: {
@@ -35,11 +33,12 @@ export function useGetMonthlyExpenseSummary(
   selectedMonth: Ref<number, number>,
   selectedYear: Ref<number, number>,
 ) {
+  const store = getStore()
   const summaryForSelectedMonth = ref<MonthDataSummary>(EMPTY_SUMMARY_FOR_SELECTED_MONTH)
   const summaryForSelectedMonthByCategory = ref<ExpenseSummaryByCategory>([])
 
-  async function calculateSummaryValues(selectedMonth: number, selectedYear: number) {
-    const allExpenses = await getExpenses()
+  function calculateSummaryValues(selectedMonth: number, selectedYear: number) {
+    const allExpenses = store.expenses.value
     const expenseSummary = new ExpenseSummary(allExpenses, selectedMonth, selectedYear)
     summaryForSelectedMonth.value.expenses = {
       total: expenseSummary.totalAmount,
@@ -48,7 +47,7 @@ export function useGetMonthlyExpenseSummary(
       diffTotalToAvgAsPercent: expenseSummary.diffTotalToAverageAsPercent,
     }
 
-    const allIncomes = await getAllIncomes()
+    const allIncomes = store.incomes.value
     const incomeSummary = new IncomeSummary(allIncomes, selectedMonth, selectedYear)
 
     summaryForSelectedMonth.value.income = {
@@ -60,7 +59,7 @@ export function useGetMonthlyExpenseSummary(
 
     summaryForSelectedMonth.value.savings = incomeSummary.totalAmount - expenseSummary.totalAmount
 
-    const allCategories = await getCategories()
+    const allCategories = store.categories.value
 
     const categoriesSummary: ExpenseSummaryByCategory = []
 

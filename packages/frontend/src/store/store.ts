@@ -2,8 +2,10 @@ import { reactive, ref, watch } from 'vue'
 import type { Store } from './storeInterface'
 import { authClient } from '@/lib/auth-client'
 import { getCategories } from '@/service/categories/getCategories'
-import { ExpenseCategory, ExpenseSubCategory, NewExpense } from '@/types/expenseData'
-import { NewIncome } from '@/types/income/income'
+import { Expense, ExpenseCategory, ExpenseSubCategory, NewExpense } from '@/types/expenseData'
+import { Income, NewIncome } from '@/types/income/income'
+import { getExpenses } from '@/service/expenses/getExpenses'
+import { getAllIncomes } from '@/service/income/getAllIncomes'
 
 const STORAGE_KEY_EXPENSES = 'spendtrend_new_expenses'
 const STORAGE_KEY_INCOMES = 'spendtrend_new_incomes'
@@ -14,6 +16,8 @@ const newIncomesRef = ref<NewIncome[]>([])
 const selectedMonthRef = ref<number>(new Date().getUTCMonth())
 const selectedYearRef = ref<number>(new Date().getUTCFullYear())
 const expenseCategories = ref<ExpenseCategory[]>([])
+const expensesRef = ref<Expense[]>([])
+const incomesRef = ref<Income[]>([])
 
 watch(
   [() => newExpensesRef.value, () => newIncomesRef.value],
@@ -25,7 +29,16 @@ watch(
 )
 
 const storeObj = reactive<
-  Omit<Store, 'newExpenses' | 'newIncomes' | 'selectedMonth' | 'selectedYear' | 'categories'>
+  Omit<
+    Store,
+    | 'newExpenses'
+    | 'newIncomes'
+    | 'selectedMonth'
+    | 'selectedYear'
+    | 'categories'
+    | 'expenses'
+    | 'incomes'
+  >
 >({
   getAccountDetails: async () => {
     const session = await authClient.getSession()
@@ -77,6 +90,40 @@ const storeObj = reactive<
     updatedSubCategories[subCategoryIndex] = updatedSubCategory
     category.subCategories = updatedSubCategories.sort((a, b) => a.name.localeCompare(b.name))
   },
+  setExpenses: (newExpenses: Expense[]) => {
+    expensesRef.value = newExpenses
+  },
+  addExpenses: (newExpenses: Expense[]) => {
+    expensesRef.value = [...newExpenses, ...expensesRef.value]
+  },
+  updateExpense: (updatedExpense: Expense) => {
+    const expenseIndex = expensesRef.value.findIndex((expense) => expense.id === updatedExpense.id)
+    if (expenseIndex === -1) return
+
+    const updatedExpenses = [...expensesRef.value]
+    updatedExpenses[expenseIndex] = updatedExpense
+    expensesRef.value = updatedExpenses
+  },
+  deleteExpense: (expenseId: string) => {
+    expensesRef.value = expensesRef.value.filter((expense) => expense.id !== expenseId)
+  },
+  setIncomes: (newIncomes: Income[]) => {
+    incomesRef.value = newIncomes
+  },
+  addIncomes: (newIncomes: Income[]) => {
+    incomesRef.value = [...newIncomes, ...incomesRef.value]
+  },
+  updateIncome: (updatedIncome: Income) => {
+    const incomeIndex = incomesRef.value.findIndex((income) => income.id === updatedIncome.id)
+    if (incomeIndex === -1) return
+
+    const updatedIncomes = [...incomesRef.value]
+    updatedIncomes[incomeIndex] = updatedIncome
+    incomesRef.value = updatedIncomes
+  },
+  deleteIncome: (incomeId: string) => {
+    incomesRef.value = incomesRef.value.filter((income) => income.id !== incomeId)
+  },
   addNewExpense: (expense: NewExpense) => {
     if (newExpensesRef.value.length === 1) {
       const [onlyExpenseRow] = newExpensesRef.value
@@ -117,13 +164,15 @@ export async function createStore() {
   store = {
     ...storeObj,
     categories: expenseCategories,
+    expenses: expensesRef,
+    incomes: incomesRef,
     newExpenses: newExpensesRef,
     newIncomes: newIncomesRef,
     selectedMonth: selectedMonthRef,
     selectedYear: selectedYearRef,
   } as Store
   try {
-    store.categories.value = await fetchCategories()
+    await fetchInitialData()
     // Load expenses and incomes from localStorage
     newExpensesRef.value = loadExpensesFromStorage()
     newIncomesRef.value = loadIncomesFromStorage()
@@ -139,6 +188,28 @@ export function getStore(): Store {
 async function fetchCategories() {
   const fetchedCategories = await getCategories()
   return fetchedCategories
+}
+
+async function fetchExpenses() {
+  const fetchedExpenses = await getExpenses()
+  return fetchedExpenses
+}
+
+async function fetchIncomes() {
+  const fetchedIncomes = await getAllIncomes()
+  return fetchedIncomes
+}
+
+async function fetchInitialData() {
+  const [categories, expenses, incomes] = await Promise.all([
+    fetchCategories(),
+    fetchExpenses(),
+    fetchIncomes(),
+  ])
+
+  store.categories.value = categories
+  store.expenses.value = expenses
+  store.incomes.value = incomes
 }
 
 function saveExpensesToStorage() {
