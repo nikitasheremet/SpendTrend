@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { GenericTable, type ColumnConfig, type RowAction } from '../DesignSystem/Table'
 import type { Income } from '@/types/income/income'
 import { updateIncome as serviceUpdateIncome } from '@/service/income/updateIncome'
@@ -8,9 +8,11 @@ import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 import { POPOVER_SYMBOL } from '@/types/providedSymbols'
 import type { PopoverRef } from '@/types/designSystem'
 import RowNotificationPopover from './hooks/RowNotificationPopover.vue'
-import { useGetIncomes } from './hooks/useGetIncomes'
+import { getStore } from '@/store/store'
 
-const { incomes, error, incomeDeleted } = useGetIncomes()
+const store = getStore()
+const incomes = store.incomes
+const error = ref<Error | undefined>(undefined)
 const popover = inject<PopoverRef>(POPOVER_SYMBOL)
 
 // Handle cell updates
@@ -33,10 +35,10 @@ async function handleCellUpdate(rowIndex: number, key: keyof Income, value: any)
     updatedIncome = { ...updatedIncome, [key]: value }
 
     // Update via service
-    await serviceUpdateIncome(updatedIncome)
+    const updatedIncomeFromService = await serviceUpdateIncome(updatedIncome)
 
     // Update local state
-    incomes.value[rowIndex] = updatedIncome
+    store.updateIncome(updatedIncomeFromService)
 
     // Show notification
     popover?.value?.showPopover(RowNotificationPopover, { message: 'Row updated' })
@@ -48,10 +50,10 @@ async function handleCellUpdate(rowIndex: number, key: keyof Income, value: any)
 }
 
 // Handle row deletion
-async function handleDelete(row: Income, index: number) {
+async function handleDelete(row: Income, _index: number) {
   try {
     await serviceDeleteIncome(row.id)
-    incomeDeleted(row)
+    store.deleteIncome(row.id)
     popover?.value?.showPopover(RowNotificationPopover, { message: 'Row deleted' })
     error.value = undefined
   } catch (err) {
