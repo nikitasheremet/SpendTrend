@@ -28,22 +28,33 @@ watch(
 )
 
 function applyLocalEdit(key: keyof T, value: any) {
-  localEdits.value = { ...localEdits.value, [key]: value }
+  localEdits.value[key] = value
 }
+
+const visibleRowActions = computed(() => {
+  if (!props.rowActions || props.rowActions.length === 0) {
+    return []
+  }
+
+  return props.rowActions.filter((action) => {
+    if (!action.show) return true
+    return action.show(props.row, props.rowIndex)
+  })
+})
 
 // Compute row with calculated fields and local edits
 const computedRow = computed(() => {
-  const mergedRow = { ...props.row, ...localEdits.value }
+  const mergedRow = { ...props.row, ...localEdits.value } as T
 
-  return props.columns.reduce(
-    (result, column) => {
-      if (column.calculate) {
-        result[column.key as keyof T] = column.calculate(mergedRow) as T[keyof T]
-      }
-      return result
-    },
-    { ...mergedRow } as T,
-  )
+  for (const column of props.columns) {
+    if (!column.calculate) {
+      continue
+    }
+
+    mergedRow[column.key as keyof T] = column.calculate(mergedRow) as T[keyof T]
+  }
+
+  return mergedRow
 })
 
 function handleCellUpdate(key: keyof T, value: any) {
@@ -54,11 +65,6 @@ function handleCellUpdate(key: keyof T, value: any) {
 
 function handleLocalUpdate(key: keyof T, value: any) {
   applyLocalEdit(key, value)
-}
-
-function shouldShowAction(action: RowAction<T>): boolean {
-  if (!action.show) return true
-  return action.show(props.row, props.rowIndex)
 }
 </script>
 
@@ -81,16 +87,12 @@ function shouldShowAction(action: RowAction<T>): boolean {
 
     <!-- Render row actions -->
     <td
-      v-for="(action, actionIndex) in rowActions"
+      v-for="(action, actionIndex) in visibleRowActions"
       :key="`action-${actionIndex}`"
       class="text-center p-1"
       :class="action.buttonClass"
     >
-      <Button
-        v-if="shouldShowAction(action)"
-        class="w-8/10 text-sm"
-        @click="action.handler(row, rowIndex)"
-      >
+      <Button class="w-8/10 text-sm" @click="action.handler(row, rowIndex)">
         {{ action.label }}
       </Button>
     </td>

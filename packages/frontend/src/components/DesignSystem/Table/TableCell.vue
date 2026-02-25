@@ -22,27 +22,39 @@ const emit = defineEmits<{
   'local:update': [key: keyof T, value: any]
 }>()
 
-// Local value for immediate updates
-const localValue = ref<any>(getCellValue())
+const columnKey = props.column.key as keyof T
 
-// Watch for local value changes and emit immediately for recalculation
-watch(localValue, (newValue) => {
-  emit('local:update', props.column.key as keyof T, newValue)
-})
-
-// Watch for external changes to row data
-watch(
-  () => getCellValue(),
-  (newValue) => {
-    localValue.value = newValue
-  },
-)
-
-function getCellValue(): any {
+const cellValue = computed(() => {
   if (props.column.calculate) {
     return props.column.calculate(props.row)
   }
-  return props.row[props.column.key as keyof T]
+
+  return props.row[columnKey]
+})
+
+// Local value for immediate updates
+const localValue = ref<any>(cellValue.value)
+
+// Watch for local value changes and emit immediately for recalculation
+watch(localValue, (newValue, oldValue) => {
+  if (Object.is(newValue, oldValue)) {
+    return
+  }
+
+  emit('local:update', columnKey, newValue)
+})
+
+// Watch for external changes to row data
+watch(cellValue, (newValue) => {
+  if (Object.is(localValue.value, newValue)) {
+    return
+  }
+
+  localValue.value = newValue
+})
+
+function getCellValue(): any {
+  return cellValue.value
 }
 
 const formattedValue = computed(() => {
@@ -83,7 +95,7 @@ const debouncedEmit = useDebounce(() => {
 }, DEBOUNCE_DELAY_MS)
 
 function emitCellChanged() {
-  emit('cell:changed', props.column.key as keyof T, localValue.value)
+  emit('cell:changed', columnKey, localValue.value)
 }
 
 function blurEventTarget(event: KeyboardEvent) {
