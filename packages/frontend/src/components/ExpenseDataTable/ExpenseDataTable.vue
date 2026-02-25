@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, inject, watch } from 'vue'
+import { computed, ref, inject } from 'vue'
 import { GenericTable, type ColumnConfig, type RowAction } from '../DesignSystem/Table'
 import type { Expense } from '@/types/expenseData'
 import { updateExpense as serviceUpdateExpense } from '@/service/expenses/updateExpense'

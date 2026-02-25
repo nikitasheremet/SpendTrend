@@ -6,6 +6,7 @@ import Button from '../Button/Button.vue'
 import Error from '../Error.vue'
 import LoadingModal from '../Modal/LoadingModal.vue'
 import type { ColumnConfig, RowAction, TableAction } from './types'
+import { useProgressiveRowRender } from './hooks'
 
 const props = defineProps<{
   data: T[]
@@ -16,6 +17,9 @@ const props = defineProps<{
   validationErrors?: number[]
   error?: Error
   loading?: boolean
+  progressiveRender?: boolean
+  initialRowCount?: number
+  rowChunkSize?: number
 }>()
 
 const emit = defineEmits<{
@@ -24,6 +28,12 @@ const emit = defineEmits<{
 
 const rowActions = computed(() => props.rowActions ?? [])
 const tableActions = computed(() => props.tableActions ?? [])
+const { visibleData } = useProgressiveRowRender<T>({
+  data: computed(() => props.data),
+  enabled: computed(() => true),
+  initialRowCount: computed(() => props.initialRowCount),
+  rowChunkSize: computed(() => props.rowChunkSize),
+})
 
 // Build headers from columns config and add empty headers for row actions
 const headers = computed(() => {
@@ -40,13 +50,14 @@ const headers = computed(() => {
 })
 
 const hasTableActions = computed(() => tableActions.value.length > 0)
+const validationErrorSet = computed(() => new Set(props.validationErrors ?? []))
 
 function handleCellUpdate(rowIndex: number, key: keyof T, value: any) {
   emit('cell:changed', rowIndex, key, value)
 }
 
 function isRowInvalid(index: number): boolean {
-  return props.validationErrors?.includes(index) ?? false
+  return validationErrorSet.value.has(index)
 }
 </script>
 
@@ -56,8 +67,8 @@ function isRowInvalid(index: number): boolean {
       <TableHeaders :headers="headers" />
       <tbody>
         <TableRow
-          v-for="(row, index) in data"
-          :key="index"
+          v-for="(row, index) in visibleData"
+          :key="(row as any).id ?? index"
           :row="row"
           :row-index="index"
           :columns="columns"

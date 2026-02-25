@@ -25,6 +25,8 @@ const showTooltip = ref(false)
 const transformedModel = ref<string>('')
 const isInputFocused = ref(false)
 
+const isTextLikeInputType = type === 'string' || type === 'text'
+
 const inputRef = useTemplateRef('input-ref')
 onMounted(async () => {
   if (autofocus) {
@@ -68,6 +70,11 @@ function syncTransformedModel({
 async function showHideTooltip() {
   // Disable tooltip for textarea variant since full text is visible
   if (variant === 'textarea' || variant === 'textarea-border') {
+    showTooltip.value = false
+    return
+  }
+
+  if (!isTextLikeInputType) {
     showTooltip.value = false
     return
   }
