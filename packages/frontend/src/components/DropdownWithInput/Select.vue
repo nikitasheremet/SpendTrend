@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { Teleport } from 'vue'
+import { useDropdownPosition } from '@/helpers/hooks/useDropdownPosition'
 import DropdownOptions from './DropdownOptions.vue'
 
 const { value, dropdownOptions, autofocus } = defineProps<{
@@ -10,12 +12,31 @@ const { value, dropdownOptions, autofocus } = defineProps<{
 const emit = defineEmits<{
   onChange: [option: string]
 }>()
-const isOptionsVisible = ref(autofocus)
+const isOptionsVisible = ref(Boolean(autofocus))
+const optionsRef = ref<HTMLElement>()
+const optionsDivRef = ref<HTMLElement | { $el?: HTMLElement }>()
+
+const { optionsTop, optionsLeft, optionsWidth, positionDropdown } = useDropdownPosition(
+  optionsRef,
+  optionsDivRef,
+)
+
+const dropdownOptionsStyle = computed(() => ({
+  top: `${optionsTop.value}px`,
+  left: `${optionsLeft.value}px`,
+  width: `${optionsWidth.value}px`,
+}))
 
 defineExpose({
   hideOptions: () => {
     isOptionsVisible.value = false
   },
+})
+
+onMounted(async () => {
+  if (isOptionsVisible.value) {
+    await positionDropdown(true)
+  }
 })
 
 async function handleDropdownOptionsClick(option: string) {
@@ -24,21 +45,27 @@ async function handleDropdownOptionsClick(option: string) {
   emit('onChange', option)
 }
 
-function toggleOptionsVisibility() {
+async function toggleOptionsVisibility() {
   isOptionsVisible.value = !isOptionsVisible.value
+  await positionDropdown(isOptionsVisible.value)
 }
 </script>
 
 <template>
   <div
+    ref="optionsRef"
     class="flex justify-between items-center px-2 border border-gray-500 rounded-md min-h-6"
     @click="toggleOptionsVisibility"
   >
     {{ value }}<span inert class="text-[10px] flex-1 text-end">{{ '▼' }}</span>
   </div>
-  <DropdownOptions
-    :options="dropdownOptions"
-    v-if="isOptionsVisible"
-    @dropdownOptionClick="handleDropdownOptionsClick"
-  />
+  <Teleport to="body">
+    <DropdownOptions
+      ref="optionsDivRef"
+      :options="dropdownOptions"
+      :options-style="dropdownOptionsStyle"
+      v-if="isOptionsVisible"
+      @dropdownOptionClick="handleDropdownOptionsClick"
+    />
+  </Teleport>
 </template>
