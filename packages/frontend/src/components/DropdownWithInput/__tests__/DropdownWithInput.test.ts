@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/vue'
 import { fireEvent } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import DropdownWithInput from '../DropdownWithInput.vue'
 
 function getDropdownElement(): HTMLElement {
@@ -110,6 +111,60 @@ describe('DropdownWithInput', () => {
       await fireEvent.keyDown(getDropdownElement(), { key: 'Escape' })
 
       expect(emitted().escapeKeyPressed).toEqual([[]])
+    })
+  })
+  describe('when dropdown opens near viewport boundaries', () => {
+    it('should use minimum width fallback and top guard positioning', async () => {
+      Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        value: 220,
+      })
+
+      render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1'],
+        },
+      })
+
+      const dropdownToggleElement = getDropdownToggleElement()
+
+      Object.defineProperty(dropdownToggleElement, 'offsetWidth', {
+        configurable: true,
+        value: 120,
+      })
+
+      vi.spyOn(dropdownToggleElement, 'getBoundingClientRect').mockReturnValue({
+        x: 20,
+        y: 100,
+        width: 120,
+        height: 30,
+        top: 100,
+        right: 140,
+        bottom: 130,
+        left: 20,
+        toJSON: () => ({}),
+      } as DOMRect)
+
+      const mockOffsetHeightGetter = vi
+        .spyOn(HTMLElement.prototype, 'offsetHeight', 'get')
+        .mockImplementation(function mockOffsetHeight(this: HTMLElement) {
+          if (this.classList.contains('dropdown-options')) {
+            return 220
+          }
+
+          return 0
+        })
+
+      await userEvent.click(dropdownToggleElement)
+
+      const dropdownOptionsElement = document.querySelector('.dropdown-options') as HTMLElement
+      expect(dropdownOptionsElement).toBeTruthy()
+
+      expect(dropdownOptionsElement.style.width).toBe('160px')
+      expect(dropdownOptionsElement.style.top).toBe('8px')
+      expect(dropdownOptionsElement.style.left).toBe('20px')
+
+      mockOffsetHeightGetter.mockRestore()
     })
   })
 })

@@ -151,4 +151,53 @@ describe('when creating and using store state', () => {
 
     expect(mockSetItem).not.toHaveBeenCalled()
   })
+
+  it('should update existing expense category names when a category is renamed', () => {
+    const store = getStore()
+
+    const fakeUpdatedCategory: ExpenseCategory = {
+      ...fakeCategory,
+      name: 'Food & Dining',
+    }
+
+    store.updateCategory(fakeUpdatedCategory)
+
+    expect(store.expenses.value[0].category.name).toBe('Food & Dining')
+  })
+
+  it('should update existing expense subCategory names when a subCategory is renamed', () => {
+    const store = getStore()
+    const fakeSubCategory = {
+      id: 'sub-category-1',
+      userId: 'user-1',
+      accountId: 'account-1',
+      name: 'Groceries',
+      categoryId: fakeCategory.id,
+      createdAt: new Date('2026-01-01'),
+      updatedAt: new Date('2026-01-01'),
+    }
+
+    store.updateCategory({
+      ...fakeCategory,
+      subCategories: [fakeSubCategory],
+    })
+
+    store.setExpenses([
+      {
+        ...fakeExpense,
+        category: {
+          ...fakeCategory,
+          subCategories: [fakeSubCategory],
+        },
+        subCategory: fakeSubCategory,
+      },
+    ])
+
+    store.updateSubCategory(fakeCategory.id, {
+      ...fakeSubCategory,
+      name: 'Weekly groceries',
+    })
+
+    expect(store.expenses.value[0].subCategory?.name).toBe('Weekly groceries')
+  })
 })

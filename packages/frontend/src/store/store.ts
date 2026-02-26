@@ -69,6 +69,22 @@ const storeObj = reactive<
     const updatedCategories = [...expenseCategories.value]
     updatedCategories[categoryIndex] = updatedCategory
     expenseCategories.value = updatedCategories.sort((a, b) => a.name.localeCompare(b.name))
+
+    expensesRef.value = expensesRef.value.map((expense) => {
+      if (expense.category.id !== updatedCategory.id) {
+        return expense
+      }
+
+      const updatedSubCategory = updatedCategory.subCategories.find(
+        (subCategory) => subCategory.id === expense.subCategory?.id,
+      )
+
+      return {
+        ...expense,
+        category: updatedCategory,
+        subCategory: updatedSubCategory,
+      }
+    })
   },
   addSubCategory: (categoryId: string, newSubCategory: ExpenseSubCategory) => {
     const category = expenseCategories.value.find((cat) => cat.id === categoryId)
@@ -89,6 +105,17 @@ const storeObj = reactive<
     const updatedSubCategories = [...category.subCategories]
     updatedSubCategories[subCategoryIndex] = updatedSubCategory
     category.subCategories = updatedSubCategories.sort((a, b) => a.name.localeCompare(b.name))
+
+    expensesRef.value = expensesRef.value.map((expense) => {
+      if (expense.category.id !== categoryId || expense.subCategory?.id !== updatedSubCategory.id) {
+        return expense
+      }
+
+      return {
+        ...expense,
+        subCategory: updatedSubCategory,
+      }
+    })
   },
   setExpenses: (newExpenses: Expense[]) => {
     expensesRef.value = newExpenses
