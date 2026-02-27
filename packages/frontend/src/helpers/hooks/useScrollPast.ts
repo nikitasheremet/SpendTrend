@@ -1,6 +1,13 @@
 import { onMounted, onUnmounted, ref, type Ref } from 'vue'
 
-export function useScrollPast(elementRef: Ref<HTMLElement | null>) {
+type UseScrollPastOptions = {
+  triggerOffsetPx?: number
+}
+
+export function useScrollPast(
+  elementRef: Ref<HTMLElement | null>,
+  { triggerOffsetPx = 0 }: UseScrollPastOptions = {},
+) {
   const hasScrolledPast = ref(false)
   const initialOffsetTop = ref<number | null>(null)
 
@@ -14,7 +21,7 @@ export function useScrollPast(elementRef: Ref<HTMLElement | null>) {
     }
 
     const scrollPosition = window.scrollY || window.pageYOffset
-    const scrollThreshold = initialOffsetTop.value
+    const scrollThreshold = initialOffsetTop.value - triggerOffsetPx
 
     hasScrolledPast.value = scrollPosition > scrollThreshold
   }

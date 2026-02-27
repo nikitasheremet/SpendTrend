@@ -29,4 +29,6 @@ export interface Store {
   clearNewIncomes: () => void
   selectedMonth: Ref<number>
   selectedYear: Ref<number>
+  markSummaryPeriodAsManuallySelected: () => void
+  applyLatestExpenseSummaryPeriodDefault: () => void
 }
