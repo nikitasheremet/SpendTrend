@@ -14,7 +14,7 @@ const {
   type?: string
   variant?: 'input' | 'input-border' | 'textarea' | 'textarea-border'
 }>()
-const model = defineModel<string | number | Date>()
+const model = defineModel<string | number>()
 
 const emits = defineEmits<{
   blur: [event: FocusEvent]
@@ -50,6 +50,11 @@ function syncTransformedModel({
   forceNumberFormatting = false,
 }: { forceNumberFormatting?: boolean } = {}) {
   if (type === 'date' && model.value) {
+    if (typeof model.value === 'string') {
+      transformedModel.value = model.value
+      return
+    }
+
     transformedModel.value = formatDate(new Date(model.value), DateFormat.YYYY_MM_DD)
   } else if (type === 'number') {
     if (isInputFocused.value && !forceNumberFormatting) {
@@ -118,7 +123,7 @@ function onChange(event: Event) {
   transformedModel.value = value
 
   if (type === 'date' && value) {
-    model.value = new Date(value).getTime()
+    model.value = value
     return
   }
   if (type === 'number') {

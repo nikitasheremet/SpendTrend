@@ -15,6 +15,7 @@ const newExpensesRef = ref<NewExpense[]>([])
 const newIncomesRef = ref<NewIncome[]>([])
 const selectedMonthRef = ref<number>(new Date().getUTCMonth())
 const selectedYearRef = ref<number>(new Date().getUTCFullYear())
+const isSummaryPeriodManuallySelectedRef = ref<boolean>(false)
 const expenseCategories = ref<ExpenseCategory[]>([])
 const expensesRef = ref<Expense[]>([])
 const incomesRef = ref<Income[]>([])
@@ -40,6 +41,25 @@ const storeObj = reactive<
     | 'incomes'
   >
 >({
+  markSummaryPeriodAsManuallySelected: () => {
+    isSummaryPeriodManuallySelectedRef.value = true
+  },
+  applyLatestExpenseSummaryPeriodDefault: () => {
+    if (isSummaryPeriodManuallySelectedRef.value) {
+      return
+    }
+
+    const latestExpenseSummaryPeriod = getLatestExpenseSummaryPeriod(expensesRef.value)
+
+    if (!latestExpenseSummaryPeriod) {
+      selectedMonthRef.value = new Date().getUTCMonth()
+      selectedYearRef.value = new Date().getUTCFullYear()
+      return
+    }
+
+    selectedMonthRef.value = latestExpenseSummaryPeriod.month
+    selectedYearRef.value = latestExpenseSummaryPeriod.year
+  },
   getAccountDetails: async () => {
     const session = await authClient.getSession()
 
@@ -188,6 +208,8 @@ const storeObj = reactive<
 })
 
 export async function createStore() {
+  isSummaryPeriodManuallySelectedRef.value = false
+
   store = {
     ...storeObj,
     categories: expenseCategories,
@@ -272,5 +294,54 @@ function loadIncomesFromStorage(): NewIncome[] {
   } catch (error) {
     console.error('Error loading incomes from localStorage:', error)
     return []
+  }
+}
+
+function getLatestExpenseSummaryPeriod(expenses: Expense[]): {
+  month: number
+  year: number
+} | null {
+  let latest: { month: number; year: number } | null = null
+
+  for (const expense of expenses) {
+    const parsedSummaryPeriod = parseExpenseSummaryPeriod(expense.date)
+    if (!parsedSummaryPeriod) {
+      continue
+    }
+
+    if (
+      !latest ||
+      parsedSummaryPeriod.year > latest.year ||
+      (parsedSummaryPeriod.year === latest.year && parsedSummaryPeriod.month > latest.month)
+    ) {
+      latest = parsedSummaryPeriod
+    }
+  }
+
+  return latest
+}
+
+function parseExpenseSummaryPeriod(date: string): {
+  month: number
+  year: number
+} | null {
+  const [yearPart, monthPart] = date.split('-')
+
+  const parsedYear = Number(yearPart)
+  const parsedMonth = Number(monthPart)
+  const MIN_MONTH = 1
+  const MAX_MONTH = 12
+
+  if (!Number.isInteger(parsedYear) || !Number.isInteger(parsedMonth)) {
+    return null
+  }
+
+  if (parsedMonth < MIN_MONTH || parsedMonth > MAX_MONTH) {
+    return null
+  }
+
+  return {
+    month: parsedMonth - 1,
+    year: parsedYear,
   }
 }

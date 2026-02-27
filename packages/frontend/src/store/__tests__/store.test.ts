@@ -200,4 +200,55 @@ describe('when creating and using store state', () => {
 
     expect(store.expenses.value[0].subCategory?.name).toBe('Weekly groceries')
   })
+
+  it('should set summary period to the latest expense month when defaulting is applied', () => {
+    const store = getStore()
+    const fakeOlderExpense = {
+      ...fakeExpense,
+      id: 'expense-older',
+      date: '2025-12-12',
+    }
+    const fakeFutureExpense = {
+      ...fakeExpense,
+      id: 'expense-future',
+      date: '2027-03-02',
+    }
+
+    store.setExpenses([fakeOlderExpense, fakeExpense, fakeFutureExpense])
+
+    store.applyLatestExpenseSummaryPeriodDefault()
+
+    expect(store.selectedYear.value).toBe(2027)
+    expect(store.selectedMonth.value).toBe(2)
+  })
+
+  it('should not overwrite summary period when manually selected by user', () => {
+    const store = getStore()
+    const fakeLatestExpense = {
+      ...fakeExpense,
+      id: 'expense-latest',
+      date: '2026-11-01',
+    }
+
+    store.setExpenses([fakeExpense, fakeLatestExpense])
+    store.selectedYear.value = 2026
+    store.selectedMonth.value = 0
+    store.markSummaryPeriodAsManuallySelected()
+
+    store.applyLatestExpenseSummaryPeriodDefault()
+
+    expect(store.selectedYear.value).toBe(2026)
+    expect(store.selectedMonth.value).toBe(0)
+  })
+
+  it('should fallback to current month and year when no expenses exist', () => {
+    const store = getStore()
+    const currentDate = new Date()
+
+    store.setExpenses([])
+    store.applyLatestExpenseSummaryPeriodDefault()
+
+    expect(store.selectedYear.value).toBe(currentDate.getUTCFullYear())
+    expect(store.selectedMonth.value).toBe(currentDate.getUTCMonth())
+  })
 })

@@ -231,10 +231,8 @@ describe('Input', () => {
       expect(input.value).toBe('2024-01-15')
     })
 
-    it('should convert date string to timestamp when user changes value', async () => {
-      const { modelValue, vModelProps } = createVModelProps<number | Date>(
-        new Date('2024-01-01').getTime(),
-      )
+    it('should keep date as string when user changes value manually', async () => {
+      const { modelValue, vModelProps } = createVModelProps<string>('2024-01-01')
       await renderInput({
         type: 'date',
         ...vModelProps,
@@ -243,11 +241,11 @@ describe('Input', () => {
       await userEvent.clear(input)
       await userEvent.type(input, '2024-12-25')
 
-      expect(modelValue.value).toBe(new Date('2024-12-25').getTime())
+      expect(modelValue.value).toBe('2024-12-25')
     })
 
-    it('should handle Date object as model value', async () => {
-      const fakeDate = new Date('2024-01-15')
+    it('should format legacy numeric model value to YYYY-MM-DD', async () => {
+      const fakeDate = new Date('2024-01-15').getTime()
       await renderInput({
         type: 'date',
         modelValue: fakeDate,
