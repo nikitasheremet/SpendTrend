@@ -1,0 +1,35 @@
+name: Auto Version Update
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Use a Personal Access Token (PAT) if you want the version 
+          # commit to trigger other workflows
+          token: ${{ secrets.GITHUB_TOKEN }} 
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Bump Version
+        run: |
+          # This defaults to a patch bump (0.0.x)
+          npm version patch -m "chore: bump version to %s [skip ci]"
+
+      - name: Push changes
+        run: git push && git push --tags
