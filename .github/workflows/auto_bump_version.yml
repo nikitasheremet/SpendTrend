@@ -26,11 +26,16 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Bump Version
-        working-directory: ./packages/frontend
+      - name: Bump and Commit
         run: |
-          # This defaults to a patch bump (0.0.x)
-          npm version patch -m "chore: bump version to %s [skip ci]"
-
+          # 1. Move to directory and bump the file
+          cd packages/frontend
+          NEW_VERSION=$(npm version patch --no-git-tag-version)
+          
+          # 2. Go back to root, add the file, and commit
+          cd ../..
+          git add packages/frontend/package.json
+          git commit -m "chore(frontend): bump version to $NEW_VERSION [skip ci]"
+          
       - name: Push changes
-        run: git push && git push --tags
+        run: git push
