@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["env.d.ts", "src/**/*" ],
+  "include": ["env.d.ts", "src/**/*"],
   "compilerOptions": {
     "composite": true,
     "skipLibCheck": true,
@@ -10,12 +10,12 @@
       "@gateway/*": ["./src/gateway/*"],
       "@types/*": ["./src/types/*"]
     },
-    "esModuleInterop": true,  
+    "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
     "types": ["vitest/globals", "@testing-library/jest-dom"],
     "outDir": "dist",
-    "lib": ["DOM", "ESNext"],
+    "lib": ["DOM", "ESNext"]
   },
   "references": [{ "path": "../../contracts" }]
 }

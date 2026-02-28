@@ -3,7 +3,7 @@ import Input from '@/components/DesignSystem/Input.vue'
 import DropdownWithInput from '../DropdownWithInput/DropdownWithInput.vue'
 import { computed } from 'vue'
 
-const model = defineModel<string | number | Date | undefined>()
+const model = defineModel<string | number | undefined>()
 const { type = 'string', dropdownOptions = [] } = defineProps<{
   type?: string
   dropdownOptions?: string[]

@@ -5,7 +5,13 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 
+const UNKNOWN_APP_VERSION = 'unknown'
+const appVersion = process.env.npm_package_version ?? UNKNOWN_APP_VERSION
+
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion),
+  },
   plugins: [vue(), vueDevTools(), tsconfigPaths(), tailwindcss()],
   build: {
     outDir: 'dist',
