@@ -14,5 +14,6 @@
     "frontend:dev": "npm run dev --workspace packages/frontend",
     "frontend:build": "tsc -b ./contracts && npm run build --workspace packages/frontend",
     "frontend:build:dev": "tsc -b ./contracts && npm run build:dev --workspace packages/frontend"
-  }
+  },
+  "version": "0.0.1"
 }
