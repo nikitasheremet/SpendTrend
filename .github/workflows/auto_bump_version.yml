@@ -14,7 +14,7 @@ jobs:
         with:
           # Use a Personal Access Token (PAT) if you want the version 
           # commit to trigger other workflows
-          token: ${{ secrets.GITHUB_TOKEN }} 
+          token: ${{ secrets.MY_RELEASE_PAT }} 
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
