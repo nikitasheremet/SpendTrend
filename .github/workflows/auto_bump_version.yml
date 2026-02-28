@@ -27,6 +27,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Bump Version
+        working-directory: ./packages/frontend
         run: |
           # This defaults to a patch bump (0.0.x)
           npm version patch -m "chore: bump version to %s [skip ci]"
