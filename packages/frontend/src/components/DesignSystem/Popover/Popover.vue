@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Component } from 'vue'
+import { ref, markRaw, type Component } from 'vue'
 import type { PopoverMethods, PopoverOptions, PopoverRef } from '@/types/designSystem'
 
 const isVisible = ref(false)
@@ -18,7 +18,7 @@ function showPopover(
   options: PopoverOptions = {},
 ) {
   const { timeout = 1000 } = options
-  component.value = vueComponent
+  component.value = markRaw(vueComponent)
   componentProps.value = props
 
   isVisible.value = true

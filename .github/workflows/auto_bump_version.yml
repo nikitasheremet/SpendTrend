@@ -1,0 +1,41 @@
+name: Auto Version Update
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Use a Personal Access Token (PAT) if you want the version 
+          # commit to trigger other workflows
+          token: ${{ secrets.MY_RELEASE_PAT }} 
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Bump and Commit
+        run: |
+          # 1. Move to directory and bump the file
+          cd packages/frontend
+          NEW_VERSION=$(npm version patch --no-git-tag-version)
+          
+          # 2. Go back to root, add the file, and commit
+          cd ../..
+          git add packages/frontend/package.json
+          git commit -m "chore(frontend): bump version to $NEW_VERSION [skip ci]"
+          
+      - name: Push changes
+        run: git push

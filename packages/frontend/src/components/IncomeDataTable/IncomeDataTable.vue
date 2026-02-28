@@ -1,32 +1,104 @@
 <script setup lang="ts">
-import { useGetIncomes } from './hooks/useGetIncomes'
-import Error from '../DesignSystem/Error.vue'
-import IncomeRow from './IncomeRow.vue'
-import TableHeaders from '../TableHeaders.vue'
+import { computed, inject, ref } from 'vue'
+import { GenericTable, type ColumnConfig, type RowAction } from '../DesignSystem/Table'
+import type { Income } from '@/types/income/income'
+import { updateIncome as serviceUpdateIncome } from '@/service/income/updateIncome'
+import { deleteIncome as serviceDeleteIncome } from '@/service/income/deleteIncome'
+import { DateFormat, formatDate } from '@/helpers/date/formatDate'
+import { POPOVER_SYMBOL } from '@/types/providedSymbols'
+import type { PopoverRef } from '@/types/designSystem'
+import RowNotificationPopover from './hooks/RowNotificationPopover.vue'
+import { getStore } from '@/store/store'
 
-const { incomes, error, incomeDeleted } = useGetIncomes()
+const store = getStore()
+const incomes = store.incomes
+const error = ref<Error | undefined>(undefined)
+const popover = inject<PopoverRef>(POPOVER_SYMBOL)
 
-function handleRowError(newError: Error) {
-  error.value = newError
+// Handle cell updates
+async function handleCellUpdate(rowIndex: number, key: keyof Income, value: any) {
+  try {
+    const income = incomes.value[rowIndex]
+
+    // Check if value actually changed
+    if (JSON.stringify(income[key]) === JSON.stringify(value)) {
+      return
+    }
+
+    let updatedIncome = { ...income }
+
+    // Handle date formatting
+    if (key === 'date') {
+      value = formatDate(new Date(value as string | Date).toISOString(), DateFormat.YYYY_MM_DD)
+    }
+
+    updatedIncome = { ...updatedIncome, [key]: value }
+
+    // Update via service
+    const updatedIncomeFromService = await serviceUpdateIncome(updatedIncome)
+
+    // Update local state
+    store.updateIncome(updatedIncomeFromService)
+
+    // Show notification
+    popover?.value?.showPopover(RowNotificationPopover, { message: 'Row updated' })
+
+    error.value = undefined
+  } catch (err) {
+    error.value = err as Error
+  }
 }
 
-const tableHeaders = [{ label: 'Date' }, { label: 'Name' }, { label: 'Amount ($)' }, { label: '' }]
+// Handle row deletion
+async function handleDelete(row: Income, _index: number) {
+  try {
+    await serviceDeleteIncome(row.id)
+    store.deleteIncome(row.id)
+    popover?.value?.showPopover(RowNotificationPopover, { message: 'Row deleted' })
+    error.value = undefined
+  } catch (err) {
+    error.value = err as Error
+  }
+}
+
+// Column configuration
+const columns = computed<ColumnConfig<Income>[]>(() => [
+  {
+    key: 'date',
+    label: 'Date',
+    type: 'date',
+  },
+  {
+    key: 'name',
+    label: 'Name',
+    type: 'longtext',
+  },
+  {
+    key: 'amount',
+    label: 'Amount ($)',
+    type: 'number',
+  },
+])
+
+// Row actions
+const rowActions: RowAction<Income>[] = [
+  {
+    label: 'Delete',
+    handler: handleDelete,
+    buttonClass: 'delete-income-button',
+  },
+]
 </script>
 
 <template>
-  <table class="w-full table-fixed mb-5">
-    <TableHeaders :headers="tableHeaders" />
-    <tbody>
-      <IncomeRow
-        v-for="income of incomes"
-        :key="income.id"
-        :income="income"
-        @income-deleted="incomeDeleted"
-        @on-error="handleRowError"
-      />
-    </tbody>
-  </table>
-  <Error v-if="error" :error="error" />
+  <GenericTable
+    :data="incomes"
+    :columns="columns"
+    :row-actions="rowActions"
+    :error="error"
+    mode="editable"
+    @cell:changed="handleCellUpdate"
+  />
 </template>
 
 <style scoped>

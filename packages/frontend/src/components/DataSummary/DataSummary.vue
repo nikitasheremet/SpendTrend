@@ -1,27 +1,27 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
-import { getExpenses } from '@/service/expenses/getExpenses'
+import { computed, onMounted, ref } from 'vue'
 import { getStore } from '@/store/store'
+import { useScrollPast } from '@/helpers/hooks/useScrollPast'
 import MonthlyCategorySummary from './MonthlyCategorySummary.vue'
 import MonthlyTotalSummary from './MonthlyTotalSummary.vue'
 
+const SUMMARY_PERIOD_STICKY_TOP_PX = 60
+
 const store = getStore()
+const summaryPeriodRef = ref<HTMLElement | null>(null)
+const { hasScrolledPast } = useScrollPast(summaryPeriodRef, {
+  triggerOffsetPx: SUMMARY_PERIOD_STICKY_TOP_PX,
+})
 
-const listOfYears = ref<number[]>([])
-
-onMounted(async () => {
-  const allExpenses = await getExpenses()
-  const years = allExpenses.reduce((acc, expense) => {
+const listOfYears = computed<number[]>(() => {
+  const years = store.expenses.value.reduce((acc, expense) => {
     const year = new Date(expense.date).getUTCFullYear()
     acc.add(year)
     return acc
   }, new Set<number>())
 
   const currentYear = new Date().getUTCFullYear()
-  const yearsWithCurrentYear = Array.from(
-    new Set([...Array.from(years), currentYear].sort((a, b) => a - b)),
-  )
-  listOfYears.value = yearsWithCurrentYear
+  return Array.from(new Set([...Array.from(years), currentYear].sort((a, b) => a - b)))
 })
 
 const listOfMonths = [
@@ -38,18 +38,39 @@ const listOfMonths = [
   ['Nov', 10],
   ['Dec', 11],
 ]
+
+function handleSummaryPeriodSelectionChange() {
+  store.markSummaryPeriodAsManuallySelected()
+}
+
+onMounted(() => {
+  store.applyLatestExpenseSummaryPeriodDefault()
+})
 </script>
 
 <template>
-  <div class="flex items-center mb-8 justify-center text-xl font-bold">
+  <div
+    ref="summaryPeriodRef"
+    class="flex items-center mb-8 justify-center text-xl font-bold"
+    :class="{ 'sticky z-30 bg-white pb-3': hasScrolledPast }"
+    :style="hasScrolledPast ? { top: `${SUMMARY_PERIOD_STICKY_TOP_PX}px` } : undefined"
+  >
     <h4>Data for:</h4>
     <div class="flex flex-col ml-2">
-      <select class="min-w-15" v-model="store.selectedMonth.value">
+      <select
+        class="min-w-15"
+        v-model="store.selectedMonth.value"
+        @change="handleSummaryPeriodSelectionChange"
+      >
         <option v-for="month in listOfMonths" :value="month[1]">{{ month[0] }}</option>
       </select>
     </div>
     <div class="flex flex-col ml-2">
-      <select class="min-w-17" v-model="store.selectedYear.value">
+      <select
+        class="min-w-17"
+        v-model="store.selectedYear.value"
+        @change="handleSummaryPeriodSelectionChange"
+      >
         <option v-for="year in listOfYears" :value="year">{{ year }}</option>
       </select>
     </div>
