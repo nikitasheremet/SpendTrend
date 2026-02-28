@@ -13,6 +13,7 @@ import { useProvidePopover } from './components/DesignSystem/Popover/useProvideP
 const isLoggedIn = ref(false)
 const isManageCategoriesOpen = ref(false)
 const popoverRef = useTemplateRef('popover-ref')
+const appVersion = __APP_VERSION__
 
 useProvidePopover(popoverRef)
 
@@ -37,27 +38,23 @@ function toggleManageCategories() {
 </script>
 
 <template>
-  <div class="flex-none h-15">
-    <NavigationBar
-      v-if="isLoggedIn"
-      :is-logged-in="isLoggedIn"
-      @logout="logout"
-      @manage-categories-clicked="toggleManageCategories"
+  <div class="flex min-h-screen flex-col">
+    <div class="flex-none h-15">
+      <NavigationBar
+        v-if="isLoggedIn"
+        :is-logged-in="isLoggedIn"
+        @logout="logout"
+        @manage-categories-clicked="toggleManageCategories"
+      />
+    </div>
+    <ManageCategories
+      :is-open="isManageCategoriesOpen"
+      @close-manage-categories="isManageCategoriesOpen = false"
     />
-  </div>
-  <ManageCategories
-    :is-open="isManageCategoriesOpen"
-    @close-manage-categories="isManageCategoriesOpen = false"
-  />
-  <Popover ref="popover-ref" />
-  <div id="page-wrapper">
-    <RouterView />
+    <Popover ref="popover-ref" />
+    <div class="flex-1 p-5">
+      <RouterView />
+    </div>
+    <footer class="px-5 py-2 text-center text-xs text-gray-500">version: {{ appVersion }}</footer>
   </div>
 </template>
-
-<style scoped>
-#page-wrapper {
-  padding: 20px;
-  height: 100%;
-}
-</style>
