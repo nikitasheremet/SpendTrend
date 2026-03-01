@@ -2,7 +2,7 @@ import type { Context } from 'hono'
 import { validateUpdateExpenseSubCategory } from '../validation/updateExpenseSubCategoryValidation'
 import { updateExpenseSubCategoryService } from '../service/updateExpenseSubCategoryService'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
-import { jsonResponse } from '../../utilities/jsonResponse.js'
+import { jsonResponse } from '../../utilities/jsonResponse'
 import { STATUS_SUCCESS_200 } from '../../models/statusCodes'
 
 export async function updateExpenseSubCategoryHandler(ctx: Context): Promise<Response> {
