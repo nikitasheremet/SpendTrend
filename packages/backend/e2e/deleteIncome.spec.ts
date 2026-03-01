@@ -11,6 +11,7 @@ import { DeleteIncomeInput } from '../src/income/validation/models'
 import { IncomeDbRow } from '../src/models/income/income'
 import { NOT_FOUND_ERROR } from '../src/models/errors/repositoryErrors'
 import { eq } from 'drizzle-orm'
+import { integerToDecimal } from '../src/utilities/integerToDecimal'
 
 const BASE_URL = 'http://localhost:3000'
 
@@ -67,10 +68,10 @@ test.describe('Delete Income Endpoint', () => {
           userId: fakeDeleteIncomeInput.userId,
           accountId: fakeDeleteIncomeInput.accountId,
           name: createdIncome.name,
-          amount: createdIncome.amount,
+          amount: integerToDecimal(createdIncome.amount),
           date: createdIncome.date,
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
+          createdAt: createdIncome.createdAt.toISOString(),
+          updatedAt: createdIncome.updatedAt.toISOString(),
         }),
       )
 

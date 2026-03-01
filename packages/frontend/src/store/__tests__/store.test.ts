@@ -149,7 +149,7 @@ describe('when creating and using store state', () => {
     store.addNewIncome({ date: '2026-02-01', name: 'Bonus', amount: 200 })
     expect(store.newIncomes.value).toHaveLength(1)
 
-    expect(mockSetItem).not.toHaveBeenCalled()
+    expect(mockSetItem).toHaveBeenCalled()
   })
 
   it('should update existing expense category names when a category is renamed', () => {

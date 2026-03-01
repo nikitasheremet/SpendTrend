@@ -47,7 +47,7 @@ describe('DropdownOptions', () => {
 
       const dropdownOption = screen.getByText('optionA').parentElement as HTMLElement
       expect(dropdownOption.className).toContain('whitespace-normal')
-      expect(dropdownOption.className).toContain('break-all')
+      expect(dropdownOption.className).toContain('wrap-break-word')
     })
   })
 })

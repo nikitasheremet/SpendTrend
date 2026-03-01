@@ -69,6 +69,12 @@ describe('when using deleteExpenseSubCategoryHandler', () => {
 
     expect(response.status).toBe(STATUS_SUCCESS_200)
     const body = await response.json()
-    expect(body).toEqual({ deletedExpenseSubCategory: fakeDeletedSubCategory })
+    expect(body).toEqual({
+      deletedExpenseSubCategory: {
+        ...fakeDeletedSubCategory,
+        created_at: fakeDeletedSubCategory.created_at.toISOString(),
+        updated_at: fakeDeletedSubCategory.updated_at.toISOString(),
+      },
+    })
   })
 })

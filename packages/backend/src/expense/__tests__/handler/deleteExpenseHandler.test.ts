@@ -14,13 +14,18 @@ const mockService = deleteExpenseService as jest.Mock
 describe('deleteExpenseHandler', () => {
   const fakeCtx = {
     req: {
-      formData: jest.fn(),
+      json: jest.fn(),
     },
   } as unknown as Context
 
   beforeEach(() => {
     mockService.mockReset()
     jest.resetAllMocks()
+    ;(fakeCtx.req.json as jest.Mock).mockResolvedValue({
+      userId: '123e4567-e89b-12d3-a456-426614174000',
+      accountId: '123e4567-e89b-12d3-a456-426614174001',
+      expenseId: '123e4567-e89b-12d3-a456-426614174002',
+    })
   })
 
   describe('when input is invalid', () => {

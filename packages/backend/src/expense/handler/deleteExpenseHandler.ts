@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import { errorStatusMapper } from '../../utilities/errorStatusMapper'
+import { jsonResponse } from '../../utilities/jsonResponse'
 import { validateDeleteExpenseInput } from '../validation'
 import { deleteExpenseService } from '../service/deleteExpenseService'
 import { STATUS_SUCCESS_200 } from '../../models/statusCodes'
@@ -10,8 +11,8 @@ export async function deleteExpenseHandler(ctx: Context): Promise<Response> {
     validateDeleteExpenseInput(input)
 
     const deletedExpense = await deleteExpenseService(input)
-    return ctx.json({ expense: deletedExpense }, STATUS_SUCCESS_200)
+    return jsonResponse(ctx, { expense: deletedExpense }, STATUS_SUCCESS_200)
   } catch (error) {
-    return ctx.json({ error: (error as Error).message }, errorStatusMapper(error))
+    return jsonResponse(ctx, { error: (error as Error).message }, errorStatusMapper(error))
   }
 }

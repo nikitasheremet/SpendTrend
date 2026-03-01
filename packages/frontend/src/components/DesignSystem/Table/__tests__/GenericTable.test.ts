@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import GenericTable from '../GenericTable.vue'
 import TableRow from '../TableRow.vue'
 import Button from '../../Button/Button.vue'
@@ -34,7 +35,7 @@ function mountGenericTable(overrides: Record<string, unknown> = {}) {
 
 describe('GenericTable', () => {
   describe('when rendering table structure', () => {
-    it('should render table with headers and rows', () => {
+    it('should render table with headers and rows', async () => {
       const fakeData: FakeRow[] = [
         { name: 'Item 1', amount: 100 },
         { name: 'Item 2', amount: 200 },
@@ -43,25 +44,31 @@ describe('GenericTable', () => {
         data: fakeData,
       })
 
+      await nextTick()
+
       expect(wrapper.find('table').exists()).toBe(true)
       const rows = wrapper.findAllComponents(TableRowComponent)
       expect(rows).toHaveLength(2)
     })
 
-    it('should pass columns to each row', () => {
+    it('should pass columns to each row', async () => {
       const fakeColumns: ColumnConfig<FakeRow>[] = [{ key: 'name', label: 'Name', type: 'text' }]
       const wrapper = mountGenericTable({
         columns: fakeColumns,
       })
 
+      await nextTick()
+
       const row = wrapper.findComponent(TableRowComponent)
       expect(row.props('columns')).toEqual(fakeColumns)
     })
 
-    it('should pass mode to rows', () => {
+    it('should pass mode to rows', async () => {
       const wrapper = mountGenericTable({
         mode: 'view',
       })
+
+      await nextTick()
 
       const row = wrapper.findComponent(TableRowComponent)
       expect(row.props('mode')).toBe('view')
@@ -69,13 +76,15 @@ describe('GenericTable', () => {
   })
 
   describe('when validation errors provided', () => {
-    it('should mark rows with validation errors', () => {
+    it('should mark rows with validation errors', async () => {
       const fakeData: FakeRow[] = [{ name: 'Test 1' }, { name: 'Test 2' }, { name: 'Test 3' }]
       const wrapper = mountGenericTable({
         data: fakeData,
         columns: [{ key: 'name', label: 'Name', type: 'text' }],
         validationErrors: [0, 2],
       })
+
+      await nextTick()
 
       const rows = wrapper.findAllComponents(TableRowComponent)
       expect(rows[0].props('validationError')).toBe(true)
@@ -85,12 +94,14 @@ describe('GenericTable', () => {
   })
 
   describe('when row actions provided', () => {
-    it('should pass row actions to each row', () => {
+    it('should pass row actions to each row', async () => {
       const fakeRowActions: RowAction<FakeRow>[] = [{ label: 'Delete', handler: vi.fn() }]
       const wrapper = mountGenericTable({
         columns: [{ key: 'name', label: 'Name', type: 'text' }],
         rowActions: fakeRowActions,
       })
+
+      await nextTick()
 
       const row = wrapper.findComponent(TableRowComponent)
       expect(row.props('rowActions')).toEqual(fakeRowActions)
@@ -179,6 +190,8 @@ describe('GenericTable', () => {
       const wrapper = mountGenericTable({
         columns: [{ key: 'name', label: 'Name', type: 'text' }],
       })
+
+      await nextTick()
 
       const row = wrapper.findComponent(TableRowComponent)
       await row.vm.$emit('cell:changed', 0, 'name', 'New Value')

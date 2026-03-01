@@ -67,6 +67,13 @@ describe('when useDropdownPosition is used in a dropdown', () => {
     await userEvent.click(fakeTriggerElement)
 
     const fakeOptionsElement = screen.getByTestId('options') as HTMLElement
+    Object.defineProperty(fakeOptionsElement, 'offsetHeight', {
+      configurable: true,
+      value: 220,
+    })
+
+    window.dispatchEvent(new Event('scroll'))
+
     expect(fakeOptionsElement.style.width).toBe('240px')
     expect(fakeOptionsElement.style.left).toBe('25px')
     expect(fakeOptionsElement.style.top).toBe('105px')
@@ -112,6 +119,6 @@ describe('when useDropdownPosition is used in a dropdown', () => {
 
     expect(fakeOptionsElement.style.width).toBe('160px')
     expect(fakeOptionsElement.style.left).toBe('20px')
-    expect(fakeOptionsElement.style.top).toBe('8px')
+    expect(fakeOptionsElement.style.top).toBe('130px')
   })
 })

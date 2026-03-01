@@ -14,6 +14,20 @@ const mockValidation = validateCreateExpenseInput as jest.Mock
 describe('createExpenseHandler', () => {
   const fakeApp = new Hono().post('/createexpense', createExpenseHandler)
   const fakeClient = testClient(fakeApp)
+  const fakeRequestBody = {
+    userId: '123e4567-e89b-12d3-a456-426614174000',
+    accountId: '123e4567-e89b-12d3-a456-426614174001',
+    expensesToCreate: [
+      {
+        name: 'Lunch',
+        amount: 10,
+        netAmount: 10,
+        date: '2026-01-01',
+        categoryId: '123e4567-e89b-12d3-a456-426614174002',
+        paidBackAmount: 0,
+      },
+    ],
+  }
 
   beforeEach(() => {
     mockService.mockReset()
@@ -23,14 +37,14 @@ describe('createExpenseHandler', () => {
   describe('on success', () => {
     it('should return 201 and expense', async () => {
       // Arrange
-      mockService.mockResolvedValue({ id: 1, name: 'Lunch' })
+      mockService.mockResolvedValue([{ id: 1, name: 'Lunch' }])
 
       // Act
-      const res = await fakeClient.createexpense.$post()
+      const res = await fakeClient.createexpense.$post({ json: fakeRequestBody })
       // Assert
       expect(res.status).toBe(STATUS_CREATED_201)
       const body = await res.json()
-      expect(body).toEqual({ createdExpense: { id: 1, name: 'Lunch' } })
+      expect(body).toEqual({ createdExpenses: [{ id: 1, name: 'Lunch' }] })
     })
   })
 
@@ -40,7 +54,7 @@ describe('createExpenseHandler', () => {
       mockValidation.mockImplementation(() => {
         throw fakeValidationError
       })
-      const res = await fakeClient.createexpense.$post()
+      const res = await fakeClient.createexpense.$post({ json: fakeRequestBody })
       expect(res.status).not.toBeUndefined()
       const body = await res.json()
       expect(body).toEqual({ error: fakeValidationError.message })
@@ -53,7 +67,7 @@ describe('createExpenseHandler', () => {
       mockService.mockImplementation(() => {
         throw fakeServiceError
       })
-      const res = await fakeClient.createexpense.$post()
+      const res = await fakeClient.createexpense.$post({ json: fakeRequestBody })
       expect(res.status).not.toBeUndefined()
       const body = await res.json()
       expect(body).toEqual({ error: fakeServiceError.message })

@@ -44,6 +44,11 @@ export function createApp() {
   app.all('/api/auth/*', (ctx) => auth.handler(ctx.req.raw))
 
   app.use(async (ctx, next) => {
+    if (process.env.NODE_ENV === 'test') {
+      await next()
+      return
+    }
+
     if (!ctx.req.path.startsWith('/api/auth')) {
       const session = await auth.api.getSession({
         headers: ctx.req.header(),

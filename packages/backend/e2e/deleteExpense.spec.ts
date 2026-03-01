@@ -6,6 +6,7 @@ import crypto from 'crypto'
 import { NOT_FOUND_ERROR } from '../src/models/errors/repositoryErrors'
 import { excludeFieldsAndAdd } from '../src/utilities/excludeFieldsAndAdd'
 import { ExpensesDbRow } from '../src/models/expense/expense'
+import { integerToDecimal } from '../src/utilities/integerToDecimal'
 
 const BASE_URL = 'http://localhost:3000'
 
@@ -24,9 +25,9 @@ test.describe('Delete Expense Endpoint', () => {
 
   test.describe('when required data fails validation', () => {
     test('should return error message and 422 status code', async ({ request }) => {
-      // Missing or invalid expenseId
+      // Missing required fields in body
       const response = await request.post(`${BASE_URL}/deleteexpense`, {
-        params: { expenseId: '' },
+        data: {},
       })
       expect(response.status()).toBe(STATUS_UNPROCESSABLE_ENTITY_422)
       const body = await response.json()
@@ -67,6 +68,9 @@ test.describe('Delete Expense Endpoint', () => {
       const body = await response.json()
       expect(body.expense).toEqual({
         ...excludeFieldsAndAdd(insertedExpense, ['categoryId', 'subCategoryId']),
+        amount: integerToDecimal(insertedExpense.amount),
+        netAmount: integerToDecimal(insertedExpense.netAmount),
+        paidBackAmount: integerToDecimal(insertedExpense.paidBackAmount),
         category: {
           ...fakeCategory,
           subCategories: [

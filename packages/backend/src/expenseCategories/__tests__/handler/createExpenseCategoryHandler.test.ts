@@ -24,7 +24,7 @@ describe('createExpenseCategoryHandler', () => {
 
   const fakeValidContext = {
     req: {
-      formData: jest.fn(),
+      json: jest.fn().mockResolvedValue(fakeValidRequest),
     },
   } as unknown as Context
 
@@ -54,7 +54,7 @@ describe('createExpenseCategoryHandler', () => {
 
       const fakeInvalidCtx = {
         req: {
-          formData: jest.fn(),
+          json: jest.fn().mockResolvedValue(fakeValidRequest),
         },
       } as unknown as Context
 

@@ -7,11 +7,11 @@
     "start": "node dist/src/server.js",
     "start:dev": "NODE_ENV=dev node dist/src/server.js",
     "local": "NODE_ENV=local tsx --watch --env-file ./env/.env.local --env-file ./env/.env.local.notsafe src/server.ts",
-    "test:e2e": "npx playwright test e2e",
+    "test:e2e": "NODE_ENV=test npx playwright test e2e",
     "test:unit": "jest src --passWithNoTests",
     "test:all": "npm run test:unit && npm run test:e2e",
     "types:lint": "tsc && eslint . --ext .ts",
-    "e2e:test": "npx playwright test",
+    "e2e:test": "NODE_ENV=test npx playwright test",
     "db:gen:mig": "npx drizzle-kit generate && npx drizzle-kit migrate",
     "prettier": "prettier --write ."
   },

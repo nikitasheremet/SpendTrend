@@ -17,14 +17,28 @@ describe('deleteExpense', () => {
 
   describe('when post succeeds', () => {
     it('should return the deleted expense', async () => {
+      const now = new Date()
       const fakeResponse = {
-        deletedExpense: {
+        expense: {
           id: fakeExpenseId,
+          userId: fakeUserId,
+          accountId: fakeAccountId,
+          date: '2026-01-01',
           name: 'Deleted Expense',
+          amount: 100,
+          netAmount: 90,
+          paidBackAmount: 0,
           category: {
             id: 'category-123',
+            userId: fakeUserId,
+            accountId: fakeAccountId,
+            name: 'Food',
             subCategories: [],
+            createdAt: now,
+            updatedAt: now,
           },
+          createdAt: now,
+          updatedAt: now,
         },
       }
       mockPost.mockResolvedValue(fakeResponse)

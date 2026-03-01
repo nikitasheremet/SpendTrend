@@ -57,7 +57,7 @@ export function useTableOperations<T extends Record<string, any>>(
     popoverComponent = RowDeletedPopover,
   } = options
 
-  const popover = inject<PopoverRef>(POPOVER_SYMBOL)
+  const popover = inject<PopoverRef>(POPOVER_SYMBOL, ref(undefined) as PopoverRef)
   const rows = ref<T[]>(initialData) as Ref<T[]>
   const error = ref<Error | undefined>(undefined)
   const validationErrors = ref<number[]>([])
@@ -177,10 +177,12 @@ export function useTableOperations<T extends Record<string, any>>(
       clearErrors()
     } catch (err) {
       error.value = asError(err)
-      console.error('useTableOperations.saveAll failed', {
-        rowCount: rows.value.length,
-        error: error.value,
-      })
+      if (error.value.message !== VALIDATION_ERROR_MESSAGE) {
+        console.error('useTableOperations.saveAll failed', {
+          rowCount: rows.value.length,
+          error: error.value,
+        })
+      }
       throw error.value
     } finally {
       stopLoading()

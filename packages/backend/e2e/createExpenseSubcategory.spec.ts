@@ -29,7 +29,7 @@ test.describe('Create Expense Subcategory Endpoint', () => {
       request,
     }) => {
       const fakeBadValidationData = {}
-      const response = await request.post(`${BASE_URL}/createsubcategory`, {
+      const response = await request.post(`${BASE_URL}/createexpensesubcategory`, {
         data: fakeBadValidationData,
       })
       expect(response.status()).toBe(STATUS_UNPROCESSABLE_ENTITY_422)
@@ -45,7 +45,7 @@ test.describe('Create Expense Subcategory Endpoint', () => {
         categoryId: crypto.randomUUID(),
       }
 
-      const response = await request.post(`${BASE_URL}/createsubcategory`, {
+      const response = await request.post(`${BASE_URL}/createexpensesubcategory`, {
         data: fakeSubcategoryDataWithInvalidCategory,
       })
       expect(response.status()).toBe(STATUS_INTERNAL_SERVER_ERROR_500)
@@ -58,7 +58,7 @@ test.describe('Create Expense Subcategory Endpoint', () => {
     test('should create a new expense subcategory and return the subcategory object', async ({
       request,
     }) => {
-      const response = await request.post(`${BASE_URL}/createsubcategory`, {
+      const response = await request.post(`${BASE_URL}/createexpensesubcategory`, {
         data: fakeCreateExpenseSubcategoryInput,
       })
 
@@ -87,13 +87,13 @@ test.describe('Create Expense Subcategory Endpoint', () => {
         name: `Duplicate Subcategory-${Math.random()}`,
       }
       // Create first subcategory
-      const firstResponse = await request.post(`${BASE_URL}/createsubcategory`, {
+      const firstResponse = await request.post(`${BASE_URL}/createexpensesubcategory`, {
         data: fakeCreateSubCategory,
       })
       expect(firstResponse.status()).toBe(STATUS_CREATED_201)
 
       // Try to create another subcategory with the same name and categoryId
-      const duplicateResponse = await request.post(`${BASE_URL}/createsubcategory`, {
+      const duplicateResponse = await request.post(`${BASE_URL}/createexpensesubcategory`, {
         data: fakeCreateSubCategory,
       })
       expect(duplicateResponse.status()).toBe(STATUS_INTERNAL_SERVER_ERROR_500)

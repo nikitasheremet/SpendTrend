@@ -7,6 +7,7 @@ import { ExpensesDbRow } from '../src/models/expense/expense'
 import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
 import { ExpenseSubCategoryDbRow } from '../src/models/expenseSubCategory/expenseSubCategory'
 import { excludeFieldsAndAdd } from '../src/utilities/excludeFieldsAndAdd'
+import { integerToDecimal } from '../src/utilities/integerToDecimal'
 
 const BASE_URL = 'http://localhost:3000'
 
@@ -72,6 +73,9 @@ test.describe('Get Expenses Endpoint', () => {
       const returnedExpenses = body.expenses
       expect(returnedExpenses[0]).toEqual({
         ...excludeFieldsAndAdd(expense2, ['categoryId', 'subCategoryId']),
+        amount: integerToDecimal(expense2.amount),
+        netAmount: integerToDecimal(expense2.netAmount),
+        paidBackAmount: integerToDecimal(expense2.paidBackAmount),
         category: {
           ...fakeCreatedExpenseCategory,
           subCategories: [
@@ -95,6 +99,9 @@ test.describe('Get Expenses Endpoint', () => {
 
       expect(returnedExpenses[1]).toEqual({
         ...excludeFieldsAndAdd(expense1, ['categoryId', 'subCategoryId']),
+        amount: integerToDecimal(expense1.amount),
+        netAmount: integerToDecimal(expense1.netAmount),
+        paidBackAmount: integerToDecimal(expense1.paidBackAmount),
         category: {
           ...fakeCreatedExpenseCategory,
           subCategories: [

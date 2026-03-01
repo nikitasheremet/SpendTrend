@@ -6,6 +6,7 @@ import crypto from 'crypto'
 import { eq } from 'drizzle-orm'
 import { CreateIncome } from '../src/income/repository/createIncomeRepository'
 import { NOT_FOUND_ERROR } from '../src/models/errors/repositoryErrors'
+import { decimalToInteger } from '../src/utilities/decimalToInteger'
 
 const BASE_URL = 'http://localhost:3000'
 
@@ -64,7 +65,7 @@ test.describe('Update Income Endpoint', () => {
         userId: createdIncome.userId,
         accountId: createdIncome.accountId,
         name: updatePayload.name,
-        amount: updatePayload.amount,
+        amount: decimalToInteger(decimalToInteger(updatePayload.amount)),
         date: createdIncome.date,
         createdAt: createdIncome.createdAt.toISOString(),
       })
@@ -81,7 +82,7 @@ test.describe('Update Income Endpoint', () => {
         .where(eq(incomeTable.id, createdIncome.id))
 
       expect(dbUpdatedIncome.name).toBe(updatePayload.name)
-      expect(dbUpdatedIncome.amount).toBe(updatePayload.amount)
+      expect(dbUpdatedIncome.amount).toBe(decimalToInteger(updatePayload.amount))
       expect(dbUpdatedIncome.date).toBe(createdIncome.date)
       expect(new Date(dbUpdatedIncome.updatedAt).getTime()).toBeGreaterThan(
         originalUpdatedAt.getTime(),

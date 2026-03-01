@@ -3,6 +3,7 @@ import { STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
 import { incomeTable } from '../src/db/schema'
 import crypto from 'crypto'
+import { integerToDecimal } from '../src/utilities/integerToDecimal'
 
 const BASE_URL = 'http://localhost:3000'
 
@@ -58,12 +59,14 @@ test.describe('Get Incomes Endpoint', () => {
       const returnedIncomes = body.incomes
       expect(returnedIncomes[0]).toEqual({
         ...income2,
+        amount: integerToDecimal(income2.amount),
         createdAt: fakeIncomeData2.createdAt.toISOString(),
         updatedAt: fakeIncomeData2.updatedAt.toISOString(),
       })
 
       expect(returnedIncomes[1]).toEqual({
         ...income1,
+        amount: integerToDecimal(income1.amount),
         createdAt: fakeIncomeData1.createdAt.toISOString(),
         updatedAt: fakeIncomeData1.updatedAt.toISOString(),
       })

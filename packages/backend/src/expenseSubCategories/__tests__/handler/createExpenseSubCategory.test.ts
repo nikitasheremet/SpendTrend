@@ -48,7 +48,13 @@ describe('createExpenseSubcategoryHandler', () => {
 
       expect(response.status).toBe(STATUS_CREATED_201)
       const body = await response.json()
-      expect(body).toEqual({ expenseSubCategory: fakeExpenseSubCategory })
+      expect(body).toEqual({
+        expenseSubCategory: {
+          ...fakeExpenseSubCategory,
+          createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
+          updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
+        },
+      })
     })
   })
 
