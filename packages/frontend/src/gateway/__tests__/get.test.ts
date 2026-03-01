@@ -1,12 +1,20 @@
 import { vi } from 'vitest'
-import { get } from '@gateway/get'
+
+let get: typeof import('@gateway/get').get
 
 describe('get function', () => {
   const mockFetch = vi.fn()
   global.fetch = mockFetch
   vi.spyOn(console, 'error').mockImplementation(() => {})
 
+  beforeEach(async () => {
+    vi.resetModules()
+    vi.stubEnv('VITE_BACKEND_URL', 'http://localhost:3000')
+    ;({ get } = await import('@gateway/get'))
+  })
+
   afterEach(() => {
+    vi.unstubAllEnvs()
     vi.resetAllMocks()
   })
 
