@@ -1,0 +1,52 @@
+name: PR Quality Checks
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'packages/frontend/**'
+            backend:
+              - 'packages/backend/**'
+
+  frontend-tests:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install & Test Frontend
+        working-directory: ./packages/frontend
+        run: |
+          npm install
+          npm run test:unit
+          npm run lint
+          npm run build
+
+  backend-tests:
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install & Test Backend
+        working-directory: ./packages/backend
+        run: |
+          npm install
+          npm run test:all
+          npm run types:lint
+          npm run build
