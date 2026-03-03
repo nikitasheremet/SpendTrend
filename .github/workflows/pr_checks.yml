@@ -44,7 +44,7 @@ jobs:
       # This generates the /dist folders and .d.ts files in shared packages
       # so that vue-tsc can find the types for 'contracts'
       - name: Build Shared Workspaces
-        run: npm run build --workspaces --if-present
+        run: npm run build -w /contracts
 
       - name: Frontend Quality Checks
         working-directory: ./packages/frontend
