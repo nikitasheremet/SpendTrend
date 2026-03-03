@@ -58,15 +58,15 @@ async function handleUpdateComplete(value: string | number) {
 </script>
 
 <template>
-  <td class="border p-1" @click="turnOnEditMode" :class="{ editModeOn: isEditMode }">
+  <td class="border p-1" :class="{ editModeOn: isEditMode }" @click="turnOnEditMode">
     <UpdateView
       v-if="isEditMode"
+      :initial-value="cellData"
+      :input-type="type"
+      :input-categories="options"
       @on-update-complete="handleUpdateComplete"
-      :initialValue="cellData"
-      :inputType="type"
-      :inputCategories="options"
     />
-    <p class="wrap-break-word" v-else>{{ formattedCellData }}</p>
+    <p v-else class="wrap-break-word">{{ formattedCellData }}</p>
   </td>
 </template>
 

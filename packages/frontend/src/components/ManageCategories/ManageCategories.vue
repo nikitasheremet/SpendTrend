@@ -25,8 +25,8 @@ const emit = defineEmits<{
     leave-active-class="transition-transform duration-300 ease-in-out"
   >
     <div
-      id="manage-categories"
       v-show="isOpen"
+      id="manage-categories"
       class="flex flex-col fixed border bg-gray-50 z-2000 p-5 top-15 right-0 h-[calc(100vh-61px)] box-border min-w-[30vw] max-w-[50vw] shadow-xl"
     >
       <div id="manage-categories-header" class="flex justify-between items-center mb-4">
@@ -35,7 +35,7 @@ const emit = defineEmits<{
       </div>
       <AddCategory />
       <ul class="overflow-y-auto">
-        <li class="mb-4" v-for="category in store.categories.value" :key="category.name">
+        <li v-for="category in store.categories.value" :key="category.name" class="mb-4">
           <CategoryView :category="category" />
         </li>
       </ul>

@@ -35,8 +35,8 @@ function handleAddCategory() {
   <Modal
     class="w-9/10"
     :is-modal-open="isAddCategoryModalOpen"
-    @modal-closed="closeModal"
     close-text="X"
+    @modal-closed="closeModal"
   >
     <div v-if="loading" class="flex flex-col items-center gap-4">
       <Spinner />
@@ -44,8 +44,8 @@ function handleAddCategory() {
     </div>
     <div v-else class="flex flex-col gap-4">
       <p>Enter new Category name:</p>
-      <Input id="add-category-input" type="text" v-model="newCategoriesValue" />
-      <Button @click="addCategory" :disabled="isSaveCategoryDisabled">Save Category</Button>
+      <Input id="add-category-input" v-model="newCategoriesValue" type="text" />
+      <Button :disabled="isSaveCategoryDisabled" @click="addCategory">Save Category</Button>
       <Error v-if="error" :error="error" />
     </div>
   </Modal>

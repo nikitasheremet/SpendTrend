@@ -23,10 +23,10 @@ const dropdownModel = computed({
   <td class="border p-1">
     <DropdownWithInput
       v-if="type === 'dropdown'"
-      :dropdown-options="dropdownOptions"
       v-model="dropdownModel"
+      :dropdown-options="dropdownOptions"
     />
-    <Input class="border-none" :type="type" v-model="model" />
+    <Input v-model="model" class="border-none" :type="type" />
   </td>
 </template>
 

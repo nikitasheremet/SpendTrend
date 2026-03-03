@@ -32,7 +32,7 @@ function showSubcategories() {
     <td class="p-2 text-center">{{ category.diffTotalToAvgAsPercent }}</td>
   </tr>
   <template v-if="isSubcategoryDetailsShown">
-    <MonthlySubcategorySummary :summaryForSelectedMonthBySubcategory="category.subCategories" />
+    <MonthlySubcategorySummary :summary-for-selected-month-by-subcategory="category.subCategories" />
   </template>
 </template>
 

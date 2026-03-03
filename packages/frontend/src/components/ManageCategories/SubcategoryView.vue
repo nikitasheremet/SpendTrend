@@ -107,10 +107,10 @@ const subCategoryOptions = (subCategory: ExpenseSubCategory) => [
   </Teleport>
   <UpdateNameModal
     v-if="selectedSubCategoryForUpdate"
+    v-model="isUpdateSubCategoryModalOpen"
     title="Update the subcategory name"
     :current-name="selectedSubCategoryForUpdate.name"
     :loading="loading"
-    v-model="isUpdateSubCategoryModalOpen"
     @update="handleUpdateSubCategory"
   />
 </template>

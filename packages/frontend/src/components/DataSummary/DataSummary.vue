@@ -58,8 +58,8 @@ onMounted(() => {
     <h4>Data for:</h4>
     <div class="flex flex-col ml-2">
       <select
-        class="min-w-15"
         v-model="store.selectedMonth.value"
+        class="min-w-15"
         @change="handleSummaryPeriodSelectionChange"
       >
         <option v-for="month in listOfMonths" :key="month[1]" :value="month[1]">
@@ -69,8 +69,8 @@ onMounted(() => {
     </div>
     <div class="flex flex-col ml-2">
       <select
-        class="min-w-17"
         v-model="store.selectedYear.value"
+        class="min-w-17"
         @change="handleSummaryPeriodSelectionChange"
       >
         <option v-for="year in listOfYears" :key="year" :value="year">{{ year }}</option>

@@ -40,8 +40,8 @@ function closeAddSubCategoryModal() {
   <Modal
     class="w-9/10"
     :is-modal-open="isOpen"
-    @modal-closed="closeAddSubCategoryModal"
     close-text="X"
+    @modal-closed="closeAddSubCategoryModal"
   >
     <div v-if="loading" class="flex flex-col items-center gap-4">
       <Spinner />
@@ -49,8 +49,8 @@ function closeAddSubCategoryModal() {
     </div>
     <div v-else class="flex flex-col gap-4">
       <p>Enter new Subcategory name:</p>
-      <Input type="text" v-model="newSubCategoryValue" />
-      <Button @click="handleAddSubCategory" :disabled="isSaveDisabled">Save Subcategory</Button>
+      <Input v-model="newSubCategoryValue" type="text" />
+      <Button :disabled="isSaveDisabled" @click="handleAddSubCategory">Save Subcategory</Button>
       <Error v-if="error" :error="error" />
     </div>
   </Modal>

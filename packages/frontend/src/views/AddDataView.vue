@@ -71,10 +71,10 @@ const formatDataPlaceholder = 'Paste your bank data here. Copy it directly from 
 <template>
   <div class="flex items-center gap-7 mb-5">
     <textarea
-      @paste.prevent="handlePaste"
       :placeholder="formatDataPlaceholder"
       class="border border-gray-300 rounded-md p-2 w-1/2 resize-none"
       readonly
+      @paste.prevent="handlePaste"
     />
   </div>
   <TabViewNav
@@ -82,14 +82,14 @@ const formatDataPlaceholder = 'Paste your bank data here. Copy it directly from 
       { label: 'Expenses', value: 'expense' },
       { label: 'Income', value: 'income' },
     ]"
-    :currentTab="currentTab"
-    @tabClicked="(tabValue) => (currentTab = tabValue as typeof currentTab)"
+    :current-tab="currentTab"
+    @tab-clicked="(tabValue) => (currentTab = tabValue as typeof currentTab)"
   />
   <div v-if="currentTab === 'expense'">
-    <AddExpenseTable v-model="store.newExpenses.value" @moveToIncome="moveToIncome" />
+    <AddExpenseTable v-model="store.newExpenses.value" @move-to-income="moveToIncome" />
   </div>
   <div v-if="currentTab === 'income'">
-    <AddIncomeTable v-model="store.newIncomes.value" @moveToExpense="moveToExpense" />
+    <AddIncomeTable v-model="store.newIncomes.value" @move-to-expense="moveToExpense" />
   </div>
 </template>
 

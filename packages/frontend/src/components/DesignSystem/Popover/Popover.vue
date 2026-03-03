@@ -43,7 +43,7 @@ defineExpose<PopoverMethods>({
       v-if="isVisible"
       class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white rounded-lg shadow-2xl/70 p-4 z-50 shadow-stone-600"
     >
-      <component v-if="component" :is="component" v-bind="componentProps" />
+      <component :is="component" v-if="component" v-bind="componentProps" />
     </div>
   </transition>
 </template>

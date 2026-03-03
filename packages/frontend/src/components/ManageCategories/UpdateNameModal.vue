@@ -57,15 +57,15 @@ defineExpose({
 </script>
 
 <template>
-  <Modal class="w-9/10" :is-modal-open="isOpen" @modal-closed="closeModal" close-text="X">
+  <Modal class="w-9/10" :is-modal-open="isOpen" close-text="X" @modal-closed="closeModal">
     <div v-if="loading" class="flex flex-col items-center gap-4">
       <Spinner />
       <p>Updating...</p>
     </div>
     <div v-else class="flex flex-col gap-4">
       <p>{{ title }}</p>
-      <Input type="text" v-model="updatedName" />
-      <Button @click="handleUpdate" :disabled="isUpdateDisabled">Update</Button>
+      <Input v-model="updatedName" type="text" />
+      <Button :disabled="isUpdateDisabled" @click="handleUpdate">Update</Button>
       <ErrorComponent v-if="error" :error="error" />
     </div>
   </Modal>

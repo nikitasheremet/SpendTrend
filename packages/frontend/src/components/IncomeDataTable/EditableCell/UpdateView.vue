@@ -35,18 +35,18 @@ const isInputDropdown = inputType === 'dropdown'
 <template>
   <DropdownWithInput
     v-if="isInputDropdown"
-    autofocus
-    :dropdownOptions="inputCategories || []"
     v-model="updatedValue"
+    autofocus
+    :dropdown-options="inputCategories || []"
     @blur="handleInputSave"
-    @escapeKeyPressed="handleCancelInput"
+    @escape-key-pressed="handleCancelInput"
   />
   <Input
     v-else
+    id="new-value-input"
+    v-model="updatedValue"
     autofocus
     :type="inputType"
-    v-model="updatedValue"
-    id="new-value-input"
     @blur="handleInputSave"
     @keyup.enter="handleInputSave"
     @keyup.esc="handleCancelInput"
