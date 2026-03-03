@@ -41,10 +41,8 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      # This generates the /dist folders and .d.ts files in shared packages
-      # so that vue-tsc can find the types for 'contracts'
-      - name: Build Shared Workspaces
-        run: npm run build -w /contracts
+      - name: Build Shared Contracts
+        run: npx tsc -p contracts/tsconfig.json
 
       - name: Frontend Quality Checks
         working-directory: ./packages/frontend
@@ -70,8 +68,8 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Build Shared Workspaces
-        run: npm run build --workspaces --if-present
+      - name: Build Shared Contracts
+        run: npx tsc -p contracts/tsconfig.json
 
       - name: Backend Quality Checks
         working-directory: ./packages/backend
