@@ -29,10 +29,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install & Test Frontend
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm' # Automatically caches node_modules based on package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci # Run at root to link all workspace packages and shared tools
+
+      - name: Test & Lint Frontend
         working-directory: ./packages/frontend
         run: |
-          npm install
           npm run test:unit
           npm run lint
           npm run build
@@ -43,10 +52,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install & Test Backend
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Test & Lint Backend
         working-directory: ./packages/backend
         run: |
-          npm install
           npm run test:all
           npm run types:lint
           npm run build
