@@ -2,7 +2,6 @@
 import type { ExpenseCategorySummary } from '@/types/dataSummary'
 import MonthlySubcategorySummary from './MonthlySubcategorySummary.vue'
 import { ref } from 'vue'
-import { showNumberAsDollar } from '@/helpers/showNumberAsDollar'
 
 const { category } = defineProps<{
   category: ExpenseCategorySummary

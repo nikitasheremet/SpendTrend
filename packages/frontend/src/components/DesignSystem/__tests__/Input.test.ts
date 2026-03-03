@@ -149,7 +149,7 @@ describe('Input', () => {
     })
 
     it('should prevent input with more than two decimal places', async () => {
-      const { modelValue, vModelProps } = createVModelProps(123.45)
+      const { vModelProps } = createVModelProps(123.45)
       await renderInput({
         type: 'number',
         ...vModelProps,
@@ -164,7 +164,7 @@ describe('Input', () => {
     })
 
     it('should prevent non-numeric characters', async () => {
-      const { modelValue, vModelProps } = createVModelProps(0)
+      const { vModelProps } = createVModelProps(0)
       await renderInput({
         type: 'number',
         ...vModelProps,
@@ -189,7 +189,7 @@ describe('Input', () => {
     })
 
     it('should format number to two decimal places on blur', async () => {
-      const { modelValue, vModelProps } = createVModelProps(123)
+      const { vModelProps } = createVModelProps(123)
       await renderInput({
         type: 'number',
         ...vModelProps,
@@ -418,7 +418,7 @@ describe('Input', () => {
     })
 
     it('should auto-grow height when content is added', async () => {
-      const { modelValue, vModelProps } = createVModelProps('')
+      const { vModelProps } = createVModelProps('')
       await renderInput({
         variant: 'textarea',
         ...vModelProps,

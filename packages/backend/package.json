@@ -10,7 +10,7 @@
     "test:e2e": "NODE_ENV=test npx playwright test e2e",
     "test:unit": "jest src --passWithNoTests",
     "test:all": "npm run test:unit && npm run test:e2e",
-    "types:lint": "tsc && eslint . --ext .ts",
+    "types:lint": "tsc && eslint .",
     "e2e:test": "NODE_ENV=test npx playwright test",
     "db:gen:mig": "npx drizzle-kit generate && npx drizzle-kit migrate",
     "prettier": "prettier --write ."

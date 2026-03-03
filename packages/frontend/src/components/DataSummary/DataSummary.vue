@@ -62,7 +62,9 @@ onMounted(() => {
         v-model="store.selectedMonth.value"
         @change="handleSummaryPeriodSelectionChange"
       >
-        <option v-for="month in listOfMonths" :value="month[1]">{{ month[0] }}</option>
+        <option v-for="month in listOfMonths" :key="month[1]" :value="month[1]">
+          {{ month[0] }}
+        </option>
       </select>
     </div>
     <div class="flex flex-col ml-2">
@@ -71,7 +73,7 @@ onMounted(() => {
         v-model="store.selectedYear.value"
         @change="handleSummaryPeriodSelectionChange"
       >
-        <option v-for="year in listOfYears" :value="year">{{ year }}</option>
+        <option v-for="year in listOfYears" :key="year" :value="year">{{ year }}</option>
       </select>
     </div>
   </div>

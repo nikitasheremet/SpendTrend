@@ -131,7 +131,7 @@ function onChange(event: Event) {
     model.value = isNaN(numberValue) ? '' : numberValue
     return
   }
-  model.value = value as any
+  model.value = value
 }
 
 function inputBlurred(event: FocusEvent) {
