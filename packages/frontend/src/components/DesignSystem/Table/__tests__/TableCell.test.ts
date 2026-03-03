@@ -65,7 +65,7 @@ describe('TableCell', () => {
         column: createColumn({
           key: 'status',
           label: 'Status',
-          format: (value: string) => value.toUpperCase(),
+          format: (value: unknown) => String(value).toUpperCase(),
         }),
         row: { status: 'active' },
       })
