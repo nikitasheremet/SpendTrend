@@ -8,6 +8,35 @@ const flushPromises = async () => {
   await nextTick()
 }
 
+const TestHost = defineComponent({
+  props: {
+    enabled: {
+      type: Boolean,
+      required: true,
+    },
+    initialRowCount: {
+      type: Number,
+      required: true,
+    },
+    rowChunkSize: {
+      type: Number,
+      required: true,
+    },
+  },
+  setup(props) {
+    const fakeData = ref(Array.from({ length: 10 }, (_, index) => ({ id: index + 1 })))
+    const { visibleData } = useProgressiveRowRender({
+      data: computed(() => fakeData.value),
+      enabled: computed(() => props.enabled),
+      initialRowCount: computed(() => props.initialRowCount),
+      rowChunkSize: computed(() => props.rowChunkSize),
+    })
+
+    return { visibleData }
+  },
+  template: '<div>{{ visibleData.length }}</div>',
+})
+
 describe('when useProgressiveRowRender is used', () => {
   const fakeRequestAnimationFrame = vi.fn<(callback: FrameRequestCallback) => number>()
   const fakeCancelAnimationFrame = vi.fn<(handle: number) => void>()
@@ -31,24 +60,13 @@ describe('when useProgressiveRowRender is used', () => {
   })
 
   it('should return all rows immediately when progressive rendering is disabled', async () => {
-    const fakeData = Array.from({ length: 10 }, (_, index) => ({ id: index + 1 }))
-
-    const wrapper = mount(
-      defineComponent({
-        setup() {
-          const data = ref(fakeData)
-          const { visibleData } = useProgressiveRowRender({
-            data: computed(() => data.value),
-            enabled: computed(() => false),
-            initialRowCount: computed(() => 3),
-            rowChunkSize: computed(() => 2),
-          })
-
-          return { visibleData }
-        },
-        template: '<div>{{ visibleData.length }}</div>',
-      }),
-    )
+    const wrapper = mount(TestHost, {
+      props: {
+        enabled: false,
+        initialRowCount: 3,
+        rowChunkSize: 2,
+      },
+    })
 
     await flushPromises()
 
@@ -56,24 +74,13 @@ describe('when useProgressiveRowRender is used', () => {
   })
 
   it('should progressively grow visible rows when enabled', async () => {
-    const fakeData = Array.from({ length: 10 }, (_, index) => ({ id: index + 1 }))
-
-    const wrapper = mount(
-      defineComponent({
-        setup() {
-          const data = ref(fakeData)
-          const { visibleData } = useProgressiveRowRender({
-            data: computed(() => data.value),
-            enabled: computed(() => true),
-            initialRowCount: computed(() => 4),
-            rowChunkSize: computed(() => 3),
-          })
-
-          return { visibleData }
-        },
-        template: '<div>{{ visibleData.length }}</div>',
-      }),
-    )
+    const wrapper = mount(TestHost, {
+      props: {
+        enabled: true,
+        initialRowCount: 4,
+        rowChunkSize: 3,
+      },
+    })
 
     await nextTick()
     expect(Number(wrapper.text())).toBeGreaterThanOrEqual(4)

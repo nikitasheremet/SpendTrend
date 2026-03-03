@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { deleteIncome } from '../deleteIncome'
 import { post } from '@gateway/post'
-import { Income } from '@/types/income/income'
 import { DeleteIncomeResponse } from '@contracts/income/deleteIncome'
 
 vi.mock('@gateway/post')
@@ -31,10 +30,6 @@ describe('when deleteIncome is called', () => {
       updatedAt: new Date('2023-01-01T00:00:00Z'),
     },
   }
-
-  const fakeDomainIncome = {
-    id: 'fake-income-id',
-  } as Income
 
   describe('when post request throws an error', () => {
     it('should throw an error', async () => {

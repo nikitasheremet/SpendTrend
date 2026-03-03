@@ -1,4 +1,3 @@
-import { Expense } from '@/types/expenseData'
 import { sub } from 'date-fns/sub'
 import { getTotalAmountForMonth } from './getTotalAmountForMonth.js'
 import { Income } from '@/types/income/income.js'

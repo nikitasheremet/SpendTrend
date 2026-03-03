@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { nextTick, VueElement } from 'vue'
 import GenericTable from '../GenericTable.vue'
 import TableRow from '../TableRow.vue'
 import Button from '../../Button/Button.vue'
@@ -8,11 +8,12 @@ import ErrorComponent from '../../Error.vue'
 import LoadingModal from '../../Modal/LoadingModal.vue'
 import type { ColumnConfig, RowAction, TableAction } from '../types'
 
-const TableRowComponent = TableRow as any
+const TableRowComponent = TableRow as unknown as VueElement
 
 interface FakeRow {
   name: string
   amount?: number
+  [key: string]: unknown
 }
 
 const baseColumns: ColumnConfig<FakeRow>[] = [

@@ -1,8 +1,8 @@
-<script lang="ts" setup generic="T extends Record<string, any>">
+<script lang="ts" setup generic="T extends TableRowData">
 import { computed, ref, watch } from 'vue'
 import TableCell from './TableCell.vue'
 import Button from '../Button/Button.vue'
-import type { ColumnConfig, RowAction } from './types'
+import type { ColumnConfig, RowAction, TableRowData } from './types'
 
 const props = defineProps<{
   row: T
@@ -14,7 +14,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'cell:changed': [rowIndex: number, key: keyof T, value: any]
+  'cell:changed': [rowIndex: number, key: keyof T, value: unknown]
 }>()
 
 // Track local edits for immediate recalculation
@@ -27,7 +27,7 @@ watch(
   },
 )
 
-function applyLocalEdit(key: keyof T, value: any) {
+function applyLocalEdit(key: keyof T, value: unknown) {
   localEdits.value[key] = value
 }
 
@@ -57,13 +57,13 @@ const computedRow = computed(() => {
   return mergedRow
 })
 
-function handleCellUpdate(key: keyof T, value: any) {
+function handleCellUpdate(key: keyof T, value: unknown) {
   applyLocalEdit(key, value)
 
   emit('cell:changed', props.rowIndex, key, value)
 }
 
-function handleLocalUpdate(key: keyof T, value: any) {
+function handleLocalUpdate(key: keyof T, value: unknown) {
   applyLocalEdit(key, value)
 }
 </script>

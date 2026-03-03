@@ -1,7 +1,6 @@
-import { getCategories } from '@/service/categories/getCategories'
 import { getStore } from '@/store/store'
 import type { ExpenseCategory } from '@/types/expenseData'
-import { computed, onMounted, ref, watch, type ComputedRef, type Ref } from 'vue'
+import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
 
 export function useCategoriesInExpenseData(): {
   categories: Ref<ExpenseCategory[]>

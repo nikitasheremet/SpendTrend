@@ -157,7 +157,7 @@ watch(
 )
 
 // Handle cell updates with category/subcategory transformation
-async function handleCellUpdate(rowIndex: number, key: keyof NewExpense, value: any) {
+async function handleCellUpdate(rowIndex: number, key: keyof NewExpense, value: unknown) {
   // Keep table display values as names; model IDs are handled by table-model sync
   if (key === 'category') {
     await updateCell(rowIndex, key, value)
@@ -220,7 +220,7 @@ const columns = computed<ColumnConfig<NewExpense>[]>(() => [
     calculate: (row: NewExpense) => {
       return Math.round(((row.amount || 0) - (row.paidBackAmount ?? 0)) * 100) / 100
     },
-    format: (value: number) => value.toFixed(2),
+    format: (value: unknown) => Number(value ?? 0).toFixed(2),
   },
   {
     key: 'category',

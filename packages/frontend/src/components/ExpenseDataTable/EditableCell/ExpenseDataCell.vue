@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<!-- <script lang="ts" setup>
 import { computed, nextTick, ref, watch } from 'vue'
 import UpdateView from './UpdateView.vue'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
@@ -77,4 +77,4 @@ async function handleUpdateComplete(value: string | number) {
 td.editModeOn {
   padding: 0;
 }
-</style>
+</style> -->

@@ -89,7 +89,7 @@ watch(
   { deep: true },
 )
 
-async function handleCellUpdate(rowIndex: number, key: keyof NewIncome, value: any) {
+async function handleCellUpdate(rowIndex: number, key: keyof NewIncome, value: unknown) {
   await updateCell(rowIndex, key, value)
 }
 

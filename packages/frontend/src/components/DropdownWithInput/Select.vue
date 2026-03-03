@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
-import { Teleport } from 'vue'
 import { useDropdownPosition } from '@/helpers/hooks/useDropdownPosition'
 import DropdownOptions from './DropdownOptions.vue'
 

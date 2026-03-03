@@ -68,7 +68,7 @@ const storeObj = reactive<
     }
     return {
       userId: session.data.user.id,
-      // @ts-ignore -- This is defined in the custom session callback in the backend
+      // @ts-expect-error -- This is defined in the custom session callback in the backend
       accountId: session.data.user.accountId,
     }
   },

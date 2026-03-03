@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<!-- <script lang="ts" setup>
 import type { Expense } from '@/types/expenseData'
 import ExpenseDataCell from './EditableCell/ExpenseDataCell.vue'
 import { useManageExpense } from './hooks/useUpdateExpense'
@@ -78,4 +78,4 @@ const onSaveSubCategory = async (name: string) => {
   </tr>
 </template>
 
-<style scoped></style>
+<style scoped></style> -->

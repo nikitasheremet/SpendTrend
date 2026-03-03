@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { ref, nextTick } from 'vue'
-import { Teleport } from 'vue'
+import { ref } from 'vue'
 import AddSubcategoryModal from '@/components/ManageCategories/AddSubcategoryModal.vue'
 import UpdateNameModal from '@/components/ManageCategories/UpdateNameModal.vue'
 import type { ExpenseCategory } from '@/types/expenseData'
@@ -18,13 +17,7 @@ const { category } = defineProps<{
   category: ExpenseCategory
 }>()
 
-const emits = defineEmits<{
-  categoryDeleted: [ExpenseCategory]
-}>()
-function categoryDeleted() {
-  emits('categoryDeleted', category)
-}
-const { deleteCategory, error: deleteCategoryError } = useDeleteCategory(category, categoryDeleted)
+const { deleteCategory, error: deleteCategoryError } = useDeleteCategory(category)
 const {
   updateCategory,
   error: updateCategoryError,

@@ -1,8 +1,9 @@
-import { ref, watch, onMounted, inject, type Ref } from 'vue'
+import { ref, watch, onMounted, inject, type Ref, VueElement } from 'vue'
 import { useLoading } from '@/helpers/hooks/useLoading'
 import { POPOVER_SYMBOL } from '@/types/providedSymbols'
 import type { PopoverRef } from '@/types/designSystem'
 import RowDeletedPopover from '@/components/AddExpenseTable/hooks/RowDeletedPopover.vue'
+import type { TableRowData } from '../types'
 
 const VALIDATION_ERROR_MESSAGE =
   'Validation errors in highlighted rows. Please fill in required fields'
@@ -23,18 +24,18 @@ export interface TableOperationsOptions<T> {
   mode: 'editable' | 'view'
   createEmptyRow: () => T
   onSave?: (items: T[]) => Promise<SaveResult<T>>
-  onUpdate?: (item: T, key: keyof T, value: any) => Promise<T>
+  onUpdate?: (item: T, key: keyof T, value: unknown) => Promise<T>
   onDelete?: (item: T, index: number) => Promise<void>
   validate?: (items: T[]) => number[]
   idKey?: keyof T
-  popoverComponent?: any
+  popoverComponent?: VueElement
 }
 
 export interface TableOperationsReturn<T> {
   rows: Ref<T[]>
   addRow: (template?: Partial<T>) => void
   deleteRow: (index: number) => Promise<void>
-  updateCell: (index: number, key: keyof T, value: any) => Promise<void>
+  updateCell: (index: number, key: keyof T, value: unknown) => Promise<void>
   saveAll: () => Promise<void>
   validateRows: () => number[]
   clearAll: () => void
@@ -43,7 +44,7 @@ export interface TableOperationsReturn<T> {
   validationErrors: Ref<number[]>
 }
 
-export function useTableOperations<T extends Record<string, any>>(
+export function useTableOperations<T extends TableRowData>(
   options: TableOperationsOptions<T>,
 ): TableOperationsReturn<T> {
   const {
@@ -118,7 +119,7 @@ export function useTableOperations<T extends Record<string, any>>(
     }
   }
 
-  async function updateCell(index: number, key: keyof T, value: any): Promise<void> {
+  async function updateCell(index: number, key: keyof T, value: unknown): Promise<void> {
     try {
       const item = rows.value[index]
 

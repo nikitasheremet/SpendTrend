@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { Teleport } from 'vue'
 import { ExpenseSubCategory } from '@/types/expenseData'
 import Button from '../DesignSystem/Button/Button.vue'
 import UpdateNameModal from './UpdateNameModal.vue'

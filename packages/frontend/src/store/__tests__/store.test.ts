@@ -76,7 +76,7 @@ describe('when creating and using store state', () => {
           accountId: 'account-1',
         },
       },
-    } as any)
+    } as unknown)
 
     mockGetCategories.mockResolvedValue([fakeCategory])
     mockGetExpenses.mockResolvedValue([fakeExpense])

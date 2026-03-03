@@ -4,13 +4,15 @@ import TableRow from '../TableRow.vue'
 import TableCell from '../TableCell.vue'
 import Button from '../../Button/Button.vue'
 import type { ColumnConfig, RowAction } from '../types'
+import { VueElement } from 'vue'
 
-const TableCellComponent = TableCell as any
+const TableCellComponent = TableCell as unknown as VueElement
 
 interface FakeRow {
   name: string
   amount?: number
   canDelete?: boolean
+  [key: string]: unknown
 }
 
 const baseColumns: ColumnConfig<FakeRow>[] = [

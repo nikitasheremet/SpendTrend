@@ -21,7 +21,7 @@ describe('deleteIncome', () => {
     vi.resetAllMocks()
     mockGetStore.mockReturnValue({
       getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
-    } as any)
+    } as unknown as ReturnType<typeof getStore>)
   })
 
   describe('when called with a valid income ID', () => {
@@ -61,7 +61,7 @@ describe('deleteIncome', () => {
           throw fakeError
         }),
       }
-      mockGetStore.mockReturnValue(mockStore as any)
+      mockGetStore.mockReturnValue(mockStore as unknown as ReturnType<typeof getStore>)
 
       await expect(deleteIncome(fakeIncomeId)).rejects.toThrow(fakeError)
     })

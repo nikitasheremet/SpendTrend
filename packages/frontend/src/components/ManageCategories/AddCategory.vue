@@ -2,7 +2,6 @@
 import Modal from '../DesignSystem/Modal/Modal.vue'
 import { computed, watch } from 'vue'
 import { useControlModal } from '../DesignSystem/Modal/useControlModal'
-import type { ExpenseCategory } from '@/types/expenseData'
 import { useAddCategory } from './hooks/useAddCategory'
 import Error from '../DesignSystem/Error.vue'
 import Input from '../DesignSystem/Input.vue'
@@ -10,10 +9,6 @@ import Spinner from '../DesignSystem/Spinner.vue'
 import Button from '../DesignSystem/Button/Button.vue'
 
 const { isModalOpen: isAddCategoryModalOpen, openModal, closeModal } = useControlModal()
-
-const emits = defineEmits<{
-  categoryAdded: [ExpenseCategory]
-}>()
 
 const { newCategoriesValue, addCategory, error, loading } = useAddCategory()
 

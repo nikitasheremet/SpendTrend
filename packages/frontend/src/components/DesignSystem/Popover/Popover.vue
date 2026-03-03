@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, markRaw, type Component } from 'vue'
-import type { PopoverMethods, PopoverOptions, PopoverRef } from '@/types/designSystem'
+import type { PopoverMethods, PopoverOptions } from '@/types/designSystem'
 
 const isVisible = ref(false)
 const component = ref<Component | null>(null)
-const componentProps = ref<Record<string, any>>({})
+const componentProps = ref<Record<string, unknown>>({})
 
 function hidePopover(timeout: number) {
   setTimeout(() => {
@@ -14,7 +14,7 @@ function hidePopover(timeout: number) {
 
 function showPopover(
   vueComponent: Component,
-  props: Record<string, any> = {},
+  props: Record<string, unknown> = {},
   options: PopoverOptions = {},
 ) {
   const { timeout = 1000 } = options

@@ -17,6 +17,7 @@ const emit = defineEmits<{
   <div class="border border-gray-300 rounded-t-md w-fit mb-5">
     <Button
       v-for="tab of tabs"
+      :key="tab.value"
       type="empty"
       class="px-4 py-1.5 rounded-t-md"
       :class="{ 'bg-gray-200': currentTab === tab.value }"
