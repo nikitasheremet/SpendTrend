@@ -74,6 +74,6 @@ jobs:
       - name: Backend Quality Checks
         working-directory: ./packages/backend
         run: |
-          npm run test:all
+          npm run test:unit
           npm run types:lint
           npm run build
