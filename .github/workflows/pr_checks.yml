@@ -76,4 +76,4 @@ jobs:
         run: |
           npm run test:unit
           npm run types:lint
-          DATABASE_URL="" npm run build
+          DATABASE_URL=postgres://ci-mock-url npm run build
