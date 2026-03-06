@@ -5,11 +5,11 @@ import { STATUS_CREATED_201 } from '../../../models/statusCodes'
 import { createExpenseHandler } from '../../handler/createExpenseHandler'
 import { testClient } from 'hono/testing'
 
-jest.mock('../../service/createExpenseService')
-jest.mock('../../validation')
+vi.mock('../../service/createExpenseService')
+vi.mock('../../validation')
 
-const mockService = createExpenseService as jest.Mock
-const mockValidation = validateCreateExpenseInput as jest.Mock
+const mockService = createExpenseService as Mock
+const mockValidation = validateCreateExpenseInput as Mock
 
 describe('createExpenseHandler', () => {
   const fakeApp = new Hono().post('/createexpense', createExpenseHandler)

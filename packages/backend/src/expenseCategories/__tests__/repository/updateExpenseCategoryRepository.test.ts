@@ -5,34 +5,34 @@ import {
 import { db } from '../../../db'
 import { RepositoryError, DB_ERROR, NOT_FOUND_ERROR } from '../../../models/errors/repositoryErrors'
 
-jest.mock('../../../db')
+vi.mock('../../../db')
 
 describe('updateExpenseCategoryRepository', () => {
-  const mockDbUpdate = db.update as jest.Mock
-  const mockDbSelect = db.select as jest.Mock
+  const mockDbUpdate = db.update as Mock
+  const mockDbSelect = db.select as Mock
 
   const fakeInput: UpdateExpenseCategoryRepoInput = {
     id: 'expense-category-1',
     updates: { name: 'Updated Name' },
   }
 
-  let returningMock: jest.Mock
-  let whereMock: jest.Mock
-  let setMock: jest.Mock
-  let fromMock: jest.Mock
-  let selectWhereMock: jest.Mock
+  let returningMock: Mock
+  let whereMock: Mock
+  let setMock: Mock
+  let fromMock: Mock
+  let selectWhereMock: Mock
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
     // create the chain used by the repository: update(...).set(...).where(...).returning()
-    returningMock = jest.fn()
-    whereMock = jest.fn().mockReturnValue({ returning: returningMock })
-    setMock = jest.fn().mockReturnValue({ where: whereMock })
+    returningMock = vi.fn()
+    whereMock = vi.fn().mockReturnValue({ returning: returningMock })
+    setMock = vi.fn().mockReturnValue({ where: whereMock })
     mockDbUpdate.mockReturnValue({ set: setMock })
 
     // create the chain for select: select().from(...).where(...)
-    selectWhereMock = jest.fn()
-    fromMock = jest.fn().mockReturnValue({ where: selectWhereMock })
+    selectWhereMock = vi.fn()
+    fromMock = vi.fn().mockReturnValue({ where: selectWhereMock })
     mockDbSelect.mockReturnValue({ from: fromMock })
   })
 

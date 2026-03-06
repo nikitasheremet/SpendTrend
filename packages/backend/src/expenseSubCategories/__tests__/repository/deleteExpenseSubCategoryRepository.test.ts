@@ -5,7 +5,7 @@ import {
 import { db } from '../../../db'
 import { RepositoryError, NOT_FOUND_ERROR, DB_ERROR } from '../../../models/errors/repositoryErrors'
 
-jest.mock('../../../db')
+vi.mock('../../../db')
 const mockDb = db
 
 describe('deleteExpenseSubCategoryRepository', () => {
@@ -26,15 +26,15 @@ describe('deleteExpenseSubCategoryRepository', () => {
   }
 
   beforeEach(() => {
-    jest.resetAllMocks()
-    console.error = jest.fn()
+    vi.resetAllMocks()
+    console.error = vi.fn()
   })
 
   it('should delete the subcategory and return the deleted row', async () => {
     // Mock DB delete operation
-    const mockDelete = jest.fn().mockReturnValue({
-      where: jest.fn().mockReturnValue({
-        returning: jest.fn().mockResolvedValue([fakeDeletedSubCategory]),
+    const mockDelete = vi.fn().mockReturnValue({
+      where: vi.fn().mockReturnValue({
+        returning: vi.fn().mockResolvedValue([fakeDeletedSubCategory]),
       }),
     })
     mockDb.delete = mockDelete
@@ -46,9 +46,9 @@ describe('deleteExpenseSubCategoryRepository', () => {
 
   it('should throw a NotFound error when subcategory does not exist', async () => {
     // Mock DB delete operation returning empty array (no rows found)
-    const mockDelete = jest.fn().mockReturnValue({
-      where: jest.fn().mockReturnValue({
-        returning: jest.fn().mockResolvedValue([]),
+    const mockDelete = vi.fn().mockReturnValue({
+      where: vi.fn().mockReturnValue({
+        returning: vi.fn().mockResolvedValue([]),
       }),
     })
     mockDb.delete = mockDelete
@@ -62,9 +62,9 @@ describe('deleteExpenseSubCategoryRepository', () => {
   it('should propagate DB errors with a wrapped RepositoryError', async () => {
     // Mock DB delete operation throwing error
     const fakeDatabaseError = new Error('Database connection failed')
-    const mockDelete = jest.fn().mockReturnValue({
-      where: jest.fn().mockReturnValue({
-        returning: jest.fn().mockRejectedValue(fakeDatabaseError),
+    const mockDelete = vi.fn().mockReturnValue({
+      where: vi.fn().mockReturnValue({
+        returning: vi.fn().mockRejectedValue(fakeDatabaseError),
       }),
     })
     mockDb.delete = mockDelete
@@ -80,15 +80,15 @@ describe('deleteExpenseSubCategoryReferencesInExpenses', () => {
   const fakeSubCategoryId = '123e4567-e89b-12d3-a456-426614174002'
 
   beforeEach(() => {
-    jest.resetAllMocks()
-    console.error = jest.fn()
+    vi.resetAllMocks()
+    console.error = vi.fn()
   })
 
   it('should update all expenses referencing the deleted subcategory and return the count', async () => {
     // Mock DB update operation
-    const mockUpdate = jest.fn().mockReturnValue({
-      set: jest.fn().mockReturnValue({
-        where: jest.fn().mockReturnValue({
+    const mockUpdate = vi.fn().mockReturnValue({
+      set: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
           rowCount: 3,
         }),
       }),
@@ -103,9 +103,9 @@ describe('deleteExpenseSubCategoryReferencesInExpenses', () => {
   it('should throw a RepositoryError when DB update fails', async () => {
     // Mock DB update operation throwing error
     const fakeDatabaseError = new Error('Database connection failed')
-    const mockUpdate = jest.fn().mockReturnValue({
-      set: jest.fn().mockReturnValue({
-        where: jest.fn().mockRejectedValue(fakeDatabaseError),
+    const mockUpdate = vi.fn().mockReturnValue({
+      set: vi.fn().mockReturnValue({
+        where: vi.fn().mockRejectedValue(fakeDatabaseError),
       }),
     })
     mockDb.update = mockUpdate

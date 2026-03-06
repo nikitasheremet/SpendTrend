@@ -4,12 +4,12 @@ import { validateDeleteExpenseSubCategory } from '../../validation'
 import { deleteExpenseSubCategoryService } from '../../service/deleteExpenseSubCategoryService'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 
-jest.mock('../../validation')
-jest.mock('../../service/deleteExpenseSubCategoryService')
+vi.mock('../../validation')
+vi.mock('../../service/deleteExpenseSubCategoryService')
 
 describe('when using deleteExpenseSubCategoryHandler', () => {
-  const mockValidate = validateDeleteExpenseSubCategory as jest.Mock
-  const mockService = deleteExpenseSubCategoryService as jest.Mock
+  const mockValidate = validateDeleteExpenseSubCategory as Mock
+  const mockService = deleteExpenseSubCategoryService as Mock
 
   const fakeInput = {
     userId: '123e4567-e89b-12d3-a456-426614174000',
@@ -30,10 +30,10 @@ describe('when using deleteExpenseSubCategoryHandler', () => {
   let fakeContext: Context
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
     fakeContext = {
       req: {
-        json: jest.fn(),
+        json: vi.fn(),
       },
     } as unknown as Context
   })

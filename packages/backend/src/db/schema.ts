@@ -104,6 +104,8 @@ export const user = pgTable('user', {
     .notNull(),
 })
 
+export const UserType = user.$inferSelect
+
 export const session = pgTable('session', {
   id: uuid().primaryKey().defaultRandom(),
   expiresAt: timestamp('expires_at').notNull(),
@@ -118,6 +120,8 @@ export const session = pgTable('session', {
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
 })
+
+export const SessionType = session.$inferSelect
 
 export const account = pgTable('account', {
   id: uuid().primaryKey().defaultRandom(),

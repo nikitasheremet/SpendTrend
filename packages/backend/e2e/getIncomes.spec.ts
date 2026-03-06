@@ -4,13 +4,16 @@ import { connectToDb, db } from '../src/db'
 import { incomeTable } from '../src/db/schema'
 import crypto from 'crypto'
 import { integerToDecimal } from '../src/utilities/integerToDecimal'
+import { IncomeDbRow } from '../src/models/income/income'
 
 const BASE_URL = 'http://localhost:3000'
 
+type IncomeFixtureInput = Omit<IncomeDbRow, 'id'>
+
 test.describe('Get Incomes Endpoint', () => {
-  let fakeIncomeData1: any
-  let fakeIncomeData2: any
-  let fakeIncomeDataDifferentAccount: any
+  let fakeIncomeData1: IncomeFixtureInput
+  let fakeIncomeData2: IncomeFixtureInput
+  let fakeIncomeDataDifferentAccount: IncomeFixtureInput
   let fakeAccountId: string
 
   test.beforeAll(async () => {
@@ -76,9 +79,9 @@ test.describe('Get Incomes Endpoint', () => {
 
 async function assignFakeIncomeData(): Promise<{
   accountId: string
-  incomeData1: any
-  incomeData2: any
-  incomeDataDifferentAccount: any
+  incomeData1: IncomeFixtureInput
+  incomeData2: IncomeFixtureInput
+  incomeDataDifferentAccount: IncomeFixtureInput
 }> {
   const fakeAccountId = crypto.randomUUID()
   const fakeUserId = crypto.randomUUID()

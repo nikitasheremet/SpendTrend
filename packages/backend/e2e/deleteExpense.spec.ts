@@ -6,14 +6,16 @@ import crypto from 'crypto'
 import { NOT_FOUND_ERROR } from '../src/models/errors/repositoryErrors'
 import { excludeFieldsAndAdd } from '../src/utilities/excludeFieldsAndAdd'
 import { ExpensesDbRow } from '../src/models/expense/expense'
+import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
+import { ExpenseSubCategoryDbRow } from '../src/models/expenseSubCategory/expenseSubCategory'
 import { integerToDecimal } from '../src/utilities/integerToDecimal'
 
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Delete Expense Endpoint', () => {
   let fakeExpenseData1: ExpensesDbRow
-  let fakeCategory: any
-  let fakeSubCategory: any
+  let fakeCategory: ExpenseCategoryDbRow
+  let fakeSubCategory: ExpenseSubCategoryDbRow
 
   test.beforeAll(async () => {
     connectToDb()
@@ -96,9 +98,9 @@ test.describe('Delete Expense Endpoint', () => {
 })
 
 async function assignFakeExpenseData(): Promise<{
-  expenseData1: any
-  category: any
-  subCategory: any
+  expenseData1: ExpensesDbRow
+  category: ExpenseCategoryDbRow
+  subCategory: ExpenseSubCategoryDbRow
 }> {
   const fakeExpenseId = crypto.randomUUID()
   const fakeUserId = crypto.randomUUID()

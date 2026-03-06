@@ -15,13 +15,13 @@ import { NOT_FOUND_ERROR } from '../src/models/errors/repositoryErrors'
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Update Expense Subcategory Endpoint', () => {
-  let createdExpenseCategory: ExpenseCategoryDbRow
+  // let createdExpenseCategory: ExpenseCategoryDbRow
   let createdExpenseSubcategory: ExpenseSubCategoryDbRow
   let fakeUpdateExpenseSubcategoryInput: UpdateExpenseSubCategoryInput
 
   test.beforeAll(async () => {
     const testData = await setupTestData()
-    createdExpenseCategory = testData.expenseCategory
+    // createdExpenseCategory = testData.expenseCategory
     createdExpenseSubcategory = testData.expenseSubcategory
     fakeUpdateExpenseSubcategoryInput = testData.updateInput
   })

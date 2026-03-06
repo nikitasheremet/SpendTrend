@@ -8,7 +8,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 export default defineConfig([
   {
     name: 'backend/ignores',
-    ignores: ['dist/**', 'node_modules/**', 'eslint.config.js'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'eslint.config.js',
+      'drizzle.config.ts',
+      'vite.config.ts',
+    ],
   },
 
   ...tseslint.configs.recommended,

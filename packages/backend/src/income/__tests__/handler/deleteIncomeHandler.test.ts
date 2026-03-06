@@ -5,21 +5,21 @@ import { deleteIncomeHandler } from '../../handler/deleteIncomeHandler'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 import { deleteIncomeService } from '../../service/deleteIncomeService'
 
-jest.mock('../../validation')
-jest.mock('../../service/deleteIncomeService')
+vi.mock('../../validation')
+vi.mock('../../service/deleteIncomeService')
 
-const mockValidation = validateDeleteIncomeInput as jest.Mock
-const mockService = deleteIncomeService as jest.Mock
+const mockValidation = validateDeleteIncomeInput as Mock
+const mockService = deleteIncomeService as Mock
 
 describe('deleteIncomeHandler', () => {
   const fakeCtx = {
     req: {
-      json: jest.fn(),
+      json: vi.fn(),
     },
   } as unknown as Context
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when input is invalid', () => {

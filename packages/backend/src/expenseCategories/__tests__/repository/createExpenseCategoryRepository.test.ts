@@ -2,10 +2,10 @@ import { createExpenseCategoryRepository } from '../../repository/createExpenseC
 import { db } from '../../../db'
 import { DB_ERROR, RepositoryError } from '../../../models/errors/repositoryErrors'
 
-jest.mock('../../../db')
+vi.mock('../../../db')
 
 describe('when createExpenseCategoryRepository is called', () => {
-  const mockInsert = db.insert as jest.Mock
+  const mockInsert = db.insert as Mock
   const fakeInput = { userId: 'u', accountId: 'a', name: 'n' }
 
   beforeEach(() => {

@@ -2,9 +2,9 @@ import { updateExpenseSubCategoryService } from '../../service/updateExpenseSubC
 import { updateExpenseSubCategoryRepository } from '../../repository/updateExpenseSubCategoryRepository'
 import { RepositoryError } from '../../../models/errors/repositoryErrors'
 
-jest.mock('../../repository/updateExpenseSubCategoryRepository')
+vi.mock('../../repository/updateExpenseSubCategoryRepository')
 
-const mockUpdateExpenseSubcategoryRepository = updateExpenseSubCategoryRepository as jest.Mock
+const mockUpdateExpenseSubcategoryRepository = updateExpenseSubCategoryRepository as Mock
 
 describe('when updating expense subcategory service', () => {
   const fakeInput = {
@@ -15,7 +15,7 @@ describe('when updating expense subcategory service', () => {
   }
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when repository update fails', () => {

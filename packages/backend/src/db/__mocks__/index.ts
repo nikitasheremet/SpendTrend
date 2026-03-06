@@ -1,22 +1,24 @@
+import { vi } from 'vitest'
+
 const mockDb = {
-  insert: jest.fn(),
-  select: jest.fn(),
-  update: jest.fn().mockReturnValue({
-    set: jest.fn().mockReturnValue({
-      where: jest.fn().mockReturnValue({
-        returning: jest.fn(),
+  insert: vi.fn(),
+  select: vi.fn(),
+  update: vi.fn().mockReturnValue({
+    set: vi.fn().mockReturnValue({
+      where: vi.fn().mockReturnValue({
+        returning: vi.fn(),
       }),
     }),
   }),
   query: {
     expensesTable: {
-      findMany: jest.fn(),
+      findMany: vi.fn(),
     },
     expenseCategoriesTable: {
-      findFirst: jest.fn(),
+      findFirst: vi.fn(),
     },
   },
-  delete: jest.fn(),
+  delete: vi.fn(),
 }
 
 export const db = mockDb

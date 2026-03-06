@@ -11,10 +11,12 @@ import { integerToDecimal } from '../src/utilities/integerToDecimal'
 
 const BASE_URL = 'http://localhost:3000'
 
+type ExpenseFixtureInput = Omit<ExpensesDbRow, 'id'>
+
 test.describe('Get Expenses Endpoint', () => {
-  let fakeExpenseData1: ExpensesDbRow
-  let fakeExpenseData2: ExpensesDbRow
-  let fakeExpenseDataDifferentAccount: ExpensesDbRow
+  let fakeExpenseData1: ExpenseFixtureInput
+  let fakeExpenseData2: ExpenseFixtureInput
+  let fakeExpenseDataDifferentAccount: ExpenseFixtureInput
   let fakeCreatedExpenseCategory: ExpenseCategoryDbRow
   let fakeCreatedExpenseSubCategory: ExpenseSubCategoryDbRow
   let fakeAccountId: string
@@ -128,9 +130,9 @@ test.describe('Get Expenses Endpoint', () => {
 
 async function assignFakeExpenseData(): Promise<{
   accountId: string
-  expenseData1: any
-  expenseData2: any
-  expenseDataDifferentAccount: any
+  expenseData1: ExpenseFixtureInput
+  expenseData2: ExpenseFixtureInput
+  expenseDataDifferentAccount: ExpenseFixtureInput
   createdExpenseCategory: ExpenseCategoryDbRow
   createdExpenseSubCategory: ExpenseSubCategoryDbRow
 }> {

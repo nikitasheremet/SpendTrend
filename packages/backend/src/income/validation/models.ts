@@ -49,7 +49,7 @@ export const updateIncomeInputSchema = z
   })
   .refine(
     (obj) => {
-      const { id, userId, accountId, ...fieldsToUpdate } = obj
+      const { id: _id, userId: _userId, accountId: _accountId, ...fieldsToUpdate } = obj
       return Object.keys(fieldsToUpdate).length > 0
     },
     { message: VALIDATION_ERROR_NO_FIELDS_TO_UPDATE },

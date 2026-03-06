@@ -14,14 +14,12 @@ import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCateg
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Create Expense Subcategory Endpoint', () => {
-  let createdExpenseCategory: ExpenseCategoryDbRow
   let fakeCreateExpenseSubcategoryInput: CreateExpenseSubCategoryInput
 
   test.beforeAll(async () => {
-    const { createSubcategoryInput, expenseCategory } =
+    const { createSubcategoryInput } =
       await assignFakeCreateExpenseSubcategoryInputAndExpenseCategory()
     fakeCreateExpenseSubcategoryInput = createSubcategoryInput
-    createdExpenseCategory = expenseCategory
   })
 
   test.describe('when required data fails validation', () => {

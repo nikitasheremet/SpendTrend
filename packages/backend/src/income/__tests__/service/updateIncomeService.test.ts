@@ -2,16 +2,16 @@ import { updateIncomeService } from '../../service/updateIncomeService'
 import { updateIncomeRepository } from '../../repository/updateIncomeRepository'
 import { UpdateIncomeInput } from '../../validation/models'
 
-jest.mock('../../repository/updateIncomeRepository', () => ({
-  updateIncomeRepository: jest.fn(),
+vi.mock('../../repository/updateIncomeRepository', () => ({
+  updateIncomeRepository: vi.fn(),
 }))
 
 describe('updateIncomeService', () => {
-  const mockedUpdateIncomeRepository = updateIncomeRepository as jest.Mock
+  const mockedUpdateIncomeRepository = updateIncomeRepository as Mock
   const fakeInput = {} as UpdateIncomeInput
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when repository throws', () => {

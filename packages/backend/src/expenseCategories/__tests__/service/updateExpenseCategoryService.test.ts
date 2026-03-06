@@ -2,9 +2,9 @@ import { updateExpenseCategoryService } from '../../service/updateExpenseCategor
 import { updateExpenseCategoryRepository } from '../../repository/updateExpenseCategoryRepository'
 import { UpdateExpenseCategoryInput } from '../../validation/models'
 
-jest.mock('../../repository/updateExpenseCategoryRepository')
+vi.mock('../../repository/updateExpenseCategoryRepository')
 
-const mockUpdateExpenseCategoryRepository = updateExpenseCategoryRepository as jest.Mock
+const mockUpdateExpenseCategoryRepository = updateExpenseCategoryRepository as Mock
 
 describe('updateExpenseCategoryService', () => {
   const fakeInput = {} as UpdateExpenseCategoryInput
@@ -14,7 +14,7 @@ describe('updateExpenseCategoryService', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('when repository throws an error', () => {

@@ -6,6 +6,24 @@ import crypto from 'crypto'
 
 const BASE_URL = 'http://localhost:3000'
 
+interface ExpenseCategoryResponse {
+  id: string
+  name: string
+  userId: string
+  accountId: string
+  createdAt: string
+  updatedAt: string
+  subCategories: Array<{
+    id: string
+    name: string
+    userId: string
+    accountId: string
+    categoryId: string
+    createdAt: string
+    updatedAt: string
+  }>
+}
+
 test.describe('Get Expense Categories Endpoint', () => {
   test.beforeAll(() => {
     connectToDb()
@@ -42,7 +60,9 @@ test.describe('Get Expense Categories Endpoint', () => {
 
       // Assert queried data matches inserted data, including createdAt and updatedAt
       for (const { category, subCategories } of testData) {
-        const categoryResponse = body.expenseCategories.find((cat: any) => cat.id === category.id)
+        const categoryResponse = body.expenseCategories.find(
+          (cat: ExpenseCategoryResponse) => cat.id === category.id,
+        )
 
         // Check the category data
         expect(categoryResponse).toEqual(

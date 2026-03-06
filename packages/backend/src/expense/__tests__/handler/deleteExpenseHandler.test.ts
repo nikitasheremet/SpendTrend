@@ -5,23 +5,23 @@ import { deleteExpenseHandler } from '../../handler/deleteExpenseHandler'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 import { deleteExpenseService } from '../../service/deleteExpenseService'
 
-jest.mock('../../validation')
-jest.mock('../../service/deleteExpenseService')
+vi.mock('../../validation')
+vi.mock('../../service/deleteExpenseService')
 
-const mockValidation = validateDeleteExpenseInput as jest.Mock
-const mockService = deleteExpenseService as jest.Mock
+const mockValidation = validateDeleteExpenseInput as Mock
+const mockService = deleteExpenseService as Mock
 
 describe('deleteExpenseHandler', () => {
   const fakeCtx = {
     req: {
-      json: jest.fn(),
+      json: vi.fn(),
     },
   } as unknown as Context
 
   beforeEach(() => {
     mockService.mockReset()
-    jest.resetAllMocks()
-    ;(fakeCtx.req.json as jest.Mock).mockResolvedValue({
+    vi.resetAllMocks()
+    ;(fakeCtx.req.json as Mock).mockResolvedValue({
       userId: '123e4567-e89b-12d3-a456-426614174000',
       accountId: '123e4567-e89b-12d3-a456-426614174001',
       expenseId: '123e4567-e89b-12d3-a456-426614174002',

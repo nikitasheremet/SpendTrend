@@ -4,19 +4,19 @@ import {
   // STATUS_INTERNAL_SERVER_ERROR_500,
   STATUS_UNPROCESSABLE_ENTITY_422,
 } from '../src/models/statusCodes'
-import crypto from 'crypto'
+// import crypto from 'crypto'
 // import { DB_ERROR } from '../src/models/errors/repositoryErrors'
-import { connectToDb } from '../src/db'
-import { CreateIncomesInput } from '../src/income/validation/models'
+// import { connectToDb } from '../src/db'
+// import { CreateIncomesInput } from '../src/income/validation/models'
 
 const BASE_URL = 'http://localhost:3000'
 
 test.describe('Create Income Endpoint', () => {
-  let fakeCreateIncomeInput: CreateIncomesInput
+  // let fakeCreateIncomeInput: CreateIncomesInput
 
   test.beforeAll(async () => {
-    const { createIncomeInput } = await assignFakeCreateIncomeInput()
-    fakeCreateIncomeInput = createIncomeInput
+    // const { createIncomeInput } = await assignFakeCreateIncomeInput()
+    // fakeCreateIncomeInput = createIncomeInput
   })
 
   test.describe('when required data fails validation', () => {
@@ -60,23 +60,23 @@ test.describe('Create Income Endpoint', () => {
   // })
 })
 
-async function assignFakeCreateIncomeInput(): Promise<{ createIncomeInput: CreateIncomesInput }> {
-  connectToDb()
+// async function assignFakeCreateIncomeInput(): Promise<{ createIncomeInput: CreateIncomesInput }> {
+//   connectToDb()
 
-  const fakeAccountId = crypto.randomUUID()
-  const fakeUserId = crypto.randomUUID()
+//   const fakeAccountId = crypto.randomUUID()
+//   const fakeUserId = crypto.randomUUID()
 
-  const createIncomeInput = {
-    userId: fakeUserId,
-    accountId: fakeAccountId,
-    incomesToCreate: [
-      {
-        name: 'Salary',
-        amount: 100,
-        date: '2025-08-07',
-      },
-    ],
-  }
+//   const createIncomeInput = {
+//     userId: fakeUserId,
+//     accountId: fakeAccountId,
+//     incomesToCreate: [
+//       {
+//         name: 'Salary',
+//         amount: 100,
+//         date: '2025-08-07',
+//       },
+//     ],
+//   }
 
-  return { createIncomeInput }
-}
+//   return { createIncomeInput }
+// }

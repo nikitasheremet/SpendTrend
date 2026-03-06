@@ -6,26 +6,26 @@ import { db } from '../../../db'
 import { RepositoryError, NOT_FOUND_ERROR } from '../../../models/errors/repositoryErrors'
 import { IncomeDbRow } from '../../../models/income/income'
 
-jest.mock('../../../db')
+vi.mock('../../../db')
 
 describe('updateIncomeRepository', () => {
-  const mockDbUpdate = db.update as jest.Mock
+  const mockDbUpdate = db.update as Mock
 
   const fakeInput: UpdateIncomeRepository = {
     id: 'income-1',
     fieldsToUpdate: { name: 'New name' },
   }
 
-  let returningMock: jest.Mock
-  let whereMock: jest.Mock
-  let setMock: jest.Mock
+  let returningMock: Mock
+  let whereMock: Mock
+  let setMock: Mock
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
     // create the chain used by the repository: update(...).set(...).where(...).returning()
-    returningMock = jest.fn()
-    whereMock = jest.fn().mockReturnValue({ returning: returningMock })
-    setMock = jest.fn().mockReturnValue({ where: whereMock })
+    returningMock = vi.fn()
+    whereMock = vi.fn().mockReturnValue({ returning: returningMock })
+    setMock = vi.fn().mockReturnValue({ where: whereMock })
     mockDbUpdate.mockReturnValue({ set: setMock })
   })
 
