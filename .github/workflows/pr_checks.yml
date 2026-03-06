@@ -76,4 +76,4 @@ jobs:
         run: |
           npm run test:unit
           npm run types:lint
-          npm run build
+          DATABASE_URL="" npm run build
