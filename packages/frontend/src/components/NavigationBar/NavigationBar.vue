@@ -38,9 +38,9 @@ const navigationLinks = [
   >
     <div class="flex gap-7.5">
       <RouterLink
-        class="group hover:text-black/50"
         v-for="link in navigationLinks"
         :key="link.name"
+        class="group hover:text-black/50"
         :to="link.path"
       >
         <span>{{ link.name }}</span>
@@ -52,15 +52,15 @@ const navigationLinks = [
     </div>
     <div class="flex gap-7.5">
       <Button
-        classToAdd="bg-gray-200 px-3.5 py-1.5 rounded-md hover:bg-gray-200/50"
+        class-to-add="bg-gray-200 px-3.5 py-1.5 rounded-md hover:bg-gray-200/50"
         @click="emit('manageCategoriesClicked')"
       >
         Manage Categories
       </Button>
       <Button
-        classToAdd="hover:text-black/50"
-        type="empty"
         v-if="isLoggedIn"
+        class-to-add="hover:text-black/50"
+        type="empty"
         @click="emit('logout')"
       >
         Logout

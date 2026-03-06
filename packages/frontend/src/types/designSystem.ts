@@ -7,7 +7,7 @@ export interface PopoverOptions {
 export interface PopoverMethods {
   showPopover: (
     vueComponent: Component,
-    props?: Record<string, any>,
+    props?: Record<string, unknown>,
     options?: PopoverOptions,
   ) => void
 }

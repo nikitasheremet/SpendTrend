@@ -3,7 +3,7 @@ import { updateIncomeRepository } from '../repository/updateIncomeRepository'
 import { UpdateIncomeInput } from '../validation/models'
 
 export async function updateIncomeService(input: UpdateIncomeInput) {
-  const { id, accountId, ...otherFields } = input
+  const { id, accountId: _accountId, ...otherFields } = input
   const fieldsToUpdate = {
     ...otherFields,
     ...(otherFields.amount && { amount: decimalToInteger(otherFields.amount) }),

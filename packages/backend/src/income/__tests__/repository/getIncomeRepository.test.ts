@@ -2,26 +2,26 @@ import { getIncomesRepository, GetIncomesQuery } from '../../repository/getIncom
 import { db } from '../../../db'
 import { DB_ERROR, RepositoryError } from '../../../models/errors/repositoryErrors'
 
-jest.mock('../../../db')
-jest.spyOn(console, 'error').mockImplementation(() => {})
+vi.mock('../../../db')
+vi.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('getIncomesRepository', () => {
-  const mockDbSelect = db.select as jest.Mock
+  const mockDbSelect = db.select as Mock
 
   const fakeQuery: GetIncomesQuery = {
     accountId: 'account-1',
   }
 
-  let fromMock: jest.Mock
-  let whereMock: jest.Mock
-  let orderByMock: jest.Mock
+  let fromMock: Mock
+  let whereMock: Mock
+  let orderByMock: Mock
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
     // create the chain for select: select().from(...).where(...).orderBy(...)
-    orderByMock = jest.fn()
-    whereMock = jest.fn().mockReturnValue({ orderBy: orderByMock })
-    fromMock = jest.fn().mockReturnValue({ where: whereMock })
+    orderByMock = vi.fn()
+    whereMock = vi.fn().mockReturnValue({ orderBy: orderByMock })
+    fromMock = vi.fn().mockReturnValue({ where: whereMock })
     mockDbSelect.mockReturnValue({ from: fromMock })
   })
 

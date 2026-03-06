@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
-import { Teleport } from 'vue'
 import { useDropdownPosition } from '@/helpers/hooks/useDropdownPosition'
 import DropdownOptions from './DropdownOptions.vue'
 
@@ -61,11 +60,11 @@ async function toggleOptionsVisibility() {
   </div>
   <Teleport to="body">
     <DropdownOptions
+      v-if="isOptionsVisible"
       ref="optionsDivRef"
       :options="dropdownOptions"
       :options-style="dropdownOptionsStyle"
-      v-if="isOptionsVisible"
-      @dropdownOptionClick="handleDropdownOptionsClick"
+      @dropdown-option-click="handleDropdownOptionsClick"
     />
   </Teleport>
 </template>

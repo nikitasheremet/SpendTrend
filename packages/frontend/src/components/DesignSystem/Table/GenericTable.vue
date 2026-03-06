@@ -1,11 +1,11 @@
-<script lang="ts" setup generic="T extends Record<string, any>">
+<script lang="ts" setup generic="T extends TableRowData">
 import { computed } from 'vue'
 import TableHeaders from '@/components/TableHeaders.vue'
 import TableRow from './TableRow.vue'
 import Button from '../Button/Button.vue'
 import Error from '../Error.vue'
 import LoadingModal from '../Modal/LoadingModal.vue'
-import type { ColumnConfig, RowAction, TableAction } from './types'
+import type { ColumnConfig, RowAction, TableAction, TableRowData } from './types'
 import { useProgressiveRowRender } from './hooks'
 
 const props = defineProps<{
@@ -23,7 +23,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'cell:changed': [rowIndex: number, key: keyof T, value: any]
+  'cell:changed': [rowIndex: number, key: keyof T, value: unknown]
 }>()
 
 const rowActions = computed(() => props.rowActions ?? [])
@@ -52,12 +52,22 @@ const headers = computed(() => {
 const hasTableActions = computed(() => tableActions.value.length > 0)
 const validationErrorSet = computed(() => new Set(props.validationErrors ?? []))
 
-function handleCellUpdate(rowIndex: number, key: keyof T, value: any) {
+function handleCellUpdate(rowIndex: number, key: keyof T, value: unknown) {
   emit('cell:changed', rowIndex, key, value)
 }
 
 function isRowInvalid(index: number): boolean {
   return validationErrorSet.value.has(index)
+}
+
+function getRowKey(row: T, index: number): string | number {
+  const idValue =
+    'id' in row ? (row as { id?: string | number | null | undefined }).id : undefined
+  if (typeof idValue === 'string' || typeof idValue === 'number') {
+    return idValue
+  }
+
+  return index
 }
 </script>
 
@@ -68,7 +78,7 @@ function isRowInvalid(index: number): boolean {
       <tbody>
         <TableRow
           v-for="(row, index) in visibleData"
-          :key="(row as any).id ?? index"
+          :key="getRowKey(row, index)"
           :row="row"
           :row-index="index"
           :columns="columns"

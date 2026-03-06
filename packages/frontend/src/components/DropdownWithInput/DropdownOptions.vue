@@ -22,9 +22,9 @@ function optionClicked(option: string) {
     :style="optionsStyle"
   >
     <div
-      class="p-1 hover:bg-gray-100/50 whitespace-normal wrap-break-word"
       v-for="option of options"
       :key="option"
+      class="p-1 hover:bg-gray-100/50 whitespace-normal wrap-break-word"
       @mousedown.stop="optionClicked(option)"
     >
       <span>{{ option }}</span>

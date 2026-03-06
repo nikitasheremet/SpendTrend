@@ -4,27 +4,21 @@ import { deleteExpenseCategoryService } from '../../service/deleteExpenseCategor
 import { validateDeleteExpenseCategoryInput } from '../../validation/deleteExpenseCategoryValidation'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 
-jest.mock('../../service/deleteExpenseCategoryService')
-jest.mock('../../validation/deleteExpenseCategoryValidation')
+vi.mock('../../service/deleteExpenseCategoryService')
+vi.mock('../../validation/deleteExpenseCategoryValidation')
 
 describe('deleteExpenseCategoryHandler', () => {
-  const mockService = deleteExpenseCategoryService as jest.Mock
-  const mockValidation = validateDeleteExpenseCategoryInput as jest.Mock
+  const mockService = deleteExpenseCategoryService as Mock
+  const mockValidation = validateDeleteExpenseCategoryInput as Mock
 
   beforeEach(() => {
     mockService.mockReset()
     mockValidation.mockReset()
   })
 
-  const fakeValidRequest = {
-    userId: '00000000-0000-4000-8000-000000000000',
-    accountId: '00000000-0000-4000-8000-000000000001',
-    id: '00000000-0000-4000-8000-000000000002',
-  }
-
   const fakeValidContext = {
     req: {
-      json: jest.fn(),
+      json: vi.fn(),
     },
   } as unknown as Context
 

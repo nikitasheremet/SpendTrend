@@ -29,10 +29,10 @@ const inputModel = computed({
     <!-- prettier-ignore -->
     <DropdownWithInput
       v-if="type === 'dropdown'"
-      :dropdown-options="dropdownOptions" 
-      v-model="(model as string | undefined)"
+      v-model="(model as string | undefined)" 
+      :dropdown-options="dropdownOptions"
     />
-    <Input class="border-none" v-else :type="type" v-model="inputModel" />
+    <Input v-else v-model="inputModel" class="border-none" :type="type" />
   </td>
 </template>
 

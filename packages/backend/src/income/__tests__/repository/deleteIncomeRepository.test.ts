@@ -2,18 +2,18 @@ import { deleteIncomeRepository, DeleteIncome } from '../../repository/deleteInc
 import { db } from '../../../db'
 import { DB_ERROR, NOT_FOUND_ERROR } from '../../../models/errors/repositoryErrors'
 
-jest.mock('../../../db')
-jest.spyOn(console, 'error').mockImplementation(() => {})
+vi.mock('../../../db')
+vi.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('deleteIncomeRepository', () => {
-  const mockDbDelete = db.delete as jest.Mock
+  const mockDbDelete = db.delete as Mock
 
   const fakeValidIncome: DeleteIncome = {
     id: 'income-1',
   }
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('when the database throws an error', () => {
@@ -28,8 +28,8 @@ describe('deleteIncomeRepository', () => {
   describe('when income is not found', () => {
     it('should throw a NOT_FOUND_ERROR', async () => {
       mockDbDelete.mockReturnValue({
-        where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([]),
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([]),
         }),
       })
 
@@ -51,8 +51,8 @@ describe('deleteIncomeRepository', () => {
       }
 
       mockDbDelete.mockReturnValue({
-        where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([fakeDeletedIncome]),
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([fakeDeletedIncome]),
         }),
       })
 

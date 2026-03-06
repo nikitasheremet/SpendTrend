@@ -43,6 +43,8 @@ test.describe('Update Expense Endpoint', () => {
       // Prepare update - change name and amount
       const updatePayload = {
         id: createdExpense.id,
+        userId: createdExpense.userId,
+        accountId: createdExpense.accountId,
         name: 'Updated Groceries',
         amount: 150,
       }
@@ -86,6 +88,8 @@ test.describe('Update Expense Endpoint', () => {
       // Arrange - use a random id that was not inserted
       const updatePayload = {
         id: crypto.randomUUID(),
+        userId: crypto.randomUUID(),
+        accountId: crypto.randomUUID(),
         name: 'Does not exist',
         amount: 999,
       }
@@ -131,7 +135,7 @@ async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
     .returning()
 
   const fakeExpenseData = {
-    userId: '00000000-0000-0000-0000-000000000001',
+    userId: crypto.randomUUID(),
     accountId: fakeAccountId,
     name: 'Groceries',
     amount: 100,

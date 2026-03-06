@@ -89,6 +89,10 @@ watch(
   { deep: true },
 )
 
+async function handleCellUpdate(rowIndex: number, key: keyof NewIncome, value: unknown) {
+  await updateCell(rowIndex, key, value)
+}
+
 // Move to expense handler
 async function moveToExpense(row: NewIncome, index: number) {
   emit('moveToExpense', row)
@@ -167,7 +171,7 @@ const tableActions: TableAction[] = [
     :error="error"
     :loading="isLoading"
     mode="editable"
-    @cell:changed="updateCell"
+    @cell:changed="handleCellUpdate"
   />
 </template>
 

@@ -6,30 +6,23 @@ import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 import { ValidationError } from '../../../models/errors/validationError'
 import { RepositoryError } from '../../../models/errors/repositoryErrors'
 
-jest.mock('../../validation/updateExpenseSubCategoryValidation')
-jest.mock('../../service/updateExpenseSubCategoryService')
+vi.mock('../../validation/updateExpenseSubCategoryValidation')
+vi.mock('../../service/updateExpenseSubCategoryService')
 
-const mockValidateUpdateExpenseSubCategory = validateUpdateExpenseSubCategory as jest.Mock
-const mockUpdateExpenseSubCategoryService = updateExpenseSubCategoryService as jest.Mock
+const mockValidateUpdateExpenseSubCategory = validateUpdateExpenseSubCategory as Mock
+const mockUpdateExpenseSubCategoryService = updateExpenseSubCategoryService as Mock
 
 describe('updateSubCategoryHandler', () => {
-  const fakeRequestBody = {
-    subCategoryId: '123e4567-e89b-12d3-a456-426614174000',
-    userId: '123e4567-e89b-12d3-a456-426614174001',
-    accountId: '123e4567-e89b-12d3-a456-426614174002',
-    name: 'Updated Subcategory Name',
-  }
-
   let fakeContext: Context
 
   beforeEach(() => {
     fakeContext = {
       req: {
-        json: jest.fn(),
+        json: vi.fn(),
       },
     } as unknown as Context
 
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when validation throws an error', () => {

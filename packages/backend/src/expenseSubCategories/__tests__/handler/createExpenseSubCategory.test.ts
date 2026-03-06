@@ -5,28 +5,21 @@ import * as validation from '../../validation/createExpenseSubCategoryValidation
 import { STATUS_CREATED_201 } from '../../../models/statusCodes'
 import { ValidationError } from '../../../models/errors/validationError'
 
-jest.mock('../../service/createExpenseSubCategoryService')
-jest.mock('../../validation/createExpenseSubCategoryValidation')
+vi.mock('../../service/createExpenseSubCategoryService')
+vi.mock('../../validation/createExpenseSubCategoryValidation')
 
 describe('createExpenseSubcategoryHandler', () => {
-  const mockService = service.createExpenseSubCategoryService as jest.Mock
-  const mockValidation = validation.validateCreateExpenseSubCategoryInput as jest.Mock
+  const mockService = service.createExpenseSubCategoryService as Mock
+  const mockValidation = validation.validateCreateExpenseSubCategoryInput as Mock
 
   beforeEach(() => {
     mockService.mockReset()
     mockValidation.mockReset()
   })
 
-  const fakeValidRequest = {
-    userId: '00000000-0000-4000-8000-000000000000',
-    accountId: '00000000-0000-4000-8000-000000000001',
-    categoryId: '00000000-0000-4000-8000-000000000002',
-    name: 'Test Subcategory',
-  }
-
   const fakeValidContext = {
     req: {
-      json: jest.fn(),
+      json: vi.fn(),
     },
   } as unknown as Context
 
@@ -48,7 +41,13 @@ describe('createExpenseSubcategoryHandler', () => {
 
       expect(response.status).toBe(STATUS_CREATED_201)
       const body = await response.json()
-      expect(body).toEqual({ expenseSubCategory: fakeExpenseSubCategory })
+      expect(body).toEqual({
+        expenseSubCategory: {
+          ...fakeExpenseSubCategory,
+          createdAt: fakeExpenseSubCategory.createdAt.toISOString(),
+          updatedAt: fakeExpenseSubCategory.updatedAt.toISOString(),
+        },
+      })
     })
   })
 

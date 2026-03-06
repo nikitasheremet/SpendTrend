@@ -1,4 +1,4 @@
-import { MaybeRefOrGetter, Ref, ref, toValue } from 'vue'
+import { MaybeRefOrGetter, ref, toValue } from 'vue'
 
 export function useDropdownOptionHandlers({
   dropdownOptions,

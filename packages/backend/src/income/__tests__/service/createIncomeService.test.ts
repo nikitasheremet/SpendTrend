@@ -2,12 +2,12 @@ import { createIncomeService } from '../../service/createIncomeService'
 import { createIncomeRepository } from '../../repository/createIncomeRepository'
 import { CreateIncomesInput } from '../../validation/models'
 
-jest.mock('../../repository/createIncomeRepository', () => ({
-  createIncomeRepository: jest.fn(),
+vi.mock('../../repository/createIncomeRepository', () => ({
+  createIncomeRepository: vi.fn(),
 }))
 
 describe('createIncomeService', () => {
-  const mockedCreateIncomeRepository = createIncomeRepository as jest.Mock
+  const mockedCreateIncomeRepository = createIncomeRepository as Mock
   const fakeUserId = 'fake-user-id'
   const fakeAccountId = 'fake-account-id'
   const baseIncomes = [

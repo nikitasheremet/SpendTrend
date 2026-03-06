@@ -22,15 +22,28 @@ describe('deleteExpenseSubCategory', () => {
 
   describe('when post succeeds', () => {
     it('should return the deleted expense subcategory', async () => {
+      const now = new Date()
       const fakeResponse = {
-        expenseSubCategory: {
+        deletedExpenseSubCategory: {
           id: '123e4567-e89b-12d3-a456-426614174002',
+          userId: fakeDeleteExpenseSubCategoryRequest.userId,
+          accountId: fakeDeleteExpenseSubCategoryRequest.accountId,
+          categoryId: '123e4567-e89b-12d3-a456-426614174099',
+          name: 'Restaurants',
+          createdAt: now,
+          updatedAt: now,
         },
       } as unknown as DeleteExpenseSubCategoryResponse
       mockPost.mockResolvedValue(fakeResponse)
 
       const expectedResult = {
         id: '123e4567-e89b-12d3-a456-426614174002',
+        userId: fakeDeleteExpenseSubCategoryRequest.userId,
+        accountId: fakeDeleteExpenseSubCategoryRequest.accountId,
+        categoryId: '123e4567-e89b-12d3-a456-426614174099',
+        name: 'Restaurants',
+        createdAt: now,
+        updatedAt: now,
       }
       const result = await deleteExpenseSubCategory(fakeDeleteExpenseSubCategoryRequest)
 

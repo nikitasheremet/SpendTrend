@@ -5,14 +5,14 @@ import {
 } from '../../repository/deleteExpenseSubCategoryRepository'
 import { NOT_FOUND_ERROR, RepositoryError } from '../../../models/errors/repositoryErrors'
 
-jest.mock('../../repository/deleteExpenseSubCategoryRepository')
+vi.mock('../../repository/deleteExpenseSubCategoryRepository')
 
 describe('deleteExpenseSubCategoryService', () => {
-  const mockDeleteRepository = deleteExpenseSubCategoryRepository as jest.Mock
-  const mockDeleteReferencesRepository = deleteExpenseSubCategoryReferencesInExpenses as jest.Mock
+  const mockDeleteRepository = deleteExpenseSubCategoryRepository as Mock
+  const mockDeleteReferencesRepository = deleteExpenseSubCategoryReferencesInExpenses as Mock
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   const fakeInput = {

@@ -8,9 +8,9 @@ const { summaryForSelectedMonthBySubcategory } = defineProps<{
 
 <template>
   <tr
-    class="border border-gray-400 text-sm hover:bg-gray-100"
     v-for="subcategoryDetails in summaryForSelectedMonthBySubcategory"
     :key="subcategoryDetails.name"
+    class="border border-gray-400 text-sm hover:bg-gray-100"
   >
     <td class="subcategory-name p-2">{{ subcategoryDetails.name }}</td>
     <td class="p-2 text-center">{{ subcategoryDetails.total }}</td>

@@ -4,25 +4,23 @@ import type { Context } from 'hono'
 import { STATUS_CREATED_201 } from '../../../models/statusCodes'
 import { createIncomeHandler } from '../../handler/createIncomeHandler'
 
-jest.mock('../../service/createIncomeService')
-jest.mock('../../validation')
+vi.mock('../../service/createIncomeService')
+vi.mock('../../validation')
 
-const mockService = createIncomeService as jest.Mock
-const mockValidation = validateCreateIncomeInput as jest.Mock
+const mockService = createIncomeService as Mock
+const mockValidation = validateCreateIncomeInput as Mock
 
 describe('createIncomeHandler', () => {
   const fakeCtx = {
     req: {
-      json: jest.fn(),
+      json: vi.fn(),
     },
-    json: jest.fn(
-      (body: unknown, status: number) => new Response(JSON.stringify(body), { status }),
-    ),
+    json: vi.fn((body: unknown, status: number) => new Response(JSON.stringify(body), { status })),
   } as unknown as Context
 
   beforeEach(() => {
-    jest.resetAllMocks()
-    ;(fakeCtx.req.json as jest.Mock).mockResolvedValue({})
+    vi.resetAllMocks()
+    ;(fakeCtx.req.json as Mock).mockResolvedValue({})
   })
 
   describe('on success', () => {
@@ -38,7 +36,7 @@ describe('createIncomeHandler', () => {
       await createIncomeHandler(fakeCtx)
 
       // Assert
-      expect(fakeCtx.json as jest.Mock).toHaveBeenCalledWith(fakeServiceOutput, STATUS_CREATED_201)
+      expect(fakeCtx.json as Mock).toHaveBeenCalledWith(fakeServiceOutput, STATUS_CREATED_201)
     })
   })
 
@@ -49,7 +47,7 @@ describe('createIncomeHandler', () => {
         throw fakeValidationError
       })
       await createIncomeHandler(fakeCtx)
-      const call = (fakeCtx.json as jest.Mock).mock.calls[0]
+      const call = (fakeCtx.json as Mock).mock.calls[0]
       expect(call[0]).toEqual({ error: fakeValidationError.message })
       expect(call[1]).not.toBe(STATUS_CREATED_201)
     })
@@ -62,7 +60,7 @@ describe('createIncomeHandler', () => {
         throw fakeServiceError
       })
       await createIncomeHandler(fakeCtx)
-      const call = (fakeCtx.json as jest.Mock).mock.calls[0]
+      const call = (fakeCtx.json as Mock).mock.calls[0]
       expect(call[0]).toEqual({ error: fakeServiceError.message })
       expect(call[1]).not.toBe(STATUS_CREATED_201)
     })

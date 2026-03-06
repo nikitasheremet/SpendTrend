@@ -6,24 +6,24 @@ import { ValidationError } from '../../../models/errors/validationError'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 
 // Mock the validation and service functions
-jest.mock('../../validation/getExpensesValidation')
-jest.mock('../../service/getExpensesService')
+vi.mock('../../validation/getExpensesValidation')
+vi.mock('../../service/getExpensesService')
 
 describe('getExpensesHandler', () => {
   const fakeContext = {
     req: {
-      query: jest.fn(),
+      query: vi.fn(),
     },
   } as unknown as Context
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when validation fails', () => {
     it('should return error status code and message', async () => {
       const mockValidationError = new ValidationError('Invalid input')
-      ;(validateGetExpensesInput as jest.Mock).mockImplementation(() => {
+      ;(validateGetExpensesInput as Mock).mockImplementation(() => {
         throw mockValidationError
       })
 
@@ -42,7 +42,7 @@ describe('getExpensesHandler', () => {
       const mockServiceError = new Error('Database error')
 
       // Setup service to throw error
-      ;(getExpensesService as jest.Mock).mockRejectedValue(mockServiceError)
+      ;(getExpensesService as Mock).mockRejectedValue(mockServiceError)
 
       const response = await getExpensesHandler(fakeContext)
 
@@ -69,7 +69,7 @@ describe('getExpensesHandler', () => {
           amount: 50,
         },
       ]
-      ;(getExpensesService as jest.Mock).mockResolvedValue(mockExpenses)
+      ;(getExpensesService as Mock).mockResolvedValue(mockExpenses)
 
       const response = await getExpensesHandler(fakeContext)
 

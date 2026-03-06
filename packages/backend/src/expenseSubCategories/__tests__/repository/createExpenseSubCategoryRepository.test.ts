@@ -3,29 +3,29 @@ import { db } from '../../../db'
 import { dbExpenseSubCategoryToDomain } from '../../../utilities/mappers/expenseSubCategory/dbExpenseSubCategoryToDomain'
 import { DB_ERROR, RepositoryError } from '../../../models/errors/repositoryErrors'
 
-jest.mock('../../../db', () => ({
+vi.mock('../../../db', () => ({
   db: {
-    insert: jest.fn(),
+    insert: vi.fn(),
   },
 }))
 
-jest.mock('../../../utilities/mappers/expenseSubCategory/dbExpenseSubCategoryToDomain')
+vi.mock('../../../utilities/mappers/expenseSubCategory/dbExpenseSubCategoryToDomain')
 
 describe('createExpenseSubCategoryRepository', () => {
-  const mockDb = db as jest.Mocked<typeof db>
-  const mockDbExpenseSubCategoryToDomain = dbExpenseSubCategoryToDomain as jest.Mock
+  const mockDb = db as Mocked<typeof db>
+  const mockDbExpenseSubCategoryToDomain = dbExpenseSubCategoryToDomain as Mock
 
   const mockInsert = {
-    values: jest.fn(),
+    values: vi.fn(),
   }
   const mockValues = {
-    returning: jest.fn(),
+    returning: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.resetAllMocks()
-    mockDb.insert.mockReturnValue(mockInsert as any)
-    mockInsert.values.mockReturnValue(mockValues as any)
+    vi.resetAllMocks()
+    ;(mockDb.insert as unknown as Mock).mockReturnValue(mockInsert)
+    ;(mockInsert.values as unknown as Mock).mockReturnValue(mockValues)
   })
 
   const validInput = {

@@ -2,13 +2,13 @@ import { deleteExpenseCategoryRepository } from '../../repository/deleteExpenseC
 import { RepositoryError, NOT_FOUND_ERROR, DB_ERROR } from '../../../models/errors/repositoryErrors'
 import { db } from '../../../db'
 
-jest.mock('../../../db')
+vi.mock('../../../db')
 
 describe('deleteExpenseCategoryRepository', () => {
-  const mockDb = db as jest.Mocked<typeof db>
+  const mockDb = db as Mocked<typeof db>
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   const fakeId = '00000000-0000-4000-8000-000000000000'
@@ -38,16 +38,16 @@ describe('deleteExpenseCategoryRepository', () => {
   describe('when deletion is successful', () => {
     it('should return the deleted expense category with subcategories', async () => {
       // Mock the query to return category with subcategories
-      const mockFindFirst = jest.fn().mockResolvedValue(fakeCategoryWithSubCategories)
+      const mockFindFirst = vi.fn().mockResolvedValue(fakeCategoryWithSubCategories)
       mockDb.query = {
         expenseCategoriesTable: {
           findFirst: mockFindFirst,
         },
-      } as any
+      } as unknown as typeof mockDb.query
 
       // Mock the delete to succeed
-      const mockDelete = jest.fn().mockReturnValue({
-        where: jest.fn().mockResolvedValue(undefined),
+      const mockDelete = vi.fn().mockReturnValue({
+        where: vi.fn().mockResolvedValue(undefined),
       })
       mockDb.delete = mockDelete
 
@@ -68,12 +68,12 @@ describe('deleteExpenseCategoryRepository', () => {
   describe('when no expense category is found', () => {
     it('should throw RepositoryError with not found message', async () => {
       // Mock the query to return null
-      const mockFindFirst = jest.fn().mockResolvedValue(null)
+      const mockFindFirst = vi.fn().mockResolvedValue(null)
       mockDb.query = {
         expenseCategoriesTable: {
           findFirst: mockFindFirst,
         },
-      } as any
+      } as unknown as typeof mockDb.query
 
       await expect(deleteExpenseCategoryRepository(fakeId)).rejects.toThrow(RepositoryError)
       await expect(deleteExpenseCategoryRepository(fakeId)).rejects.toThrow(NOT_FOUND_ERROR)
@@ -85,12 +85,12 @@ describe('deleteExpenseCategoryRepository', () => {
       const fakeError = new Error('Database connection failed')
 
       // Mock the query to throw error
-      const mockFindFirst = jest.fn().mockRejectedValue(fakeError)
+      const mockFindFirst = vi.fn().mockRejectedValue(fakeError)
       mockDb.query = {
         expenseCategoriesTable: {
           findFirst: mockFindFirst,
         },
-      } as any
+      } as unknown as typeof mockDb.query
 
       await expect(deleteExpenseCategoryRepository(fakeId)).rejects.toThrow(RepositoryError)
       await expect(deleteExpenseCategoryRepository(fakeId)).rejects.toThrow(DB_ERROR)
@@ -102,16 +102,16 @@ describe('deleteExpenseCategoryRepository', () => {
       const fakeError = new Error('Delete failed')
 
       // Mock the query to succeed
-      const mockFindFirst = jest.fn().mockResolvedValue(fakeCategoryWithSubCategories)
+      const mockFindFirst = vi.fn().mockResolvedValue(fakeCategoryWithSubCategories)
       mockDb.query = {
         expenseCategoriesTable: {
           findFirst: mockFindFirst,
         },
-      } as any
+      } as unknown as typeof mockDb.query
 
       // Mock the delete to fail
-      const mockDelete = jest.fn().mockReturnValue({
-        where: jest.fn().mockRejectedValue(fakeError),
+      const mockDelete = vi.fn().mockReturnValue({
+        where: vi.fn().mockRejectedValue(fakeError),
       })
       mockDb.delete = mockDelete
 

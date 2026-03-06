@@ -52,16 +52,16 @@ function handleBlur() {
     ref="select-ref"
     class="relative dropdown-input"
     tabindex="-1"
-    @keydown="handleKey"
     editable
+    @keydown="handleKey"
     @blur="handleBlur"
   >
     <Select
       ref="inner-select-ref"
       :autofocus="props.autofocus"
       :value="dropdownInputModel"
-      :dropdownOptions="props.dropdownOptions"
-      @onChange="handleInput"
+      :dropdown-options="props.dropdownOptions"
+      @on-change="handleInput"
     ></Select>
   </div>
 </template>

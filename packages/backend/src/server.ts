@@ -1,6 +1,6 @@
 import { serve } from '@hono/node-server'
 import { connectToDb } from './db'
-import { createAuth } from './lib/auth'
+import { createAuth } from './lib/auth.js'
 import { createApp } from './app'
 
 // Initialize database and authentication -- ORDER MATTERS

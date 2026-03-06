@@ -16,10 +16,10 @@ defineEmits<{
 </script>
 
 <template>
-  <div id="modal-outer-container" v-if="isModalOpen">
-    <div :class="modalClass" id="modal-inner-container">
+  <div v-if="isModalOpen" id="modal-outer-container">
+    <div id="modal-inner-container" :class="modalClass">
       <div class="modal-close-container">
-        <Button @click="$emit('modalClosed')" id="modal-close-button">{{
+        <Button id="modal-close-button" @click="$emit('modalClosed')">{{
           closeText || 'Close'
         }}</Button>
       </div>

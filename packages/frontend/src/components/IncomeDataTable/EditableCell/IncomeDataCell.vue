@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<!-- <script lang="ts" setup>
 import { computed, nextTick, ref, watch } from 'vue'
 import UpdateView from './UpdateView.vue'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
@@ -55,13 +55,13 @@ async function handleUpdateComplete(value: string | number) {
 </script>
 
 <template>
-  <td class="border p-1" @click="turnOnEditMode" :class="{ editModeOn: isEditMode }">
+  <td class="border p-1" :class="{ editModeOn: isEditMode }" @click="turnOnEditMode">
     <UpdateView
       v-if="isEditMode"
+      :initial-value="cellData"
+      :input-type="type"
+      :input-categories="options"
       @on-update-complete="handleUpdateComplete"
-      :initialValue="cellData"
-      :inputType="type"
-      :inputCategories="options"
     />
     <p v-else>{{ formattedCellData }}</p>
   </td>
@@ -74,4 +74,4 @@ async function handleUpdateComplete(value: string | number) {
 td.editModeOn {
   padding: 0;
 }
-</style>
+</style> -->

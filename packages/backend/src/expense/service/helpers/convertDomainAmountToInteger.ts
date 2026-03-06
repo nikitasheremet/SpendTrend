@@ -1,4 +1,3 @@
-import { Expense } from '../../../models/expense/expense'
 import { decimalToInteger } from '../../../utilities/decimalToInteger'
 
 interface amountFieldsToConvert {

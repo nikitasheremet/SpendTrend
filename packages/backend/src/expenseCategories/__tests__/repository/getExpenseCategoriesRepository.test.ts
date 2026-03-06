@@ -2,14 +2,14 @@ import { getExpenseCategoriesRepository } from '../../repository/getExpenseCateg
 import { db } from '../../../db'
 import { DB_ERROR, RepositoryError } from '../../../models/errors/repositoryErrors'
 
-jest.mock('../../../db')
+vi.mock('../../../db')
 
 describe('getExpenseCategoriesRepository', () => {
-  const mockQuery = { expenseCategoriesTable: { findMany: jest.fn() } }
+  const mockQuery = { expenseCategoriesTable: { findMany: vi.fn() } }
   const fakeInput = { accountId: 'a' }
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
     // @ts-expect-error - mocking db.query
     db.query = mockQuery
   })

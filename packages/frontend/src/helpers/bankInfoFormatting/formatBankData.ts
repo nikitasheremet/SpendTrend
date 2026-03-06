@@ -3,7 +3,6 @@ import { DataType, FormattedBankData } from './bankInfoTypes'
 
 export function formatBankData(bankData: string): FormattedBankData[] {
   const splitData = bankData.split(/([\t\n]+)/)
-  console.log('Split data:', splitData)
   const rows: string[][] = []
   let nextRow: string[] = []
   const regex = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{1,2}, \d{4}$/
@@ -26,7 +25,6 @@ export function formatBankData(bankData: string): FormattedBankData[] {
       rows.push(nextRow)
     }
   }
-  console.log('Parsed rows:', rows)
   const createdData = rows.map((row) => {
     const lastRowCell = row[row.length - 1]
     const newData: {

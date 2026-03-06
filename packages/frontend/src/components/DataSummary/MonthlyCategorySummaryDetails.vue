@@ -2,7 +2,6 @@
 import type { ExpenseCategorySummary } from '@/types/dataSummary'
 import MonthlySubcategorySummary from './MonthlySubcategorySummary.vue'
 import { ref } from 'vue'
-import { showNumberAsDollar } from '@/helpers/showNumberAsDollar'
 
 const { category } = defineProps<{
   category: ExpenseCategorySummary
@@ -33,7 +32,7 @@ function showSubcategories() {
     <td class="p-2 text-center">{{ category.diffTotalToAvgAsPercent }}</td>
   </tr>
   <template v-if="isSubcategoryDetailsShown">
-    <MonthlySubcategorySummary :summaryForSelectedMonthBySubcategory="category.subCategories" />
+    <MonthlySubcategorySummary :summary-for-selected-month-by-subcategory="category.subCategories" />
   </template>
 </template>
 

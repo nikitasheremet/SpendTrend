@@ -4,21 +4,21 @@ import type { Context } from 'hono'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 import { getIncomesHandler } from '../../handler/getIncomesHandler'
 
-jest.mock('../../service/getIncomesService')
-jest.mock('../../validation')
+vi.mock('../../service/getIncomesService')
+vi.mock('../../validation')
 
-const mockService = getIncomesService as jest.Mock
-const mockValidation = validateGetIncomesInput as jest.Mock
+const mockService = getIncomesService as Mock
+const mockValidation = validateGetIncomesInput as Mock
 
 describe('getIncomesHandler', () => {
   const fakeCtx = {
     req: {
-      query: jest.fn(),
+      query: vi.fn(),
     },
   } as unknown as Context
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when successful', () => {

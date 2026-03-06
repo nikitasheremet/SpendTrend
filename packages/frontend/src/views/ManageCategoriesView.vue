@@ -1,6 +1,4 @@
-<script lang="ts" setup>
-import ManageCategories from '@/components/ManageCategories/ManageCategories.vue'
-</script>
+<script lang="ts" setup></script>
 
 <template>
   <div>

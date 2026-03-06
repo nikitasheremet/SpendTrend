@@ -20,27 +20,27 @@ const isIncomeDoingBetter = computed(() => income.value.diffTotalToAvg > 0)
     <div class="flex flex-row gap-10 items-center justify-center mb-5">
       <MonthlyTotalCard
         title="Expenses"
-        :topAmount="expenses.total"
-        :threeMonthAvg="expenses.threeMonthAvg"
-        :changeAmount="expenses.diffTotalToAvg"
-        :changePercent="expenses.diffTotalToAvgAsPercent || 0"
-        :isBetter="isExpensesDoingBetter"
+        :top-amount="expenses.total"
+        :three-month-avg="expenses.threeMonthAvg"
+        :change-amount="expenses.diffTotalToAvg"
+        :change-percent="expenses.diffTotalToAvgAsPercent || 0"
+        :is-better="isExpensesDoingBetter"
       />
       <MonthlyTotalCard
         title="Income"
-        :topAmount="summaryForSelectedMonth.income.total"
-        :threeMonthAvg="summaryForSelectedMonth.income.threeMonthAvg"
-        :changeAmount="summaryForSelectedMonth.income.diffTotalToAvg"
-        :changePercent="summaryForSelectedMonth.income.diffTotalToAvgAsPercent || 0"
-        :isBetter="isIncomeDoingBetter"
+        :top-amount="summaryForSelectedMonth.income.total"
+        :three-month-avg="summaryForSelectedMonth.income.threeMonthAvg"
+        :change-amount="summaryForSelectedMonth.income.diffTotalToAvg"
+        :change-percent="summaryForSelectedMonth.income.diffTotalToAvgAsPercent || 0"
+        :is-better="isIncomeDoingBetter"
       />
       <MonthlyTotalCard
         title="Savings"
-        :topAmount="summaryForSelectedMonth.savings"
-        :threeMonthAvg="0"
-        :changeAmount="0"
-        :changePercent="0"
-        :isBetter="true"
+        :top-amount="summaryForSelectedMonth.savings"
+        :three-month-avg="0"
+        :change-amount="0"
+        :change-percent="0"
+        :is-better="true"
       />
     </div>
   </div>

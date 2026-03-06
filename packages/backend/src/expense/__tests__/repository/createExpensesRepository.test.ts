@@ -2,11 +2,11 @@ import { createExpenseRepository, CreateExpense } from '../../repository/createE
 import { db } from '../../../db'
 import { excludeFieldsAndAdd } from '../../../utilities/excludeFieldsAndAdd'
 
-jest.mock('../../../db')
-jest.spyOn(console, 'error').mockImplementation(() => {})
+vi.mock('../../../db')
+vi.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('createExpenseRepository', () => {
-  const mockDbInsert = db.insert as jest.Mock
+  const mockDbInsert = db.insert as Mock
   const fakeDbQuery = db.query
 
   const fakeCategoryId = 'category-1'
@@ -25,7 +25,7 @@ describe('createExpenseRepository', () => {
   }
 
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when the database throws an error', () => {
@@ -49,8 +49,8 @@ describe('createExpenseRepository', () => {
         updatedAt: new Date(),
       }
       mockDbInsert.mockReturnValue({
-        values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([fakeDbExpense]),
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([fakeDbExpense]),
         }),
       })
       const fakeExpenseSubCategory = {
@@ -71,7 +71,7 @@ describe('createExpenseRepository', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       }
-      fakeDbQuery.expenseCategoriesTable.findFirst = jest
+      fakeDbQuery.expenseCategoriesTable.findFirst = vi
         .fn()
         .mockResolvedValue(fakeExpenseCategoryQueryResponse)
 

@@ -1,4 +1,3 @@
-import { eq } from 'drizzle-orm'
 import { db } from '../../db'
 import { incomeTable } from '../../db/schema'
 import { DB_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
@@ -29,7 +28,10 @@ export async function createIncomeRepository(input: CreateIncome): Promise<Incom
     return dbIncomeToDomainIncome(createdIncome)
   } catch (error) {
     const dbError = error as Error
-    console.error(`Failed to create income for userId: ${input.userId} and accountId: ${input.accountId}`, dbError)
+    console.error(
+      `Failed to create income for userId: ${input.userId} and accountId: ${input.accountId}`,
+      dbError,
+    )
     throw new RepositoryError(`${DB_ERROR}: Failed to create income. Error: ${dbError.message}`)
   }
 }

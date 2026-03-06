@@ -47,7 +47,7 @@ function getCurrentDisplayValue(expense: Expense, key: keyof DisplayExpense) {
 const expenses = computed(() => preformatExpenses(store.expenses.value))
 
 // Handle cell updates
-async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, value: any) {
+async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, value: unknown) {
   try {
     const expense = store.expenses.value[rowIndex]
 
@@ -61,8 +61,10 @@ async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, val
 
     // Handle special cases
     if (key === 'date') {
-      value = formatDate(new Date(value as string | Date).toISOString(), DateFormat.YYYY_MM_DD)
-      updatedExpense[key] = value
+      updatedExpense.date = formatDate(
+        new Date(value as string | Date).toISOString(),
+        DateFormat.YYYY_MM_DD,
+      )
     } else if (key === 'category') {
       // Value is category name string, need to get full category object for service
       const category = getCategory(value as string)
@@ -140,7 +142,13 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     type: 'number',
     editable: false,
     calculate: (row: DisplayExpense) => (row.amount || 0) - (row.paidBackAmount || 0),
-    format: (value: number) => value.toFixed(2),
+    format: (value: unknown) => {
+      if (typeof value === 'number') {
+        return value.toFixed(2)
+      }
+
+      return Number(value ?? 0).toFixed(2)
+    },
   },
   {
     key: 'category',

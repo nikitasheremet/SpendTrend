@@ -101,7 +101,7 @@ function verifyNewIncomeData(newIncomeData: NewIncome[]): number[] {
       if (!income.date) {
         throw new Error('Date is required')
       }
-    } catch (err) {
+    } catch {
       arrayOfErrorRows.push(index)
     }
   })

@@ -16,7 +16,7 @@ const error = ref<Error | undefined>(undefined)
 const popover = inject<PopoverRef>(POPOVER_SYMBOL)
 
 // Handle cell updates
-async function handleCellUpdate(rowIndex: number, key: keyof Income, value: any) {
+async function handleCellUpdate(rowIndex: number, key: keyof Income, value: unknown) {
   try {
     const income = incomes.value[rowIndex]
 
@@ -50,7 +50,7 @@ async function handleCellUpdate(rowIndex: number, key: keyof Income, value: any)
 }
 
 // Handle row deletion
-async function handleDelete(row: Income, _index: number) {
+async function handleDelete(row: Income) {
   try {
     await serviceDeleteIncome(row.id)
     store.deleteIncome(row.id)

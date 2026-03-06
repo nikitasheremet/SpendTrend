@@ -1,10 +1,9 @@
 import { createExpenseService } from '../../service/createExpenseService'
 import * as repository from '../../repository/createExpenseRepository'
 import { CreateExpensesInput } from '../../validation/models'
-import { object } from 'zod'
 
-jest.mock('../../repository/createExpenseRepository', () => ({
-  createExpenseRepository: jest.fn(),
+vi.mock('../../repository/createExpenseRepository', () => ({
+  createExpenseRepository: vi.fn(),
 }))
 
 const fakeInput = {
@@ -18,7 +17,7 @@ const fakeInput = {
 } as CreateExpensesInput
 
 describe('createExpenseService', () => {
-  const mockedCreateExpenseRepository = repository.createExpenseRepository as jest.Mock
+  const mockedCreateExpenseRepository = repository.createExpenseRepository as Mock
 
   beforeEach(() => {
     mockedCreateExpenseRepository.mockReset()

@@ -4,12 +4,12 @@ import { updateExpenseCategoryHandler } from '../../handler/updateExpenseCategor
 import { updateExpenseCategoryService } from '../../service/updateExpenseCategoryService'
 import { validateUpdateExpenseCategoryInput } from '../../validation/updateExpenseCategoryValidation'
 
-jest.mock('../../service/updateExpenseCategoryService')
-jest.mock('../../validation/updateExpenseCategoryValidation')
+vi.mock('../../service/updateExpenseCategoryService')
+vi.mock('../../validation/updateExpenseCategoryValidation')
 
 describe('updateExpenseCategoryHandler', () => {
-  const mockService = updateExpenseCategoryService as jest.Mock
-  const mockValidation = validateUpdateExpenseCategoryInput as jest.Mock
+  const mockService = updateExpenseCategoryService as Mock
+  const mockValidation = validateUpdateExpenseCategoryInput as Mock
 
   beforeEach(() => {
     mockService.mockReset()
@@ -18,7 +18,7 @@ describe('updateExpenseCategoryHandler', () => {
 
   const fakeContext = {
     req: {
-      json: jest.fn(),
+      json: vi.fn(),
     },
   } as unknown as Context
 

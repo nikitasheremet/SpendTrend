@@ -131,7 +131,7 @@ function onChange(event: Event) {
     model.value = isNaN(numberValue) ? '' : numberValue
     return
   }
-  model.value = value as any
+  model.value = value
 }
 
 function inputBlurred(event: FocusEvent) {
@@ -171,36 +171,36 @@ defineExpose({
 <template>
   <input
     v-if="variant === 'input' || variant === 'input-border'"
+    ref="input-ref"
     :class="[
       'w-full px-2 truncate is-truncated peer rounded-sm',
       variant === 'input-border' ? 'border border-gray-500' : '',
     ]"
-    ref="input-ref"
     :value="transformedModel"
     :type="type === 'date' ? 'date' : type === 'number' ? 'text' : type"
+    v-bind="attrs"
+    :aria-label="type === 'date' ? 'date-picker' : undefined"
     @blur="inputBlurred"
     @focus="inputFocused"
     @input="onChange"
-    v-bind="attrs"
-    :aria-label="type === 'date' ? 'date-picker' : undefined"
   />
   <textarea
     v-else-if="variant === 'textarea' || variant === 'textarea-border'"
+    ref="input-ref"
     :class="[
       'w-full px-2 peer rounded-sm resize-none overflow-hidden',
       variant === 'textarea-border' ? 'border border-gray-500' : '',
     ]"
-    ref="input-ref"
     :value="transformedModel"
+    v-bind="attrs"
+    rows="1"
     @blur="inputBlurred"
     @focus="inputFocused"
     @input="onChange"
-    v-bind="attrs"
-    rows="1"
   />
   <div
-    id="input-tooltip"
     v-if="showTooltip"
+    id="input-tooltip"
     class="peer-hover:visible absolute invisible z-5000 whitespace-normal bg-gray-800 text-white text-sm p-2 rounded"
   >
     {{ transformedModel }}

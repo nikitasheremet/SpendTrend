@@ -1,8 +1,9 @@
 import { validateDeleteExpenseCategoryInput } from '../../validation/deleteExpenseCategoryValidation'
 import { ValidationError } from '../../../models/errors/validationError'
+import { DeleteExpenseCategoryInput } from '../../validation/models'
 
 describe('validateDeleteExpenseCategoryInput', () => {
-  const fakeValidInput = {
+  const fakeValidInput: DeleteExpenseCategoryInput = {
     userId: '00000000-0000-4000-8000-000000000000',
     accountId: '00000000-0000-4000-8000-000000000001',
     id: '00000000-0000-4000-8000-000000000002',
@@ -17,8 +18,8 @@ describe('validateDeleteExpenseCategoryInput', () => {
   describe('userId validation', () => {
     describe('when userId is missing', () => {
       it('should throw ValidationError', () => {
-        const fakeInvalidInput = { ...fakeValidInput }
-        delete (fakeInvalidInput as any).userId
+        const fakeInvalidInput: Partial<DeleteExpenseCategoryInput> = { ...fakeValidInput }
+        delete fakeInvalidInput.userId
 
         expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(ValidationError)
       })
@@ -36,8 +37,8 @@ describe('validateDeleteExpenseCategoryInput', () => {
   describe('accountId validation', () => {
     describe('when accountId is missing', () => {
       it('should throw ValidationError', () => {
-        const fakeInvalidInput = { ...fakeValidInput }
-        delete (fakeInvalidInput as any).accountId
+        const fakeInvalidInput: Partial<DeleteExpenseCategoryInput> = { ...fakeValidInput }
+        delete fakeInvalidInput.accountId
 
         expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(ValidationError)
       })
@@ -55,8 +56,8 @@ describe('validateDeleteExpenseCategoryInput', () => {
   describe('id validation', () => {
     describe('when id is missing', () => {
       it('should throw ValidationError', () => {
-        const fakeInvalidInput = { ...fakeValidInput }
-        delete (fakeInvalidInput as any).id
+        const fakeInvalidInput: Partial<DeleteExpenseCategoryInput> = { ...fakeValidInput }
+        delete fakeInvalidInput.id
 
         expect(() => validateDeleteExpenseCategoryInput(fakeInvalidInput)).toThrow(ValidationError)
       })

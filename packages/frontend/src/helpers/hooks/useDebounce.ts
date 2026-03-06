@@ -1,6 +1,6 @@
 import { ref, onBeforeUnmount } from 'vue'
 
-export function useDebounce(callback: (...args: any[]) => void, delayMs: number) {
+export function useDebounce(callback: (...args: unknown[]) => void, delayMs: number) {
   const timeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
 
   // Cleanup timeout on unmount
@@ -10,7 +10,7 @@ export function useDebounce(callback: (...args: any[]) => void, delayMs: number)
     }
   })
 
-  const debouncedFn = (...args: any[]) => {
+  const debouncedFn = (...args: unknown[]) => {
     if (timeoutId.value) {
       clearTimeout(timeoutId.value)
     }

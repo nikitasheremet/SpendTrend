@@ -51,5 +51,5 @@ export function createAuth() {
         }
       }),
     ],
-  })
+  }) as unknown as Auth
 }

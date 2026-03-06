@@ -4,12 +4,12 @@ import { getExpenseCategoriesHandler } from '../../handler/getExpenseCategoriesH
 import { getExpenseCategoriesService } from '../../service/getExpenseCategoriesService'
 import * as validation from '../../validation/getExpenseCategoriesValidation'
 
-jest.mock('../../service/getExpenseCategoriesService')
-jest.mock('../../validation/getExpenseCategoriesValidation')
+vi.mock('../../service/getExpenseCategoriesService')
+vi.mock('../../validation/getExpenseCategoriesValidation')
 
 describe('getExpenseCategoriesHandler', () => {
-  const mockService = getExpenseCategoriesService as jest.Mock
-  const mockValidation = validation.validateGetExpenseCategoriesInput as jest.Mock
+  const mockService = getExpenseCategoriesService as Mock
+  const mockValidation = validation.validateGetExpenseCategoriesInput as Mock
 
   beforeEach(() => {
     mockService.mockReset()
@@ -23,7 +23,7 @@ describe('getExpenseCategoriesHandler', () => {
 
   const fakeValidContext = {
     req: {
-      query: jest.fn().mockReturnValue(fakeValidQuery),
+      query: vi.fn().mockReturnValue(fakeValidQuery),
     },
   } as unknown as Context
 
@@ -51,7 +51,7 @@ describe('getExpenseCategoriesHandler', () => {
 
       const fakeInvalidCtx = {
         req: {
-          query: jest.fn().mockReturnValue({}),
+          query: vi.fn().mockReturnValue({}),
         },
       } as unknown as Context
 
