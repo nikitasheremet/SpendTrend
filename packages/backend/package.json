@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "vite build && drizzle-kit migrate",
+    "build": "vite build",
     "build:dev": "vite build && NODE_ENV=dev drizzle-kit migrate",
     "start": "node dist/src/server.js",
     "start:dev": "NODE_ENV=dev node dist/src/server.js",
@@ -13,6 +13,7 @@
     "test:all": "npm run test:unit && npm run test:e2e",
     "types:lint": "tsc --noEmit && eslint .",
     "e2e:test": "NODE_ENV=test npx playwright test",
+    "db:mig": "npx drizzle-kit migrate",
     "db:gen:mig": "npx drizzle-kit generate && npx drizzle-kit migrate",
     "prettier": "prettier --write ."
   },
