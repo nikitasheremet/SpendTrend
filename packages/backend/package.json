@@ -5,8 +5,8 @@
   "scripts": {
     "build": "vite build",
     "build:dev": "vite build && NODE_ENV=dev drizzle-kit migrate",
-    "start": "node dist/src/server.js",
-    "start:dev": "NODE_ENV=dev node dist/src/server.js",
+    "start": "node dist/server.js",
+    "start:dev": "NODE_ENV=dev node dist/server.js",
     "local": "NODE_ENV=local vite-node src/server.ts",
     "test:e2e": "NODE_ENV=test npx playwright test e2e",
     "test:unit": "vitest run src --passWithNoTests",
