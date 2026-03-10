@@ -39,7 +39,10 @@ describe('when calculating expense average for sparse months', () => {
   })
 
   it('should divide by 2 when two months have totals greater than 0', () => {
-    const fakeExpenses = [createFakeExpense('2026-03-05', 100), createFakeExpense('2026-01-07', 200)]
+    const fakeExpenses = [
+      createFakeExpense('2026-03-05', 100),
+      createFakeExpense('2026-01-07', 200),
+    ]
 
     const result = getExpenseAverage(fakeExpenses, 3, 2026, 3)
 
