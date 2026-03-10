@@ -13,6 +13,7 @@ const TableRowComponent = TableRow as unknown as VueElement
 interface FakeRow {
   name: string
   amount?: number
+  rowKey?: string
   [key: string]: unknown
 }
 
@@ -211,6 +212,45 @@ describe('GenericTable', () => {
 
       const rows = wrapper.findAllComponents(TableRowComponent)
       expect(rows).toHaveLength(0)
+    })
+  })
+
+  describe('when row key configuration is provided', () => {
+    it('should use the configured row key field for table rows', async () => {
+      const fakeData: FakeRow[] = [
+        { rowKey: 'fake-row-1', name: 'A' },
+        { rowKey: 'fake-row-2', name: 'B' },
+      ]
+      const wrapper = mountGenericTable({
+        data: fakeData,
+        rowKey: 'rowKey',
+      })
+
+      await nextTick()
+
+      const keys = wrapper
+        .findAllComponents(TableRowComponent)
+        .map((rowWrapper) => rowWrapper.vm.$.vnode.key)
+      expect(keys).toEqual(['fake-row-1', 'fake-row-2'])
+    })
+  })
+
+  describe('when progressive rendering is disabled', () => {
+    it('should render all rows immediately', async () => {
+      const fakeData: FakeRow[] = Array.from({ length: 10 }, (_, index) => ({
+        name: `Item ${index + 1}`,
+      }))
+      const wrapper = mountGenericTable({
+        data: fakeData,
+        progressiveRender: false,
+        initialRowCount: 1,
+        rowChunkSize: 1,
+      })
+
+      await nextTick()
+
+      const rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows).toHaveLength(10)
     })
   })
 })

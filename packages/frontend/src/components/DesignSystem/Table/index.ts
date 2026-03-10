@@ -1,5 +1,5 @@
 export { default as GenericTable } from './GenericTable.vue'
 export { default as TableRow } from './TableRow.vue'
 export { default as TableCell } from './TableCell.vue'
-export type { ColumnConfig, RowAction, TableAction, CellType } from './types'
+export type { ColumnConfig, RowAction, TableAction, CellType, RowKeyResolver } from './types'
 export * from './hooks'
