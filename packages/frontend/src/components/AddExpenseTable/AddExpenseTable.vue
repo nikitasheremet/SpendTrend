@@ -32,30 +32,51 @@ const {
   getSubcategories,
 } = useCategoriesInExpenseData()
 
-type DisplayExpense = NewExpense
+interface DisplayExpense extends NewExpense {
+  rowKey: string
+}
 
-function toDisplayExpense(expense: NewExpense): DisplayExpense {
+const ROW_KEY_PREFIX = 'expense-row'
+const ROW_KEY_INCREMENT = 1
+const ZERO_AMOUNT = 0
+const ZERO_ITEMS_COUNT = 0
+const NET_AMOUNT_SCALE = 100
+const CURRENCY_DECIMALS = 2
+const MINIMUM_ROWS_FOR_DELETE_ACTION = 1
+let displayExpenseRowKeyCounter = ZERO_ITEMS_COUNT
+
+function createDisplayExpenseRowKey(): string {
+  displayExpenseRowKeyCounter += ROW_KEY_INCREMENT
+  return `${ROW_KEY_PREFIX}-${displayExpenseRowKeyCounter}`
+}
+
+function toDisplayExpense(expense: NewExpense, rowKey?: string): DisplayExpense {
   const categoryId = getCategoryId(expense.category) || expense.category
   const categoryName = getCategoryName(categoryId) || expense.category
   const subCategoryName = getSubCategoryName(categoryId, expense.subCategory) || expense.subCategory
 
   return {
     ...expense,
+    rowKey: rowKey ?? createDisplayExpenseRowKey(),
     category: categoryName,
     subCategory: subCategoryName,
   }
 }
 
-function toDisplayExpenses(expenses: NewExpense[]): DisplayExpense[] {
-  return expenses.map(toDisplayExpense)
+function toDisplayExpenses(
+  expenses: NewExpense[],
+  existingRows: DisplayExpense[] = [],
+): DisplayExpense[] {
+  return expenses.map((expense, index) => toDisplayExpense(expense, existingRows[index]?.rowKey))
 }
 
 function toModelExpense(expense: DisplayExpense): NewExpense {
+  const { rowKey: _rowKey, ...modelExpense } = expense
   const categoryId = getCategoryId(expense.category) || expense.category
   const subCategoryId = getSubCategoryId(categoryId, expense.subCategory) || expense.subCategory
 
   return {
-    ...expense,
+    ...modelExpense,
     category: categoryId,
     subCategory: subCategoryId,
   }
@@ -66,12 +87,13 @@ function toModelExpenses(expenses: DisplayExpense[]): NewExpense[] {
 }
 
 // Create empty expense row
-function createEmptyExpense(): NewExpense {
+function createEmptyExpense(): DisplayExpense {
   return {
+    rowKey: createDisplayExpenseRowKey(),
     date: formatDate(new Date(), DateFormat.YYYY_MM_DD),
     name: '',
-    netAmount: 0,
-    amount: 0,
+    netAmount: ZERO_AMOUNT,
+    amount: ZERO_AMOUNT,
     paidBackAmount: undefined,
     category: '',
     subCategory: '',
@@ -79,7 +101,7 @@ function createEmptyExpense(): NewExpense {
 }
 
 // Validation function
-function validateExpenses(expenses: NewExpense[]): number[] {
+function validateExpenses(expenses: DisplayExpense[]): number[] {
   const errorIndexes: number[] = []
   expenses.forEach((expense, index) => {
     if (!expense.date || !expense.name || !expense.amount || !expense.category) {
@@ -90,9 +112,9 @@ function validateExpenses(expenses: NewExpense[]): number[] {
 }
 
 // Save handler
-async function handleSave(items: NewExpense[]): Promise<{ failedItems?: NewExpense[] }> {
+async function handleSave(items: DisplayExpense[]): Promise<{ failedItems?: DisplayExpense[] }> {
   const { createdExpenses, failedExpenses } = await addNewExpense(toModelExpenses(items))
-  if (createdExpenses.length > 0) {
+  if (createdExpenses.length > ZERO_ITEMS_COUNT) {
     store.addExpenses(createdExpenses)
   }
 
@@ -129,7 +151,10 @@ watch(
     // Recalculate net amounts
     newData.forEach((expense) => {
       expense.netAmount =
-        Math.round(((expense.amount || 0) - (expense.paidBackAmount ?? 0)) * 100) / 100
+        Math.round(
+          ((expense.amount || ZERO_AMOUNT) - (expense.paidBackAmount ?? ZERO_AMOUNT)) *
+            NET_AMOUNT_SCALE,
+        ) / NET_AMOUNT_SCALE
     })
 
     if (isSyncingFromModel) {
@@ -144,7 +169,7 @@ watch(
 watch(
   [newExpenses, categories],
   ([newData]) => {
-    const preformattedExpenses = toDisplayExpenses(newData)
+    const preformattedExpenses = toDisplayExpenses(newData, tableData.value)
     if (JSON.stringify(tableData.value) === JSON.stringify(preformattedExpenses)) {
       return
     }
@@ -157,7 +182,7 @@ watch(
 )
 
 // Handle cell updates with category/subcategory transformation
-async function handleCellUpdate(rowIndex: number, key: keyof NewExpense, value: unknown) {
+async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, value: unknown) {
   // Keep table display values as names; model IDs are handled by table-model sync
   if (key === 'category') {
     await updateCell(rowIndex, key, value)
@@ -171,8 +196,8 @@ async function handleCellUpdate(rowIndex: number, key: keyof NewExpense, value: 
 }
 
 // Move to income handler
-async function moveToIncome(row: NewExpense, index: number) {
-  emit('moveToIncome', row)
+async function moveToIncome(row: DisplayExpense, index: number) {
+  emit('moveToIncome', toModelExpense(row))
   await deleteRow(index)
 }
 
@@ -185,7 +210,7 @@ function handleClearAll() {
 }
 
 // Column configuration
-const columns = computed<ColumnConfig<NewExpense>[]>(() => [
+const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
   {
     key: 'date',
     label: 'Date',
@@ -217,10 +242,14 @@ const columns = computed<ColumnConfig<NewExpense>[]>(() => [
     type: 'number',
     required: false,
     editable: false,
-    calculate: (row: NewExpense) => {
-      return Math.round(((row.amount || 0) - (row.paidBackAmount ?? 0)) * 100) / 100
+    calculate: (row: DisplayExpense) => {
+      return (
+        Math.round(
+          ((row.amount || ZERO_AMOUNT) - (row.paidBackAmount ?? ZERO_AMOUNT)) * NET_AMOUNT_SCALE,
+        ) / NET_AMOUNT_SCALE
+      )
     },
-    format: (value: unknown) => Number(value ?? 0).toFixed(2),
+    format: (value: unknown) => Number(value ?? ZERO_AMOUNT).toFixed(CURRENCY_DECIMALS),
   },
   {
     key: 'category',
@@ -234,18 +263,18 @@ const columns = computed<ColumnConfig<NewExpense>[]>(() => [
     label: 'Subcategory',
     type: 'dropdown',
     required: false,
-    dropdownOptions: (row: NewExpense) => getSubcategories(getCategoryId(row.category)),
+    dropdownOptions: (row: DisplayExpense) => getSubcategories(getCategoryId(row.category)),
   },
 ])
 
 // Row actions
-const rowActions = computed<RowAction<NewExpense>[]>(() => [
+const rowActions = computed<RowAction<DisplayExpense>[]>(() => [
   {
     label: 'Delete',
-    handler: async (_row: NewExpense, index: number) => {
+    handler: async (_row: DisplayExpense, index: number) => {
       await deleteRow(index)
     },
-    show: () => tableData.value.length > 1,
+    show: () => tableData.value.length > MINIMUM_ROWS_FOR_DELETE_ACTION,
   },
   {
     label: '>> Income',
@@ -274,6 +303,7 @@ const tableActions: TableAction[] = [
 <template>
   <GenericTable
     :data="tableData"
+    row-key="rowKey"
     :columns="columns"
     :row-actions="rowActions"
     :table-actions="tableActions"
