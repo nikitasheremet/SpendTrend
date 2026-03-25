@@ -15,7 +15,8 @@
     "moduleResolution": "bundler",
     "types": ["vitest/globals", "@testing-library/jest-dom"],
     "outDir": "dist",
-    "lib": ["DOM", "ESNext"]
+    "lib": ["DOM", "ESNext"],
+    "target": "esnext"
   },
   "references": [{ "path": "../../contracts" }]
 }

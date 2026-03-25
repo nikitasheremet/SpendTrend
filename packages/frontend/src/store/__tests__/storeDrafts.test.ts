@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
 import { createStore, getStore } from '../store'
 import { authClient } from '@/lib/auth-client'
 import { getCategories } from '@/service/categories/getCategories'
@@ -61,7 +60,7 @@ const fakeIncome: Income = {
   updatedAt: new Date('2026-01-15'),
 }
 
-describe('when creating and using store state', () => {
+describe('when draft rows are managed', () => {
   const mockGetSession = vi.mocked(authClient.getSession)
   const mockGetCategories = vi.mocked(getCategories)
   const mockGetExpenses = vi.mocked(getExpenses)
@@ -87,74 +86,48 @@ describe('when creating and using store state', () => {
     await createStore()
   })
 
-  it('should initialize categories expenses and incomes from services', () => {
+  it('should overwrite the initial empty expense draft row', () => {
     const store = getStore()
 
-    expect(store.categories.value).toEqual([fakeCategory])
-    expect(store.expenses.value).toEqual([fakeExpense])
-    expect(store.incomes.value).toEqual([fakeIncome])
+    store.addNewExpense({
+      date: '2026-02-01',
+      name: '',
+      amount: 0,
+      netAmount: 0,
+      category: '',
+      subCategory: '',
+    })
+
+    store.addNewExpense({
+      date: '2026-02-01',
+      name: 'Coffee',
+      amount: 5,
+      netAmount: 5,
+      category: 'category-1',
+      subCategory: '',
+    })
+
+    expect(store.newExpenses.value).toHaveLength(1)
+    expect(store.newExpenses.value[0].name).toBe('Coffee')
   })
 
-  it('should expose all expected store domains and mutators', () => {
+  it('should overwrite the initial empty income draft row', () => {
     const store = getStore()
 
-    expect(store.categories).toBeDefined()
-    expect(store.expenses).toBeDefined()
-    expect(store.incomes).toBeDefined()
-    expect(store.newExpenses).toBeDefined()
-    expect(store.newIncomes).toBeDefined()
-    expect(store.expenseDuplicates).toBeDefined()
-    expect(store.incomeDuplicates).toBeDefined()
-    expect(store.isExpenseDuplicatesPresent).toBeDefined()
-    expect(store.isIncomeDuplicatesPresent).toBeDefined()
-    expect(store.selectedMonth).toBeDefined()
-    expect(store.selectedYear).toBeDefined()
+    store.addNewIncome({ date: '2026-02-01', name: '', amount: 0 })
+    store.addNewIncome({ date: '2026-02-01', name: 'Bonus', amount: 200 })
 
-    expect(typeof store.addExpenses).toBe('function')
-    expect(typeof store.addIncomes).toBe('function')
-    expect(typeof store.addCategory).toBe('function')
-    expect(typeof store.addSubCategory).toBe('function')
-    expect(typeof store.addNewExpense).toBe('function')
-    expect(typeof store.addNewIncome).toBe('function')
+    expect(store.newIncomes.value).toHaveLength(1)
+    expect(store.newIncomes.value[0].name).toBe('Bonus')
   })
 
-  it('should update duplicate refs reactively when draft rows are edited', async () => {
+  it('should persist draft changes to localStorage', () => {
     const store = getStore()
+    const mockSetItem = vi.spyOn(Storage.prototype, 'setItem')
 
-    store.newExpenses.value = [
-      {
-        date: '2026-01-10',
-        name: 'Coffee',
-        amount: 10,
-        netAmount: 10,
-        category: fakeCategory.id,
-        subCategory: '',
-      },
-      {
-        date: '2026-01-10',
-        name: ' coffee ',
-        amount: 10,
-        netAmount: 10,
-        category: fakeCategory.id,
-        subCategory: '',
-      },
-    ]
+    store.addNewIncome({ date: '2026-02-01', name: 'Bonus', amount: 200 })
+    store.clearNewIncomes()
 
-    await nextTick()
-
-    expect(store.expenseDuplicates.value).toHaveLength(2)
-    expect(store.isExpenseDuplicatesPresent.value).toBe(true)
-    expect(store.isIncomeDuplicatesPresent.value).toBe(false)
-
-    store.newExpenses.value[1] = {
-      ...store.newExpenses.value[1],
-      name: 'Restaurant',
-    }
-
-    await nextTick()
-
-    expect(store.expenseDuplicates.value).toHaveLength(0)
-    expect(store.isExpenseDuplicatesPresent.value).toBe(false)
-    expect(store.isIncomeDuplicatesPresent.value).toBe(false)
+    expect(mockSetItem).toHaveBeenCalled()
   })
 })

@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
 import { createStore, getStore } from '../store'
 import { authClient } from '@/lib/auth-client'
 import { getCategories } from '@/service/categories/getCategories'
@@ -61,7 +60,7 @@ const fakeIncome: Income = {
   updatedAt: new Date('2026-01-15'),
 }
 
-describe('when creating and using store state', () => {
+describe('when summary period defaults are applied', () => {
   const mockGetSession = vi.mocked(authClient.getSession)
   const mockGetCategories = vi.mocked(getCategories)
   const mockGetExpenses = vi.mocked(getExpenses)
@@ -87,74 +86,56 @@ describe('when creating and using store state', () => {
     await createStore()
   })
 
-  it('should initialize categories expenses and incomes from services', () => {
+  it('should set summary period to latest expense month', () => {
     const store = getStore()
 
-    expect(store.categories.value).toEqual([fakeCategory])
-    expect(store.expenses.value).toEqual([fakeExpense])
-    expect(store.incomes.value).toEqual([fakeIncome])
-  })
-
-  it('should expose all expected store domains and mutators', () => {
-    const store = getStore()
-
-    expect(store.categories).toBeDefined()
-    expect(store.expenses).toBeDefined()
-    expect(store.incomes).toBeDefined()
-    expect(store.newExpenses).toBeDefined()
-    expect(store.newIncomes).toBeDefined()
-    expect(store.expenseDuplicates).toBeDefined()
-    expect(store.incomeDuplicates).toBeDefined()
-    expect(store.isExpenseDuplicatesPresent).toBeDefined()
-    expect(store.isIncomeDuplicatesPresent).toBeDefined()
-    expect(store.selectedMonth).toBeDefined()
-    expect(store.selectedYear).toBeDefined()
-
-    expect(typeof store.addExpenses).toBe('function')
-    expect(typeof store.addIncomes).toBe('function')
-    expect(typeof store.addCategory).toBe('function')
-    expect(typeof store.addSubCategory).toBe('function')
-    expect(typeof store.addNewExpense).toBe('function')
-    expect(typeof store.addNewIncome).toBe('function')
-  })
-
-  it('should update duplicate refs reactively when draft rows are edited', async () => {
-    const store = getStore()
-
-    store.newExpenses.value = [
-      {
-        date: '2026-01-10',
-        name: 'Coffee',
-        amount: 10,
-        netAmount: 10,
-        category: fakeCategory.id,
-        subCategory: '',
-      },
-      {
-        date: '2026-01-10',
-        name: ' coffee ',
-        amount: 10,
-        netAmount: 10,
-        category: fakeCategory.id,
-        subCategory: '',
-      },
-    ]
-
-    await nextTick()
-
-    expect(store.expenseDuplicates.value).toHaveLength(2)
-    expect(store.isExpenseDuplicatesPresent.value).toBe(true)
-    expect(store.isIncomeDuplicatesPresent.value).toBe(false)
-
-    store.newExpenses.value[1] = {
-      ...store.newExpenses.value[1],
-      name: 'Restaurant',
+    const fakeOlderExpense = {
+      ...fakeExpense,
+      id: 'expense-older',
+      date: '2025-12-12',
+    }
+    const fakeFutureExpense = {
+      ...fakeExpense,
+      id: 'expense-future',
+      date: '2027-03-02',
     }
 
-    await nextTick()
+    store.setExpenses([fakeOlderExpense, fakeExpense, fakeFutureExpense])
 
-    expect(store.expenseDuplicates.value).toHaveLength(0)
-    expect(store.isExpenseDuplicatesPresent.value).toBe(false)
-    expect(store.isIncomeDuplicatesPresent.value).toBe(false)
+    store.applyLatestExpenseSummaryPeriodDefault()
+
+    expect(store.selectedYear.value).toBe(2027)
+    expect(store.selectedMonth.value).toBe(2)
+  })
+
+  it('should not overwrite summary period after manual selection', () => {
+    const store = getStore()
+
+    const fakeLatestExpense = {
+      ...fakeExpense,
+      id: 'expense-latest',
+      date: '2026-11-01',
+    }
+
+    store.setExpenses([fakeExpense, fakeLatestExpense])
+    store.selectedYear.value = 2026
+    store.selectedMonth.value = 0
+    store.markSummaryPeriodAsManuallySelected()
+
+    store.applyLatestExpenseSummaryPeriodDefault()
+
+    expect(store.selectedYear.value).toBe(2026)
+    expect(store.selectedMonth.value).toBe(0)
+  })
+
+  it('should fallback to current month and year when there are no expenses', () => {
+    const store = getStore()
+    const fakeCurrentDate = new Date()
+
+    store.setExpenses([])
+    store.applyLatestExpenseSummaryPeriodDefault()
+
+    expect(store.selectedYear.value).toBe(fakeCurrentDate.getUTCFullYear())
+    expect(store.selectedMonth.value).toBe(fakeCurrentDate.getUTCMonth())
   })
 })

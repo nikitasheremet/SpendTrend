@@ -2,6 +2,7 @@ import { Ref } from 'vue'
 import { Expense, ExpenseCategory, ExpenseSubCategory, NewExpense } from '@/types/expenseData'
 import { AccountDetails } from '../types/account/account'
 import { Income, NewIncome } from '@/types/income/income'
+import type { ExpenseDuplicateEntry, IncomeDuplicateEntry } from './storeDuplicateTypes'
 
 export interface Store {
   getAccountDetails: () => Promise<AccountDetails>
@@ -27,6 +28,10 @@ export interface Store {
   addNewIncome: (income: NewIncome) => void
   clearNewExpenses: () => void
   clearNewIncomes: () => void
+  expenseDuplicates: Ref<ExpenseDuplicateEntry[]>
+  incomeDuplicates: Ref<IncomeDuplicateEntry[]>
+  isExpenseDuplicatesPresent: Ref<boolean>
+  isIncomeDuplicatesPresent: Ref<boolean>
   selectedMonth: Ref<number>
   selectedYear: Ref<number>
   markSummaryPeriodAsManuallySelected: () => void
