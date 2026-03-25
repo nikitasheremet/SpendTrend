@@ -13,6 +13,9 @@ import { addNewIncome } from '@/service/income/addNewIncome'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 
 const newIncomes = defineModel<NewIncome[]>({ required: true })
+const props = defineProps<{
+  beforeSaveIncome?: () => Promise<boolean>
+}>()
 const store = getStore()
 
 const emit = defineEmits<{
@@ -134,6 +137,15 @@ async function handleCellUpdate(rowIndex: number, key: keyof DisplayIncome, valu
   await updateCell(rowIndex, key, value)
 }
 
+async function handleSaveIncomeAction(): Promise<void> {
+  const shouldContinueSaving = (await props.beforeSaveIncome?.()) ?? true
+  if (!shouldContinueSaving) {
+    return
+  }
+
+  await saveAll()
+}
+
 // Move to expense handler
 async function moveToExpense(row: DisplayIncome, index: number) {
   emit('moveToExpense', toModelIncome(row))
@@ -197,7 +209,7 @@ const tableActions: TableAction[] = [
   },
   {
     label: 'Save Income',
-    handler: saveAll,
+    handler: handleSaveIncomeAction,
   },
 ]
 </script>

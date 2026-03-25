@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
 import { createStore, getStore } from '../store'
 import { authClient } from '@/lib/auth-client'
 import { getCategories } from '@/service/categories/getCategories'
@@ -61,7 +60,7 @@ const fakeIncome: Income = {
   updatedAt: new Date('2026-01-15'),
 }
 
-describe('when creating and using store state', () => {
+describe('when expense mutators are used', () => {
   const mockGetSession = vi.mocked(authClient.getSession)
   const mockGetCategories = vi.mocked(getCategories)
   const mockGetExpenses = vi.mocked(getExpenses)
@@ -87,74 +86,38 @@ describe('when creating and using store state', () => {
     await createStore()
   })
 
-  it('should initialize categories expenses and incomes from services', () => {
+  it('should add update and delete expenses', () => {
     const store = getStore()
-
-    expect(store.categories.value).toEqual([fakeCategory])
-    expect(store.expenses.value).toEqual([fakeExpense])
-    expect(store.incomes.value).toEqual([fakeIncome])
-  })
-
-  it('should expose all expected store domains and mutators', () => {
-    const store = getStore()
-
-    expect(store.categories).toBeDefined()
-    expect(store.expenses).toBeDefined()
-    expect(store.incomes).toBeDefined()
-    expect(store.newExpenses).toBeDefined()
-    expect(store.newIncomes).toBeDefined()
-    expect(store.expenseDuplicates).toBeDefined()
-    expect(store.incomeDuplicates).toBeDefined()
-    expect(store.isExpenseDuplicatesPresent).toBeDefined()
-    expect(store.isIncomeDuplicatesPresent).toBeDefined()
-    expect(store.selectedMonth).toBeDefined()
-    expect(store.selectedYear).toBeDefined()
-
-    expect(typeof store.addExpenses).toBe('function')
-    expect(typeof store.addIncomes).toBe('function')
-    expect(typeof store.addCategory).toBe('function')
-    expect(typeof store.addSubCategory).toBe('function')
-    expect(typeof store.addNewExpense).toBe('function')
-    expect(typeof store.addNewIncome).toBe('function')
-  })
-
-  it('should update duplicate refs reactively when draft rows are edited', async () => {
-    const store = getStore()
-
-    store.newExpenses.value = [
-      {
-        date: '2026-01-10',
-        name: 'Coffee',
-        amount: 10,
-        netAmount: 10,
-        category: fakeCategory.id,
-        subCategory: '',
-      },
-      {
-        date: '2026-01-10',
-        name: ' coffee ',
-        amount: 10,
-        netAmount: 10,
-        category: fakeCategory.id,
-        subCategory: '',
-      },
-    ]
-
-    await nextTick()
-
-    expect(store.expenseDuplicates.value).toHaveLength(2)
-    expect(store.isExpenseDuplicatesPresent.value).toBe(true)
-    expect(store.isIncomeDuplicatesPresent.value).toBe(false)
-
-    store.newExpenses.value[1] = {
-      ...store.newExpenses.value[1],
+    const fakeSecondExpense = {
+      ...fakeExpense,
+      id: 'expense-2',
       name: 'Restaurant',
     }
 
-    await nextTick()
+    store.addExpenses([fakeSecondExpense])
+    expect(store.expenses.value).toHaveLength(2)
 
-    expect(store.expenseDuplicates.value).toHaveLength(0)
-    expect(store.isExpenseDuplicatesPresent.value).toBe(false)
-    expect(store.isIncomeDuplicatesPresent.value).toBe(false)
+    store.updateExpense({ ...fakeSecondExpense, name: 'Takeout' })
+    expect(store.expenses.value.find((expense) => expense.id === fakeSecondExpense.id)?.name).toBe(
+      'Takeout',
+    )
+
+    store.deleteExpense(fakeSecondExpense.id)
+    expect(
+      store.expenses.value.find((expense) => expense.id === fakeSecondExpense.id),
+    ).toBeUndefined()
+  })
+
+  it('should replace expense list through setExpenses', () => {
+    const store = getStore()
+    const fakeOnlyExpense = {
+      ...fakeExpense,
+      id: 'expense-only',
+      name: 'Only expense',
+    }
+
+    store.setExpenses([fakeOnlyExpense])
+
+    expect(store.expenses.value).toEqual([fakeOnlyExpense])
   })
 })

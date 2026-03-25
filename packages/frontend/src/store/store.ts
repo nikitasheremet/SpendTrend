@@ -1,32 +1,158 @@
 import { reactive, ref, watch } from 'vue'
+import type { NewExpense } from '@/types/expenseData'
+import type { NewIncome } from '@/types/income/income'
 import type { Store } from './storeInterface'
-import { authClient } from '@/lib/auth-client'
-import { getCategories } from '@/service/categories/getCategories'
-import { Expense, ExpenseCategory, ExpenseSubCategory, NewExpense } from '@/types/expenseData'
-import { Income, NewIncome } from '@/types/income/income'
-import { getExpenses } from '@/service/expenses/getExpenses'
-import { getAllIncomes } from '@/service/income/getAllIncomes'
+import { createStoreExpenses } from './storeExpenses'
+import { createStoreIncomes } from './storeIncomes'
+import { createStoreCategories } from './storeCategories'
+import { createStoreDrafts } from './storeDrafts'
+import { createStoreSummaryPeriod } from './storeSummaryPeriod'
+import { createStoreExpenseDuplicates } from './storeExpenseDuplicates'
+import { createStoreIncomeDuplicates } from './storeIncomeDuplicates'
+import { getAccountDetails } from './storeAccount'
+import { fetchInitialStoreData } from './storeInitialization'
+import {
+  loadExpensesFromStorage,
+  loadIncomesFromStorage,
+  saveExpensesToStorage,
+  saveIncomesToStorage,
+} from './storeDraftPersistence'
+import { areDraftRowsEqual, cloneDraftRows } from './storeDuplicateUtils'
 
-const STORAGE_KEY_EXPENSES = 'spendtrend_new_expenses'
-const STORAGE_KEY_INCOMES = 'spendtrend_new_incomes'
+interface DraftChangeAnalysis {
+  changedIndexes: number[]
+  isSingleRowAddOrUpdate: boolean
+  isSingleRowDelete: boolean
+}
+
+const ZERO_CHANGED_ROWS = 0
+const SINGLE_CHANGED_ROW = 1
+const INDEX_OFFSET = 1
+const DUPLICATE_PRESENCE_THRESHOLD = 0
 
 let store: Store
-const newExpensesRef = ref<NewExpense[]>([])
-const newIncomesRef = ref<NewIncome[]>([])
-const selectedMonthRef = ref<number>(new Date().getUTCMonth())
-const selectedYearRef = ref<number>(new Date().getUTCFullYear())
-const isSummaryPeriodManuallySelectedRef = ref<boolean>(false)
-const expenseCategories = ref<ExpenseCategory[]>([])
-const expensesRef = ref<Expense[]>([])
-const incomesRef = ref<Income[]>([])
+const expensesDomain = createStoreExpenses()
+const incomesDomain = createStoreIncomes()
+const categoriesDomain = createStoreCategories(expensesDomain.expenses)
+const draftsDomain = createStoreDrafts()
+const summaryPeriodDomain = createStoreSummaryPeriod(expensesDomain.expenses)
+const expenseDuplicatesDomain = createStoreExpenseDuplicates()
+const incomeDuplicatesDomain = createStoreIncomeDuplicates()
+const isExpenseDuplicatesPresentRef = ref(false)
+const isIncomeDuplicatesPresentRef = ref(false)
+
+const previousDraftExpensesRef = ref<NewExpense[]>([])
+const previousDraftIncomesRef = ref<NewIncome[]>([])
+
+function analyzeDraftChanges<T>(previousRows: T[], currentRows: T[]): DraftChangeAnalysis {
+  const changedIndexes: number[] = []
+  const maxRowCount = Math.max(previousRows.length, currentRows.length)
+
+  for (let index = 0; index < maxRowCount; index += INDEX_OFFSET) {
+    if (!areDraftRowsEqual(previousRows[index], currentRows[index])) {
+      changedIndexes.push(index)
+    }
+  }
+
+  const isSingleRowDelete =
+    currentRows.length < previousRows.length && changedIndexes.length === SINGLE_CHANGED_ROW
+  const isSingleRowAddOrUpdate =
+    currentRows.length >= previousRows.length && changedIndexes.length === SINGLE_CHANGED_ROW
+
+  return {
+    changedIndexes,
+    isSingleRowAddOrUpdate,
+    isSingleRowDelete,
+  }
+}
+
+function updateDuplicatesPresenceFlag() {
+  const expenseDuplicateCount = expenseDuplicatesDomain.expenseDuplicates.value.length
+  const incomeDuplicateCount = incomeDuplicatesDomain.incomeDuplicates.value.length
+
+  isExpenseDuplicatesPresentRef.value = expenseDuplicateCount > DUPLICATE_PRESENCE_THRESHOLD
+  isIncomeDuplicatesPresentRef.value = incomeDuplicateCount > DUPLICATE_PRESENCE_THRESHOLD
+}
 
 watch(
-  [() => newExpensesRef.value, () => newIncomesRef.value],
+  [() => draftsDomain.newExpenses.value, () => draftsDomain.newIncomes.value],
   () => {
-    saveExpensesToStorage()
-    saveIncomesToStorage()
+    saveExpensesToStorage(draftsDomain.newExpenses.value)
+    saveIncomesToStorage(draftsDomain.newIncomes.value)
   },
   { deep: true },
+)
+
+watch(
+  () => draftsDomain.newExpenses.value,
+  (currentDraftExpenses) => {
+    const { changedIndexes, isSingleRowAddOrUpdate, isSingleRowDelete } = analyzeDraftChanges(
+      previousDraftExpensesRef.value,
+      currentDraftExpenses,
+    )
+
+    if (changedIndexes.length === ZERO_CHANGED_ROWS) {
+      return
+    }
+
+    if (isSingleRowAddOrUpdate) {
+      expenseDuplicatesDomain.recheckDraftExpenseRow(changedIndexes[0], currentDraftExpenses)
+    } else if (isSingleRowDelete) {
+      expenseDuplicatesDomain.rebuildExpenseDuplicates(currentDraftExpenses)
+    } else {
+      expenseDuplicatesDomain.rebuildExpenseDuplicates(currentDraftExpenses)
+    }
+
+    previousDraftExpensesRef.value = cloneDraftRows(currentDraftExpenses)
+    updateDuplicatesPresenceFlag()
+  },
+  { deep: true },
+)
+
+watch(
+  () => draftsDomain.newIncomes.value,
+  (currentDraftIncomes) => {
+    const { changedIndexes, isSingleRowAddOrUpdate, isSingleRowDelete } = analyzeDraftChanges(
+      previousDraftIncomesRef.value,
+      currentDraftIncomes,
+    )
+
+    if (changedIndexes.length === ZERO_CHANGED_ROWS) {
+      return
+    }
+
+    if (isSingleRowAddOrUpdate) {
+      incomeDuplicatesDomain.recheckDraftIncomeRow(changedIndexes[0], currentDraftIncomes)
+    } else if (isSingleRowDelete) {
+      incomeDuplicatesDomain.rebuildIncomeDuplicates(currentDraftIncomes)
+    } else {
+      incomeDuplicatesDomain.rebuildIncomeDuplicates(currentDraftIncomes)
+    }
+
+    previousDraftIncomesRef.value = cloneDraftRows(currentDraftIncomes)
+    updateDuplicatesPresenceFlag()
+  },
+  { deep: true },
+)
+
+watch(
+  () => expensesDomain.expenses.value,
+  (currentExpenses) => {
+    expenseDuplicatesDomain.syncExistingExpenses(currentExpenses)
+    expenseDuplicatesDomain.rebuildExpenseDuplicates(draftsDomain.newExpenses.value)
+    previousDraftExpensesRef.value = cloneDraftRows(draftsDomain.newExpenses.value)
+    updateDuplicatesPresenceFlag()
+  },
+)
+
+watch(
+  () => incomesDomain.incomes.value,
+  (currentIncomes) => {
+    incomeDuplicatesDomain.syncExistingIncomes(currentIncomes)
+    incomeDuplicatesDomain.rebuildIncomeDuplicates(draftsDomain.newIncomes.value)
+    previousDraftIncomesRef.value = cloneDraftRows(draftsDomain.newIncomes.value)
+    updateDuplicatesPresenceFlag()
+  },
 )
 
 const storeObj = reactive<
@@ -39,192 +165,72 @@ const storeObj = reactive<
     | 'categories'
     | 'expenses'
     | 'incomes'
+    | 'expenseDuplicates'
+    | 'incomeDuplicates'
+    | 'isExpenseDuplicatesPresent'
+    | 'isIncomeDuplicatesPresent'
   >
 >({
-  markSummaryPeriodAsManuallySelected: () => {
-    isSummaryPeriodManuallySelectedRef.value = true
-  },
-  applyLatestExpenseSummaryPeriodDefault: () => {
-    if (isSummaryPeriodManuallySelectedRef.value) {
-      return
-    }
-
-    const latestExpenseSummaryPeriod = getLatestExpenseSummaryPeriod(expensesRef.value)
-
-    if (!latestExpenseSummaryPeriod) {
-      selectedMonthRef.value = new Date().getUTCMonth()
-      selectedYearRef.value = new Date().getUTCFullYear()
-      return
-    }
-
-    selectedMonthRef.value = latestExpenseSummaryPeriod.month
-    selectedYearRef.value = latestExpenseSummaryPeriod.year
-  },
-  getAccountDetails: async () => {
-    const session = await authClient.getSession()
-
-    if (!session || !session?.data?.user) {
-      throw new Error('User not authenticated')
-    }
-    return {
-      userId: session.data.user.id,
-      // @ts-expect-error -- This is defined in the custom session callback in the backend
-      accountId: session.data.user.accountId,
-    }
-  },
-  deleteCategory: (categoryId: string) => {
-    expenseCategories.value = expenseCategories.value.filter(
-      (category) => category.id !== categoryId,
-    )
-  },
-  addCategory: (newCategory: ExpenseCategory) => {
-    expenseCategories.value = [...expenseCategories.value, newCategory].sort((a, b) =>
-      a.name.localeCompare(b.name),
-    )
-  },
-  updateCategory: (updatedCategory: ExpenseCategory) => {
-    const categoryIndex = expenseCategories.value.findIndex((cat) => cat.id === updatedCategory.id)
-    if (categoryIndex === -1) return
-
-    const updatedCategories = [...expenseCategories.value]
-    updatedCategories[categoryIndex] = updatedCategory
-    expenseCategories.value = updatedCategories.sort((a, b) => a.name.localeCompare(b.name))
-
-    expensesRef.value = expensesRef.value.map((expense) => {
-      if (expense.category.id !== updatedCategory.id) {
-        return expense
-      }
-
-      const updatedSubCategory = updatedCategory.subCategories.find(
-        (subCategory) => subCategory.id === expense.subCategory?.id,
-      )
-
-      return {
-        ...expense,
-        category: updatedCategory,
-        subCategory: updatedSubCategory,
-      }
-    })
-  },
-  addSubCategory: (categoryId: string, newSubCategory: ExpenseSubCategory) => {
-    const category = expenseCategories.value.find((cat) => cat.id === categoryId)
-    if (category) {
-      category.subCategories.push(newSubCategory)
-      category.subCategories = category.subCategories.sort((a, b) => a.name.localeCompare(b.name))
-    }
-  },
-  updateSubCategory: (categoryId: string, updatedSubCategory: ExpenseSubCategory) => {
-    const category = expenseCategories.value.find((cat) => cat.id === categoryId)
-    if (!category) return
-
-    const subCategoryIndex = category.subCategories.findIndex(
-      (subCat) => subCat.id === updatedSubCategory.id,
-    )
-    if (subCategoryIndex === -1) return
-
-    const updatedSubCategories = [...category.subCategories]
-    updatedSubCategories[subCategoryIndex] = updatedSubCategory
-    category.subCategories = updatedSubCategories.sort((a, b) => a.name.localeCompare(b.name))
-
-    expensesRef.value = expensesRef.value.map((expense) => {
-      if (expense.category.id !== categoryId || expense.subCategory?.id !== updatedSubCategory.id) {
-        return expense
-      }
-
-      return {
-        ...expense,
-        subCategory: updatedSubCategory,
-      }
-    })
-  },
-  setExpenses: (newExpenses: Expense[]) => {
-    expensesRef.value = newExpenses
-  },
-  addExpenses: (newExpenses: Expense[]) => {
-    expensesRef.value = [...newExpenses, ...expensesRef.value]
-  },
-  updateExpense: (updatedExpense: Expense) => {
-    const expenseIndex = expensesRef.value.findIndex((expense) => expense.id === updatedExpense.id)
-    if (expenseIndex === -1) return
-
-    const updatedExpenses = [...expensesRef.value]
-    updatedExpenses[expenseIndex] = updatedExpense
-    expensesRef.value = updatedExpenses
-  },
-  deleteExpense: (expenseId: string) => {
-    expensesRef.value = expensesRef.value.filter((expense) => expense.id !== expenseId)
-  },
-  setIncomes: (newIncomes: Income[]) => {
-    incomesRef.value = newIncomes
-  },
-  addIncomes: (newIncomes: Income[]) => {
-    incomesRef.value = [...newIncomes, ...incomesRef.value]
-  },
-  updateIncome: (updatedIncome: Income) => {
-    const incomeIndex = incomesRef.value.findIndex((income) => income.id === updatedIncome.id)
-    if (incomeIndex === -1) return
-
-    const updatedIncomes = [...incomesRef.value]
-    updatedIncomes[incomeIndex] = updatedIncome
-    incomesRef.value = updatedIncomes
-  },
-  deleteIncome: (incomeId: string) => {
-    incomesRef.value = incomesRef.value.filter((income) => income.id !== incomeId)
-  },
-  addNewExpense: (expense: NewExpense) => {
-    if (newExpensesRef.value.length === 1) {
-      const [onlyExpenseRow] = newExpensesRef.value
-      if (!onlyExpenseRow.name && !onlyExpenseRow.netAmount) {
-        // Assume this is the first empty row and overwrite it
-        newExpensesRef.value = [expense]
-        saveExpensesToStorage()
-        return
-      }
-    }
-    newExpensesRef.value.push(expense)
-    saveExpensesToStorage()
-  },
-  addNewIncome: (income: NewIncome) => {
-    if (newIncomesRef.value.length === 1) {
-      const [onlyIncomeRow] = newIncomesRef.value
-      if (!onlyIncomeRow.name && !onlyIncomeRow.amount) {
-        // Assume this is the first empty row and overwrite it
-        newIncomesRef.value = [income]
-        saveIncomesToStorage()
-        return
-      }
-    }
-    newIncomesRef.value.push(income)
-    saveIncomesToStorage()
-  },
-  clearNewExpenses: () => {
-    newExpensesRef.value = []
-    saveExpensesToStorage()
-  },
-  clearNewIncomes: () => {
-    newIncomesRef.value = []
-    saveIncomesToStorage()
-  },
+  getAccountDetails,
+  deleteCategory: categoriesDomain.deleteCategory,
+  addCategory: categoriesDomain.addCategory,
+  updateCategory: categoriesDomain.updateCategory,
+  addSubCategory: categoriesDomain.addSubCategory,
+  updateSubCategory: categoriesDomain.updateSubCategory,
+  setExpenses: expensesDomain.setExpenses,
+  addExpenses: expensesDomain.addExpenses,
+  updateExpense: expensesDomain.updateExpense,
+  deleteExpense: expensesDomain.deleteExpense,
+  setIncomes: incomesDomain.setIncomes,
+  addIncomes: incomesDomain.addIncomes,
+  updateIncome: incomesDomain.updateIncome,
+  deleteIncome: incomesDomain.deleteIncome,
+  addNewExpense: draftsDomain.addNewExpense,
+  addNewIncome: draftsDomain.addNewIncome,
+  clearNewExpenses: draftsDomain.clearNewExpenses,
+  clearNewIncomes: draftsDomain.clearNewIncomes,
+  markSummaryPeriodAsManuallySelected: summaryPeriodDomain.markSummaryPeriodAsManuallySelected,
+  applyLatestExpenseSummaryPeriodDefault:
+    summaryPeriodDomain.applyLatestExpenseSummaryPeriodDefault,
 })
 
 export async function createStore() {
-  isSummaryPeriodManuallySelectedRef.value = false
+  summaryPeriodDomain.resetSummaryPeriodManualSelection()
 
   store = {
     ...storeObj,
-    categories: expenseCategories,
-    expenses: expensesRef,
-    incomes: incomesRef,
-    newExpenses: newExpensesRef,
-    newIncomes: newIncomesRef,
-    selectedMonth: selectedMonthRef,
-    selectedYear: selectedYearRef,
+    categories: categoriesDomain.categories,
+    expenses: expensesDomain.expenses,
+    incomes: incomesDomain.incomes,
+    newExpenses: draftsDomain.newExpenses,
+    newIncomes: draftsDomain.newIncomes,
+    expenseDuplicates: expenseDuplicatesDomain.expenseDuplicates,
+    incomeDuplicates: incomeDuplicatesDomain.incomeDuplicates,
+    isExpenseDuplicatesPresent: isExpenseDuplicatesPresentRef,
+    isIncomeDuplicatesPresent: isIncomeDuplicatesPresentRef,
+    selectedMonth: summaryPeriodDomain.selectedMonth,
+    selectedYear: summaryPeriodDomain.selectedYear,
   } as Store
   try {
-    await fetchInitialData()
+    const initialData = await fetchInitialStoreData()
+    categoriesDomain.categories.value = initialData.categories
+    expensesDomain.expenses.value = initialData.expenses
+    incomesDomain.incomes.value = initialData.incomes
+
     // Load expenses and incomes from localStorage
-    newExpensesRef.value = loadExpensesFromStorage()
-    newIncomesRef.value = loadIncomesFromStorage()
+    draftsDomain.newExpenses.value = loadExpensesFromStorage()
+    draftsDomain.newIncomes.value = loadIncomesFromStorage()
+
+    expenseDuplicatesDomain.syncExistingExpenses(expensesDomain.expenses.value)
+    incomeDuplicatesDomain.syncExistingIncomes(incomesDomain.incomes.value)
+    expenseDuplicatesDomain.rebuildExpenseDuplicates(draftsDomain.newExpenses.value)
+    incomeDuplicatesDomain.rebuildIncomeDuplicates(draftsDomain.newIncomes.value)
+
+    previousDraftExpensesRef.value = cloneDraftRows(draftsDomain.newExpenses.value)
+    previousDraftIncomesRef.value = cloneDraftRows(draftsDomain.newIncomes.value)
+    updateDuplicatesPresenceFlag()
+
+    console.log('Store created', store)
   } catch (error) {
     console.error('Error during store initialization:', error)
   }
@@ -232,116 +238,4 @@ export async function createStore() {
 
 export function getStore(): Store {
   return store
-}
-
-async function fetchCategories() {
-  const fetchedCategories = await getCategories()
-  return fetchedCategories
-}
-
-async function fetchExpenses() {
-  const fetchedExpenses = await getExpenses()
-  return fetchedExpenses
-}
-
-async function fetchIncomes() {
-  const fetchedIncomes = await getAllIncomes()
-  return fetchedIncomes
-}
-
-async function fetchInitialData() {
-  const [categories, expenses, incomes] = await Promise.all([
-    fetchCategories(),
-    fetchExpenses(),
-    fetchIncomes(),
-  ])
-
-  store.categories.value = categories
-  store.expenses.value = expenses
-  store.incomes.value = incomes
-}
-
-function saveExpensesToStorage() {
-  try {
-    localStorage.setItem(STORAGE_KEY_EXPENSES, JSON.stringify(newExpensesRef.value))
-  } catch (error) {
-    console.error('Error saving expenses to localStorage:', error)
-  }
-}
-
-function saveIncomesToStorage() {
-  try {
-    localStorage.setItem(STORAGE_KEY_INCOMES, JSON.stringify(newIncomesRef.value))
-  } catch (error) {
-    console.error('Error saving incomes to localStorage:', error)
-  }
-}
-
-function loadExpensesFromStorage(): NewExpense[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY_EXPENSES)
-    return stored ? JSON.parse(stored) : []
-  } catch (error) {
-    console.error('Error loading expenses from localStorage:', error)
-    return []
-  }
-}
-
-function loadIncomesFromStorage(): NewIncome[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY_INCOMES)
-    return stored ? JSON.parse(stored) : []
-  } catch (error) {
-    console.error('Error loading incomes from localStorage:', error)
-    return []
-  }
-}
-
-function getLatestExpenseSummaryPeriod(expenses: Expense[]): {
-  month: number
-  year: number
-} | null {
-  let latest: { month: number; year: number } | null = null
-
-  for (const expense of expenses) {
-    const parsedSummaryPeriod = parseExpenseSummaryPeriod(expense.date)
-    if (!parsedSummaryPeriod) {
-      continue
-    }
-
-    if (
-      !latest ||
-      parsedSummaryPeriod.year > latest.year ||
-      (parsedSummaryPeriod.year === latest.year && parsedSummaryPeriod.month > latest.month)
-    ) {
-      latest = parsedSummaryPeriod
-    }
-  }
-
-  return latest
-}
-
-function parseExpenseSummaryPeriod(date: string): {
-  month: number
-  year: number
-} | null {
-  const [yearPart, monthPart] = date.split('-')
-
-  const parsedYear = Number(yearPart)
-  const parsedMonth = Number(monthPart)
-  const MIN_MONTH = 1
-  const MAX_MONTH = 12
-
-  if (!Number.isInteger(parsedYear) || !Number.isInteger(parsedMonth)) {
-    return null
-  }
-
-  if (parsedMonth < MIN_MONTH || parsedMonth > MAX_MONTH) {
-    return null
-  }
-
-  return {
-    month: parsedMonth - 1,
-    year: parsedYear,
-  }
 }

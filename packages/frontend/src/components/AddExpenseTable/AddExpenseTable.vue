@@ -15,6 +15,9 @@ import { useCategoriesInExpenseData } from '@/helpers/hooks/useGetCategories'
 import { watch } from 'vue'
 
 const newExpenses = defineModel<NewExpense[]>({ required: true })
+const props = defineProps<{
+  beforeSaveExpense?: () => Promise<boolean>
+}>()
 const store = getStore()
 
 const emit = defineEmits<{
@@ -121,6 +124,15 @@ async function handleSave(items: DisplayExpense[]): Promise<{ failedItems?: Disp
   return {
     failedItems: failedExpenses.map((fe) => toDisplayExpense(fe.expenseInput)),
   }
+}
+
+async function handleSaveExpenseAction(): Promise<void> {
+  const shouldContinueSaving = (await props.beforeSaveExpense?.()) ?? true
+  if (!shouldContinueSaving) {
+    return
+  }
+
+  await saveAll()
 }
 
 // Use table operations hook
@@ -295,7 +307,7 @@ const tableActions: TableAction[] = [
   },
   {
     label: 'Save Expense',
-    handler: saveAll,
+    handler: handleSaveExpenseAction,
   },
 ]
 </script>
