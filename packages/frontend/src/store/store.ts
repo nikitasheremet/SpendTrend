@@ -33,8 +33,8 @@ const DUPLICATE_PRESENCE_THRESHOLD = 0
 let store: Store
 const expensesDomain = createStoreExpenses()
 const incomesDomain = createStoreIncomes()
-const categoriesDomain = createStoreCategories(expensesDomain.expenses)
 const draftsDomain = createStoreDrafts()
+const categoriesDomain = createStoreCategories(expensesDomain.expenses, draftsDomain.newExpenses)
 const summaryPeriodDomain = createStoreSummaryPeriod(expensesDomain.expenses)
 const expenseDuplicatesDomain = createStoreExpenseDuplicates()
 const incomeDuplicatesDomain = createStoreIncomeDuplicates()

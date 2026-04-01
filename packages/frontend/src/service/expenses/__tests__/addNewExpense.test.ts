@@ -40,6 +40,46 @@ describe('addNewExpense', () => {
       const result = await addNewExpense([fakeNewExpense])
 
       expect(result).toEqual({ createdExpenses: [fakeExpense], failedExpenses: [] })
+      expect(mockCreateExpense).toHaveBeenCalledWith({
+        userId: fakeAccountDetails.userId,
+        accountId: fakeAccountDetails.accountId,
+        expensesToCreate: [
+          {
+            name: fakeNewExpense.name,
+            amount: fakeNewExpense.amount,
+            netAmount: fakeNewExpense.netAmount,
+            date: fakeNewExpense.date,
+            paidBackAmount: 0,
+            categoryId: fakeNewExpense.category,
+            subCategoryId: fakeNewExpense.subCategory,
+          },
+        ],
+      })
+    })
+
+    it('should omit categoryId when category is empty', async () => {
+      const fakeAccountDetails = { userId: 'user-123', accountId: 'account-123' }
+      mockGetStore.mockReturnValue({
+        getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
+      } as unknown as Store)
+      mockCreateExpense.mockResolvedValue({ createdExpenses: [fakeExpense], failedExpenses: [] })
+
+      await addNewExpense([
+        {
+          ...fakeNewExpense,
+          category: '',
+        },
+      ])
+
+      expect(mockCreateExpense).toHaveBeenCalledWith({
+        userId: fakeAccountDetails.userId,
+        accountId: fakeAccountDetails.accountId,
+        expensesToCreate: [
+          expect.objectContaining({
+            categoryId: undefined,
+          }),
+        ],
+      })
     })
   })
 

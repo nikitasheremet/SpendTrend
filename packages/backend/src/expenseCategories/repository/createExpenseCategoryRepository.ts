@@ -1,6 +1,6 @@
 import { db } from '../../db'
 import { expenseCategoriesTable } from '../../db/schema'
-import { DB_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
+import { DB_ERROR, NOT_FOUND_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 import { ExpenseCategory } from '../../models/expenseCategory/expenseCategory'
 import { dbExpenseCategoryToDomain } from '../../utilities/mappers/expenseCategory/dBExpenseCategoryToDomain'
 
@@ -25,7 +25,13 @@ export async function createExpenseCategoryRepository(
       subCategories: [],
     }
 
-    return dbExpenseCategoryToDomain(categoryWithSubCategories)
+    const mappedCategory = dbExpenseCategoryToDomain(categoryWithSubCategories)
+    if (!mappedCategory) {
+      throw new RepositoryError(
+        `${NOT_FOUND_ERROR} - No expense category found with id: ${createdExpenseCategory.id}`,
+      )
+    }
+    return mappedCategory
   } catch (error) {
     throw new RepositoryError(`${DB_ERROR}: ${(error as Error).message}`)
   }

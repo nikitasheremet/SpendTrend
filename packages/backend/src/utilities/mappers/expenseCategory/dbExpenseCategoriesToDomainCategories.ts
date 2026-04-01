@@ -6,6 +6,6 @@ import {
 
 export function dbExpenseCategoriesToDomainCategories(
   dbExpenseCategories: DbExpenseCategoryWithSubCategories[],
-): ExpenseCategory[] {
+): (ExpenseCategory | undefined)[] {
   return dbExpenseCategories.map(dbExpenseCategoryToDomain)
 }

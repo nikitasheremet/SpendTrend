@@ -22,7 +22,7 @@ export const createExpensesInputSchema = z.strictObject({
       amount: amountSchema,
       netAmount: netAmountSchema,
       date: dateSchema,
-      categoryId: categoryIdSchema,
+      categoryId: categoryIdSchema.optional(),
       subCategoryId: subCategoryIdSchema.optional(),
       paidBackAmount: paidBackAmountSchema,
     }),
@@ -49,7 +49,7 @@ export const updateExpenseInputSchema = z
     amount: amountSchema.optional(),
     netAmount: netAmountSchema.optional(),
     date: dateSchema.optional(),
-    categoryId: categoryIdSchema.optional(),
+    categoryId: categoryIdSchema.nullish(),
     subCategoryId: subCategoryIdSchema.nullish(),
     paidBackAmount: paidBackAmountSchema.optional(),
   })

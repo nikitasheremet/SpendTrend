@@ -4,6 +4,8 @@ import { expenseCategoriesTable, expensesTable } from '../../db/schema'
 import { DB_ERROR, NOT_FOUND_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 import { Expense } from '../../models/expense/expense'
 import { dbExpenseToDomainExpense } from '../../utilities/mappers/expense/DBExpenseToDomainExpense'
+import { DbExpenseCategoryWithSubCategories } from '../../utilities/mappers/expenseCategory/dBExpenseCategoryToDomain'
+import { ExpenseSubCategoryDbRow } from '../../models/expenseSubCategory/expenseSubCategory'
 
 export interface DeleteExpense {
   id: string
@@ -23,19 +25,24 @@ export async function deleteExpenseRepository(input: DeleteExpense): Promise<Exp
       )
     }
 
-    // Get the category and subcategory for the expense
-    const expenseCategory = await db.query.expenseCategoriesTable.findFirst({
-      where: eq(expenseCategoriesTable.id, deletedExpense.categoryId),
-      with: { subCategories: true },
-    })
-    if (!expenseCategory)
-      throw new RepositoryError(
-        `${DB_ERROR}: Expense category not found before expense deletion. Expected Expense Category: ${deletedExpense.categoryId}. ExpenseId: ${deletedExpense.id}`,
-      )
+    let expenseCategory: DbExpenseCategoryWithSubCategories | undefined
+    let expenseSubCategory: ExpenseSubCategoryDbRow | undefined
 
-    const expenseSubCategory = expenseCategory.subCategories.find(
-      (sub) => sub.id === deletedExpense.subCategoryId,
-    )
+    if (deletedExpense.categoryId) {
+      // Get the category and subcategory for the expense
+      expenseCategory = await db.query.expenseCategoriesTable.findFirst({
+        where: eq(expenseCategoriesTable.id, deletedExpense.categoryId),
+        with: { subCategories: true },
+      })
+      if (!expenseCategory)
+        throw new RepositoryError(
+          `${DB_ERROR}: Expense category not found before expense deletion. Expected Expense Category: ${deletedExpense.categoryId}. ExpenseId: ${deletedExpense.id}`,
+        )
+
+      expenseSubCategory = expenseCategory.subCategories.find(
+        (sub) => sub.id === deletedExpense.subCategoryId,
+      )
+    }
 
     // Return the deleted expense id
     return dbExpenseToDomainExpense({

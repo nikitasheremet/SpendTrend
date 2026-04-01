@@ -1,6 +1,6 @@
 import { db } from '../../db'
 import { expenseCategoriesTable, expenseSubCategoriesTable } from '../../db/schema'
-import { DB_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
+import { DB_ERROR, NOT_FOUND_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 import { ExpenseCategory } from '../../models/expenseCategory/expenseCategory'
 import { eq, asc } from 'drizzle-orm'
 import { dbExpenseCategoriesToDomainCategories } from '../../utilities/mappers/expenseCategory/dbExpenseCategoriesToDomainCategories'
@@ -23,7 +23,11 @@ export async function getExpenseCategoriesRepository(
       },
       orderBy: asc(expenseCategoriesTable.name),
     })
-    return dbExpenseCategoriesToDomainCategories(rows)
+    const mappedCategories = dbExpenseCategoriesToDomainCategories(rows)
+    if (mappedCategories.includes(undefined)) {
+      throw new RepositoryError(`${NOT_FOUND_ERROR} - Some expense categories could not be mapped`)
+    }
+    return mappedCategories as ExpenseCategory[]
   } catch (error) {
     throw new RepositoryError(`${DB_ERROR}: ${(error as Error).message}`)
   }

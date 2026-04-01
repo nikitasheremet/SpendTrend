@@ -5,7 +5,7 @@ import { createExpenseResponseToDomainExpense } from '../mappers/expense/createE
 import { apiFailedExpensesToDomain } from '../mappers/expense/failedExpenseApiToDomain'
 
 type CreateExpensesArray = Array<
-  Omit<NewExpense, 'category' | 'subCategory'> & { categoryId: string; subCategoryId?: string }
+  Omit<NewExpense, 'category' | 'subCategory'> & { categoryId?: string; subCategoryId?: string }
 >
 
 export interface CreateExpenseRequest {

@@ -152,4 +152,54 @@ describe('when categories and subCategories are changed', () => {
       false,
     )
   })
+
+  it('should clear existing expense category and subCategory when category is deleted', () => {
+    const store = getStore()
+
+    const fakeSubCategory: ExpenseSubCategory = {
+      id: 'sub-category-1',
+      userId: 'user-1',
+      accountId: 'account-1',
+      name: 'Groceries',
+      categoryId: fakeCategory.id,
+      createdAt: new Date('2026-01-01'),
+      updatedAt: new Date('2026-01-01'),
+    }
+
+    store.setExpenses([
+      {
+        ...fakeExpense,
+        category: {
+          ...fakeCategory,
+          subCategories: [fakeSubCategory],
+        },
+        subCategory: fakeSubCategory,
+      },
+    ])
+
+    store.deleteCategory(fakeCategory.id)
+
+    expect(store.expenses.value[0].category).toBeUndefined()
+    expect(store.expenses.value[0].subCategory).toBeUndefined()
+  })
+
+  it('should clear draft expense category and subCategory when category is deleted', () => {
+    const store = getStore()
+
+    store.newExpenses.value = [
+      {
+        date: '2026-01-10',
+        name: 'Draft Groceries',
+        amount: 25,
+        netAmount: 25,
+        category: fakeCategory.id,
+        subCategory: 'sub-category-1',
+      },
+    ]
+
+    store.deleteCategory(fakeCategory.id)
+
+    expect(store.newExpenses.value[0].category).toBe('')
+    expect(store.newExpenses.value[0].subCategory).toBe('')
+  })
 })

@@ -31,6 +31,28 @@ describe('updateExpense', () => {
       const result = await updateExpense(fakeExpense)
 
       expect(result).toEqual(fakeUpdatedExpense)
+      expect(mockGatewayUpdateExpense).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: fakeExpense.id,
+          categoryId: fakeExpense.category?.id,
+          subCategoryId: fakeExpense.subCategory?.id,
+        }),
+      )
+    })
+
+    it('should send categoryId as null when expense category is missing', async () => {
+      mockGatewayUpdateExpense.mockResolvedValue(fakeUpdatedExpense)
+
+      await updateExpense({
+        ...fakeExpense,
+        category: undefined,
+      })
+
+      expect(mockGatewayUpdateExpense).toHaveBeenCalledWith(
+        expect.objectContaining({
+          categoryId: null,
+        }),
+      )
     })
   })
 

@@ -1,4 +1,7 @@
-import { deleteExpenseCategoryRepository } from '../../repository/deleteExpenseCategoryRepository'
+import {
+  deleteExpenseCategoryRepository,
+  deleteExpenseCategoryReferencesInExpenses,
+} from '../../repository/deleteExpenseCategoryRepository'
 import { RepositoryError, NOT_FOUND_ERROR, DB_ERROR } from '../../../models/errors/repositoryErrors'
 import { db } from '../../../db'
 
@@ -44,6 +47,24 @@ describe('deleteExpenseCategoryRepository', () => {
           findFirst: mockFindFirst,
         },
       } as unknown as typeof mockDb.query
+
+      const mockSelectWhere = vi.fn().mockResolvedValue([{ id: fakeSubCategoryId }])
+      const mockSelectFrom = vi.fn().mockReturnValue({
+        where: mockSelectWhere,
+      })
+      const mockSelect = vi.fn().mockReturnValue({
+        from: mockSelectFrom,
+      })
+      mockDb.select = mockSelect
+
+      const mockUpdateWhere = vi.fn().mockResolvedValue({ rowCount: 2 })
+      const mockUpdateSet = vi.fn().mockReturnValue({
+        where: mockUpdateWhere,
+      })
+      const mockUpdate = vi.fn().mockReturnValue({
+        set: mockUpdateSet,
+      })
+      mockDb.update = mockUpdate
 
       // Mock the delete to succeed
       const mockDelete = vi.fn().mockReturnValue({
@@ -109,6 +130,24 @@ describe('deleteExpenseCategoryRepository', () => {
         },
       } as unknown as typeof mockDb.query
 
+      const mockSelectWhere = vi.fn().mockResolvedValue([{ id: fakeSubCategoryId }])
+      const mockSelectFrom = vi.fn().mockReturnValue({
+        where: mockSelectWhere,
+      })
+      const mockSelect = vi.fn().mockReturnValue({
+        from: mockSelectFrom,
+      })
+      mockDb.select = mockSelect
+
+      const mockUpdateWhere = vi.fn().mockResolvedValue({ rowCount: 1 })
+      const mockUpdateSet = vi.fn().mockReturnValue({
+        where: mockUpdateWhere,
+      })
+      const mockUpdate = vi.fn().mockReturnValue({
+        set: mockUpdateSet,
+      })
+      mockDb.update = mockUpdate
+
       // Mock the delete to fail
       const mockDelete = vi.fn().mockReturnValue({
         where: vi.fn().mockRejectedValue(fakeError),
@@ -117,6 +156,55 @@ describe('deleteExpenseCategoryRepository', () => {
 
       await expect(deleteExpenseCategoryRepository(fakeId)).rejects.toThrow(RepositoryError)
       await expect(deleteExpenseCategoryRepository(fakeId)).rejects.toThrow(DB_ERROR)
+    })
+  })
+})
+
+describe('deleteExpenseCategoryReferencesInExpenses', () => {
+  const mockDb = db as Mocked<typeof db>
+  const fakeCategoryId = '00000000-0000-4000-8000-000000000010'
+  const fakeSubCategoryId = '00000000-0000-4000-8000-000000000011'
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
+
+  describe('when expenses are updated successfully', () => {
+    it('should return affected row count', async () => {
+      const mockSelectWhere = vi.fn().mockResolvedValue([{ id: fakeSubCategoryId }])
+      const mockSelectFrom = vi.fn().mockReturnValue({ where: mockSelectWhere })
+      const mockSelect = vi.fn().mockReturnValue({ from: mockSelectFrom })
+      mockDb.select = mockSelect
+
+      const mockUpdateWhere = vi.fn().mockResolvedValue({ rowCount: 3 })
+      const mockUpdateSet = vi.fn().mockReturnValue({ where: mockUpdateWhere })
+      const mockUpdate = vi.fn().mockReturnValue({ set: mockUpdateSet })
+      mockDb.update = mockUpdate
+
+      const result = await deleteExpenseCategoryReferencesInExpenses(fakeCategoryId)
+
+      expect(result).toBe(3)
+    })
+  })
+
+  describe('when expense update fails', () => {
+    it('should throw RepositoryError with database error message', async () => {
+      const fakeError = new Error('Update failed')
+
+      const mockSelectWhere = vi.fn().mockResolvedValue([{ id: fakeSubCategoryId }])
+      const mockSelectFrom = vi.fn().mockReturnValue({ where: mockSelectWhere })
+      const mockSelect = vi.fn().mockReturnValue({ from: mockSelectFrom })
+      mockDb.select = mockSelect
+
+      const mockUpdateWhere = vi.fn().mockRejectedValue(fakeError)
+      const mockUpdateSet = vi.fn().mockReturnValue({ where: mockUpdateWhere })
+      const mockUpdate = vi.fn().mockReturnValue({ set: mockUpdateSet })
+      mockDb.update = mockUpdate
+
+      const promiseResult = deleteExpenseCategoryReferencesInExpenses(fakeCategoryId)
+
+      await expect(promiseResult).rejects.toThrow(RepositoryError)
+      await expect(promiseResult).rejects.toThrow(DB_ERROR)
     })
   })
 })

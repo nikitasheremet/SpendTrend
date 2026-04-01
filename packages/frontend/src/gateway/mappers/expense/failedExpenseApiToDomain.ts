@@ -11,7 +11,7 @@ function apiNewExpenseToDomain(input: ApiNewExpense): DomainNewExpense {
     netAmount: input.netAmount,
     amount: input.amount,
     paidBackAmount: input.paidBackAmount ?? undefined,
-    category: input.categoryId,
+    category: input.categoryId ?? '',
     subCategory: input.subCategoryId ?? '',
   }
 }

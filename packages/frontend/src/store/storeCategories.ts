@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import type { Expense, ExpenseCategory, ExpenseSubCategory } from '@/types/expenseData'
+import type { Expense, ExpenseCategory, ExpenseSubCategory, NewExpense } from '@/types/expenseData'
 
 export interface StoreCategoriesDomain {
   categories: Ref<ExpenseCategory[]>
@@ -10,11 +10,44 @@ export interface StoreCategoriesDomain {
   updateSubCategory: (categoryId: string, updatedSubCategory: ExpenseSubCategory) => void
 }
 
-export function createStoreCategories(expensesRef: Ref<Expense[]>): StoreCategoriesDomain {
+export function createStoreCategories(
+  expensesRef: Ref<Expense[]>,
+  newExpensesRef: Ref<NewExpense[]>,
+): StoreCategoriesDomain {
   const categoriesRef = ref<ExpenseCategory[]>([])
 
   const deleteCategory = (categoryId: string) => {
+    const categoryToDelete = categoriesRef.value.find((category) => category.id === categoryId)
+    const categoryNameToDelete = categoryToDelete?.name
+
     categoriesRef.value = categoriesRef.value.filter((category) => category.id !== categoryId)
+
+    expensesRef.value = expensesRef.value.map((expense) => {
+      if (expense.category?.id !== categoryId) {
+        return expense
+      }
+
+      return {
+        ...expense,
+        category: undefined,
+        subCategory: undefined,
+      }
+    })
+
+    newExpensesRef.value = newExpensesRef.value.map((newExpense) => {
+      const hasDeletedCategoryId = newExpense.category === categoryId
+      const hasDeletedCategoryName = Boolean(categoryNameToDelete && newExpense.category === categoryNameToDelete)
+
+      if (!hasDeletedCategoryId && !hasDeletedCategoryName) {
+        return newExpense
+      }
+
+      return {
+        ...newExpense,
+        category: '',
+        subCategory: '',
+      }
+    })
   }
 
   const addCategory = (newCategory: ExpenseCategory) => {
@@ -34,7 +67,7 @@ export function createStoreCategories(expensesRef: Ref<Expense[]>): StoreCategor
     categoriesRef.value = updatedCategories.sort((a, b) => a.name.localeCompare(b.name))
 
     expensesRef.value = expensesRef.value.map((expense) => {
-      if (expense.category.id !== updatedCategory.id) {
+      if (expense.category?.id !== updatedCategory.id) {
         return expense
       }
 
@@ -76,7 +109,10 @@ export function createStoreCategories(expensesRef: Ref<Expense[]>): StoreCategor
     category.subCategories = updatedSubCategories.sort((a, b) => a.name.localeCompare(b.name))
 
     expensesRef.value = expensesRef.value.map((expense) => {
-      if (expense.category.id !== categoryId || expense.subCategory?.id !== updatedSubCategory.id) {
+      if (
+        expense.category?.id !== categoryId ||
+        expense.subCategory?.id !== updatedSubCategory.id
+      ) {
         return expense
       }
 

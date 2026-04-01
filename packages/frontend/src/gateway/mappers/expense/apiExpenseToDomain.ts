@@ -13,7 +13,7 @@ export function apiExpenseToDomain(contractExpense: ContractExpense): Expense {
     netAmount: contractExpense.netAmount,
     amount: contractExpense.amount,
     paidBackAmount: contractExpense.paidBackAmount,
-    category: mapExpenseCategory(contractExpense.category),
+    category: contractExpense.category ? mapExpenseCategory(contractExpense.category) : undefined,
     subCategory: contractExpense.subCategory
       ? mapExpenseSubCategory(contractExpense.subCategory)
       : undefined,
