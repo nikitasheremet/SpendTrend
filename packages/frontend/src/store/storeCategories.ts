@@ -36,7 +36,9 @@ export function createStoreCategories(
 
     newExpensesRef.value = newExpensesRef.value.map((newExpense) => {
       const hasDeletedCategoryId = newExpense.category === categoryId
-      const hasDeletedCategoryName = Boolean(categoryNameToDelete && newExpense.category === categoryNameToDelete)
+      const hasDeletedCategoryName = Boolean(
+        categoryNameToDelete && newExpense.category === categoryNameToDelete,
+      )
 
       if (!hasDeletedCategoryId && !hasDeletedCategoryName) {
         return newExpense
