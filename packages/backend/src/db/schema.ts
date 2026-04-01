@@ -60,9 +60,7 @@ export const expensesTable = pgTable('expenses', {
   amount: integer().notNull(),
   date: date().notNull(),
   paidBackAmount: integer().notNull(),
-  categoryId: uuid()
-    .notNull()
-    .references(() => expenseCategoriesTable.id),
+  categoryId: uuid().references(() => expenseCategoriesTable.id),
   subCategoryId: uuid().references(() => expenseSubCategoriesTable.id),
   netAmount: integer().notNull(),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),

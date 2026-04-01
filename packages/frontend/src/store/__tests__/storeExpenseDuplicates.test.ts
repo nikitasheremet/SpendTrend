@@ -147,4 +147,54 @@ describe('when expense duplicates are tracked', () => {
 
     expect(storeExpenseDuplicates.expenseDuplicates.value).toHaveLength(0)
   })
+
+  it('should detect duplicates for uncategorized draft expenses', () => {
+    const storeExpenseDuplicates = createStoreExpenseDuplicates()
+    const fakeDraftExpenses: NewExpense[] = [
+      {
+        date: '2026-01-10',
+        name: 'Groceries',
+        amount: 50,
+        netAmount: 50,
+        category: '',
+        subCategory: '',
+      },
+      {
+        date: '2026-01-10',
+        name: 'groceries',
+        amount: 50,
+        netAmount: 50,
+        category: undefined,
+        subCategory: '',
+      },
+    ]
+
+    storeExpenseDuplicates.rebuildExpenseDuplicates(fakeDraftExpenses)
+
+    expect(storeExpenseDuplicates.expenseDuplicates.value).toHaveLength(2)
+  })
+
+  it('should match uncategorized draft expenses against uncategorized existing expenses', () => {
+    const storeExpenseDuplicates = createStoreExpenseDuplicates()
+    const fakeUncategorizedExistingExpense: Expense = {
+      ...fakeExistingExpense,
+      id: 'expense-existing-uncategorized-1',
+      category: undefined,
+    }
+
+    storeExpenseDuplicates.syncExistingExpenses([fakeUncategorizedExistingExpense])
+    storeExpenseDuplicates.rebuildExpenseDuplicates([
+      {
+        date: '2026-01-10',
+        name: 'Groceries',
+        amount: 50,
+        netAmount: 50,
+        category: '',
+        subCategory: '',
+      },
+    ])
+
+    expect(storeExpenseDuplicates.expenseDuplicates.value).toHaveLength(1)
+    expect(storeExpenseDuplicates.expenseDuplicates.value[0].isPresentInExisting).toBe(true)
+  })
 })

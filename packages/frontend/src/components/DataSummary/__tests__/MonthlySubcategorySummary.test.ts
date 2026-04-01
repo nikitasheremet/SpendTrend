@@ -94,6 +94,7 @@ describe('when rendering monthly subCategory summary occurs', () => {
 
     const uncategorizedRow = wrapper.find('[data-testid="uncategorized-group-row"]')
     await uncategorizedRow.find('td').trigger('click')
+    await wrapper.vm.$nextTick()
 
     const visibleDetailRowsAfter = wrapper
       .findAll('[data-testid="expense-detail-row"]')
@@ -102,5 +103,23 @@ describe('when rendering monthly subCategory summary occurs', () => {
     expect(visibleDetailRowsAfter).toHaveLength(1)
     expect(visibleDetailRowsAfter[0].text()).toContain('(2026-03-09) One-off admin fee')
     expect(visibleDetailRowsAfter[0].text()).toContain('80')
+  })
+
+  it('should render uncategorized expenses directly when subgroup row is disabled', () => {
+    const wrapper = mount(MonthlySubcategorySummary, {
+      props: {
+        summaryForSelectedMonthBySubcategory: [],
+        uncategorizedExpenses: fakeUncategorizedExpenses,
+        showUncategorizedGroupRow: false,
+      },
+    })
+
+    const uncategorizedRow = wrapper.find('[data-testid="uncategorized-group-row"]')
+    const directExpenseRows = wrapper.findAll('[data-testid="expense-detail-row"]')
+
+    expect(uncategorizedRow.exists()).toBe(false)
+    expect(directExpenseRows).toHaveLength(1)
+    expect(directExpenseRows[0].text()).toContain('(2026-03-09) One-off admin fee')
+    expect(directExpenseRows[0].text()).toContain('80')
   })
 })

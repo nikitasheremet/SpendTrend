@@ -10,8 +10,11 @@ export interface DbExpenseCategoryWithSubCategories extends ExpenseCategoryDbRow
 }
 
 export function dbExpenseCategoryToDomain(
-  dbExpenseCategory: DbExpenseCategoryWithSubCategories,
-): ExpenseCategory {
+  dbExpenseCategory?: DbExpenseCategoryWithSubCategories | null,
+): ExpenseCategory | undefined {
+  if (!dbExpenseCategory) {
+    return undefined
+  }
   const { id, userId, accountId, name, subCategories, createdAt, updatedAt } = dbExpenseCategory
   return {
     id,

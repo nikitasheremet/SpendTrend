@@ -13,9 +13,14 @@ const OPENING_PARENTHESES = '('
 const CLOSING_PARENTHESES_WITH_SPACE = ') '
 const ROUNDING_FACTOR = 100
 
-const { summaryForSelectedMonthBySubcategory, uncategorizedExpenses } = defineProps<{
+const {
+  summaryForSelectedMonthBySubcategory,
+  uncategorizedExpenses,
+  showUncategorizedGroupRow = true,
+} = defineProps<{
   summaryForSelectedMonthBySubcategory: ExpenseSubCategorySummary[]
   uncategorizedExpenses: ExpenseSummaryListItem[]
+  showUncategorizedGroupRow?: boolean
 }>()
 
 const expandedRows = ref<string[]>([])
@@ -100,7 +105,7 @@ function getUncategorizedTotal() {
     </tr>
   </template>
 
-  <template v-if="uncategorizedExpenses.length > 0">
+  <template v-if="showUncategorizedGroupRow && uncategorizedExpenses.length > 0">
     <tr
       data-testid="uncategorized-group-row"
       class="border border-gray-400 text-sm hover:bg-gray-100"
@@ -120,6 +125,27 @@ function getUncategorizedTotal() {
       <td class="p-2 text-center">{{ EMPTY_COLUMN_VALUE }}</td>
       <td class="p-2 text-center">{{ EMPTY_COLUMN_VALUE }}</td>
     </tr>
+  </template>
+
+  <template v-if="!showUncategorizedGroupRow && uncategorizedExpenses.length > 0">
+    <tr
+      v-for="expense in uncategorizedExpenses"
+      :key="expense.id"
+      data-testid="expense-detail-row"
+      class="border border-gray-200 text-sm"
+    >
+      <td class="expense-name p-2" :style="{ paddingLeft: `${EXPENSE_INDENT_PX}px` }">
+        {{ OPENING_PARENTHESES }}{{ formatExpenseDate(expense.date)
+        }}{{ CLOSING_PARENTHESES_WITH_SPACE }}{{ expense.name }}
+      </td>
+      <td class="p-2 text-center">{{ expense.netAmount }}</td>
+      <td class="p-2 text-center">{{ EMPTY_COLUMN_VALUE }}</td>
+      <td class="p-2 text-center">{{ EMPTY_COLUMN_VALUE }}</td>
+      <td class="p-2 text-center">{{ EMPTY_COLUMN_VALUE }}</td>
+    </tr>
+  </template>
+
+  <template v-if="showUncategorizedGroupRow && uncategorizedExpenses.length > 0">
     <tr
       v-for="expense in uncategorizedExpenses"
       v-show="isExpanded(UNCATEGORIZED_GROUP_KEY)"

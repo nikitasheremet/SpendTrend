@@ -7,7 +7,7 @@ import {
 import { dbExpenseSubCategoryToDomain } from '../expenseSubCategory/dbExpenseSubCategoryToDomain'
 
 export interface DbExpenseWithExpenseCategory extends Omit<ExpensesDbRow, 'categoryId'> {
-  category: DbExpenseCategoryWithSubCategories
+  category?: DbExpenseCategoryWithSubCategories | null
   subCategory?: ExpenseSubCategoryDbRow | null
 }
 

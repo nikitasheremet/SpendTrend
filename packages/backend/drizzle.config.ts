@@ -14,6 +14,6 @@ export default defineConfig({
 })
 
 function getEnvConfig() {
-  const envFile = `.env.${process.env.NODE_ENV}`
+  const envFile = `.env.${process.env.NODE_ENV || 'local'}`
   dotenv.config({ path: path.resolve(__dirname, `./env/${envFile}`) })
 }

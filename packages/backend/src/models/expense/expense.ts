@@ -10,7 +10,7 @@ export interface Expense {
   amount: number
   netAmount: number
   date: string // YYYY-MM-DD
-  category: ExpenseCategory
+  category?: ExpenseCategory
   subCategory?: ExpenseSubCategory
   paidBackAmount: number
   createdAt: Date

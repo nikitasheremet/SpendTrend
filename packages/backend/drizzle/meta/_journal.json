@@ -8,6 +8,13 @@
       "when": 1759590485245,
       "tag": "0000_talented_jane_foster",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774909997213,
+      "tag": "0001_flowery_rick_jones",
+      "breakpoints": true
     }
   ]
 }

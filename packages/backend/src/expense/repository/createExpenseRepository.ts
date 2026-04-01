@@ -4,6 +4,8 @@ import { expenseCategoriesTable, expensesTable } from '../../db/schema'
 import { DB_ERROR, RepositoryError } from '../../models/errors/repositoryErrors'
 import { Expense } from '../../models/expense/expense'
 import { dbExpenseToDomainExpense } from '../../utilities/mappers/expense/DBExpenseToDomainExpense'
+import { DbExpenseCategoryWithSubCategories } from '../../utilities/mappers/expenseCategory/dBExpenseCategoryToDomain'
+import { ExpenseSubCategoryDbRow } from '../../models/expenseSubCategory/expenseSubCategory'
 
 export interface CreateExpense {
   userId: string
@@ -12,7 +14,7 @@ export interface CreateExpense {
   amount: number
   netAmount: number
   date: string
-  categoryId: string
+  categoryId?: string
   subCategoryId?: string
   paidBackAmount: number
 }
@@ -34,18 +36,23 @@ export async function createExpenseRepository(input: CreateExpense): Promise<Exp
       })
       .returning()
 
-    const expenseCategory = await db.query.expenseCategoriesTable.findFirst({
-      where: eq(expenseCategoriesTable.id, createdExpense.categoryId),
-      with: { subCategories: true },
-    })
-    if (!expenseCategory)
-      throw new RepositoryError(
-        `${DB_ERROR}: Expense category not found after expense creation. Possible race condition. Expected Expense Category: ${createdExpense.categoryId}. ExpenseId: ${createdExpense.id}`,
-      )
+    let expenseCategory: DbExpenseCategoryWithSubCategories | undefined
+    let expenseSubCategory: ExpenseSubCategoryDbRow | undefined
 
-    const expenseSubCategory = expenseCategory.subCategories.find(
-      (sub) => sub.id === createdExpense.subCategoryId,
-    )
+    if (createdExpense.categoryId) {
+      expenseCategory = await db.query.expenseCategoriesTable.findFirst({
+        where: eq(expenseCategoriesTable.id, createdExpense.categoryId),
+        with: { subCategories: true },
+      })
+      if (!expenseCategory)
+        throw new RepositoryError(
+          `${DB_ERROR}: Expense category not found after expense creation. Possible race condition. Expected Expense Category: ${createdExpense.categoryId}. ExpenseId: ${createdExpense.id}`,
+        )
+
+      expenseSubCategory = expenseCategory.subCategories.find(
+        (sub) => sub.id === createdExpense.subCategoryId,
+      )
+    }
 
     return dbExpenseToDomainExpense({
       ...createdExpense,

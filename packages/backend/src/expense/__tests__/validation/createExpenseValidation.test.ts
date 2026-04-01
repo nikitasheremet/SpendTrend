@@ -8,7 +8,6 @@ import {
   VALIDATION_ERROR_DATE_TYPE,
   VALIDATION_ERROR_DATE_EMPTY,
   VALIDATION_ERROR_DATE_FORMAT,
-  VALIDATION_ERROR_CATEGORY_ID_MISSING,
   VALIDATION_ERROR_CATEGORY_ID_TYPE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING,
   VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE,
@@ -195,20 +194,6 @@ describe('validateCreateExpenseInput', () => {
     })
   })
   describe('when the categoryId field is invalid', () => {
-    describe('when category is missing', () => {
-      it('should throw a ValidationError with the correct message for missing categoryId', () => {
-        // Arrange
-        const input = {
-          ...validInput,
-          expensesToCreate: [{ ...validInput.expensesToCreate[0], categoryId: undefined }],
-        }
-        // Act & Assert
-        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(
-          VALIDATION_ERROR_CATEGORY_ID_MISSING,
-        )
-      })
-    })
     describe('when categoryId is not a valid uuid', () => {
       it('should throw a ValidationError with the correct message for non-uuid categoryId', () => {
         // Arrange

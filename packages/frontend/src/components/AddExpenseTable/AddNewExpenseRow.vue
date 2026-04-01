@@ -46,6 +46,8 @@ const expenseSubCategoryDropdownValue = computed({
     v-model="expenseCategoryDropdownValue"
     type="dropdown"
     :dropdown-options="categoryNames"
+    include-empty-option
+    empty-option-label="Uncategorized"
   />
   <AddExpenseCell
     v-model="expenseSubCategoryDropdownValue"

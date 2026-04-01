@@ -112,6 +112,8 @@ const dropdownValue = computed<string | undefined>({
   },
 })
 
+const shouldIncludeUncategorizedOption = computed(() => columnKey === 'category')
+
 const isEditable = computed(() => {
   if (props.mode === 'view') return false
   if (props.column.calculate) return false // Calculated fields are never editable
@@ -234,6 +236,8 @@ function handleDateChange() {
         v-else-if="column.type === 'dropdown'"
         v-model="dropdownValue"
         :dropdown-options="dropdownOptions"
+        :include-empty-option="shouldIncludeUncategorizedOption"
+        empty-option-label="Uncategorized"
         @on-change="handleDropdownChange"
         @escape-key-pressed="handleDropdownEscape"
       />

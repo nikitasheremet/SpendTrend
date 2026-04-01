@@ -2,6 +2,7 @@
 import type { ExpenseCategorySummary } from '@/types/dataSummary'
 import MonthlySubcategorySummary from './MonthlySubcategorySummary.vue'
 import { computed, ref } from 'vue'
+import { UNCATEGORIZED_CATEGORY_ID } from './helpers/useGetMonthlyExpenseSummary'
 
 const { category } = defineProps<{
   category: ExpenseCategorySummary
@@ -11,6 +12,10 @@ const isSubcategoryDetailsShown = ref(false)
 
 const hasExpandedContent = computed(() => {
   return category.subCategories.length > 0 || category.uncategorizedExpenses.length > 0
+})
+
+const shouldRenderUncategorizedExpensesDirectly = computed(() => {
+  return category.id === UNCATEGORIZED_CATEGORY_ID
 })
 
 function showSubcategories() {
@@ -44,6 +49,7 @@ function showSubcategories() {
     <MonthlySubcategorySummary
       :summary-for-selected-month-by-subcategory="category.subCategories"
       :uncategorized-expenses="category.uncategorizedExpenses"
+      :show-uncategorized-group-row="!shouldRenderUncategorizedExpensesDirectly"
     />
   </template>
 </template>
@@ -51,9 +57,6 @@ function showSubcategories() {
 <style scoped>
 .expandable {
   cursor: pointer;
-}
-td {
-  /* min-width: 150px; */
 }
 th {
   text-align: left;

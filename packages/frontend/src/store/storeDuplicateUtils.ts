@@ -32,12 +32,17 @@ function hasRequiredAmount(value: number | undefined): boolean {
   return Boolean(value)
 }
 
+function normalizeExpenseCategoryForDuplicateKey(category: string | undefined): string {
+  return normalizeText(category)
+}
+
+function normalizeExistingExpenseCategoryForDuplicateKey(expense: Expense): string {
+  return normalizeText(expense.category?.id)
+}
+
 export function isCompleteDraftExpense(expense: NewExpense): boolean {
   return Boolean(
-    normalizeDate(expense.date) &&
-    normalizeText(expense.name) &&
-    hasRequiredAmount(expense.amount) &&
-    normalizeText(expense.category),
+    normalizeDate(expense.date) && normalizeText(expense.name) && hasRequiredAmount(expense.amount),
   )
 }
 
@@ -60,7 +65,7 @@ export function buildExpenseDuplicateKeyFromDraft(expense: NewExpense): string |
     normalizeDate(expense.date),
     normalizeText(expense.name),
     normalizeAmount(expense.amount),
-    normalizeText(expense.category),
+    normalizeExpenseCategoryForDuplicateKey(expense.category),
     normalizeText(expense.subCategory),
   ])
 }
@@ -70,7 +75,7 @@ export function buildExpenseDuplicateKeyFromExisting(expense: Expense): string {
     normalizeDate(expense.date),
     normalizeText(expense.name),
     normalizeAmount(expense.amount),
-    normalizeText(expense.category.id),
+    normalizeExistingExpenseCategoryForDuplicateKey(expense),
     normalizeText(expense.subCategory?.id),
   ])
 }

@@ -118,6 +118,10 @@ describe('TableCell', () => {
       })
 
       expect(wrapper.findComponent(DropdownWithInput).exists()).toBe(true)
+      expect(wrapper.findComponent(DropdownWithInput).props('includeEmptyOption')).toBe(true)
+      expect(wrapper.findComponent(DropdownWithInput).props('emptyOptionLabel')).toBe(
+        'Uncategorized',
+      )
     })
   })
 
@@ -167,6 +171,7 @@ describe('TableCell', () => {
       expect(mockDropdownOptions).toHaveBeenCalledWith(fakeRow)
       const dropdown = wrapper.findComponent(DropdownWithInput)
       expect(dropdown.props('dropdownOptions')).toEqual(['Option for Food'])
+      expect(dropdown.props('includeEmptyOption')).toBe(false)
     })
   })
 

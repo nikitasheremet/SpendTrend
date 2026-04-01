@@ -17,6 +17,8 @@ import { getStore } from '@/store/store'
 const THREE_MONTH_AVERAGE_WINDOW = 3
 const ROUNDING_FACTOR = 100
 const MIN_POSITIVE_NET_AMOUNT = 0
+export const UNCATEGORIZED_CATEGORY_ID = '__uncategorized__'
+export const UNCATEGORIZED_CATEGORY_NAME = 'Uncategorized'
 
 const EMPTY_SUMMARY_FOR_SELECTED_MONTH: MonthDataSummary = {
   expenses: {
@@ -69,43 +71,11 @@ export function useGetMonthlyExpenseSummary(
     const categoriesSummary: ExpenseSummaryByCategory = []
 
     for (const category of allCategories) {
-      const categorySummary: ExpenseCategorySummary = {
-        id: category.id,
-        name: category.name,
-        subCategories: [],
-        uncategorizedExpenses: [],
-        total: 0,
-        threeMonthAvg: 0,
-        diffTotalToAvg: 0,
-        diffTotalToAvgAsPercent: 0,
-      }
-      const categoryExpenses = allExpenses.filter((expense) => expense.category.id === category.id)
-      categorySummary.total = getTotalExpensesForSelectedMonth(
-        categoryExpenses,
+      const categoryExpenses = allExpenses.filter((expense) => expense.category?.id === category.id)
+      const categorySummary = buildCategorySummary(category.id, category.name, categoryExpenses, {
         selectedMonth,
         selectedYear,
-      )
-      categorySummary.threeMonthAvg = getExpenseAverage(
-        categoryExpenses,
-        selectedMonth,
-        selectedYear,
-        THREE_MONTH_AVERAGE_WINDOW,
-      )
-      categorySummary.diffTotalToAvg = roundToTwoDecimals(
-        categorySummary.total - categorySummary.threeMonthAvg,
-      )
-      categorySummary.diffTotalToAvgAsPercent =
-        categorySummary.threeMonthAvg === 0
-          ? undefined
-          : Math.round(
-              (categorySummary.diffTotalToAvg / categorySummary.threeMonthAvg) * ROUNDING_FACTOR,
-            )
-
-      categorySummary.uncategorizedExpenses = buildSortedPositiveExpensesForMonth(
-        categoryExpenses.filter((expense) => !expense.subCategory),
-        selectedMonth,
-        selectedYear,
-      )
+      })
 
       categoriesSummary.push(categorySummary)
 
@@ -154,6 +124,20 @@ export function useGetMonthlyExpenseSummary(
         categorySummary.subCategories.push(subCategorySummary)
       }
     }
+
+    const uncategorizedCategoryExpenses = allExpenses.filter((expense) => !expense.category)
+    const uncategorizedCategorySummary = buildCategorySummary(
+      UNCATEGORIZED_CATEGORY_ID,
+      UNCATEGORIZED_CATEGORY_NAME,
+      uncategorizedCategoryExpenses,
+      {
+        selectedMonth,
+        selectedYear,
+      },
+    )
+
+    categoriesSummary.push(uncategorizedCategorySummary)
+
     summaryForSelectedMonthByCategory.value = categoriesSummary
   }
 
@@ -217,6 +201,47 @@ class IncomeSummary {
 
 function roundToTwoDecimals(value: number): number {
   return Math.round(value * ROUNDING_FACTOR) / ROUNDING_FACTOR
+}
+
+function buildCategorySummary(
+  id: string,
+  name: string,
+  expenses: Expense[],
+  params: {
+    selectedMonth: number
+    selectedYear: number
+  },
+): ExpenseCategorySummary {
+  const total = getTotalExpensesForSelectedMonth(
+    expenses,
+    params.selectedMonth,
+    params.selectedYear,
+  )
+  const threeMonthAvg = getExpenseAverage(
+    expenses,
+    params.selectedMonth,
+    params.selectedYear,
+    THREE_MONTH_AVERAGE_WINDOW,
+  )
+  const diffTotalToAvg = roundToTwoDecimals(total - threeMonthAvg)
+
+  return {
+    id,
+    name,
+    subCategories: [],
+    uncategorizedExpenses: buildSortedPositiveExpensesForMonth(
+      expenses.filter((expense) => !expense.subCategory),
+      params.selectedMonth,
+      params.selectedYear,
+    ),
+    total,
+    threeMonthAvg,
+    diffTotalToAvg,
+    diffTotalToAvgAsPercent:
+      threeMonthAvg === 0
+        ? undefined
+        : Math.round((diffTotalToAvg / threeMonthAvg) * ROUNDING_FACTOR),
+  }
 }
 
 function isExpenseWithinSelectedMonth(

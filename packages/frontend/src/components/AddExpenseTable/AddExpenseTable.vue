@@ -107,7 +107,7 @@ function createEmptyExpense(): DisplayExpense {
 function validateExpenses(expenses: DisplayExpense[]): number[] {
   const errorIndexes: number[] = []
   expenses.forEach((expense, index) => {
-    if (!expense.date || !expense.name || !expense.amount || !expense.category) {
+    if (!expense.date || !expense.name || !expense.amount) {
       errorIndexes.push(index)
     }
   })
@@ -267,7 +267,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     key: 'category',
     label: 'Category',
     type: 'dropdown',
-    required: true,
+    required: false,
     dropdownOptions: categoryNames.value,
   },
   {

@@ -5,9 +5,16 @@ import { computed } from 'vue'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 
 const model = defineModel<string | number | Date | undefined>()
-const { type = 'string', dropdownOptions = [] } = defineProps<{
+const {
+  type = 'string',
+  dropdownOptions = [],
+  includeEmptyOption = false,
+  emptyOptionLabel,
+} = defineProps<{
   type?: string
   dropdownOptions?: string[]
+  includeEmptyOption?: boolean
+  emptyOptionLabel?: string
 }>()
 
 const inputModel = computed({
@@ -31,6 +38,8 @@ const inputModel = computed({
       v-if="type === 'dropdown'"
       v-model="(model as string | undefined)" 
       :dropdown-options="dropdownOptions"
+      :include-empty-option="includeEmptyOption"
+      :empty-option-label="emptyOptionLabel"
     />
     <Input v-else v-model="inputModel" class="border-none" :type="type" />
   </td>

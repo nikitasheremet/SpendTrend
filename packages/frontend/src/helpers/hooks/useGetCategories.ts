@@ -10,7 +10,7 @@ export function useCategoriesInExpenseData(): {
   getCategoryId: (categoryName?: string) => string
   getSubCategoryName: (categoryId?: string, subCategoryId?: string) => string
   getSubCategoryId: (categoryId?: string, subCategoryName?: string) => string
-  getCategory: (categoryName: string) => ExpenseCategory
+  getCategory: (categoryName: string) => ExpenseCategory | undefined
 } {
   const store = getStore()
   const categories = ref(store.categories.value)
@@ -52,8 +52,8 @@ export function useCategoriesInExpenseData(): {
     return subCategories?.find((sub) => sub.name === subCategoryName)?.id || ''
   }
 
-  function getCategory(categoryName: string): ExpenseCategory {
-    return categories.value.find((category) => category.name === categoryName) as ExpenseCategory
+  function getCategory(categoryName: string): ExpenseCategory | undefined {
+    return categories.value.find((category) => category.name === categoryName)
   }
 
   return {
