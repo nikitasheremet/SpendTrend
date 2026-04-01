@@ -96,7 +96,11 @@ describe('when categories and subCategories are changed', () => {
 
     store.updateCategory(fakeUpdatedCategory)
 
-    expect(store.expenses.value[0].category.name).toBe('Food & Dining')
+    const updatedExpense = store.expenses.value[0]
+
+    expect(updatedExpense).toBeDefined()
+    expect(updatedExpense?.category).toBeDefined()
+    expect(updatedExpense?.category?.name).toBe('Food & Dining')
   })
 
   it('should update existing expense subCategory names when a subCategory is renamed', () => {

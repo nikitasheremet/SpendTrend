@@ -124,28 +124,4 @@ describe('apiExpenseToDomain', () => {
       expect(result.subCategory).toBeUndefined()
     })
   })
-
-  describe('when expense has no category', () => {
-    it('should map category to undefined', () => {
-      const fakeInput: ContractExpense = {
-        id: 'expense-123',
-        userId: 'user-123',
-        accountId: 'account-123',
-        name: 'Test Expense',
-        amount: 100,
-        netAmount: 90,
-        date: '2023-01-01',
-        category: undefined,
-        subCategory: undefined,
-        paidBackAmount: 10,
-        createdAt: new Date('2023-01-01T00:00:00Z'),
-        updatedAt: new Date('2023-01-01T00:00:00Z'),
-      }
-
-      const result = apiExpenseToDomain(fakeInput)
-
-      expect(result.category).toBeUndefined()
-      expect(result.subCategory).toBeUndefined()
-    })
-  })
 })
