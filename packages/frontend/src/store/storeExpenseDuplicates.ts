@@ -14,6 +14,29 @@ import {
 const EMPTY_INDEX_SET_SIZE = 0
 const DUPLICATE_SOURCE_NEW_LITERAL: 'new' = DUPLICATE_SOURCE_NEW as 'new'
 const DUPLICATE_SOURCE_EXISTING_LITERAL: 'existing' = DUPLICATE_SOURCE_EXISTING as 'existing'
+const EMPTY_NORMALIZED_CATEGORY = ''
+
+function normalizeCategory(value: string | undefined): string {
+  if (!value) {
+    return EMPTY_NORMALIZED_CATEGORY
+  }
+
+  return value.trim().toLowerCase()
+}
+
+function areCategoriesDuplicateCompatible(
+  leftCategory: string | undefined,
+  rightCategory: string | undefined,
+): boolean {
+  const normalizedLeftCategory = normalizeCategory(leftCategory)
+  const normalizedRightCategory = normalizeCategory(rightCategory)
+
+  if (!normalizedLeftCategory || !normalizedRightCategory) {
+    return true
+  }
+
+  return normalizedLeftCategory === normalizedRightCategory
+}
 
 export interface StoreExpenseDuplicatesDomain {
   expenseDuplicates: Ref<ExpenseDuplicateEntry[]>
@@ -121,10 +144,16 @@ export function createStoreExpenseDuplicates(): StoreExpenseDuplicatesDomain {
       return undefined
     }
 
+    const draftExpense = draftExpenses[draftIndex]
+    const draftCategoryId = draftExpense?.category
+
     const matchingDraftIndexes = draftIndexesByDuplicateKey.get(draftDuplicateKey)
     const otherNewMatches = matchingDraftIndexes
       ? [...matchingDraftIndexes]
           .filter((index) => index !== draftIndex)
+          .filter((index) =>
+            areCategoriesDuplicateCompatible(draftCategoryId, draftExpenses[index]?.category),
+          )
           .map((index) => ({
             source: DUPLICATE_SOURCE_NEW_LITERAL,
             draftIndex: index,
@@ -132,13 +161,15 @@ export function createStoreExpenseDuplicates(): StoreExpenseDuplicatesDomain {
           }))
       : []
 
-    const existingMatches = (existingExpensesByDuplicateKey.get(draftDuplicateKey) ?? []).map(
-      (expense) => ({
+    const existingMatches = (existingExpensesByDuplicateKey.get(draftDuplicateKey) ?? [])
+      .filter((expense) =>
+        areCategoriesDuplicateCompatible(draftCategoryId, expense.category?.id),
+      )
+      .map((expense) => ({
         source: DUPLICATE_SOURCE_EXISTING_LITERAL,
         id: expense.id,
         row: expense,
-      }),
-    )
+      }))
 
     const hasNewMatches = otherNewMatches.length > EMPTY_INDEX_SET_SIZE
     const hasExistingMatches = existingMatches.length > EMPTY_INDEX_SET_SIZE
@@ -151,7 +182,7 @@ export function createStoreExpenseDuplicates(): StoreExpenseDuplicatesDomain {
       type: DUPLICATE_ENTRY_TYPE_EXPENSE,
       duplicateKey: draftDuplicateKey,
       draftIndex,
-      draftRow: draftExpenses[draftIndex],
+      draftRow: draftExpense,
       matches: [...otherNewMatches, ...existingMatches],
       isPresentInNew: hasNewMatches,
       isPresentInExisting: hasExistingMatches,
