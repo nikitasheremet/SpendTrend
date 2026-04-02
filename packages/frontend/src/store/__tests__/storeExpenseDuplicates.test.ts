@@ -12,6 +12,16 @@ const fakeCategory: ExpenseCategory = {
   updatedAt: new Date('2026-01-01'),
 }
 
+const fakeOtherCategory: ExpenseCategory = {
+  id: 'category-2',
+  userId: 'user-1',
+  accountId: 'account-1',
+  name: 'Other',
+  subCategories: [],
+  createdAt: new Date('2026-01-01'),
+  updatedAt: new Date('2026-01-01'),
+}
+
 const fakeExistingExpense: Expense = {
   id: 'expense-existing-1',
   userId: 'user-1',
@@ -172,6 +182,75 @@ describe('when expense duplicates are tracked', () => {
     storeExpenseDuplicates.rebuildExpenseDuplicates(fakeDraftExpenses)
 
     expect(storeExpenseDuplicates.expenseDuplicates.value).toHaveLength(2)
+  })
+
+  it('should not detect duplicates across draft expenses with different non-empty categories', () => {
+    const storeExpenseDuplicates = createStoreExpenseDuplicates()
+
+    storeExpenseDuplicates.rebuildExpenseDuplicates([
+      {
+        date: '2026-01-10',
+        name: 'Groceries',
+        amount: 50,
+        netAmount: 50,
+        category: fakeCategory.id,
+        subCategory: '',
+      },
+      {
+        date: '2026-01-10',
+        name: ' groceries ',
+        amount: 50,
+        netAmount: 50,
+        category: fakeOtherCategory.id,
+        subCategory: '',
+      },
+    ])
+
+    expect(storeExpenseDuplicates.expenseDuplicates.value).toHaveLength(0)
+  })
+
+  it('should detect duplicates when one draft expense category is missing', () => {
+    const storeExpenseDuplicates = createStoreExpenseDuplicates()
+
+    storeExpenseDuplicates.rebuildExpenseDuplicates([
+      {
+        date: '2026-01-10',
+        name: 'Groceries',
+        amount: 50,
+        netAmount: 50,
+        category: fakeCategory.id,
+        subCategory: '',
+      },
+      {
+        date: '2026-01-10',
+        name: ' groceries ',
+        amount: 50,
+        netAmount: 50,
+        category: '',
+        subCategory: '',
+      },
+    ])
+
+    expect(storeExpenseDuplicates.expenseDuplicates.value).toHaveLength(2)
+  })
+
+  it('should match uncategorized draft expenses against categorized existing expenses', () => {
+    const storeExpenseDuplicates = createStoreExpenseDuplicates()
+
+    storeExpenseDuplicates.syncExistingExpenses([fakeExistingExpense])
+    storeExpenseDuplicates.rebuildExpenseDuplicates([
+      {
+        date: '2026-01-10',
+        name: ' Groceries ',
+        amount: 50,
+        netAmount: 50,
+        category: '',
+        subCategory: '',
+      },
+    ])
+
+    expect(storeExpenseDuplicates.expenseDuplicates.value).toHaveLength(1)
+    expect(storeExpenseDuplicates.expenseDuplicates.value[0].isPresentInExisting).toBe(true)
   })
 
   it('should match uncategorized draft expenses against uncategorized existing expenses', () => {
