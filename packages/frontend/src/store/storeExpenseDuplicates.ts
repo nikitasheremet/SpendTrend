@@ -162,9 +162,7 @@ export function createStoreExpenseDuplicates(): StoreExpenseDuplicatesDomain {
       : []
 
     const existingMatches = (existingExpensesByDuplicateKey.get(draftDuplicateKey) ?? [])
-      .filter((expense) =>
-        areCategoriesDuplicateCompatible(draftCategoryId, expense.category?.id),
-      )
+      .filter((expense) => areCategoriesDuplicateCompatible(draftCategoryId, expense.category?.id))
       .map((expense) => ({
         source: DUPLICATE_SOURCE_EXISTING_LITERAL,
         id: expense.id,
