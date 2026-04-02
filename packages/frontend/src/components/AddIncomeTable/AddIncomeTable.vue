@@ -13,23 +13,66 @@ import { addNewIncome } from '@/service/income/addNewIncome'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 
 const newIncomes = defineModel<NewIncome[]>({ required: true })
+const props = defineProps<{
+  beforeSaveIncome?: () => Promise<boolean>
+}>()
 const store = getStore()
 
 const emit = defineEmits<{
   moveToExpense: [income: NewIncome]
 }>()
 
-// Create empty income row
-function createEmptyIncome(): NewIncome {
+interface DisplayIncome extends NewIncome {
+  rowKey: string
+}
+
+const ROW_KEY_PREFIX = 'income-row'
+const ROW_KEY_INCREMENT = 1
+const ZERO_AMOUNT = 0
+const ZERO_ITEMS_COUNT = 0
+const MINIMUM_ROWS_FOR_DELETE_ACTION = 1
+let displayIncomeRowKeyCounter = ZERO_ITEMS_COUNT
+
+function createDisplayIncomeRowKey(): string {
+  displayIncomeRowKeyCounter += ROW_KEY_INCREMENT
+  return `${ROW_KEY_PREFIX}-${displayIncomeRowKeyCounter}`
+}
+
+function toDisplayIncome(income: NewIncome, rowKey?: string): DisplayIncome {
   return {
+    ...income,
+    rowKey: rowKey ?? createDisplayIncomeRowKey(),
+  }
+}
+
+function toDisplayIncomes(
+  incomes: NewIncome[],
+  existingRows: DisplayIncome[] = [],
+): DisplayIncome[] {
+  return incomes.map((income, index) => toDisplayIncome(income, existingRows[index]?.rowKey))
+}
+
+function toModelIncome(income: DisplayIncome): NewIncome {
+  const { rowKey: _rowKey, ...modelIncome } = income
+  return modelIncome
+}
+
+function toModelIncomes(incomes: DisplayIncome[]): NewIncome[] {
+  return incomes.map(toModelIncome)
+}
+
+// Create empty income row
+function createEmptyIncome(): DisplayIncome {
+  return {
+    rowKey: createDisplayIncomeRowKey(),
     date: formatDate(new Date(), DateFormat.YYYY_MM_DD),
     name: '',
-    amount: 0,
+    amount: ZERO_AMOUNT,
   }
 }
 
 // Validation function
-function validateIncomes(incomes: NewIncome[]): number[] {
+function validateIncomes(incomes: DisplayIncome[]): number[] {
   const errorIndexes: number[] = []
   incomes.forEach((income, index) => {
     if (!income.name || !income.amount || !income.date) {
@@ -40,14 +83,14 @@ function validateIncomes(incomes: NewIncome[]): number[] {
 }
 
 // Save handler
-async function handleSave(items: NewIncome[]): Promise<{ failedItems?: NewIncome[] }> {
-  const { createdIncomes, failedIncomes } = await addNewIncome(items)
-  if (createdIncomes.length > 0) {
+async function handleSave(items: DisplayIncome[]): Promise<{ failedItems?: DisplayIncome[] }> {
+  const { createdIncomes, failedIncomes } = await addNewIncome(toModelIncomes(items))
+  if (createdIncomes.length > ZERO_ITEMS_COUNT) {
     store.addIncomes(createdIncomes)
   }
 
   return {
-    failedItems: failedIncomes.map((fi) => fi.incomeInput),
+    failedItems: failedIncomes.map((fi) => toDisplayIncome(fi.incomeInput)),
   }
 }
 
@@ -62,8 +105,8 @@ const {
   isLoading,
   error,
   validationErrors,
-} = useTableOperations<NewIncome>({
-  initialData: newIncomes.value,
+} = useTableOperations<DisplayIncome>({
+  initialData: toDisplayIncomes(newIncomes.value),
   mode: 'editable',
   createEmptyRow: createEmptyIncome,
   onSave: handleSave,
@@ -74,7 +117,7 @@ const {
 watch(
   tableData,
   (newData) => {
-    newIncomes.value = newData
+    newIncomes.value = toModelIncomes(newData)
   },
   { deep: true },
 )
@@ -82,16 +125,30 @@ watch(
 watch(
   newIncomes,
   (newData) => {
-    if (tableData.value !== newData) {
-      tableData.value = newData
+    const displayIncomes = toDisplayIncomes(newData, tableData.value)
+    if (JSON.stringify(tableData.value) !== JSON.stringify(displayIncomes)) {
+      tableData.value = displayIncomes
     }
   },
   { deep: true },
 )
 
+async function handleCellUpdate(rowIndex: number, key: keyof DisplayIncome, value: unknown) {
+  await updateCell(rowIndex, key, value)
+}
+
+async function handleSaveIncomeAction(): Promise<void> {
+  const shouldContinueSaving = (await props.beforeSaveIncome?.()) ?? true
+  if (!shouldContinueSaving) {
+    return
+  }
+
+  await saveAll()
+}
+
 // Move to expense handler
-async function moveToExpense(row: NewIncome, index: number) {
-  emit('moveToExpense', row)
+async function moveToExpense(row: DisplayIncome, index: number) {
+  emit('moveToExpense', toModelIncome(row))
   await deleteRow(index)
 }
 
@@ -104,7 +161,7 @@ function handleClearAll() {
 }
 
 // Column configuration
-const columns = computed<ColumnConfig<NewIncome>[]>(() => [
+const columns = computed<ColumnConfig<DisplayIncome>[]>(() => [
   {
     key: 'date',
     label: 'Date',
@@ -126,13 +183,13 @@ const columns = computed<ColumnConfig<NewIncome>[]>(() => [
 ])
 
 // Row actions
-const rowActions = computed<RowAction<NewIncome>[]>(() => [
+const rowActions = computed<RowAction<DisplayIncome>[]>(() => [
   {
     label: 'Delete',
-    handler: async (_row: NewIncome, index: number) => {
+    handler: async (_row: DisplayIncome, index: number) => {
       await deleteRow(index)
     },
-    show: () => tableData.value.length > 1,
+    show: () => tableData.value.length > MINIMUM_ROWS_FOR_DELETE_ACTION,
   },
   {
     label: '>> Expense',
@@ -152,7 +209,7 @@ const tableActions: TableAction[] = [
   },
   {
     label: 'Save Income',
-    handler: saveAll,
+    handler: handleSaveIncomeAction,
   },
 ]
 </script>
@@ -160,6 +217,7 @@ const tableActions: TableAction[] = [
 <template>
   <GenericTable
     :data="tableData"
+    row-key="rowKey"
     :columns="columns"
     :row-actions="rowActions"
     :table-actions="tableActions"
@@ -167,7 +225,7 @@ const tableActions: TableAction[] = [
     :error="error"
     :loading="isLoading"
     mode="editable"
-    @cell:changed="updateCell"
+    @cell:changed="handleCellUpdate"
   />
 </template>
 

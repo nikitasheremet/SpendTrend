@@ -3,12 +3,7 @@ import { FormattedBankData, DataType } from './bankInfoTypes.js'
 import { cleanNumber } from './cleanNumber.js'
 
 export function extractExpensesAndIncomes(dataRow: HTMLTableRowElement) {
-  console.log('Processing Row:', dataRow.innerText)
   let cellsInRow = Array.from(dataRow.cells)
-  console.log(
-    'Cells in Row:',
-    cellsInRow.map((cell) => cell.innerText),
-  )
 
   if (isRowEmpty(cellsInRow)) return undefined
 

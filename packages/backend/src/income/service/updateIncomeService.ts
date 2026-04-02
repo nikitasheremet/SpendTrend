@@ -1,9 +1,10 @@
 import { decimalToInteger } from '../../utilities/decimalToInteger'
+import { integerToDecimal } from '../../utilities/integerToDecimal'
 import { updateIncomeRepository } from '../repository/updateIncomeRepository'
 import { UpdateIncomeInput } from '../validation/models'
 
 export async function updateIncomeService(input: UpdateIncomeInput) {
-  const { id, accountId, ...otherFields } = input
+  const { id, accountId: _accountId, ...otherFields } = input
   const fieldsToUpdate = {
     ...otherFields,
     ...(otherFields.amount && { amount: decimalToInteger(otherFields.amount) }),
@@ -14,6 +15,6 @@ export async function updateIncomeService(input: UpdateIncomeInput) {
     fieldsToUpdate,
   }
   const updatedIncome = await updateIncomeRepository(incomeDbUpdateInput)
-  updatedIncome.amount = decimalToInteger(updatedIncome.amount)
+  updatedIncome.amount = integerToDecimal(updatedIncome.amount)
   return updatedIncome
 }

@@ -2,16 +2,16 @@ import { updateExpenseService } from '../../service/updateExpenseService'
 import { updateExpenseRepository } from '../../repository/updateExpenseRepository'
 import { UpdateExpenseInput } from '../../validation/models'
 
-jest.mock('../../repository/updateExpenseRepository', () => ({
-  updateExpenseRepository: jest.fn(),
+vi.mock('../../repository/updateExpenseRepository', () => ({
+  updateExpenseRepository: vi.fn(),
 }))
 
 describe('updateExpenseService', () => {
-  const mockedUpdateExpenseRepository = updateExpenseRepository as jest.Mock
+  const mockedUpdateExpenseRepository = updateExpenseRepository as Mock
   const fakeInput = {} as UpdateExpenseInput
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when repository throws', () => {

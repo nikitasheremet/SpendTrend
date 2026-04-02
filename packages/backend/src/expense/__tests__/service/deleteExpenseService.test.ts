@@ -1,12 +1,12 @@
 import { deleteExpenseService } from '../../service/deleteExpenseService'
 import * as repository from '../../repository/deleteExpenseRepository'
 
-jest.mock('../../repository/deleteExpenseRepository', () => ({
-  deleteExpenseRepository: jest.fn(),
+vi.mock('../../repository/deleteExpenseRepository', () => ({
+  deleteExpenseRepository: vi.fn(),
 }))
 
 describe('deleteExpensesService', () => {
-  const mockDeleteExpensesRepository = repository.deleteExpenseRepository as jest.Mock
+  const mockDeleteExpensesRepository = repository.deleteExpenseRepository as Mock
   const fakeInput = { expenseId: 'expense-1' }
 
   beforeEach(() => {

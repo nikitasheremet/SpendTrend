@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { ref, nextTick } from 'vue'
-import { Teleport } from 'vue'
+import { ref } from 'vue'
 import AddSubcategoryModal from '@/components/ManageCategories/AddSubcategoryModal.vue'
 import UpdateNameModal from '@/components/ManageCategories/UpdateNameModal.vue'
 import type { ExpenseCategory } from '@/types/expenseData'
@@ -18,13 +17,7 @@ const { category } = defineProps<{
   category: ExpenseCategory
 }>()
 
-const emits = defineEmits<{
-  categoryDeleted: [ExpenseCategory]
-}>()
-function categoryDeleted() {
-  emits('categoryDeleted', category)
-}
-const { deleteCategory, error: deleteCategoryError } = useDeleteCategory(category, categoryDeleted)
+const { deleteCategory, error: deleteCategoryError } = useDeleteCategory(category)
 const {
   updateCategory,
   error: updateCategoryError,
@@ -87,9 +80,9 @@ const error = deleteCategoryError || deleteSubCategoryError || updateCategoryErr
     <div>
       <span ref="optionsRef" class="relative flex items-center">
         <p
-          @click="handleCategoryClick"
           class="inline mr-2.5"
           :class="{ 'cursor-pointer': subCategories.length }"
+          @click="handleCategoryClick"
         >
           {{ category.name }}
           <span v-if="subCategories.length" class="text-xs">{{
@@ -101,10 +94,10 @@ const error = deleteCategoryError || deleteSubCategoryError || updateCategoryErr
         >
         <Teleport to="body">
           <div
+            v-if="isOptionsOpen"
             ref="optionsDivRef"
             class="category-options fixed z-10000 bg-gray-50 flex flex-col gap-1 w-38 shadow-xs border"
             :style="{ top: optionsTop + 'px', left: optionsLeft + 'px' }"
-            v-if="isOptionsOpen"
           >
             <span
               v-for="option in categoryOptions"
@@ -121,22 +114,22 @@ const error = deleteCategoryError || deleteSubCategoryError || updateCategoryErr
     </div>
     <SubCategoryView
       v-if="showSubCategories"
-      :subCategories="subCategories"
+      :sub-categories="subCategories"
       :loading="subCategoryLoading"
       @sub-category-delete-clicked="deleteSubCategory"
       @sub-category-update="updateSubCategory"
     />
   </div>
   <AddSubcategoryModal
-    :category="category"
     v-model="isAddSubCategoryModalOpen"
+    :category="category"
     @sub-category-added="subCategoryAdded"
   />
   <UpdateNameModal
+    v-model="isUpdateCategoryModalOpen"
     title="Update the category name"
     :current-name="category.name"
     :loading="updateCategoryLoading"
-    v-model="isUpdateCategoryModalOpen"
     @update="handleUpdateCategory"
   />
   <Error v-if="error" :error="error" />

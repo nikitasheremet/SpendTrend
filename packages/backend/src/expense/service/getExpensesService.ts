@@ -1,5 +1,4 @@
 import { Expense } from '../../models/expense/expense'
-import { integerToDecimal } from '../../utilities/integerToDecimal'
 import { getExpensesRepository } from '../repository/getExpensesRepository'
 import { convertDbAmountToDecimals } from './helpers/convertDbAmountToDecimals'
 

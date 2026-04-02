@@ -8,7 +8,6 @@ import {
   VALIDATION_ERROR_DATE_TYPE,
   VALIDATION_ERROR_DATE_EMPTY,
   VALIDATION_ERROR_DATE_FORMAT,
-  VALIDATION_ERROR_CATEGORY_ID_MISSING,
   VALIDATION_ERROR_CATEGORY_ID_TYPE,
   VALIDATION_ERROR_PAIDBACKAMOUNT_MISSING,
   VALIDATION_ERROR_PAIDBACKAMOUNT_NEGATIVE,
@@ -27,29 +26,42 @@ import crypto from 'crypto'
 
 describe('validateCreateExpenseInput', () => {
   const validInput = {
-    name: 'Lunch',
-    amount: 10,
-    netAmount: 10,
-    date: '2023-01-01',
-    categoryId: crypto.randomUUID(),
-    subCategoryId: crypto.randomUUID(),
-    paidBackAmount: 0,
     userId: crypto.randomUUID(),
     accountId: crypto.randomUUID(),
+    expensesToCreate: [
+      {
+        name: 'Lunch',
+        amount: 10,
+        netAmount: 10,
+        date: '2023-01-01',
+        categoryId: crypto.randomUUID(),
+        subCategoryId: crypto.randomUUID(),
+        paidBackAmount: 0,
+      },
+    ],
   }
   describe('when the netAmount field is invalid', () => {
     it('should throw a ValidationError for missing netAmount', () => {
-      const input = { ...validInput, netAmount: undefined }
+      const input = {
+        ...validInput,
+        expensesToCreate: [{ ...validInput.expensesToCreate[0], netAmount: undefined }],
+      }
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
       expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_MISSING)
     })
     it('should throw a ValidationError for non-number netAmount', () => {
-      const input = { ...validInput, netAmount: 'not-a-number' }
+      const input = {
+        ...validInput,
+        expensesToCreate: [{ ...validInput.expensesToCreate[0], netAmount: 'not-a-number' }],
+      }
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
       expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_TYPE)
     })
     it('should throw a ValidationError for negative netAmount', () => {
-      const input = { ...validInput, netAmount: -1 }
+      const input = {
+        ...validInput,
+        expensesToCreate: [{ ...validInput.expensesToCreate[0], netAmount: -1 }],
+      }
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
       expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NETAMOUNT_NEGATIVE)
     })
@@ -82,7 +94,10 @@ describe('validateCreateExpenseInput', () => {
   describe('when name field is missing or empty', () => {
     it('should throw a validation error for improper name field', () => {
       // Arrange
-      const input = { ...validInput, name: undefined }
+      const input = {
+        ...validInput,
+        expensesToCreate: [{ ...validInput.expensesToCreate[0], name: undefined }],
+      }
       // Act & Assert
       expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
       expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_NAME_IS_REQUIRED)
@@ -93,7 +108,10 @@ describe('validateCreateExpenseInput', () => {
     describe('when amount is missing', () => {
       it('should throw a ValidationError with the correct message for missing amount', () => {
         // Arrange
-        const input = { ...validInput, amount: undefined }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], amount: undefined }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_MISSING)
@@ -102,7 +120,10 @@ describe('validateCreateExpenseInput', () => {
     describe('when amount is negative', () => {
       it('should throw a ValidationError with the correct message for negative amount', () => {
         // Arrange
-        const input = { ...validInput, amount: -5 }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], amount: -5 }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_NEGATIVE)
@@ -111,7 +132,10 @@ describe('validateCreateExpenseInput', () => {
     describe('when amount is not a number', () => {
       it('should throw a ValidationError with the correct message for non-number amount', () => {
         // Arrange
-        const input = { ...validInput, amount: 'not-a-number' }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], amount: 'not-a-number' }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_AMOUNT_TYPE)
@@ -123,7 +147,10 @@ describe('validateCreateExpenseInput', () => {
     describe('when date is missing', () => {
       it('should throw a ValidationError with the correct message for missing date', () => {
         // Arrange
-        const input = { ...validInput, date: undefined }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], date: undefined }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_MISSING)
@@ -132,7 +159,10 @@ describe('validateCreateExpenseInput', () => {
     describe('when date is not a string', () => {
       it('should throw a ValidationError with the correct message for non-string date', () => {
         // Arrange
-        const input = { ...validInput, date: 20230728 }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], date: 20230728 }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_TYPE)
@@ -141,7 +171,10 @@ describe('validateCreateExpenseInput', () => {
     describe('when date is an empty string', () => {
       it('should throw a ValidationError with the correct message for empty date', () => {
         // Arrange
-        const input = { ...validInput, date: '' }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], date: '' }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_EMPTY)
@@ -150,7 +183,10 @@ describe('validateCreateExpenseInput', () => {
     describe('when date does not match YYYY-MM-DD', () => {
       it('should throw a ValidationError with the correct message for invalid date format', () => {
         // Arrange
-        const input = { ...validInput, date: '07-28-2025' }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], date: '07-28-2025' }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_DATE_FORMAT)
@@ -158,21 +194,13 @@ describe('validateCreateExpenseInput', () => {
     })
   })
   describe('when the categoryId field is invalid', () => {
-    describe('when category is missing', () => {
-      it('should throw a ValidationError with the correct message for missing categoryId', () => {
-        // Arrange
-        const input = { ...validInput, categoryId: undefined }
-        // Act & Assert
-        expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
-        expect(() => validateCreateExpenseInput(input)).toThrow(
-          VALIDATION_ERROR_CATEGORY_ID_MISSING,
-        )
-      })
-    })
     describe('when categoryId is not a valid uuid', () => {
       it('should throw a ValidationError with the correct message for non-uuid categoryId', () => {
         // Arrange
-        const input = { ...validInput, categoryId: 123 }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], categoryId: 123 }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(VALIDATION_ERROR_CATEGORY_ID_TYPE)
@@ -184,7 +212,10 @@ describe('validateCreateExpenseInput', () => {
     describe('when subCategoryId is not a valid uuid', () => {
       it('should throw a ValidationError ', () => {
         // Arrange
-        const input = { ...validInput, subCategoryId: 123 }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], subCategoryId: 123 }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(
@@ -198,7 +229,10 @@ describe('validateCreateExpenseInput', () => {
     describe('when paidBackAmount is missing', () => {
       it('should throw a ValidationError with the correct message for missing paidBackAmount', () => {
         // Arrange
-        const input = { ...validInput, paidBackAmount: undefined }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], paidBackAmount: undefined }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(
@@ -209,7 +243,10 @@ describe('validateCreateExpenseInput', () => {
     describe('when paidBackAmount is negative', () => {
       it('should throw a ValidationError with the correct message for negative paidBackAmount', () => {
         // Arrange
-        const input = { ...validInput, paidBackAmount: -5 }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], paidBackAmount: -5 }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(
@@ -220,7 +257,10 @@ describe('validateCreateExpenseInput', () => {
     describe('when paidBackAmount is not a number', () => {
       it('should throw a ValidationError with the correct message for non-number paidBackAmount', () => {
         // Arrange
-        const input = { ...validInput, paidBackAmount: 'not-a-number' }
+        const input = {
+          ...validInput,
+          expensesToCreate: [{ ...validInput.expensesToCreate[0], paidBackAmount: 'not-a-number' }],
+        }
         // Act & Assert
         expect(() => validateCreateExpenseInput(input)).toThrow(ValidationError)
         expect(() => validateCreateExpenseInput(input)).toThrow(

@@ -1,14 +1,16 @@
-<script lang="ts" setup generic="T extends Record<string, any>">
+<script lang="ts" setup generic="T extends TableRowData">
 import { computed, ref, watch } from 'vue'
 import Input from '../Input.vue'
 import DropdownWithInput from '@/components/DropdownWithInput/DropdownWithInput.vue'
 import { useDebounce } from '@/helpers/hooks/useDebounce'
-import type { ColumnConfig } from './types'
+import type { ColumnConfig, TableRowData } from './types'
 
 const ENTER_KEY = 'Enter'
 const ESCAPE_KEY = 'Escape'
 const LONGTEXT_IMMEDIATE_SAVE_SHIFT_KEY = true
 const DEBOUNCE_DELAY_MS = 1000
+
+type TableCellModelValue = string | number | undefined
 
 const props = defineProps<{
   column: ColumnConfig<T>
@@ -18,11 +20,11 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'cell:changed': [key: keyof T, value: any]
-  'local:update': [key: keyof T, value: any]
+  'cell:changed': [key: keyof T, value: unknown]
+  'local:update': [key: keyof T, value: unknown]
 }>()
 
-const columnKey = props.column.key as keyof T
+const columnKey = props.column.key
 
 const cellValue = computed(() => {
   if (props.column.calculate) {
@@ -32,8 +34,20 @@ const cellValue = computed(() => {
   return props.row[columnKey]
 })
 
+function toTableCellModelValue(value: unknown): TableCellModelValue {
+  if (typeof value === 'string' || typeof value === 'number') {
+    return value
+  }
+
+  if (value === undefined || value === null) {
+    return undefined
+  }
+
+  return String(value)
+}
+
 // Local value for immediate updates
-const localValue = ref<any>(cellValue.value)
+const localValue = ref<TableCellModelValue>(toTableCellModelValue(cellValue.value))
 
 // Watch for local value changes and emit immediately for recalculation
 watch(localValue, (newValue, oldValue) => {
@@ -46,14 +60,16 @@ watch(localValue, (newValue, oldValue) => {
 
 // Watch for external changes to row data
 watch(cellValue, (newValue) => {
-  if (Object.is(localValue.value, newValue)) {
+  const normalizedValue = toTableCellModelValue(newValue)
+
+  if (Object.is(localValue.value, normalizedValue)) {
     return
   }
 
-  localValue.value = newValue
+  localValue.value = normalizedValue
 })
 
-function getCellValue(): any {
+function getCellValue(): unknown {
   return cellValue.value
 }
 
@@ -83,6 +99,21 @@ const dropdownOptions = computed(() => {
   return options || []
 })
 
+const dropdownValue = computed<string | undefined>({
+  get() {
+    if (typeof localValue.value === 'string' || localValue.value === undefined) {
+      return localValue.value
+    }
+
+    return String(localValue.value)
+  },
+  set(value) {
+    localValue.value = value
+  },
+})
+
+const shouldIncludeUncategorizedOption = computed(() => columnKey === 'category')
+
 const isEditable = computed(() => {
   if (props.mode === 'view') return false
   if (props.column.calculate) return false // Calculated fields are never editable
@@ -104,7 +135,7 @@ function blurEventTarget(event: KeyboardEvent) {
 
 function revertToOriginalValue(event: KeyboardEvent) {
   event.preventDefault()
-  localValue.value = getCellValue()
+  localValue.value = toTableCellModelValue(getCellValue())
   blurEventTarget(event)
 }
 
@@ -150,6 +181,11 @@ function handleDropdownChange(value: string) {
   localValue.value = value
   emitCellChanged()
 }
+
+function handleDropdownEscape() {
+  localValue.value = toTableCellModelValue(getCellValue())
+}
+
 function handleDateChange() {
   emitCellChanged()
 }
@@ -198,10 +234,12 @@ function handleDateChange() {
       <!-- Dropdown -->
       <DropdownWithInput
         v-else-if="column.type === 'dropdown'"
-        v-model="localValue"
+        v-model="dropdownValue"
         :dropdown-options="dropdownOptions"
+        :include-empty-option="shouldIncludeUncategorizedOption"
+        empty-option-label="Uncategorized"
         @on-change="handleDropdownChange"
-        @escape-key-pressed="localValue = getCellValue()"
+        @escape-key-pressed="handleDropdownEscape"
       />
     </template>
   </td>

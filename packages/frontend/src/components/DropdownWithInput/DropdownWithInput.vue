@@ -6,6 +6,8 @@ const dropdownInputModel = defineModel<string | undefined>()
 const props = defineProps<{
   dropdownOptions: string[]
   autofocus?: boolean
+  includeEmptyOption?: boolean
+  emptyOptionLabel?: string
 }>()
 const emit = defineEmits<{
   onChange: [string]
@@ -52,16 +54,18 @@ function handleBlur() {
     ref="select-ref"
     class="relative dropdown-input"
     tabindex="-1"
-    @keydown="handleKey"
     editable
+    @keydown="handleKey"
     @blur="handleBlur"
   >
     <Select
       ref="inner-select-ref"
       :autofocus="props.autofocus"
       :value="dropdownInputModel"
-      :dropdownOptions="props.dropdownOptions"
-      @onChange="handleInput"
+      :dropdown-options="props.dropdownOptions"
+      :include-empty-option="props.includeEmptyOption"
+      :empty-option-label="props.emptyOptionLabel"
+      @on-change="handleInput"
     ></Select>
   </div>
 </template>

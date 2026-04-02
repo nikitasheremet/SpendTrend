@@ -11,7 +11,7 @@ export interface UpdateExpenseRequest {
   amount?: number
   netAmount?: number
   date?: string
-  categoryId?: string
+  categoryId?: string | null
   subCategoryId?: string | null
   paidBackAmount?: number
 }

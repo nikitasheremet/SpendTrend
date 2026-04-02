@@ -8,9 +8,9 @@ const newIncomeData = defineModel<NewIncome>({
 </script>
 
 <template>
-  <AddIncomeCell type="date" v-model="newIncomeData.date" />
+  <AddIncomeCell v-model="newIncomeData.date" type="date" />
   <AddIncomeCell v-model="newIncomeData.name" />
-  <AddIncomeCell type="number" v-model="newIncomeData.amount" />
+  <AddIncomeCell v-model="newIncomeData.amount" type="number" />
 </template>
 
 <style scoped></style>

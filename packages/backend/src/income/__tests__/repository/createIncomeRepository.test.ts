@@ -1,14 +1,11 @@
 import { createIncomeRepository, CreateIncome } from '../../repository/createIncomeRepository'
 import { db } from '../../../db'
-import { excludeFieldsAndAdd } from '../../../utilities/excludeFieldsAndAdd'
 
-jest.mock('../../../db')
-jest.spyOn(console, 'error').mockImplementation(() => {})
+vi.mock('../../../db')
+vi.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('createIncomeRepository', () => {
-  const mockDbInsert = db.insert as jest.Mock
-  const fakeDbQuery = db.query
-
+  const mockDbInsert = db.insert as Mock
   const fakeValidIncome: CreateIncome = {
     userId: 'user-1',
     accountId: 'account-1',
@@ -18,7 +15,7 @@ describe('createIncomeRepository', () => {
   }
 
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when the database throws an error', () => {
@@ -33,15 +30,14 @@ describe('createIncomeRepository', () => {
 
   describe('when the database successfully inserts a new income', () => {
     it('should return an object of type Income', async () => {
-
       const fakeDbIncome = {
         ...fakeValidIncome,
         createdAt: new Date(),
         updatedAt: new Date(),
       }
       mockDbInsert.mockReturnValue({
-        values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([fakeDbIncome]),
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([fakeDbIncome]),
         }),
       })
 

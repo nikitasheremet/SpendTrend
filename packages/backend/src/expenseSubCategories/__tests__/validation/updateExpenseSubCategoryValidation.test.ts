@@ -11,9 +11,10 @@ import {
   VALIDATION_ERROR_USERID_TYPE,
   ValidationError,
 } from '../../../models/errors/validationError'
+import { UpdateExpenseSubCategoryInput } from '../../validation/models'
 
 describe('when validating update expense subCategory input', () => {
-  const fakeValidInput = {
+  const fakeValidInput: UpdateExpenseSubCategoryInput = {
     subCategoryId: '123e4567-e89b-12d3-a456-426614174000',
     userId: '123e4567-e89b-12d3-a456-426614174001',
     accountId: '123e4567-e89b-12d3-a456-426614174002',
@@ -28,8 +29,8 @@ describe('when validating update expense subCategory input', () => {
 
   describe('when subCategoryId is invalid', () => {
     it('should throw ValidationError when subCategoryId is missing', () => {
-      const fakeInvalidInput = { ...fakeValidInput }
-      delete (fakeInvalidInput as any).subCategoryId
+      const fakeInvalidInput: Partial<UpdateExpenseSubCategoryInput> = { ...fakeValidInput }
+      delete fakeInvalidInput.subCategoryId
 
       expect(() => validateUpdateExpenseSubCategory(fakeInvalidInput)).toThrow(
         new ValidationError(VALIDATION_ERROR_SUBCATEGORY_ID_MISSING),
@@ -47,8 +48,8 @@ describe('when validating update expense subCategory input', () => {
 
   describe('when userId is invalid', () => {
     it('should throw ValidationError when userId is missing', () => {
-      const fakeInvalidInput = { ...fakeValidInput }
-      delete (fakeInvalidInput as any).userId
+      const fakeInvalidInput: Partial<UpdateExpenseSubCategoryInput> = { ...fakeValidInput }
+      delete fakeInvalidInput.userId
 
       expect(() => validateUpdateExpenseSubCategory(fakeInvalidInput)).toThrow(
         new ValidationError(VALIDATION_ERROR_USERID_MISSING),
@@ -66,8 +67,8 @@ describe('when validating update expense subCategory input', () => {
 
   describe('when accountId is invalid', () => {
     it('should throw ValidationError when accountId is missing', () => {
-      const fakeInvalidInput = { ...fakeValidInput }
-      delete (fakeInvalidInput as any).accountId
+      const fakeInvalidInput: Partial<UpdateExpenseSubCategoryInput> = { ...fakeValidInput }
+      delete fakeInvalidInput.accountId
 
       expect(() => validateUpdateExpenseSubCategory(fakeInvalidInput)).toThrow(
         new ValidationError(VALIDATION_ERROR_ACCOUNTID_MISSING),

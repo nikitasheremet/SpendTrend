@@ -55,4 +55,24 @@ describe('apiFailedExpenseToDomain', () => {
     expect(result).toHaveLength(1)
     expect(result[0].expenseInput.category).toBe('cat-1')
   })
+
+  it('should map an empty categoryId to an empty category string', () => {
+    const apiFailed = {
+      expenseInput: {
+        userId: 'user-1',
+        accountId: 'acc-1',
+        name: 'Fail Expense',
+        amount: 50,
+        netAmount: 45,
+        date: '2026-01-02',
+        categoryId: '',
+        paidBackAmount: 0,
+      },
+      errorMessage: 'Invalid payload',
+    }
+
+    const result = apiFailedExpenseToDomain(apiFailed)
+
+    expect(result.expenseInput.category).toBe('')
+  })
 })

@@ -1,14 +1,10 @@
 import { test, expect } from '@playwright/test'
-import {
-  STATUS_CREATED_201,
-  STATUS_INTERNAL_SERVER_ERROR_500,
-  STATUS_UNPROCESSABLE_ENTITY_422,
-} from '../src/models/statusCodes'
+import { STATUS_CREATED_201, STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import crypto from 'crypto'
 import { DB_ERROR } from '../src/models/errors/repositoryErrors'
 import { connectToDb, db } from '../src/db'
 import { expenseCategoriesTable, expenseSubCategoriesTable } from '../src/db/schema'
-import { CreateExpenseInput } from '../src/expense/validation/models'
+import { CreateExpensesInput } from '../src/expense/validation/models'
 import { ExpenseCategoryDbRow } from '../src/models/expenseCategory/expenseCategory'
 import { ExpenseSubCategoryDbRow } from '../src/models/expenseSubCategory/expenseSubCategory'
 import { excludeFieldsAndAdd } from '../src/utilities/excludeFieldsAndAdd'
@@ -18,7 +14,7 @@ const BASE_URL = 'http://localhost:3000'
 test.describe('Create Expense Endpoint', () => {
   let createdExpenseCategory: ExpenseCategoryDbRow
   let createdExpenseSubCategory: ExpenseSubCategoryDbRow
-  let fakeCreateExpenseInput: CreateExpenseInput
+  let fakeCreateExpenseInput: CreateExpensesInput
 
   test.beforeAll(async () => {
     const { createExpenseInput, expenseCategory, expenseSubCategory } =
@@ -41,29 +37,40 @@ test.describe('Create Expense Endpoint', () => {
   })
 
   test.describe("when an expense with a expenseCategory Id that doesn't exist is created", () => {
-    test('should return a 500 error and a DB_ERROR message', async ({ request }) => {
+    test('should return created response with failed expenses details', async ({ request }) => {
       const fakeExpenseDataWithInvalidCategory = JSON.parse(JSON.stringify(fakeCreateExpenseInput))
-      fakeExpenseDataWithInvalidCategory.categoryId = crypto.randomUUID()
+      fakeExpenseDataWithInvalidCategory.expensesToCreate[0].categoryId = crypto.randomUUID()
 
       const response = await request.post(`${BASE_URL}/createexpense`, {
         data: fakeExpenseDataWithInvalidCategory,
       })
-      expect(response.status()).toBe(STATUS_INTERNAL_SERVER_ERROR_500)
+      expect(response.status()).toBe(STATUS_CREATED_201)
       const body = await response.json()
-      expect(body.error).toContain(DB_ERROR)
+      expect(body.createdExpenses.createdExpenses).toEqual([])
+      expect(body.createdExpenses.failedExpenses.length).toBe(1)
+      expect(body.createdExpenses.failedExpenses[0].errorMessage).toContain(DB_ERROR)
     })
   })
   test.describe('when valid expense data is provided', () => {
-    test('should create a new expense and return the expense object', async ({ request }) => {
+    test('should create a new expense and return the created expenses payload', async ({
+      request,
+    }) => {
       const response = await request.post(`${BASE_URL}/createexpense`, {
         data: fakeCreateExpenseInput,
       })
 
       expect(response.status()).toBe(STATUS_CREATED_201)
       const body = await response.json()
-      expect(body.createdExpense).toEqual(
+      expect(body.createdExpenses.failedExpenses).toEqual([])
+      expect(body.createdExpenses.createdExpenses).toHaveLength(1)
+      expect(body.createdExpenses.createdExpenses[0]).toEqual(
         expect.objectContaining({
-          ...excludeFieldsAndAdd(fakeCreateExpenseInput, ['categoryId', 'subCategoryId']),
+          ...excludeFieldsAndAdd(fakeCreateExpenseInput.expensesToCreate[0], [
+            'categoryId',
+            'subCategoryId',
+          ]),
+          userId: fakeCreateExpenseInput.userId,
+          accountId: fakeCreateExpenseInput.accountId,
           category: {
             ...createdExpenseCategory,
             subCategories: [
@@ -90,7 +97,7 @@ test.describe('Create Expense Endpoint', () => {
 })
 
 async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
-  createExpenseInput: CreateExpenseInput
+  createExpenseInput: CreateExpensesInput
   expenseCategory: ExpenseCategoryDbRow
   expenseSubCategory: ExpenseSubCategoryDbRow
 }> {
@@ -121,13 +128,17 @@ async function assignFakeCreateExpenseInputAndExpenseCategory(): Promise<{
   const createExpenseInput = {
     userId: fakeUserId,
     accountId: fakeAccountId,
-    name: 'Groceries',
-    amount: 100,
-    netAmount: 90,
-    date: '2025-08-07',
-    categoryId: createdCategory.id,
-    subCategoryId: createdSubCategory.id,
-    paidBackAmount: 0,
+    expensesToCreate: [
+      {
+        name: 'Groceries',
+        amount: 100,
+        netAmount: 90,
+        date: '2025-08-07',
+        categoryId: createdCategory.id,
+        subCategoryId: createdSubCategory.id,
+        paidBackAmount: 0,
+      },
+    ],
   }
 
   return {

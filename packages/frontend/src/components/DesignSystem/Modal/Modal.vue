@@ -1,26 +1,28 @@
 <script setup lang="ts">
 import Button from '../Button/Button.vue'
 
-const {
-  isModalOpen,
-  class: modalClass,
-  closeText,
-} = defineProps<{
-  isModalOpen: boolean
-  class?: string
-  closeText?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    isModalOpen: boolean
+    class?: string
+    closeText?: string
+    showCloseButton?: boolean
+  }>(),
+  {
+    showCloseButton: true,
+  },
+)
 defineEmits<{
   modalClosed: []
 }>()
 </script>
 
 <template>
-  <div id="modal-outer-container" v-if="isModalOpen">
-    <div :class="modalClass" id="modal-inner-container">
-      <div class="modal-close-container">
-        <Button @click="$emit('modalClosed')" id="modal-close-button">{{
-          closeText || 'Close'
+  <div v-if="props.isModalOpen" id="modal-outer-container">
+    <div id="modal-inner-container" :class="props.class">
+      <div v-if="props.showCloseButton" class="modal-close-container">
+        <Button id="modal-close-button" @click="$emit('modalClosed')">{{
+          props.closeText || 'Close'
         }}</Button>
       </div>
       <slot></slot>

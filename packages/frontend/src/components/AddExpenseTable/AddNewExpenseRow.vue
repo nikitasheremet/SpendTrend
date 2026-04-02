@@ -37,19 +37,21 @@ const expenseSubCategoryDropdownValue = computed({
 </script>
 
 <template>
-  <AddExpenseCell type="date" v-model="newExpenseData.date" />
+  <AddExpenseCell v-model="newExpenseData.date" type="date" />
   <AddExpenseCell v-model="newExpenseData.name" />
-  <AddExpenseCell type="number" v-model="newExpenseData.amount" />
-  <AddExpenseCell type="number" v-model="newExpenseData.paidBackAmount" />
+  <AddExpenseCell v-model="newExpenseData.amount" type="number" />
+  <AddExpenseCell v-model="newExpenseData.paidBackAmount" type="number" />
   <td class="border p-1">{{ newExpenseData.netAmount.toFixed(2) }}</td>
   <AddExpenseCell
-    type="dropdown"
     v-model="expenseCategoryDropdownValue"
+    type="dropdown"
     :dropdown-options="categoryNames"
+    include-empty-option
+    empty-option-label="Uncategorized"
   />
   <AddExpenseCell
-    type="dropdown"
     v-model="expenseSubCategoryDropdownValue"
+    type="dropdown"
     :dropdown-options="getSubcategories(newExpenseData.category)"
   />
 </template>

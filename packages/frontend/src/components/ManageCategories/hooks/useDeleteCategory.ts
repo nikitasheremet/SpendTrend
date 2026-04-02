@@ -3,10 +3,7 @@ import { ref, type Ref } from 'vue'
 import { deleteCategory as serviceDeleteCategory } from '@/service/categories/deleteCategory'
 import { getStore } from '@/store/store'
 
-export function useDeleteCategory(
-  category: ExpenseCategory,
-  categoryDeletedCallback: (categoryDeleted: ExpenseCategory) => void,
-): {
+export function useDeleteCategory(category: ExpenseCategory): {
   deleteCategory: () => Promise<void>
   error: Ref<Error | undefined>
 } {

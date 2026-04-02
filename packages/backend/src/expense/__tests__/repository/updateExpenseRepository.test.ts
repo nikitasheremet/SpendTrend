@@ -8,10 +8,10 @@ import { ExpensesDbRow } from '../../../models/expense/expense'
 import { ExpenseSubCategoryDbRow } from '../../../models/expenseSubCategory/expenseSubCategory'
 import { excludeFieldsAndAdd } from '../../../utilities/excludeFieldsAndAdd'
 
-jest.mock('../../../db')
+vi.mock('../../../db')
 
 describe('updateExpenseRepository', () => {
-  const mockDbUpdate = db.update as jest.Mock
+  const mockDbUpdate = db.update as Mock
   const mockDbQuery = db.query
 
   const fakeInput: UpdateExpenseRepository = {
@@ -19,16 +19,16 @@ describe('updateExpenseRepository', () => {
     fieldsToUpdate: { name: 'New name' },
   }
 
-  let returningMock: jest.Mock
-  let whereMock: jest.Mock
-  let setMock: jest.Mock
+  let returningMock: Mock
+  let whereMock: Mock
+  let setMock: Mock
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
     // create the chain used by the repository: update(...).set(...).where(...).returning()
-    returningMock = jest.fn()
-    whereMock = jest.fn().mockReturnValue({ returning: returningMock })
-    setMock = jest.fn().mockReturnValue({ where: whereMock })
+    returningMock = vi.fn()
+    whereMock = vi.fn().mockReturnValue({ returning: returningMock })
+    setMock = vi.fn().mockReturnValue({ where: whereMock })
     mockDbUpdate.mockReturnValue({ set: setMock })
   })
 
@@ -81,9 +81,7 @@ describe('updateExpenseRepository', () => {
       }
 
       returningMock.mockResolvedValueOnce([fakeDbExpense])
-      mockDbQuery.expenseCategoriesTable.findFirst = jest
-        .fn()
-        .mockResolvedValue(fakeExpenseCategory)
+      mockDbQuery.expenseCategoriesTable.findFirst = vi.fn().mockResolvedValue(fakeExpenseCategory)
 
       const expectedUpdatedExpense = excludeFieldsAndAdd(
         fakeDbExpense,

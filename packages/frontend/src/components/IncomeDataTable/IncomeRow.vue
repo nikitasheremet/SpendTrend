@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<!-- <script lang="ts" setup>
 import type { Income } from '@/types/income/income'
 import IncomeDataCell from './EditableCell/IncomeDataCell.vue'
 import { useManageIncome } from './hooks/useUpdateIncome'
@@ -41,4 +41,4 @@ const { incomeData, updateIncome, deleteIncome } = useManageIncome(income, onErr
   </tr>
 </template>
 
-<style scoped></style>
+<style scoped></style> -->

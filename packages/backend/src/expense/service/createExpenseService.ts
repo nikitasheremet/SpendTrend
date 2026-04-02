@@ -12,7 +12,7 @@ export async function createExpenseService(input: CreateExpensesInput): Promise<
   const failedExpenses: Array<{ expenseInput: CreateExpense; errorMessage: string }> = []
 
   for (const expenseInput of input.expensesToCreate) {
-    let createExpenseDetails: CreateExpense = {
+    const createExpenseDetails: CreateExpense = {
       userId: input.userId,
       accountId: input.accountId,
       ...expenseInput,

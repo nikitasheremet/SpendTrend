@@ -2,15 +2,15 @@ import { createExpenseSubCategoryService } from '../../service/createExpenseSubC
 import { createExpenseSubCategoryRepository } from '../../repository/createExpenseSubCategoryRepository'
 import { CreateExpenseSubCategoryInput } from '../../validation/models'
 
-jest.mock('../../repository/createExpenseSubCategoryRepository')
+vi.mock('../../repository/createExpenseSubCategoryRepository')
 
 const fakeInput = {} as CreateExpenseSubCategoryInput
 
 describe('createExpenseSubcategoryService', () => {
-  const mockedCreateExpenseSubCategoryRepository = createExpenseSubCategoryRepository as jest.Mock
+  const mockedCreateExpenseSubCategoryRepository = createExpenseSubCategoryRepository as Mock
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   it('should throw an error if repository throws', async () => {

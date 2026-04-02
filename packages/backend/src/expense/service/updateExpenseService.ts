@@ -1,11 +1,10 @@
-import { decimal } from 'drizzle-orm/gel-core'
 import { updateExpenseRepository } from '../repository/updateExpenseRepository'
 import { UpdateExpenseInput } from '../validation/models'
 import { convertDomainAmountToInteger } from './helpers/convertDomainAmountToInteger'
 import { convertDbAmountToDecimals } from './helpers/convertDbAmountToDecimals'
 
 export async function updateExpenseService(input: UpdateExpenseInput) {
-  const { id, accountId, ...otherFields } = input
+  const { id, accountId: _accountId, ...otherFields } = input
   const fieldsToUpdate = {
     ...otherFields,
     ...convertDomainAmountToInteger({

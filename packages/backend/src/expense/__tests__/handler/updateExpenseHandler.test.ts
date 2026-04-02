@@ -5,21 +5,21 @@ import { ValidationError } from '../../../models/errors/validationError'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 import { updateExpenseService } from '../../service/updateExpenseService'
 
-jest.mock('../../validation/updateExpenseValidation')
-jest.mock('../../service/updateExpenseService')
+vi.mock('../../validation/updateExpenseValidation')
+vi.mock('../../service/updateExpenseService')
 
-const mockUpdateExpenseService = updateExpenseService as jest.Mock
-const mockValidateUpdateExpenseInput = validateUpdateExpenseInput as jest.Mock
+const mockUpdateExpenseService = updateExpenseService as Mock
+const mockValidateUpdateExpenseInput = validateUpdateExpenseInput as Mock
 
 describe('updateExpenseHandler', () => {
   const fakeContext = {
     req: {
-      json: jest.fn(),
+      json: vi.fn(),
     },
   } as unknown as Context
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when validation fails', () => {
@@ -66,7 +66,7 @@ describe('updateExpenseHandler', () => {
 
       // Mock the service to return the updated expense
       mockUpdateExpenseService.mockResolvedValue(mockUpdatedExpense)
-      ;(fakeContext.req.json as jest.Mock).mockResolvedValue({
+      ;(fakeContext.req.json as Mock).mockResolvedValue({
         id: '123',
         name: 'Updated Expense',
         amount: 150,

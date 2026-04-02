@@ -2,7 +2,6 @@
 import Modal from '../DesignSystem/Modal/Modal.vue'
 import { computed, watch } from 'vue'
 import { useControlModal } from '../DesignSystem/Modal/useControlModal'
-import type { ExpenseCategory } from '@/types/expenseData'
 import { useAddCategory } from './hooks/useAddCategory'
 import Error from '../DesignSystem/Error.vue'
 import Input from '../DesignSystem/Input.vue'
@@ -10,10 +9,6 @@ import Spinner from '../DesignSystem/Spinner.vue'
 import Button from '../DesignSystem/Button/Button.vue'
 
 const { isModalOpen: isAddCategoryModalOpen, openModal, closeModal } = useControlModal()
-
-const emits = defineEmits<{
-  categoryAdded: [ExpenseCategory]
-}>()
 
 const { newCategoriesValue, addCategory, error, loading } = useAddCategory()
 
@@ -35,8 +30,8 @@ function handleAddCategory() {
   <Modal
     class="w-9/10"
     :is-modal-open="isAddCategoryModalOpen"
-    @modal-closed="closeModal"
     close-text="X"
+    @modal-closed="closeModal"
   >
     <div v-if="loading" class="flex flex-col items-center gap-4">
       <Spinner />
@@ -44,8 +39,8 @@ function handleAddCategory() {
     </div>
     <div v-else class="flex flex-col gap-4">
       <p>Enter new Category name:</p>
-      <Input id="add-category-input" type="text" v-model="newCategoriesValue" />
-      <Button @click="addCategory" :disabled="isSaveCategoryDisabled">Save Category</Button>
+      <Input id="add-category-input" v-model="newCategoriesValue" type="text" />
+      <Button :disabled="isSaveCategoryDisabled" @click="addCategory">Save Category</Button>
       <Error v-if="error" :error="error" />
     </div>
   </Modal>

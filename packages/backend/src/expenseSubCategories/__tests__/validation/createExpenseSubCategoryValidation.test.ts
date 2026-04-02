@@ -12,9 +12,10 @@ import {
   VALIDATION_ERROR_NAME_EMPTY,
   VALIDATION_INPUT_MUST_BE_AN_OBJECT,
 } from '../../../models/errors/validationError'
+import { CreateExpenseSubCategoryInput } from '../../validation/models'
 
 describe('validateCreateExpenseSubCategoryInput', () => {
-  const validInput = {
+  const validInput: CreateExpenseSubCategoryInput = {
     userId: '00000000-0000-4000-8000-000000000000',
     accountId: '00000000-0000-4000-8000-000000000001',
     categoryId: '00000000-0000-4000-8000-000000000002',
@@ -32,8 +33,8 @@ describe('validateCreateExpenseSubCategoryInput', () => {
 
   describe('when userId is missing', () => {
     it('should throw a validation error', () => {
-      const invalidInput = { ...validInput }
-      delete (invalidInput as any).userId
+      const invalidInput: Partial<CreateExpenseSubCategoryInput> = { ...validInput }
+      delete invalidInput.userId
       expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
       expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_USERID_MISSING,
@@ -53,8 +54,8 @@ describe('validateCreateExpenseSubCategoryInput', () => {
 
   describe('when accountId is missing', () => {
     it('should throw a validation error', () => {
-      const invalidInput = { ...validInput }
-      delete (invalidInput as any).accountId
+      const invalidInput: Partial<CreateExpenseSubCategoryInput> = { ...validInput }
+      delete invalidInput.accountId
       expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
       expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_ACCOUNTID_MISSING,
@@ -74,8 +75,8 @@ describe('validateCreateExpenseSubCategoryInput', () => {
 
   describe('when categoryId is missing', () => {
     it('should throw a validation error', () => {
-      const invalidInput = { ...validInput }
-      delete (invalidInput as any).categoryId
+      const invalidInput: Partial<CreateExpenseSubCategoryInput> = { ...validInput }
+      delete invalidInput.categoryId
       expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
       expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_CATEGORY_ID_MISSING,
@@ -95,8 +96,8 @@ describe('validateCreateExpenseSubCategoryInput', () => {
 
   describe('when name is missing', () => {
     it('should throw a validation error', () => {
-      const invalidInput = { ...validInput }
-      delete (invalidInput as any).name
+      const invalidInput: Partial<CreateExpenseSubCategoryInput> = { ...validInput }
+      delete invalidInput.name
       expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(ValidationError)
       expect(() => validateCreateExpenseSubCategoryInput(invalidInput)).toThrow(
         VALIDATION_ERROR_NAME_IS_REQUIRED,

@@ -86,6 +86,27 @@ describe('DropdownWithInput', () => {
       expect(emitted().onChange).toEqual([['fakeOption1']])
       expect(emitted().isInputValid).toEqual([[true]])
     })
+
+    it('should allow clearing the current selection through uncategorized option', async () => {
+      const { emitted } = render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1', 'fakeOption2'],
+          includeEmptyOption: true,
+          emptyOptionLabel: 'Uncategorized',
+        },
+      })
+
+      await userEvent.click(getDropdownToggleElement())
+      const options = screen.getAllByText(/fakeOption1|fakeOption2|Uncategorized/)
+      expect(options[0].textContent).toBe('Uncategorized')
+
+      await userEvent.click(screen.getByText('fakeOption1'))
+      await userEvent.click(getDropdownToggleElement())
+      await userEvent.click(screen.getByText('Uncategorized'))
+
+      expect(emitted().onChange).toEqual([['fakeOption1'], ['']])
+      expect(emitted().isInputValid).toEqual([[true], [true]])
+    })
   })
   describe('when user presses enter key', () => {
     it('should not emit escapeKeyPressed', async () => {

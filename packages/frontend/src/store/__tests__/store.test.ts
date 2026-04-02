@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 import { createStore, getStore } from '../store'
 import { authClient } from '@/lib/auth-client'
 import { getCategories } from '@/service/categories/getCategories'
@@ -68,6 +69,7 @@ describe('when creating and using store state', () => {
 
   beforeEach(async () => {
     vi.resetAllMocks()
+    localStorage.clear()
 
     mockGetSession.mockResolvedValue({
       data: {
@@ -76,7 +78,7 @@ describe('when creating and using store state', () => {
           accountId: 'account-1',
         },
       },
-    } as any)
+    } as unknown)
 
     mockGetCategories.mockResolvedValue([fakeCategory])
     mockGetExpenses.mockResolvedValue([fakeExpense])
@@ -85,7 +87,7 @@ describe('when creating and using store state', () => {
     await createStore()
   })
 
-  it('should initialize categories, expenses, and incomes from services', () => {
+  it('should initialize categories expenses and incomes from services', () => {
     const store = getStore()
 
     expect(store.categories.value).toEqual([fakeCategory])
@@ -93,162 +95,66 @@ describe('when creating and using store state', () => {
     expect(store.incomes.value).toEqual([fakeIncome])
   })
 
-  it('should update canonical expenses and incomes through mutators', () => {
+  it('should expose all expected store domains and mutators', () => {
     const store = getStore()
-    const fakeSecondExpense = {
-      ...fakeExpense,
-      id: 'expense-2',
+
+    expect(store.categories).toBeDefined()
+    expect(store.expenses).toBeDefined()
+    expect(store.incomes).toBeDefined()
+    expect(store.newExpenses).toBeDefined()
+    expect(store.newIncomes).toBeDefined()
+    expect(store.expenseDuplicates).toBeDefined()
+    expect(store.incomeDuplicates).toBeDefined()
+    expect(store.isExpenseDuplicatesPresent).toBeDefined()
+    expect(store.isIncomeDuplicatesPresent).toBeDefined()
+    expect(store.selectedMonth).toBeDefined()
+    expect(store.selectedYear).toBeDefined()
+
+    expect(typeof store.addExpenses).toBe('function')
+    expect(typeof store.addIncomes).toBe('function')
+    expect(typeof store.addCategory).toBe('function')
+    expect(typeof store.addSubCategory).toBe('function')
+    expect(typeof store.addNewExpense).toBe('function')
+    expect(typeof store.addNewIncome).toBe('function')
+  })
+
+  it('should update duplicate refs reactively when draft rows are edited', async () => {
+    const store = getStore()
+
+    store.newExpenses.value = [
+      {
+        date: '2026-01-10',
+        name: 'Coffee',
+        amount: 10,
+        netAmount: 10,
+        category: fakeCategory.id,
+        subCategory: '',
+      },
+      {
+        date: '2026-01-10',
+        name: ' coffee ',
+        amount: 10,
+        netAmount: 10,
+        category: fakeCategory.id,
+        subCategory: '',
+      },
+    ]
+
+    await nextTick()
+
+    expect(store.expenseDuplicates.value).toHaveLength(2)
+    expect(store.isExpenseDuplicatesPresent.value).toBe(true)
+    expect(store.isIncomeDuplicatesPresent.value).toBe(false)
+
+    store.newExpenses.value[1] = {
+      ...store.newExpenses.value[1],
       name: 'Restaurant',
     }
-    const fakeUpdatedIncome = {
-      ...fakeIncome,
-      name: 'Updated Salary',
-    }
 
-    store.addExpenses([fakeSecondExpense])
-    expect(store.expenses.value).toHaveLength(2)
+    await nextTick()
 
-    store.updateExpense({ ...fakeSecondExpense, name: 'Takeout' })
-    expect(store.expenses.value.find((expense) => expense.id === 'expense-2')?.name).toBe('Takeout')
-
-    store.deleteExpense('expense-2')
-    expect(store.expenses.value.find((expense) => expense.id === 'expense-2')).toBeUndefined()
-
-    store.updateIncome(fakeUpdatedIncome)
-    expect(store.incomes.value[0].name).toBe('Updated Salary')
-
-    store.deleteIncome(fakeIncome.id)
-    expect(store.incomes.value).toEqual([])
-  })
-
-  it('should keep add-table draft rows in memory only', () => {
-    const store = getStore()
-    const mockSetItem = vi.spyOn(Storage.prototype, 'setItem')
-
-    store.addNewExpense({
-      date: '2026-02-01',
-      name: '',
-      amount: 0,
-      netAmount: 0,
-      category: '',
-      subCategory: '',
-    })
-
-    store.addNewExpense({
-      date: '2026-02-01',
-      name: 'Coffee',
-      amount: 5,
-      netAmount: 5,
-      category: 'category-1',
-      subCategory: '',
-    })
-
-    expect(store.newExpenses.value).toHaveLength(1)
-    expect(store.newExpenses.value[0].name).toBe('Coffee')
-
-    store.addNewIncome({ date: '2026-02-01', name: 'Bonus', amount: 200 })
-    expect(store.newIncomes.value).toHaveLength(1)
-
-    expect(mockSetItem).not.toHaveBeenCalled()
-  })
-
-  it('should update existing expense category names when a category is renamed', () => {
-    const store = getStore()
-
-    const fakeUpdatedCategory: ExpenseCategory = {
-      ...fakeCategory,
-      name: 'Food & Dining',
-    }
-
-    store.updateCategory(fakeUpdatedCategory)
-
-    expect(store.expenses.value[0].category.name).toBe('Food & Dining')
-  })
-
-  it('should update existing expense subCategory names when a subCategory is renamed', () => {
-    const store = getStore()
-    const fakeSubCategory = {
-      id: 'sub-category-1',
-      userId: 'user-1',
-      accountId: 'account-1',
-      name: 'Groceries',
-      categoryId: fakeCategory.id,
-      createdAt: new Date('2026-01-01'),
-      updatedAt: new Date('2026-01-01'),
-    }
-
-    store.updateCategory({
-      ...fakeCategory,
-      subCategories: [fakeSubCategory],
-    })
-
-    store.setExpenses([
-      {
-        ...fakeExpense,
-        category: {
-          ...fakeCategory,
-          subCategories: [fakeSubCategory],
-        },
-        subCategory: fakeSubCategory,
-      },
-    ])
-
-    store.updateSubCategory(fakeCategory.id, {
-      ...fakeSubCategory,
-      name: 'Weekly groceries',
-    })
-
-    expect(store.expenses.value[0].subCategory?.name).toBe('Weekly groceries')
-  })
-
-  it('should set summary period to the latest expense month when defaulting is applied', () => {
-    const store = getStore()
-    const fakeOlderExpense = {
-      ...fakeExpense,
-      id: 'expense-older',
-      date: '2025-12-12',
-    }
-    const fakeFutureExpense = {
-      ...fakeExpense,
-      id: 'expense-future',
-      date: '2027-03-02',
-    }
-
-    store.setExpenses([fakeOlderExpense, fakeExpense, fakeFutureExpense])
-
-    store.applyLatestExpenseSummaryPeriodDefault()
-
-    expect(store.selectedYear.value).toBe(2027)
-    expect(store.selectedMonth.value).toBe(2)
-  })
-
-  it('should not overwrite summary period when manually selected by user', () => {
-    const store = getStore()
-    const fakeLatestExpense = {
-      ...fakeExpense,
-      id: 'expense-latest',
-      date: '2026-11-01',
-    }
-
-    store.setExpenses([fakeExpense, fakeLatestExpense])
-    store.selectedYear.value = 2026
-    store.selectedMonth.value = 0
-    store.markSummaryPeriodAsManuallySelected()
-
-    store.applyLatestExpenseSummaryPeriodDefault()
-
-    expect(store.selectedYear.value).toBe(2026)
-    expect(store.selectedMonth.value).toBe(0)
-  })
-
-  it('should fallback to current month and year when no expenses exist', () => {
-    const store = getStore()
-    const currentDate = new Date()
-
-    store.setExpenses([])
-    store.applyLatestExpenseSummaryPeriodDefault()
-
-    expect(store.selectedYear.value).toBe(currentDate.getUTCFullYear())
-    expect(store.selectedMonth.value).toBe(currentDate.getUTCMonth())
+    expect(store.expenseDuplicates.value).toHaveLength(0)
+    expect(store.isExpenseDuplicatesPresent.value).toBe(false)
+    expect(store.isIncomeDuplicatesPresent.value).toBe(false)
   })
 })

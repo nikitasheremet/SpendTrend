@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { createExpenseResponseToDomainExpense } from '../createExpenseResponseToDomainExpense'
-import { CreateExpenseResponse } from '@contracts/expense/createExpense'
 import { Expense } from '@/types/expenseData'
 
 describe('createExpenseResponseToDomainExpense', () => {

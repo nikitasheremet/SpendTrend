@@ -2,7 +2,7 @@ import { updateExpenseSubCategoryRepository } from '../../repository/updateExpen
 import { db } from '../../../db'
 import { DB_ERROR, NOT_FOUND_ERROR, RepositoryError } from '../../../models/errors/repositoryErrors'
 
-jest.mock('../../../db')
+vi.mock('../../../db')
 const mockDb = db
 
 describe('updateExpenseSubCategoryRepository', () => {
@@ -34,16 +34,16 @@ describe('updateExpenseSubCategoryRepository', () => {
   }
 
   beforeEach(() => {
-    jest.resetAllMocks()
-    console.error = jest.fn()
+    vi.resetAllMocks()
+    console.error = vi.fn()
   })
 
   describe('when database update succeeds', () => {
     it('should return mapped domain object', async () => {
-      const mockUpdate = jest.fn().mockReturnValue({
-        set: jest.fn().mockReturnValue({
-          where: jest.fn().mockReturnValue({
-            returning: jest.fn().mockResolvedValue([fakeDbRow]),
+      const mockUpdate = vi.fn().mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            returning: vi.fn().mockResolvedValue([fakeDbRow]),
           }),
         }),
       })
@@ -56,10 +56,10 @@ describe('updateExpenseSubCategoryRepository', () => {
 
     describe('when database update returns no rows', () => {
       it('should throw RepositoryError', async () => {
-        const mockUpdate = jest.fn().mockReturnValue({
-          set: jest.fn().mockReturnValue({
-            where: jest.fn().mockReturnValue({
-              returning: jest.fn().mockResolvedValue([]),
+        const mockUpdate = vi.fn().mockReturnValue({
+          set: vi.fn().mockReturnValue({
+            where: vi.fn().mockReturnValue({
+              returning: vi.fn().mockResolvedValue([]),
             }),
           }),
         })
@@ -75,10 +75,10 @@ describe('updateExpenseSubCategoryRepository', () => {
     describe('when database throws an error', () => {
       it('should throw RepositoryError with error details', async () => {
         const fakeDatabaseError = new Error('Database connection failed')
-        const mockUpdate = jest.fn().mockReturnValue({
-          set: jest.fn().mockReturnValue({
-            where: jest.fn().mockReturnValue({
-              returning: jest.fn().mockRejectedValue(fakeDatabaseError),
+        const mockUpdate = vi.fn().mockReturnValue({
+          set: vi.fn().mockReturnValue({
+            where: vi.fn().mockReturnValue({
+              returning: vi.fn().mockRejectedValue(fakeDatabaseError),
             }),
           }),
         })

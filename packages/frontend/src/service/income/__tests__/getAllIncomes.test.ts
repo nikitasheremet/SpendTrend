@@ -34,7 +34,7 @@ describe('getAllIncomes', () => {
     vi.resetAllMocks()
     mockGetStore.mockReturnValue({
       getAccountDetails: vi.fn().mockReturnValue(fakeAccountDetails),
-    } as any)
+    } as unknown as ReturnType<typeof getStore>)
   })
 
   describe('when account details are available', () => {
@@ -64,7 +64,7 @@ describe('getAllIncomes', () => {
           throw fakeError
         }),
       }
-      mockGetStore.mockReturnValue(mockStore as any)
+      mockGetStore.mockReturnValue(mockStore as unknown as ReturnType<typeof getStore>)
 
       await expect(getAllIncomes()).rejects.toThrow(fakeError)
     })

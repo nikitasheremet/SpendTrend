@@ -2,16 +2,16 @@ import { updateIncomeService } from '../../service/updateIncomeService'
 import { updateIncomeRepository } from '../../repository/updateIncomeRepository'
 import { UpdateIncomeInput } from '../../validation/models'
 
-jest.mock('../../repository/updateIncomeRepository', () => ({
-  updateIncomeRepository: jest.fn(),
+vi.mock('../../repository/updateIncomeRepository', () => ({
+  updateIncomeRepository: vi.fn(),
 }))
 
 describe('updateIncomeService', () => {
-  const mockedUpdateIncomeRepository = updateIncomeRepository as jest.Mock
+  const mockedUpdateIncomeRepository = updateIncomeRepository as Mock
   const fakeInput = {} as UpdateIncomeInput
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when repository throws', () => {
@@ -25,7 +25,7 @@ describe('updateIncomeService', () => {
     })
   })
 
-  it('should return the same object the repository returns', async () => {
+  it('should return the repository result with amount converted to decimal', async () => {
     // Arrange
     const fakeRepoResult = { id: 'abc', name: 'Salary', amount: 5000 }
     mockedUpdateIncomeRepository.mockResolvedValueOnce(fakeRepoResult)
@@ -34,6 +34,6 @@ describe('updateIncomeService', () => {
     const result = await updateIncomeService(fakeInput)
 
     // Assert
-    expect(result).toEqual(fakeRepoResult)
+    expect(result).toEqual({ id: 'abc', name: 'Salary', amount: 50 })
   })
 })

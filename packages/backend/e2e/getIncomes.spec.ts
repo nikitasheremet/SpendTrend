@@ -3,13 +3,17 @@ import { STATUS_UNPROCESSABLE_ENTITY_422 } from '../src/models/statusCodes'
 import { connectToDb, db } from '../src/db'
 import { incomeTable } from '../src/db/schema'
 import crypto from 'crypto'
+import { integerToDecimal } from '../src/utilities/integerToDecimal'
+import { IncomeDbRow } from '../src/models/income/income'
 
 const BASE_URL = 'http://localhost:3000'
 
+type IncomeFixtureInput = Omit<IncomeDbRow, 'id'>
+
 test.describe('Get Incomes Endpoint', () => {
-  let fakeIncomeData1: any
-  let fakeIncomeData2: any
-  let fakeIncomeDataDifferentAccount: any
+  let fakeIncomeData1: IncomeFixtureInput
+  let fakeIncomeData2: IncomeFixtureInput
+  let fakeIncomeDataDifferentAccount: IncomeFixtureInput
   let fakeAccountId: string
 
   test.beforeAll(async () => {
@@ -58,12 +62,14 @@ test.describe('Get Incomes Endpoint', () => {
       const returnedIncomes = body.incomes
       expect(returnedIncomes[0]).toEqual({
         ...income2,
+        amount: integerToDecimal(income2.amount),
         createdAt: fakeIncomeData2.createdAt.toISOString(),
         updatedAt: fakeIncomeData2.updatedAt.toISOString(),
       })
 
       expect(returnedIncomes[1]).toEqual({
         ...income1,
+        amount: integerToDecimal(income1.amount),
         createdAt: fakeIncomeData1.createdAt.toISOString(),
         updatedAt: fakeIncomeData1.updatedAt.toISOString(),
       })
@@ -73,9 +79,9 @@ test.describe('Get Incomes Endpoint', () => {
 
 async function assignFakeIncomeData(): Promise<{
   accountId: string
-  incomeData1: any
-  incomeData2: any
-  incomeDataDifferentAccount: any
+  incomeData1: IncomeFixtureInput
+  incomeData2: IncomeFixtureInput
+  incomeDataDifferentAccount: IncomeFixtureInput
 }> {
   const fakeAccountId = crypto.randomUUID()
   const fakeUserId = crypto.randomUUID()

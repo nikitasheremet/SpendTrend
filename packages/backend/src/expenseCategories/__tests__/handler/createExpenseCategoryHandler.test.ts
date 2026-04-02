@@ -3,12 +3,12 @@ import { createExpenseCategoryHandler } from '../../handler/createExpenseCategor
 import * as service from '../../service/createExpenseCategoryService'
 import * as validation from '../../validation/createExpenseCategoryValidation'
 
-jest.mock('../../service/createExpenseCategoryService')
-jest.mock('../../validation/createExpenseCategoryValidation')
+vi.mock('../../service/createExpenseCategoryService')
+vi.mock('../../validation/createExpenseCategoryValidation')
 
 describe('createExpenseCategoryHandler', () => {
-  const mockService = service.createExpenseCategoryService as jest.Mock
-  const mockValidation = validation.validateCreateExpenseCategoryInput as jest.Mock
+  const mockService = service.createExpenseCategoryService as Mock
+  const mockValidation = validation.validateCreateExpenseCategoryInput as Mock
 
   beforeEach(() => {
     mockService.mockReset()
@@ -24,7 +24,7 @@ describe('createExpenseCategoryHandler', () => {
 
   const fakeValidContext = {
     req: {
-      formData: jest.fn(),
+      json: vi.fn().mockResolvedValue(fakeValidRequest),
     },
   } as unknown as Context
 
@@ -54,7 +54,7 @@ describe('createExpenseCategoryHandler', () => {
 
       const fakeInvalidCtx = {
         req: {
-          formData: jest.fn(),
+          json: vi.fn().mockResolvedValue(fakeValidRequest),
         },
       } as unknown as Context
 

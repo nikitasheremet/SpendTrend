@@ -3,12 +3,12 @@ import { db } from '../../../db'
 import { DB_ERROR } from '../../../models/errors/repositoryErrors'
 import { excludeFieldsAndAdd } from '../../../utilities/excludeFieldsAndAdd'
 
-jest.mock('../../../db')
-jest.spyOn(console, 'error').mockImplementation(() => {})
+vi.mock('../../../db')
+vi.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('deleteExpensesRepository', () => {
-  const mockDbInsert = db.insert as jest.Mock
-  const mockDbDelete = db.delete as jest.Mock
+  const mockDbInsert = db.insert as Mock
+  const mockDbDelete = db.delete as Mock
   const fakeDbQuery = db.query
 
   const fakeValidExpense: DeleteExpense = {
@@ -16,7 +16,7 @@ describe('deleteExpensesRepository', () => {
   }
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('when the database throws an error', () => {
@@ -47,8 +47,8 @@ describe('deleteExpensesRepository', () => {
       }
 
       mockDbDelete.mockReturnValue({
-        where: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([fakeDeletedExpense]),
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([fakeDeletedExpense]),
         }),
       })
 
@@ -72,7 +72,7 @@ describe('deleteExpensesRepository', () => {
         updatedAt: new Date(),
       }
 
-      fakeDbQuery.expenseCategoriesTable.findFirst = jest
+      fakeDbQuery.expenseCategoriesTable.findFirst = vi
         .fn()
         .mockResolvedValue(fakeExpenseCategoryQueryResponse)
 

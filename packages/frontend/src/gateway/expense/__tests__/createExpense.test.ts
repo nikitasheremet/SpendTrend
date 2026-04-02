@@ -21,7 +21,7 @@ describe('createExpense', () => {
     it('should return createdExpenses and mapped failedExpenses', async () => {
       const now = new Date()
       const fakeApiResponse = {
-        createdExpense: {
+        createdExpenses: {
           createdExpenses: [
             {
               id: 'expense-123',

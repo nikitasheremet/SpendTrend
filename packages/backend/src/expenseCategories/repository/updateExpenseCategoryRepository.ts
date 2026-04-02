@@ -36,7 +36,13 @@ export async function updateExpenseCategoryRepository(
       subCategories,
     }
 
-    return dbExpenseCategoryToDomain(categoryWithSubCategories)
+    const mappedCategory = dbExpenseCategoryToDomain(categoryWithSubCategories)
+    if (!mappedCategory) {
+      throw new RepositoryError(
+        `${NOT_FOUND_ERROR} - No expense category found with id: ${input.id}`,
+      )
+    }
+    return mappedCategory
   } catch (error) {
     if (error instanceof RepositoryError) {
       throw error

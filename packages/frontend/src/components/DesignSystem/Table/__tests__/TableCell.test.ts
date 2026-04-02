@@ -65,7 +65,7 @@ describe('TableCell', () => {
         column: createColumn({
           key: 'status',
           label: 'Status',
-          format: (value: string) => value.toUpperCase(),
+          format: (value: unknown) => String(value).toUpperCase(),
         }),
         row: { status: 'active' },
       })
@@ -118,6 +118,10 @@ describe('TableCell', () => {
       })
 
       expect(wrapper.findComponent(DropdownWithInput).exists()).toBe(true)
+      expect(wrapper.findComponent(DropdownWithInput).props('includeEmptyOption')).toBe(true)
+      expect(wrapper.findComponent(DropdownWithInput).props('emptyOptionLabel')).toBe(
+        'Uncategorized',
+      )
     })
   })
 
@@ -167,6 +171,7 @@ describe('TableCell', () => {
       expect(mockDropdownOptions).toHaveBeenCalledWith(fakeRow)
       const dropdown = wrapper.findComponent(DropdownWithInput)
       expect(dropdown.props('dropdownOptions')).toEqual(['Option for Food'])
+      expect(dropdown.props('includeEmptyOption')).toBe(false)
     })
   })
 
@@ -190,10 +195,8 @@ describe('TableCell', () => {
       })
 
       const input = wrapper.findComponent(Input)
-      await input.vm.$emit(
-        'keydown',
-        new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true }),
-      )
+      const textarea = input.find('textarea')
+      await textarea.trigger('keydown', { key: 'Enter', shiftKey: true })
 
       expect(wrapper.emitted('cell:changed')).toBeTruthy()
       expect(wrapper.emitted('cell:changed')![0]).toEqual(['description', 'Test'])
@@ -206,10 +209,8 @@ describe('TableCell', () => {
       })
 
       const input = wrapper.findComponent(Input)
-      await input.vm.$emit(
-        'keydown',
-        new KeyboardEvent('keydown', { key: 'Enter', shiftKey: false }),
-      )
+      const textarea = input.find('textarea')
+      await textarea.trigger('keydown', { key: 'Enter', shiftKey: false })
 
       // Should not emit immediately (will debounce instead)
       expect(wrapper.emitted('cell:changed')).toBeFalsy()
@@ -228,7 +229,8 @@ describe('TableCell', () => {
       await wrapper.vm.$nextTick()
 
       // Press Escape
-      await input.vm.$emit('keydown', new KeyboardEvent('keydown', { key: 'Escape' }))
+      const textarea = input.find('textarea')
+      await textarea.trigger('keydown', { key: 'Escape' })
       await wrapper.vm.$nextTick()
 
       // Value should be reverted to original
@@ -244,9 +246,10 @@ describe('TableCell', () => {
       })
 
       const input = wrapper.findComponent(Input)
+      const textarea = input.find('textarea')
 
       // Simulate typing (regular key)
-      await input.vm.$emit('keydown', new KeyboardEvent('keydown', { key: 'a' }))
+      await textarea.trigger('keydown', { key: 'a' })
 
       // Should not emit immediately
       expect(wrapper.emitted('cell:changed')).toBeFalsy()

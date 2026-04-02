@@ -1,12 +1,12 @@
 import { deleteIncomeService } from '../../service/deleteIncomeService'
 import * as repository from '../../repository/deleteIncomeRepository'
 
-jest.mock('../../repository/deleteIncomeRepository', () => ({
-  deleteIncomeRepository: jest.fn(),
+vi.mock('../../repository/deleteIncomeRepository', () => ({
+  deleteIncomeRepository: vi.fn(),
 }))
 
 describe('deleteIncomeService', () => {
-  const mockDeleteIncomeRepository = repository.deleteIncomeRepository as jest.Mock
+  const mockDeleteIncomeRepository = repository.deleteIncomeRepository as Mock
   const fakeInput = { id: 'income-1' }
 
   beforeEach(() => {

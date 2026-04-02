@@ -4,11 +4,9 @@ import { DataType } from '../bankInfoTypes.js'
 
 describe('extractExpensesAndIncomes', () => {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>
-  let consoleLogSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    // consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
   })
 
   afterEach(() => {

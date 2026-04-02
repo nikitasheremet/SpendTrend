@@ -2,12 +2,12 @@ import { getIncomesService } from '../../service/getIncomesService'
 import { getIncomesRepository } from '../../repository/getIncomesRepository'
 import { GetIncomesInput } from '../../validation/models'
 
-jest.mock('../../repository/getIncomesRepository', () => ({
-  getIncomesRepository: jest.fn(),
+vi.mock('../../repository/getIncomesRepository', () => ({
+  getIncomesRepository: vi.fn(),
 }))
 
 describe('getIncomesService', () => {
-  const mockedGetIncomesRepository = getIncomesRepository as jest.Mock
+  const mockedGetIncomesRepository = getIncomesRepository as Mock
   const fakeInput = {
     userId: 'user-1',
     accountId: 'account-1',

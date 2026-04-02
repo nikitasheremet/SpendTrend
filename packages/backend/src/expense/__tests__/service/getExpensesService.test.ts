@@ -1,12 +1,12 @@
 import { getExpensesService } from '../../service/getExpensesService'
 import * as repository from '../../repository/getExpensesRepository'
 
-jest.mock('../../repository/getExpensesRepository', () => ({
-  getExpensesRepository: jest.fn(),
+vi.mock('../../repository/getExpensesRepository', () => ({
+  getExpensesRepository: vi.fn(),
 }))
 
 describe('getExpensesService', () => {
-  const mockGetExpensesRepository = repository.getExpensesRepository as jest.Mock
+  const mockGetExpensesRepository = repository.getExpensesRepository as Mock
   const fakeInput = { accountId: 'account-1' }
 
   beforeEach(() => {

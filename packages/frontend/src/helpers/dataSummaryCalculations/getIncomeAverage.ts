@@ -1,4 +1,3 @@
-import { Expense } from '@/types/expenseData'
 import { sub } from 'date-fns/sub'
 import { getTotalAmountForMonth } from './getTotalAmountForMonth.js'
 import { Income } from '@/types/income/income.js'
@@ -18,19 +17,25 @@ export function getIncomeAverage(
     amount: income.amount,
   }))
 
-  const totalsPerMonth = []
-  for (let i = 1; i < numberOfMonths; i++) {
+  let sumOfTotals = 0
+  let monthsWithData = 0
+  for (let i = 1; i <= numberOfMonths; i++) {
     const dateToTotalFor = sub(fromDate, { months: i })
     const totalForMonth = getTotalAmountForMonth(
       formattedData,
       dateToTotalFor.getMonth(),
       dateToTotalFor.getFullYear(),
     )
-    totalsPerMonth.push(totalForMonth)
+    sumOfTotals += totalForMonth
+
+    if (totalForMonth > 0) {
+      monthsWithData += 1
+    }
   }
 
-  const sumOfTotals = totalsPerMonth.reduce((acc, curr) => acc + curr, 0)
-  const average = Math.round((sumOfTotals / numberOfMonths) * 100) / 100
+  if (monthsWithData === 0) return 0
+
+  const average = Math.round((sumOfTotals / monthsWithData) * 100) / 100
 
   return average
 }

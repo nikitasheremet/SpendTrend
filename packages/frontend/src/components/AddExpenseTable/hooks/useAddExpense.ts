@@ -110,10 +110,7 @@ function verifyNewExpenseData(newExpenseData: NewExpense[]): number[] {
       if (!expense.amount) {
         throw new Error('Amount is required')
       }
-      if (!expense.category) {
-        throw new Error('Category is required')
-      }
-    } catch (err) {
+    } catch {
       arrayOfErrorRows.push(index)
     }
   })

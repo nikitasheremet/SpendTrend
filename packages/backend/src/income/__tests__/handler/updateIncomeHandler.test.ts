@@ -5,21 +5,21 @@ import { ValidationError } from '../../../models/errors/validationError'
 import { STATUS_SUCCESS_200 } from '../../../models/statusCodes'
 import { updateIncomeService } from '../../service/updateIncomeService'
 
-jest.mock('../../validation/updateIncomeValidation')
-jest.mock('../../service/updateIncomeService')
+vi.mock('../../validation/updateIncomeValidation')
+vi.mock('../../service/updateIncomeService')
 
-const mockUpdateIncomeService = updateIncomeService as jest.Mock
-const mockValidateUpdateIncomeInput = validateUpdateIncomeInput as jest.Mock
+const mockUpdateIncomeService = updateIncomeService as Mock
+const mockValidateUpdateIncomeInput = validateUpdateIncomeInput as Mock
 
 describe('updateIncomeHandler', () => {
   const fakeContext = {
     req: {
-      json: jest.fn(),
+      json: vi.fn(),
     },
   } as unknown as Context
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when validation fails', () => {
@@ -40,7 +40,7 @@ describe('updateIncomeHandler', () => {
   })
 
   describe('when service throws an error', () => {
-    it('should return error status code and message', async () => {
+    it('should return error status code and error message', async () => {
       const mockServiceError = new Error('Service error')
 
       mockUpdateIncomeService.mockRejectedValue(mockServiceError)

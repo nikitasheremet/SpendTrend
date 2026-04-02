@@ -1,14 +1,30 @@
 import { describe, it, expect, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, unref, type Ref } from 'vue'
 import { mount } from '@vue/test-utils'
-import { useTableOperations } from '../useTableOperations'
+import {
+  useTableOperations,
+  type TableOperationsOptions,
+  type TableOperationsReturn,
+} from '../useTableOperations'
 
 interface FakeRow {
   id?: string
   name: string
   amount?: number
   category?: string
+  [key: string]: unknown
 }
+
+type FakeOptions = TableOperationsOptions<FakeRow>
+type MaybeRefValue<T> = T | Ref<T>
+
+type FlexibleTableOperationsReturn<T> = {
+  [K in keyof TableOperationsReturn<T>]: TableOperationsReturn<T>[K] extends Ref<infer TValue>
+    ? MaybeRefValue<TValue>
+    : TableOperationsReturn<T>[K]
+}
+
+type FakeTableOperationsVm = FlexibleTableOperationsReturn<FakeRow>
 
 const TestComponent = {
   template: '<div></div>',
@@ -18,7 +34,7 @@ const TestComponent = {
       required: true,
     },
   },
-  setup(props: { options: Parameters<typeof useTableOperations<FakeRow>>[0] }) {
+  setup(props: { options: FakeOptions }) {
     return useTableOperations(props.options)
   },
 }
@@ -27,9 +43,7 @@ function createEmptyRow(): FakeRow {
   return { name: '', amount: 0 }
 }
 
-function mountTableOperations(
-  overrides: Partial<Parameters<typeof useTableOperations<FakeRow>>[0]> = {},
-) {
+function mountTableOperations(overrides: Partial<FakeOptions> = {}) {
   return mount(TestComponent, {
     props: {
       options: {
@@ -41,11 +55,12 @@ function mountTableOperations(
   })
 }
 
-function readMaybeRef<T>(value: unknown): T {
-  if (value && typeof value === 'object' && 'value' in value) {
-    return (value as { value: T }).value
-  }
-  return value as T
+function readMaybeRef<T>(value: MaybeRefValue<T>): T {
+  return unref(value)
+}
+
+function getVm(wrapper: ReturnType<typeof mountTableOperations>): FakeTableOperationsVm {
+  return wrapper.vm as unknown as FakeTableOperationsVm
 }
 
 describe('useTableOperations', () => {
@@ -58,7 +73,7 @@ describe('useTableOperations', () => {
 
       await nextTick()
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       const rows = readMaybeRef<FakeRow[]>(vm.rows)
       expect(rows).toHaveLength(1)
       expect(rows[0]).toEqual({ name: '', amount: 0 })
@@ -71,7 +86,7 @@ describe('useTableOperations', () => {
         initialData: fakeInitialData,
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       const rows = readMaybeRef<FakeRow[]>(vm.rows)
       expect(rows).toEqual(fakeInitialData)
     })
@@ -81,7 +96,7 @@ describe('useTableOperations', () => {
         initialData: [{ name: 'Item 1', amount: 100 }],
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       if (vm.rows && typeof vm.rows === 'object' && 'value' in vm.rows) {
         vm.rows.value = []
       } else {
@@ -104,7 +119,7 @@ describe('useTableOperations', () => {
 
       await nextTick()
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       const rows = readMaybeRef<FakeRow[]>(vm.rows)
       expect(rows).toHaveLength(0)
     })
@@ -116,7 +131,7 @@ describe('useTableOperations', () => {
         initialData: [{ name: 'Item 1', amount: 100 }],
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       vm.addRow()
 
       const rows = readMaybeRef<FakeRow[]>(vm.rows)
@@ -130,7 +145,7 @@ describe('useTableOperations', () => {
         createEmptyRow: () => ({ name: '', amount: 0, category: '' }),
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       vm.addRow({ name: 'Prefilled', category: 'Food' })
 
       const rows = readMaybeRef<FakeRow[]>(vm.rows)
@@ -151,7 +166,7 @@ describe('useTableOperations', () => {
         ],
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       await vm.deleteRow(0)
 
       const rows = readMaybeRef<FakeRow[]>(vm.rows)
@@ -167,7 +182,7 @@ describe('useTableOperations', () => {
         onDelete: mockOnDelete,
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       await vm.deleteRow(0)
 
       expect(mockOnDelete).toHaveBeenCalledWith(fakeItem, 0)
@@ -180,7 +195,7 @@ describe('useTableOperations', () => {
         initialData: [{ name: 'Old Name', amount: 100 }],
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       await vm.updateCell(0, 'name', 'New Name')
 
       const rows = readMaybeRef<FakeRow[]>(vm.rows)
@@ -194,7 +209,7 @@ describe('useTableOperations', () => {
         onUpdate: mockOnUpdate,
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       await vm.updateCell(0, 'name', 'New Name')
 
       expect(mockOnUpdate).toHaveBeenCalledWith({ name: 'Old', amount: 100 }, 'name', 'New Name')
@@ -209,7 +224,7 @@ describe('useTableOperations', () => {
         onUpdate: mockOnUpdate,
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       await vm.updateCell(0, 'name', 'Same')
 
       expect(mockOnUpdate).not.toHaveBeenCalled()
@@ -228,7 +243,7 @@ describe('useTableOperations', () => {
         onSave: mockOnSave,
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       await vm.saveAll()
 
       expect(mockOnSave).toHaveBeenCalledWith(fakeData)
@@ -243,7 +258,7 @@ describe('useTableOperations', () => {
         validate: mockValidate,
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       await expect(vm.saveAll()).rejects.toThrow('Validation errors')
 
       expect(mockValidate).toHaveBeenCalled()
@@ -259,7 +274,7 @@ describe('useTableOperations', () => {
         onSave: mockOnSave,
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       await vm.saveAll()
 
       const rows = readMaybeRef<FakeRow[]>(vm.rows)
@@ -278,7 +293,7 @@ describe('useTableOperations', () => {
         onSave: mockOnSave,
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       await vm.saveAll()
 
       const rows = readMaybeRef<FakeRow[]>(vm.rows)
@@ -300,7 +315,7 @@ describe('useTableOperations', () => {
         onSave: mockOnSave,
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       const savePromise = vm.saveAll()
       await nextTick()
 
@@ -326,7 +341,7 @@ describe('useTableOperations', () => {
         validate: mockValidate,
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       const result = vm.validateRows()
 
       const rows = readMaybeRef<FakeRow[]>(vm.rows)
@@ -346,7 +361,7 @@ describe('useTableOperations', () => {
         ],
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       vm.clearAll()
 
       const rows = readMaybeRef<FakeRow[]>(vm.rows)
@@ -361,7 +376,7 @@ describe('useTableOperations', () => {
         validate: () => [0],
       })
 
-      const vm = wrapper.vm as any
+      const vm = getVm(wrapper)
       vm.validateRows()
 
       const validationErrors = readMaybeRef<number[]>(vm.validationErrors)

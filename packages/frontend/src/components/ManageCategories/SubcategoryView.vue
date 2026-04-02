@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { Teleport } from 'vue'
 import { ExpenseSubCategory } from '@/types/expenseData'
 import Button from '../DesignSystem/Button/Button.vue'
 import UpdateNameModal from './UpdateNameModal.vue'
@@ -107,10 +106,10 @@ const subCategoryOptions = (subCategory: ExpenseSubCategory) => [
   </Teleport>
   <UpdateNameModal
     v-if="selectedSubCategoryForUpdate"
+    v-model="isUpdateSubCategoryModalOpen"
     title="Update the subcategory name"
     :current-name="selectedSubCategoryForUpdate.name"
     :loading="loading"
-    v-model="isUpdateSubCategoryModalOpen"
     @update="handleUpdateSubCategory"
   />
 </template>

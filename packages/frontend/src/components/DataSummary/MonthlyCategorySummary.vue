@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useGetMonthlyExpenseSummary } from './helpers/useGetMonthlyExpenseSummary'
+import {
+  UNCATEGORIZED_CATEGORY_ID,
+  useGetMonthlyExpenseSummary,
+} from './helpers/useGetMonthlyExpenseSummary'
 import MonthlyCategorySummaryDetails from './MonthlyCategorySummaryDetails.vue'
 
 const monthModel = defineModel<number>('month', { required: true })
@@ -13,6 +16,22 @@ const filteredSummaryByCategory = computed(() =>
     (category) => category.total > 0 || category.threeMonthAvg > 0,
   ),
 )
+
+const orderedSummaryByCategory = computed(() => {
+  const categories = [...filteredSummaryByCategory.value]
+
+  return categories.sort((leftCategory, rightCategory) => {
+    if (leftCategory.id === UNCATEGORIZED_CATEGORY_ID) {
+      return 1
+    }
+
+    if (rightCategory.id === UNCATEGORIZED_CATEGORY_ID) {
+      return -1
+    }
+
+    return 0
+  })
+})
 </script>
 
 <template>
@@ -28,7 +47,7 @@ const filteredSummaryByCategory = computed(() =>
       </tr>
     </thead>
     <tbody>
-      <template v-for="category in filteredSummaryByCategory" :key="category.name">
+      <template v-for="category in orderedSummaryByCategory" :key="category.id">
         <MonthlyCategorySummaryDetails :category="category" />
       </template>
     </tbody>

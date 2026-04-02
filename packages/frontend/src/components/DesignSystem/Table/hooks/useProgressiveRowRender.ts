@@ -2,6 +2,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch, type ComputedRef } fr
 
 const DEFAULT_INITIAL_ROW_COUNT = 5
 const DEFAULT_ROW_CHUNK_SIZE = 5
+const ZERO_COUNT = 0
 
 export interface ProgressiveRowRenderOptions<T> {
   data: ComputedRef<T[]>
@@ -17,7 +18,7 @@ export interface ProgressiveRowRenderReturn<T> {
 export function useProgressiveRowRender<T>(
   options: ProgressiveRowRenderOptions<T>,
 ): ProgressiveRowRenderReturn<T> {
-  const renderedRowCount = ref(0)
+  const renderedRowCount = ref(ZERO_COUNT)
   let animationFrameId: number | undefined
 
   const resolvedInitialRowCount = computed(
@@ -82,8 +83,36 @@ export function useProgressiveRowRender<T>(
       () => resolvedInitialRowCount.value,
       () => resolvedRowChunkSize.value,
     ],
-    () => {
-      resetRenderWindow()
+    (currentValues, previousValues) => {
+      const [currentLength, currentEnabled, currentInitialCount, currentChunkSize] = currentValues
+      const [previousLength, previousEnabled, previousInitialCount, previousChunkSize] =
+        previousValues
+
+      if (currentEnabled !== previousEnabled) {
+        resetRenderWindow()
+        return
+      }
+
+      if (!currentEnabled) {
+        renderedRowCount.value = currentLength
+        cancelPendingRender()
+        return
+      }
+
+      if (currentInitialCount !== previousInitialCount || currentChunkSize !== previousChunkSize) {
+        resetRenderWindow()
+        return
+      }
+
+      if (currentLength < previousLength) {
+        renderedRowCount.value = Math.min(renderedRowCount.value, currentLength)
+        cancelPendingRender()
+        return
+      }
+
+      if (currentLength > previousLength) {
+        scheduleRemainingRows()
+      }
     },
   )
 
@@ -96,7 +125,7 @@ export function useProgressiveRowRender<T>(
       return options.data.value
     }
 
-    return options.data.value.slice(0, renderedRowCount.value)
+    return options.data.value.slice(ZERO_COUNT, renderedRowCount.value)
   })
 
   return {

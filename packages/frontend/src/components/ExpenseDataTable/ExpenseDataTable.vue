@@ -22,6 +22,15 @@ const popover = inject<PopoverRef>(POPOVER_SYMBOL)
 
 // Category helpers
 const { categoryNames, getCategory, getSubcategories } = useCategoriesInExpenseData()
+const EMPTY_CATEGORY_VALUE = ''
+
+function normalizeDropdownSelection(value: unknown): string {
+  if (typeof value !== 'string') {
+    return EMPTY_CATEGORY_VALUE
+  }
+
+  return value.trim()
+}
 
 // Preformat expenses to extract category and subCategory names for display
 function preformatExpenses(rawExpenses: Expense[]): DisplayExpense[] {
@@ -47,7 +56,7 @@ function getCurrentDisplayValue(expense: Expense, key: keyof DisplayExpense) {
 const expenses = computed(() => preformatExpenses(store.expenses.value))
 
 // Handle cell updates
-async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, value: any) {
+async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, value: unknown) {
   try {
     const expense = store.expenses.value[rowIndex]
 
@@ -61,18 +70,31 @@ async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, val
 
     // Handle special cases
     if (key === 'date') {
-      value = formatDate(new Date(value as string | Date).toISOString(), DateFormat.YYYY_MM_DD)
-      updatedExpense[key] = value
+      updatedExpense.date = formatDate(
+        new Date(value as string | Date).toISOString(),
+        DateFormat.YYYY_MM_DD,
+      )
     } else if (key === 'category') {
-      // Value is category name string, need to get full category object for service
-      const category = getCategory(value as string)
-      updatedExpense.category = category
+      const selectedCategoryName = normalizeDropdownSelection(value)
+
+      if (selectedCategoryName === EMPTY_CATEGORY_VALUE) {
+        updatedExpense.category = undefined
+        updatedExpense.subCategory = undefined
+      } else {
+        const category = getCategory(selectedCategoryName)
+        if (!category) {
+          throw new Error(`Could not find category by name: ${selectedCategoryName}`)
+        }
+
+        updatedExpense.category = category
+        updatedExpense.subCategory = undefined
+      }
+
       // Clear subcategory when category changes
-      updatedExpense.subCategory = undefined
     } else if (key === 'subCategory') {
       // Value is subcategory name string, need to find subcategory object for service
       const categoryObj = updatedExpense.category
-      const subcategory = categoryObj.subCategories?.find((sub) => sub.name === value)
+      const subcategory = categoryObj?.subCategories?.find((sub) => sub.name === value)
       if (subcategory) {
         updatedExpense.subCategory = subcategory
       } else {
@@ -140,7 +162,13 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     type: 'number',
     editable: false,
     calculate: (row: DisplayExpense) => (row.amount || 0) - (row.paidBackAmount || 0),
-    format: (value: number) => value.toFixed(2),
+    format: (value: unknown) => {
+      if (typeof value === 'number') {
+        return value.toFixed(2)
+      }
+
+      return Number(value ?? 0).toFixed(2)
+    },
   },
   {
     key: 'category',

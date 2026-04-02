@@ -9,8 +9,8 @@ const { isModalOpen, message } = defineProps<{
 
 <template>
   <div
-    id="loading-modal-outer-container"
     v-if="isModalOpen"
+    id="loading-modal-outer-container"
     class="fixed top-0 left-0 h-screen w-screen z-2000 bg-black/80 flex items-center justify-center"
   >
     <div

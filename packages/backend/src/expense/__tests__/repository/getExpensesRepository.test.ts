@@ -1,18 +1,17 @@
 import { getExpensesRepository } from '../../repository/getExpensesRepository'
 import { db } from '../../../db'
 import { DB_ERROR } from '../../../models/errors/repositoryErrors'
-import { excludeFieldsAndAdd } from '../../../utilities/excludeFieldsAndAdd'
 
-jest.mock('../../../db')
+vi.mock('../../../db')
 // Mocking console error to prevent actual logging during tests
-jest.spyOn(console, 'error').mockImplementation(() => {})
+vi.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('getExpensesRepository', () => {
-  const mockDbFindMany = db.query.expensesTable.findMany as jest.Mock
+  const mockDbFindMany = db.query.expensesTable.findMany as Mock
   const fakeAccountId = 'account-1'
 
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('when the database throws an error', () => {

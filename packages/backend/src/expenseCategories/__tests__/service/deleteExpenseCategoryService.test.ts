@@ -1,10 +1,10 @@
 import { deleteExpenseCategoryService } from '../../service/deleteExpenseCategoryService'
 import { deleteExpenseCategoryRepository } from '../../repository/deleteExpenseCategoryRepository'
 
-jest.mock('../../repository/deleteExpenseCategoryRepository')
+vi.mock('../../repository/deleteExpenseCategoryRepository')
 
 describe('deleteExpenseCategoryService', () => {
-  const mockRepository = deleteExpenseCategoryRepository as jest.Mock
+  const mockRepository = deleteExpenseCategoryRepository as Mock
 
   beforeEach(() => {
     mockRepository.mockReset()
