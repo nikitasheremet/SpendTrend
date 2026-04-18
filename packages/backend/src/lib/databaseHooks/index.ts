@@ -1,0 +1,1 @@
+export { createDefaultExpenseCategoriesDatabaseHook } from './createDefaultExpenseCategoriesDatabaseHook'
