@@ -266,21 +266,21 @@ describe('when monthly totals for current month are zero occurs', () => {
     )
 
     expect(summaryForSelectedMonth.value.expenses.total).toBe(0)
-    expect(summaryForSelectedMonth.value.expenses.threeMonthAvg).toBe(50)
+    expect(summaryForSelectedMonth.value.expenses.threeMonthAvg).toBe(75)
     expect(summaryForSelectedMonth.value.expenses.diffTotalToAvgAsPercent).toBeUndefined()
 
     const categorySummary = summaryForSelectedMonthByCategory.value.find(
       (category) => category.id === fakeCategory.id,
     )
     expect(categorySummary?.total).toBe(0)
-    expect(categorySummary?.threeMonthAvg).toBe(50)
+    expect(categorySummary?.threeMonthAvg).toBe(75)
     expect(categorySummary?.diffTotalToAvgAsPercent).toBeUndefined()
 
     const subCategorySummary = categorySummary?.subCategories.find(
       (subCategory) => subCategory.id === fakeSubCategory.id,
     )
     expect(subCategorySummary?.total).toBe(0)
-    expect(subCategorySummary?.threeMonthAvg).toBe(50)
+    expect(subCategorySummary?.threeMonthAvg).toBe(75)
     expect(subCategorySummary?.diffTotalToAvgAsPercent).toBeUndefined()
   })
 })
