@@ -203,6 +203,11 @@ function roundToTwoDecimals(value: number): number {
   return Math.round(value * ROUNDING_FACTOR) / ROUNDING_FACTOR
 }
 
+/**
+ * Returns undefined when percentage comparison is not meaningful:
+ * - there is no three-month average baseline, or
+ * - the current-month total is zero and should render as not relevant.
+ */
 function getDiffTotalToAverageAsPercent(
   totalAmount: number,
   diffTotalToAverage: number,
