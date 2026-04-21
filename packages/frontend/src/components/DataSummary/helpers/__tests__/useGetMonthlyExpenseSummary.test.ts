@@ -239,7 +239,7 @@ describe('when monthly summary includes expenses without category occurs', () =>
   })
 })
 
-describe('when monthly totals for current month are zero occurs', () => {
+describe('when monthly totals for current month being zero occurs', () => {
   it('should set percent diff as undefined for totals, category, and subCategory summaries', () => {
     fakeStoreExpenses.value = [
       createFakeExpense({
