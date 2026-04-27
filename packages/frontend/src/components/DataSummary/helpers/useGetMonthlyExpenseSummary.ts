@@ -25,13 +25,13 @@ const EMPTY_SUMMARY_FOR_SELECTED_MONTH: MonthDataSummary = {
     total: 0,
     threeMonthAvg: 0,
     diffTotalToAvg: 0,
-    diffTotalToAvgAsPercent: 0,
+    diffTotalToAvgAsPercent: undefined,
   },
   income: {
     total: 0,
     threeMonthAvg: 0,
     diffTotalToAvg: 0,
-    diffTotalToAvgAsPercent: 0,
+    diffTotalToAvgAsPercent: undefined,
   },
   savings: 0,
 }
@@ -108,13 +108,11 @@ export function useGetMonthlyExpenseSummary(
         subCategorySummary.diffTotalToAvg = roundToTwoDecimals(
           subCategorySummary.total - subCategorySummary.threeMonthAvg,
         )
-        subCategorySummary.diffTotalToAvgAsPercent =
-          subCategorySummary.threeMonthAvg === 0
-            ? undefined
-            : Math.round(
-                (subCategorySummary.diffTotalToAvg / subCategorySummary.threeMonthAvg) *
-                  ROUNDING_FACTOR,
-              )
+        subCategorySummary.diffTotalToAvgAsPercent = getDiffTotalToAverageAsPercent(
+          subCategorySummary.total,
+          subCategorySummary.diffTotalToAvg,
+          subCategorySummary.threeMonthAvg,
+        )
         subCategorySummary.expenses = buildSortedPositiveExpensesForMonth(
           subCategoryExpenses,
           selectedMonth,
@@ -168,10 +166,11 @@ class ExpenseSummary {
     )
     this.threeMonthAverage = threeMonthAverage
     this.diffTotalToAverage = roundToTwoDecimals(totalAmount - threeMonthAverage)
-    this.diffTotalToAverageAsPercent =
-      threeMonthAverage === 0
-        ? undefined
-        : Math.round((this.diffTotalToAverage / threeMonthAverage) * ROUNDING_FACTOR)
+    this.diffTotalToAverageAsPercent = getDiffTotalToAverageAsPercent(
+      totalAmount,
+      this.diffTotalToAverage,
+      threeMonthAverage,
+    )
   }
 }
 
@@ -192,15 +191,33 @@ class IncomeSummary {
     )
     this.threeMonthAverage = threeMonthAverage
     this.diffTotalToAverage = roundToTwoDecimals(totalAmount - threeMonthAverage)
-    this.diffTotalToAverageAsPercent =
-      threeMonthAverage === 0
-        ? undefined
-        : Math.round((this.diffTotalToAverage / threeMonthAverage) * ROUNDING_FACTOR)
+    this.diffTotalToAverageAsPercent = getDiffTotalToAverageAsPercent(
+      totalAmount,
+      this.diffTotalToAverage,
+      threeMonthAverage,
+    )
   }
 }
 
 function roundToTwoDecimals(value: number): number {
   return Math.round(value * ROUNDING_FACTOR) / ROUNDING_FACTOR
+}
+
+/**
+ * Returns undefined when percentage comparison is not meaningful:
+ * - there is no three-month average baseline, or
+ * - the current-month total is zero and should render as not relevant.
+ */
+function getDiffTotalToAverageAsPercent(
+  totalAmount: number,
+  diffTotalToAverage: number,
+  threeMonthAverage: number,
+): number | undefined {
+  if (threeMonthAverage === 0 || totalAmount === 0) {
+    return undefined
+  }
+
+  return Math.round((diffTotalToAverage / threeMonthAverage) * ROUNDING_FACTOR)
 }
 
 function buildCategorySummary(
@@ -237,10 +254,7 @@ function buildCategorySummary(
     total,
     threeMonthAvg,
     diffTotalToAvg,
-    diffTotalToAvgAsPercent:
-      threeMonthAvg === 0
-        ? undefined
-        : Math.round((diffTotalToAvg / threeMonthAvg) * ROUNDING_FACTOR),
+    diffTotalToAvgAsPercent: getDiffTotalToAverageAsPercent(total, diffTotalToAvg, threeMonthAvg),
   }
 }
 

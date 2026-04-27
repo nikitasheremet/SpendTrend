@@ -23,7 +23,7 @@ const isIncomeDoingBetter = computed(() => income.value.diffTotalToAvg > 0)
         :top-amount="expenses.total"
         :three-month-avg="expenses.threeMonthAvg"
         :change-amount="expenses.diffTotalToAvg"
-        :change-percent="expenses.diffTotalToAvgAsPercent || 0"
+        :change-percent="expenses.diffTotalToAvgAsPercent"
         :is-better="isExpensesDoingBetter"
       />
       <MonthlyTotalCard
@@ -31,7 +31,7 @@ const isIncomeDoingBetter = computed(() => income.value.diffTotalToAvg > 0)
         :top-amount="summaryForSelectedMonth.income.total"
         :three-month-avg="summaryForSelectedMonth.income.threeMonthAvg"
         :change-amount="summaryForSelectedMonth.income.diffTotalToAvg"
-        :change-percent="summaryForSelectedMonth.income.diffTotalToAvgAsPercent || 0"
+        :change-percent="summaryForSelectedMonth.income.diffTotalToAvgAsPercent"
         :is-better="isIncomeDoingBetter"
       />
       <MonthlyTotalCard
@@ -39,7 +39,7 @@ const isIncomeDoingBetter = computed(() => income.value.diffTotalToAvg > 0)
         :top-amount="summaryForSelectedMonth.savings"
         :three-month-avg="0"
         :change-amount="0"
-        :change-percent="0"
+        :change-percent="undefined"
         :is-better="true"
       />
     </div>

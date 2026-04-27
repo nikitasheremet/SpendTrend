@@ -9,6 +9,7 @@ const { category } = defineProps<{
 }>()
 
 const isSubcategoryDetailsShown = ref(false)
+const NOT_RELEVANT_VALUE = '-'
 
 const hasExpandedContent = computed(() => {
   return category.subCategories.length > 0 || category.uncategorizedExpenses.length > 0
@@ -43,7 +44,7 @@ function showSubcategories() {
     <td class="p-2 text-center">{{ category.total }}</td>
     <td class="p-2 text-center">{{ category.threeMonthAvg }}</td>
     <td class="p-2 text-center">{{ category.diffTotalToAvg }}</td>
-    <td class="p-2 text-center">{{ category.diffTotalToAvgAsPercent }}</td>
+    <td class="p-2 text-center">{{ category.diffTotalToAvgAsPercent ?? NOT_RELEVANT_VALUE }}</td>
   </tr>
   <template v-if="isSubcategoryDetailsShown">
     <MonthlySubcategorySummary

@@ -7,10 +7,11 @@ const props = defineProps<{
   topAmount: number
   threeMonthAvg: number
   changeAmount: number
-  changePercent: number
+  changePercent: number | undefined
   isBetter: boolean
 }>()
 
+const NOT_RELEVANT_VALUE = '-'
 const isBetterStyling = computed(() => (props.isBetter ? 'border-green-600' : 'border-red-600'))
 </script>
 <template>
@@ -29,7 +30,7 @@ const isBetterStyling = computed(() => (props.isBetter ? 'border-green-600' : 'b
       </div>
       <div class="flex-none flex flex-col items-center w-20 justify-center">
         <h4 class="text-sm">%</h4>
-        <p class="text-gray-500">{{ changePercent }}</p>
+        <p class="text-gray-500">{{ changePercent ?? NOT_RELEVANT_VALUE }}</p>
       </div>
     </div>
   </div>
