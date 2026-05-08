@@ -105,6 +105,13 @@ async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, val
         ...updatedExpense,
         [key]: value,
       }
+
+      if (key === 'amount' || key === 'paidBackAmount') {
+        updatedExpense = {
+          ...updatedExpense,
+          netAmount: (updatedExpense.amount ?? 0) - (updatedExpense.paidBackAmount ?? 0),
+        }
+      }
     }
 
     // Update via service
