@@ -5,12 +5,13 @@ import { useScrollPast } from '@/helpers/hooks/useScrollPast'
 const theadRef = ref<HTMLElement | null>(null)
 const { hasScrolledPast } = useScrollPast(theadRef)
 
-const { headers } = defineProps<{
+const { headers, stickyTopOffsetPx } = defineProps<{
   headers: {
     label: string
     required?: boolean
     customClass?: string
   }[]
+  stickyTopOffsetPx?: number
 }>()
 </script>
 
@@ -21,7 +22,14 @@ const { headers } = defineProps<{
         v-for="(header, index) in headers"
         :key="index"
         class="sticky"
-        :class="[header.customClass, { 'top-15 z-table-header bg-white h-11 align-bottom': hasScrolledPast }]"
+        :class="[
+          header.customClass,
+          {
+            'z-table-header bg-white h-11 align-bottom': hasScrolledPast,
+            'top-nav': hasScrolledPast && stickyTopOffsetPx === undefined,
+          },
+        ]"
+        :style="hasScrolledPast && stickyTopOffsetPx !== undefined ? { top: `${stickyTopOffsetPx}px` } : undefined"
       >
         {{ header.label }} <span v-if="header.required" class="text-red-700 text-2xl">*</span>
       </th>
