@@ -17,6 +17,7 @@ import { watch } from 'vue'
 const newExpenses = defineModel<NewExpense[]>({ required: true })
 const props = defineProps<{
   beforeSaveExpense?: () => Promise<boolean>
+  stickyTopOffsetPx?: number
 }>()
 const store = getStore()
 
@@ -323,6 +324,7 @@ const tableActions: TableAction[] = [
     :error="error"
     :loading="isLoading"
     mode="editable"
+    :sticky-top-offset-px="props.stickyTopOffsetPx"
     @cell:changed="handleCellUpdate"
   />
 </template>

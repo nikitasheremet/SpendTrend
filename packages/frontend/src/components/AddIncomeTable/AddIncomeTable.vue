@@ -15,6 +15,7 @@ import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 const newIncomes = defineModel<NewIncome[]>({ required: true })
 const props = defineProps<{
   beforeSaveIncome?: () => Promise<boolean>
+  stickyTopOffsetPx?: number
 }>()
 const store = getStore()
 
@@ -225,6 +226,7 @@ const tableActions: TableAction[] = [
     :error="error"
     :loading="isLoading"
     mode="editable"
+    :sticky-top-offset-px="props.stickyTopOffsetPx"
     @cell:changed="handleCellUpdate"
   />
 </template>

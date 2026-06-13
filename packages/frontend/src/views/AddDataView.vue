@@ -293,6 +293,7 @@ function removeIncomeDuplicateDraftRow(draftIndex: number) {
     <AddExpenseTable
       v-model="store.newExpenses.value"
       :before-save-expense="beforeSaveExpense"
+      :sticky-top-offset-px="tableHeaderStickyTopPx"
       @move-to-income="moveToIncome"
     />
   </div>
@@ -300,6 +301,7 @@ function removeIncomeDuplicateDraftRow(draftIndex: number) {
     <AddIncomeTable
       v-model="store.newIncomes.value"
       :before-save-income="beforeSaveIncome"
+      :sticky-top-offset-px="tableHeaderStickyTopPx"
       @move-to-expense="moveToExpense"
     />
   </div>
