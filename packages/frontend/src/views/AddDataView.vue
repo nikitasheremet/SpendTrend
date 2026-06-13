@@ -12,6 +12,8 @@ import { formatPastedBankData } from '@/helpers/bankInfoFormatting/formatPastedB
 import { DataType } from '@/helpers/bankInfoFormatting/bankInfoTypes'
 import { useControlModal } from '@/components/DesignSystem/Modal/useControlModal'
 import { useScrollPast } from '@/helpers/hooks/useScrollPast'
+import { useElementHeight } from '@/helpers/hooks/useElementHeight'
+import { getThemeSpacingPx } from '@/helpers/css/getThemeSpacingPx'
 
 const TAB_EXPENSE = 'expense'
 const TAB_INCOME = 'income'
@@ -32,6 +34,9 @@ const store = getStore()
 const currentTab = ref<typeof TAB_EXPENSE | typeof TAB_INCOME>(TAB_EXPENSE)
 const tabsRowRef = ref<HTMLElement | null>(null)
 const { hasScrolledPast: hasTabsRowScrolledPast } = useScrollPast(tabsRowRef)
+const tabsRowHeightPx = useElementHeight(tabsRowRef)
+const navHeightPx = getThemeSpacingPx('nav')
+const tableHeaderStickyTopPx = computed(() => navHeightPx + tabsRowHeightPx.value)
 const {
   isModalOpen: isDuplicatesModalOpen,
   openModal: openDuplicatesModal,
