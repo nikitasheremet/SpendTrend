@@ -29,6 +29,7 @@ const formatDataPlaceholder = 'Paste your bank data here. Copy it directly from 
 
 const store = getStore()
 const currentTab = ref<typeof TAB_EXPENSE | typeof TAB_INCOME>(TAB_EXPENSE)
+const tabsRowRef = ref<HTMLElement | null>(null)
 const {
   isModalOpen: isDuplicatesModalOpen,
   openModal: openDuplicatesModal,
@@ -265,7 +266,7 @@ function removeIncomeDuplicateDraftRow(draftIndex: number) {
       @paste.prevent="handlePaste"
     />
   </div>
-  <div class="flex items-start justify-between">
+  <div ref="tabsRowRef" class="flex items-start justify-between">
     <TabViewNav :tabs="addDataTabs" :current-tab="currentTab" @tab-clicked="handleMainTabClick" />
     <Button
       type="primary"
