@@ -25,7 +25,7 @@ const { headers, stickyTopOffsetPx } = defineProps<{
         :class="[
           header.customClass,
           {
-            'z-table-header bg-white h-11 align-bottom': hasScrolledPast,
+            'z-table-header bg-white min-h-11 align-bottom': hasScrolledPast,
             'top-nav': hasScrolledPast && stickyTopOffsetPx === undefined,
           },
         ]"
