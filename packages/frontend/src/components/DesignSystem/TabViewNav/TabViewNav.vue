@@ -14,7 +14,7 @@ const emit = defineEmits<{
 }>()
 </script>
 <template>
-  <div class="border border-gray-300 rounded-t-md w-fit mb-5">
+  <div class="flex items-center border border-gray-300 rounded-t-md w-fit">
     <Button
       v-for="tab of tabs"
       :key="tab.value"

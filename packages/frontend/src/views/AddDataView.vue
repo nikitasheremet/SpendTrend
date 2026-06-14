@@ -277,7 +277,7 @@ function removeIncomeDuplicateDraftRow(draftIndex: number) {
   </div>
   <div
     ref="tabsRowRef"
-    class="flex items-start justify-between"
+    class="flex items-center justify-between"
     :class="{ 'sticky top-nav z-sticky-secondary bg-white py-2': hasTabsRowScrolledPast }"
   >
     <TabViewNav :tabs="addDataTabs" :current-tab="currentTab" @tab-clicked="handleMainTabClick" />
