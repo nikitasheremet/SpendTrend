@@ -33,9 +33,11 @@ const formatDataPlaceholder = 'Paste your bank data here. Copy it directly from 
 const store = getStore()
 const currentTab = ref<typeof TAB_EXPENSE | typeof TAB_INCOME>(TAB_EXPENSE)
 const tabsRowRef = ref<HTMLElement | null>(null)
-const { hasScrolledPast: hasTabsRowScrolledPast } = useScrollPast(tabsRowRef)
-const tabsRowHeightPx = useElementHeight(tabsRowRef)
 const navHeightPx = getThemeSpacingPx('nav')
+const { hasScrolledPast: hasTabsRowScrolledPast } = useScrollPast(tabsRowRef, {
+  triggerOffsetPx: navHeightPx,
+})
+const tabsRowHeightPx = useElementHeight(tabsRowRef)
 const tableHeaderStickyTopPx = computed(() => navHeightPx + tabsRowHeightPx.value)
 const {
   isModalOpen: isDuplicatesModalOpen,
