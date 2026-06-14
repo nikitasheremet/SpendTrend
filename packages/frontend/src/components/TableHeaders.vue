@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useScrollPast } from '@/helpers/hooks/useScrollPast'
+import { getThemeSpacingPx } from '@/helpers/css/getThemeSpacingPx'
 
 const theadRef = ref<HTMLElement | null>(null)
-const { hasScrolledPast } = useScrollPast(theadRef)
 
 const { headers, stickyTopOffsetPx } = defineProps<{
   headers: {
@@ -13,6 +13,9 @@ const { headers, stickyTopOffsetPx } = defineProps<{
   }[]
   stickyTopOffsetPx?: number
 }>()
+
+const stickyTopPx = computed(() => stickyTopOffsetPx ?? getThemeSpacingPx('nav'))
+const { hasScrolledPast } = useScrollPast(theadRef, { triggerOffsetPx: stickyTopPx })
 </script>
 
 <template>
@@ -26,10 +29,9 @@ const { headers, stickyTopOffsetPx } = defineProps<{
           header.customClass,
           {
             'z-table-header bg-white min-h-11 align-bottom': hasScrolledPast,
-            'top-nav': hasScrolledPast && stickyTopOffsetPx === undefined,
           },
         ]"
-        :style="hasScrolledPast && stickyTopOffsetPx !== undefined ? { top: `${stickyTopOffsetPx}px` } : undefined"
+        :style="{ top: `${stickyTopPx}px` }"
       >
         {{ header.label }} <span v-if="header.required" class="text-red-700 text-2xl">*</span>
       </th>

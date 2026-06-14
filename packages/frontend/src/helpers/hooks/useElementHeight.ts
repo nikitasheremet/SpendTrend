@@ -16,7 +16,7 @@ export function useElementHeight(elementRef: Ref<HTMLElement | null>) {
     resizeObserver = new ResizeObserver(([entry]) => {
       height.value = entry.borderBoxSize?.[0]?.blockSize ?? entry.target.getBoundingClientRect().height
     })
-    resizeObserver.observe(elementRef.value)
+    resizeObserver.observe(elementRef.value, { box: 'border-box' })
   })
 
   onUnmounted(() => {
