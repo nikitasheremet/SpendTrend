@@ -12,6 +12,7 @@ const EMPTY_COLUMN_VALUE = '-'
 const OPENING_PARENTHESES = '('
 const CLOSING_PARENTHESES_WITH_SPACE = ') '
 const ROUNDING_FACTOR = 100
+const NOT_RELEVANT_VALUE = '-'
 
 const {
   summaryForSelectedMonthBySubcategory,
@@ -85,7 +86,9 @@ function getUncategorizedTotal() {
       <td class="p-2 text-center">{{ subcategoryDetails.total }}</td>
       <td class="p-2 text-center">{{ subcategoryDetails.threeMonthAvg }}</td>
       <td class="p-2 text-center">{{ subcategoryDetails.diffTotalToAvg }}</td>
-      <td class="p-2 text-center">{{ subcategoryDetails.diffTotalToAvgAsPercent }}</td>
+      <td class="p-2 text-center">
+        {{ subcategoryDetails.diffTotalToAvgAsPercent ?? NOT_RELEVANT_VALUE }}
+      </td>
     </tr>
     <tr
       v-for="expense in subcategoryDetails.expenses"

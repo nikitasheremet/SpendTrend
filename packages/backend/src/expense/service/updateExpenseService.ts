@@ -5,12 +5,18 @@ import { convertDbAmountToDecimals } from './helpers/convertDbAmountToDecimals'
 
 export async function updateExpenseService(input: UpdateExpenseInput) {
   const { id, accountId: _accountId, ...otherFields } = input
+
+  const computedNetAmount =
+    input.amount !== undefined && input.paidBackAmount !== undefined
+      ? input.amount - input.paidBackAmount
+      : input.netAmount
+
   const fieldsToUpdate = {
     ...otherFields,
     ...convertDomainAmountToInteger({
       amount: input.amount,
       paidBackAmount: input.paidBackAmount,
-      netAmount: input.netAmount,
+      netAmount: computedNetAmount,
     }),
     updatedAt: new Date(),
   }

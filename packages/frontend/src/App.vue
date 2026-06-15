@@ -39,7 +39,7 @@ function toggleManageCategories() {
 
 <template>
   <div class="flex min-h-screen flex-col">
-    <div class="flex-none h-15">
+    <div class="flex-none h-nav">
       <NavigationBar
         v-if="isLoggedIn"
         :is-logged-in="isLoggedIn"

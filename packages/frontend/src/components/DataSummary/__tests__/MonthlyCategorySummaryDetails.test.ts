@@ -70,4 +70,21 @@ describe('when expanding monthly category summary details occurs', () => {
     expect(uncategorizedGroupRow.exists()).toBe(true)
     expect(uncategorizedGroupRow.text()).toContain('No SubCategory')
   })
+
+  it('should render dash when percent difference is not relevant', () => {
+    const wrapper = mount(MonthlyCategorySummaryDetails, {
+      props: {
+        category: createFakeCategorySummary({
+          id: 'fake-category-id',
+          name: 'Food',
+          uncategorizedExpensesCount: 0,
+        }),
+      },
+    })
+
+    const cells = wrapper.findAll('td')
+    const percentCell = cells[cells.length - 1]
+
+    expect(percentCell.text()).toBe('-')
+  })
 })

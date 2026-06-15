@@ -238,3 +238,49 @@ describe('when monthly summary includes expenses without category occurs', () =>
     expect(uncategorizedSummary?.diffTotalToAvgAsPercent).toBeUndefined()
   })
 })
+
+describe('when monthly totals for current month being zero occurs', () => {
+  it('should set percent diff as undefined for totals, category, and subCategory summaries', () => {
+    fakeStoreExpenses.value = [
+      createFakeExpense({
+        id: 'fake-expense-1',
+        name: 'January groceries',
+        date: '2026-01-08',
+        netAmount: 60,
+        category: fakeCategory,
+        subCategory: fakeSubCategory,
+      }),
+      createFakeExpense({
+        id: 'fake-expense-2',
+        name: 'February groceries',
+        date: '2026-02-12',
+        netAmount: 90,
+        category: fakeCategory,
+        subCategory: fakeSubCategory,
+      }),
+    ]
+
+    const { summaryForSelectedMonth, summaryForSelectedMonthByCategory } = useGetMonthlyExpenseSummary(
+      ref(2),
+      ref(2026),
+    )
+
+    expect(summaryForSelectedMonth.value.expenses.total).toBe(0)
+    expect(summaryForSelectedMonth.value.expenses.threeMonthAvg).toBe(75)
+    expect(summaryForSelectedMonth.value.expenses.diffTotalToAvgAsPercent).toBeUndefined()
+
+    const categorySummary = summaryForSelectedMonthByCategory.value.find(
+      (category) => category.id === fakeCategory.id,
+    )
+    expect(categorySummary?.total).toBe(0)
+    expect(categorySummary?.threeMonthAvg).toBe(75)
+    expect(categorySummary?.diffTotalToAvgAsPercent).toBeUndefined()
+
+    const subCategorySummary = categorySummary?.subCategories.find(
+      (subCategory) => subCategory.id === fakeSubCategory.id,
+    )
+    expect(subCategorySummary?.total).toBe(0)
+    expect(subCategorySummary?.threeMonthAvg).toBe(75)
+    expect(subCategorySummary?.diffTotalToAvgAsPercent).toBeUndefined()
+  })
+})

@@ -4,6 +4,7 @@ import { db } from '../db'
 import { user, session, account, verification } from '../db/schema'
 import { customSession } from 'better-auth/plugins'
 import { eq } from 'drizzle-orm'
+import { createDefaultExpenseCategoriesDatabaseHook } from './databaseHooks'
 
 export let auth: Auth
 
@@ -16,9 +17,6 @@ export function createAuth() {
       schema: { user, session, account, verification },
     }),
     advanced: {
-      crossSubDomainCookies: {
-        enabled: true,
-      },
       defaultCookieAttributes: {
         sameSite: 'none',
         secure: true,
@@ -51,5 +49,18 @@ export function createAuth() {
         }
       }),
     ],
+    databaseHooks: {
+      account: {
+        create: {
+          after: async (createdAccount) => {
+            console.log('Account created:', createdAccount)
+            await createDefaultExpenseCategoriesDatabaseHook({
+              accountId: createdAccount.id,
+              userId: createdAccount.userId,
+            })
+          },
+        },
+      },
+    },
   }) as unknown as Auth
 }

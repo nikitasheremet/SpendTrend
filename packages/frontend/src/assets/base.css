@@ -1,5 +1,12 @@
 @import 'tailwindcss';
 
+@theme {
+  --spacing-nav: 60px; /* nav bar height; was previously hardcoded as h-15 / top-15 */
+  --z-index-nav: 50; /* NavigationBar, when fixed */
+  --z-index-sticky-secondary: 45; /* tabs/duplicates row, when stuck */
+  --z-index-table-header: 40; /* table <th>, when stuck */
+}
+
 html {
   margin: 0;
   padding: 0 30px 0 30px;

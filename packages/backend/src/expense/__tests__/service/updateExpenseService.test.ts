@@ -36,4 +36,55 @@ describe('updateExpenseService', () => {
     // Assert
     expect(result).toEqual(expect.objectContaining({ ...fakeRepoResult, amount: 3.0 }))
   })
+
+  it('should recalculate netAmount from amount and paidBackAmount', async () => {
+    // Arrange
+    const input = {
+      id: 'abc',
+      userId: 'u1',
+      accountId: 'a1',
+      amount: 10.0,
+      paidBackAmount: 3.0,
+      netAmount: 99.99, // stale value — should be ignored
+    } as UpdateExpenseInput
+    const fakeRepoResult = { id: 'abc', amount: 1000, paidBackAmount: 300, netAmount: 700 }
+    mockedUpdateExpenseRepository.mockResolvedValueOnce(fakeRepoResult)
+
+    // Act
+    await updateExpenseService(input)
+
+    // Assert
+    expect(mockedUpdateExpenseRepository).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fieldsToUpdate: expect.objectContaining({
+          amount: 1000,
+          paidBackAmount: 300,
+          netAmount: 700,
+        }),
+      }),
+    )
+  })
+
+  it('should not overwrite netAmount when amount is not provided', async () => {
+    // Arrange
+    const input = {
+      id: 'abc',
+      userId: 'u1',
+      accountId: 'a1',
+      paidBackAmount: 2.0,
+      // amount is undefined — cannot recalculate
+    } as UpdateExpenseInput
+    const fakeRepoResult = { id: 'abc', paidBackAmount: 200 }
+    mockedUpdateExpenseRepository.mockResolvedValueOnce(fakeRepoResult)
+
+    // Act
+    await updateExpenseService(input)
+
+    // Assert
+    expect(mockedUpdateExpenseRepository).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fieldsToUpdate: expect.not.objectContaining({ netAmount: expect.anything() }),
+      }),
+    )
+  })
 })

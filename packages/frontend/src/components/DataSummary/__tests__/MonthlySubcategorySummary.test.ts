@@ -122,4 +122,18 @@ describe('when rendering monthly subCategory summary occurs', () => {
     expect(directExpenseRows[0].text()).toContain('(2026-03-09) One-off admin fee')
     expect(directExpenseRows[0].text()).toContain('80')
   })
+
+  it('should render dash when subCategory percent difference is not relevant', () => {
+    const wrapper = mount(MonthlySubcategorySummary, {
+      props: {
+        summaryForSelectedMonthBySubcategory: fakeSubCategorySummary,
+        uncategorizedExpenses: [],
+      },
+    })
+
+    const subcategoryRows = wrapper.findAll('[data-testid="subcategory-summary-row"]')
+    const utilitiesRowText = subcategoryRows[1].text()
+
+    expect(utilitiesRowText).toContain('-')
+  })
 })

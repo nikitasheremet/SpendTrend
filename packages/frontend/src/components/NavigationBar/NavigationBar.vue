@@ -33,8 +33,8 @@ const navigationLinks = [
 <template>
   <div
     ref="navigationRef"
-    class="flex-none flex h-15 justify-between items-center bg-white"
-    :class="{ 'fixed top-0 left-0 right-0 bg-white z-50 px-7.5 h-15': hasScrolledPast }"
+    class="flex-none flex h-nav justify-between items-center bg-white"
+    :class="{ 'fixed top-0 left-0 right-0 bg-white z-nav px-7.5 h-nav': hasScrolledPast }"
   >
     <div class="flex gap-7.5">
       <RouterLink

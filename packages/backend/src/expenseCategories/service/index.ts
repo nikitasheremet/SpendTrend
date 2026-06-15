@@ -1,4 +1,5 @@
 export { createExpenseCategoryService } from './createExpenseCategoryService'
+export { createExpenseCategoriesService } from './createExpenseCategoriesService'
 export { getExpenseCategoriesService } from './getExpenseCategoriesService'
 export { deleteExpenseCategoryService } from './deleteExpenseCategoryService'
 export { updateExpenseCategoryService } from './updateExpenseCategoryService'

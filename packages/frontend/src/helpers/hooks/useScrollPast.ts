@@ -1,7 +1,7 @@
-import { onMounted, onUnmounted, ref, type Ref } from 'vue'
+import { onMounted, onUnmounted, ref, toValue, watch, type MaybeRefOrGetter, type Ref } from 'vue'
 
 type UseScrollPastOptions = {
-  triggerOffsetPx?: number
+  triggerOffsetPx?: MaybeRefOrGetter<number>
 }
 
 export function useScrollPast(
@@ -21,10 +21,14 @@ export function useScrollPast(
     }
 
     const scrollPosition = window.scrollY || window.pageYOffset
-    const scrollThreshold = initialOffsetTop.value - triggerOffsetPx
+    const scrollThreshold = initialOffsetTop.value - toValue(triggerOffsetPx)
 
     hasScrolledPast.value = scrollPosition > scrollThreshold
   }
+
+  // Re-check when the trigger offset itself changes (e.g. a sticky element
+  // above this one resizes), not just on scroll/mount.
+  watch(() => toValue(triggerOffsetPx), checkScrollPosition)
 
   onMounted(() => {
     checkScrollPosition()
