@@ -11,6 +11,9 @@ import { getStore } from '@/store/store'
 import { formatPastedBankData } from '@/helpers/bankInfoFormatting/formatPastedBankData'
 import { DataType } from '@/helpers/bankInfoFormatting/bankInfoTypes'
 import { useControlModal } from '@/components/DesignSystem/Modal/useControlModal'
+import { useScrollPast } from '@/helpers/hooks/useScrollPast'
+import { useElementHeight } from '@/helpers/hooks/useElementHeight'
+import { getThemeSpacingPx } from '@/helpers/css/getThemeSpacingPx'
 
 const TAB_EXPENSE = 'expense'
 const TAB_INCOME = 'income'
@@ -29,6 +32,13 @@ const formatDataPlaceholder = 'Paste your bank data here. Copy it directly from 
 
 const store = getStore()
 const currentTab = ref<typeof TAB_EXPENSE | typeof TAB_INCOME>(TAB_EXPENSE)
+const tabsRowRef = ref<HTMLElement | null>(null)
+const navHeightPx = getThemeSpacingPx('nav')
+const { hasScrolledPast: hasTabsRowScrolledPast } = useScrollPast(tabsRowRef, {
+  triggerOffsetPx: navHeightPx,
+})
+const tabsRowHeightPx = useElementHeight(tabsRowRef)
+const tableHeaderStickyTopPx = computed(() => navHeightPx + tabsRowHeightPx.value)
 const {
   isModalOpen: isDuplicatesModalOpen,
   openModal: openDuplicatesModal,
@@ -265,7 +275,11 @@ function removeIncomeDuplicateDraftRow(draftIndex: number) {
       @paste.prevent="handlePaste"
     />
   </div>
-  <div class="flex items-start justify-between">
+  <div
+    ref="tabsRowRef"
+    class="flex items-center justify-between"
+    :class="{ 'sticky top-nav z-sticky-secondary bg-white py-2': hasTabsRowScrolledPast }"
+  >
     <TabViewNav :tabs="addDataTabs" :current-tab="currentTab" @tab-clicked="handleMainTabClick" />
     <Button
       type="primary"
@@ -281,6 +295,7 @@ function removeIncomeDuplicateDraftRow(draftIndex: number) {
     <AddExpenseTable
       v-model="store.newExpenses.value"
       :before-save-expense="beforeSaveExpense"
+      :sticky-top-offset-px="tableHeaderStickyTopPx"
       @move-to-income="moveToIncome"
     />
   </div>
@@ -288,6 +303,7 @@ function removeIncomeDuplicateDraftRow(draftIndex: number) {
     <AddIncomeTable
       v-model="store.newIncomes.value"
       :before-save-income="beforeSaveIncome"
+      :sticky-top-offset-px="tableHeaderStickyTopPx"
       @move-to-expense="moveToExpense"
     />
   </div>

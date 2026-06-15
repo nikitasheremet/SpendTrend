@@ -22,6 +22,7 @@ const props = withDefaults(
     initialRowCount?: number
     rowChunkSize?: number
     rowKey?: RowKeyResolver<T>
+    stickyTopOffsetPx?: number
   }>(),
   {
     rowActions: () => [],
@@ -33,6 +34,7 @@ const props = withDefaults(
     initialRowCount: undefined,
     rowChunkSize: undefined,
     rowKey: undefined,
+    stickyTopOffsetPx: undefined,
   },
 )
 
@@ -115,7 +117,7 @@ function getRowKey(row: T, index: number): string | number {
 <template>
   <div>
     <table class="w-full table-fixed mb-5">
-      <TableHeaders :headers="headers" />
+      <TableHeaders :headers="headers" :sticky-top-offset-px="stickyTopOffsetPx" />
       <tbody>
         <TableRow
           v-for="(row, index) in visibleData"
