@@ -12,6 +12,7 @@ export interface ColumnConfig<T extends TableRowData = TableRowData> {
   type?: CellType
   required?: boolean
   editable?: boolean
+  disabled?: boolean | ((row: T) => boolean)
   customClass?: string
   dropdownOptions?: string[] | ((row: T) => string[])
   format?: (value: unknown, row: T) => string
