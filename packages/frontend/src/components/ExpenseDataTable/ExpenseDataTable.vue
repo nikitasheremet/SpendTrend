@@ -191,6 +191,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
       const category = getCategory(row.category)
       return getSubcategories(category?.id)
     },
+    disabled: (row: DisplayExpense) => !row.category,
   },
 ])
 

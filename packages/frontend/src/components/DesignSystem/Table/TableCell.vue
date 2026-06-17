@@ -116,8 +116,14 @@ const shouldIncludeUncategorizedOption = computed(() => columnKey === 'category'
 
 const isEditable = computed(() => {
   if (props.mode === 'view') return false
-  if (props.column.calculate) return false // Calculated fields are never editable
-  return props.column.editable !== false
+  if (props.column.calculate) return false
+  if (props.column.editable === false) return false
+
+  const disabled = props.column.disabled
+  if (typeof disabled === 'function') {
+    return !disabled(props.row)
+  }
+  return !disabled
 })
 
 // Debounced emit with 1 second delay

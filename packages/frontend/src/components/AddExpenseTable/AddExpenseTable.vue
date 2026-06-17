@@ -277,6 +277,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     type: 'dropdown',
     required: false,
     dropdownOptions: (row: DisplayExpense) => getSubcategories(getCategoryId(row.category)),
+    disabled: (row: DisplayExpense) => !row.category,
   },
 ])
 
