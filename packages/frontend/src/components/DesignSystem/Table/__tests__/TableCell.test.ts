@@ -175,6 +175,59 @@ describe('TableCell', () => {
     })
   })
 
+  describe('when column.disabled is set', () => {
+    it('should render as view mode when disabled is true', () => {
+      const wrapper = mountTableCell({
+        column: createColumn({ key: 'name', label: 'Name', disabled: true }),
+        row: { name: 'Frozen' },
+      })
+
+      expect(wrapper.find('p').exists()).toBe(true)
+      expect(wrapper.find('p').text()).toBe('Frozen')
+      expect(wrapper.findComponent(Input).exists()).toBe(false)
+    })
+
+    it('should remain editable when disabled is false', () => {
+      const wrapper = mountTableCell({
+        column: createColumn({ key: 'name', label: 'Name', disabled: false }),
+        row: { name: 'Editable' },
+      })
+
+      expect(wrapper.findComponent(Input).exists()).toBe(true)
+    })
+
+    it('should render as view mode when disabled function returns true', () => {
+      const wrapper = mountTableCell({
+        column: createColumn({
+          key: 'subCategory',
+          label: 'Subcategory',
+          type: 'dropdown',
+          dropdownOptions: [],
+          disabled: (row) => !row.category,
+        }),
+        row: { subCategory: '', category: '' },
+      })
+
+      expect(wrapper.find('p').exists()).toBe(true)
+      expect(wrapper.findComponent(DropdownWithInput).exists()).toBe(false)
+    })
+
+    it('should render dropdown when disabled function returns false', () => {
+      const wrapper = mountTableCell({
+        column: createColumn({
+          key: 'subCategory',
+          label: 'Subcategory',
+          type: 'dropdown',
+          dropdownOptions: ['Sub1'],
+          disabled: (row) => !row.category,
+        }),
+        row: { subCategory: 'Sub1', category: 'Food' },
+      })
+
+      expect(wrapper.findComponent(DropdownWithInput).exists()).toBe(true)
+    })
+  })
+
   describe('when column type is longtext', () => {
     it('should render Input component with textarea variant', () => {
       const wrapper = mountTableCell({
