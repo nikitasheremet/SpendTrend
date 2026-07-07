@@ -122,6 +122,11 @@ async function handleSave(items: DisplayExpense[]): Promise<{ failedItems?: Disp
     store.addExpenses(createdExpenses)
   }
 
+  if (failedExpenses.length === ZERO_ITEMS_COUNT) {
+    // Explicitly clear drafts so deleted expenses cannot reappear via stale watch re-syncs
+    store.clearNewExpenses()
+  }
+
   return {
     failedItems: failedExpenses.map((fe) => toDisplayExpense(fe.expenseInput)),
   }
