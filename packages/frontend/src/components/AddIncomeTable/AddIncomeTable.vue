@@ -90,6 +90,11 @@ async function handleSave(items: DisplayIncome[]): Promise<{ failedItems?: Displ
     store.addIncomes(createdIncomes)
   }
 
+  if (failedIncomes.length === ZERO_ITEMS_COUNT) {
+    // Explicitly clear drafts so deleted incomes cannot reappear via stale watch re-syncs
+    store.clearNewIncomes()
+  }
+
   return {
     failedItems: failedIncomes.map((fi) => toDisplayIncome(fi.incomeInput)),
   }
