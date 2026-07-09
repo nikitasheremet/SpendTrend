@@ -4,9 +4,10 @@ import AddIncomeTable from '@/components/AddIncomeTable/AddIncomeTable.vue'
 import Button from '@/components/DesignSystem/Button/Button.vue'
 import TabViewNav from '@/components/DesignSystem/TabViewNav/TabViewNav.vue'
 import DuplicateReviewModal from '@/components/DuplicateReviewModal/DuplicateReviewModal.vue'
+import PasteSummaryPopover from '@/components/AddDataView/PasteSummaryPopover.vue'
 import { NewExpense } from '@/types/expenseData'
 import { NewIncome } from '@/types/income/income'
-import { computed, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { getStore } from '@/store/store'
 import { formatPastedBankData } from '@/helpers/bankInfoFormatting/formatPastedBankData'
 import { DataType } from '@/helpers/bankInfoFormatting/bankInfoTypes'
@@ -14,6 +15,8 @@ import { useControlModal } from '@/components/DesignSystem/Modal/useControlModal
 import { useScrollPast } from '@/helpers/hooks/useScrollPast'
 import { useElementHeight } from '@/helpers/hooks/useElementHeight'
 import { getThemeSpacingPx } from '@/helpers/css/getThemeSpacingPx'
+import { POPOVER_SYMBOL } from '@/types/providedSymbols'
+import type { PopoverRef } from '@/types/designSystem'
 
 const TAB_EXPENSE = 'expense'
 const TAB_INCOME = 'income'
@@ -31,6 +34,7 @@ const duplicatesButtonLabel = 'Duplicates'
 const formatDataPlaceholder = 'Paste your bank data here. Copy it directly from your bank website'
 
 const store = getStore()
+const popover = inject<PopoverRef>(POPOVER_SYMBOL)
 const currentTab = ref<typeof TAB_EXPENSE | typeof TAB_INCOME>(TAB_EXPENSE)
 const tabsRowRef = ref<HTMLElement | null>(null)
 const navHeightPx = getThemeSpacingPx('nav')
