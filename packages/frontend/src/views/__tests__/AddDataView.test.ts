@@ -12,6 +12,9 @@ import {
   type ExpenseDuplicateEntry,
   type IncomeDuplicateEntry,
 } from '@/store/storeDuplicateTypes'
+import { formatPastedBankData } from '@/helpers/bankInfoFormatting/formatPastedBankData'
+import { DataType } from '@/helpers/bankInfoFormatting/bankInfoTypes'
+import { POPOVER_SYMBOL } from '@/types/providedSymbols'
 import AddDataView from '../AddDataView.vue'
 
 interface MockStoreContext {
@@ -94,6 +97,8 @@ vi.mock('@/store/store', () => ({
 vi.mock('@/helpers/bankInfoFormatting/formatPastedBankData', () => ({
   formatPastedBankData: vi.fn(() => []),
 }))
+
+const mockFormatPastedBankData = vi.mocked(formatPastedBankData)
 
 vi.mock('@/components/AddExpenseTable/AddExpenseTable.vue', async () => {
   return {
@@ -290,6 +295,15 @@ function resetStoreState() {
   mockStoreContext.incomeDuplicatesRef.value = []
   mockStoreContext.isExpenseDuplicatesPresentRef.value = false
   mockStoreContext.isIncomeDuplicatesPresentRef.value = false
+  mockFormatPastedBankData.mockReturnValue([])
+}
+
+function firePaste(textarea: HTMLElement, html: string) {
+  const pasteEvent = new Event('paste', { bubbles: true, cancelable: true })
+  Object.defineProperty(pasteEvent, 'clipboardData', {
+    value: { getData: () => html },
+  })
+  textarea.dispatchEvent(pasteEvent)
 }
 
 describe('when AddDataView is rendered', () => {
@@ -592,5 +606,105 @@ describe('when AddDataView is rendered', () => {
 
     expect(screen.queryByText('Duplicate review')).toBeNull()
     expect(screen.getByTestId('mock-expense-save-continuations')).toHaveTextContent('0')
+  })
+})
+
+const pasteTextareaPlaceholder = 'Paste your bank data here. Copy it directly from your bank website'
+
+describe('paste summary popover', () => {
+  beforeEach(() => {
+    resetStoreState()
+  })
+
+  it('shows expense and income counts when a mix of rows is pasted', async () => {
+    mockFormatPastedBankData.mockReturnValue([
+      { type: DataType.EXPENSE, date: '2026-03-20', name: 'Coffee', amount: 5 },
+      { type: DataType.EXPENSE, date: '2026-03-20', name: 'Taxi', amount: 20 },
+      { type: DataType.INCOME, date: '2026-03-20', name: 'Salary', amount: 1000 },
+    ])
+    const showPopoverMock = vi.fn()
+
+    render(AddDataView, {
+      global: { provide: { [POPOVER_SYMBOL]: ref({ showPopover: showPopoverMock }) } },
+    })
+
+    firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
+
+    expect(showPopoverMock).toHaveBeenCalledTimes(1)
+    expect(showPopoverMock).toHaveBeenCalledWith(
+      expect.anything(),
+      { expenseCount: 2, incomeCount: 1 },
+      { timeout: 5000 },
+    )
+  })
+
+  it('shows only the expense count when only expense rows are pasted', async () => {
+    mockFormatPastedBankData.mockReturnValue([
+      { type: DataType.EXPENSE, date: '2026-03-20', name: 'Coffee', amount: 5 },
+    ])
+    const showPopoverMock = vi.fn()
+
+    render(AddDataView, {
+      global: { provide: { [POPOVER_SYMBOL]: ref({ showPopover: showPopoverMock }) } },
+    })
+
+    firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
+
+    expect(showPopoverMock).toHaveBeenCalledWith(
+      expect.anything(),
+      { expenseCount: 1, incomeCount: 0 },
+      { timeout: 5000 },
+    )
+  })
+
+  it('shows the popover for income-only pastes even while viewing the Expenses tab', async () => {
+    mockFormatPastedBankData.mockReturnValue([
+      { type: DataType.INCOME, date: '2026-03-20', name: 'Salary', amount: 1000 },
+    ])
+    const showPopoverMock = vi.fn()
+
+    render(AddDataView, {
+      global: { provide: { [POPOVER_SYMBOL]: ref({ showPopover: showPopoverMock }) } },
+    })
+
+    firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
+
+    expect(showPopoverMock).toHaveBeenCalledWith(
+      expect.anything(),
+      { expenseCount: 0, incomeCount: 1 },
+      { timeout: 5000 },
+    )
+  })
+
+  it('shows a zero-count summary when nothing could be extracted from the paste', async () => {
+    mockFormatPastedBankData.mockReturnValue([])
+    const showPopoverMock = vi.fn()
+
+    render(AddDataView, {
+      global: { provide: { [POPOVER_SYMBOL]: ref({ showPopover: showPopoverMock }) } },
+    })
+
+    firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), 'not a table')
+
+    expect(showPopoverMock).toHaveBeenCalledWith(
+      expect.anything(),
+      { expenseCount: 0, incomeCount: 0 },
+      { timeout: 5000 },
+    )
+  })
+
+  it('still adds pasted rows to the draft store when no popover is provided', async () => {
+    mockFormatPastedBankData.mockReturnValue([
+      { type: DataType.EXPENSE, date: '2026-03-20', name: 'Coffee', amount: 5 },
+    ])
+
+    render(AddDataView)
+
+    expect(() =>
+      firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>'),
+    ).not.toThrow()
+
+    expect(mockStoreContext.newExpensesRef.value).toHaveLength(1)
+    expect(mockStoreContext.newExpensesRef.value[0].name).toBe('Coffee')
   })
 })
