@@ -124,6 +124,11 @@ function formatData(dataToFormat: string) {
       amount: Math.abs(data.amount),
     }))
   newIncomesToAdd.forEach((income) => store.addNewIncome(income))
+
+  popover?.value?.showPopover(PasteSummaryPopover, {
+    expenseCount: newExpensesToAdd.length,
+    incomeCount: newIncomesToAdd.length,
+  })
 }
 
 function moveToIncome(expense: NewExpense) {
