@@ -634,7 +634,7 @@ describe('paste summary popover', () => {
     expect(showPopoverMock).toHaveBeenCalledWith(
       expect.anything(),
       { expenseCount: 2, incomeCount: 1 },
-      { timeout: 3000 },
+      { timeout: 5000 },
     )
   })
 
@@ -653,7 +653,7 @@ describe('paste summary popover', () => {
     expect(showPopoverMock).toHaveBeenCalledWith(
       expect.anything(),
       { expenseCount: 1, incomeCount: 0 },
-      { timeout: 3000 },
+      { timeout: 5000 },
     )
   })
 
@@ -672,7 +672,7 @@ describe('paste summary popover', () => {
     expect(showPopoverMock).toHaveBeenCalledWith(
       expect.anything(),
       { expenseCount: 0, incomeCount: 1 },
-      { timeout: 3000 },
+      { timeout: 5000 },
     )
   })
 
@@ -689,7 +689,7 @@ describe('paste summary popover', () => {
     expect(showPopoverMock).toHaveBeenCalledWith(
       expect.anything(),
       { expenseCount: 0, incomeCount: 0 },
-      { timeout: 3000 },
+      { timeout: 5000 },
     )
   })
 

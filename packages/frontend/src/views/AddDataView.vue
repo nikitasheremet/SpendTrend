@@ -131,7 +131,7 @@ function formatData(dataToFormat: string) {
       expenseCount: newExpensesToAdd.length,
       incomeCount: newIncomesToAdd.length,
     },
-    { timeout: 3000 },
+    { timeout: 5000 },
   )
 }
 
