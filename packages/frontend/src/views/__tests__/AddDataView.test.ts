@@ -631,10 +631,11 @@ describe('paste summary popover', () => {
     firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
 
     expect(showPopoverMock).toHaveBeenCalledOnce()
-    expect(showPopoverMock).toHaveBeenCalledWith(expect.anything(), {
-      expenseCount: 2,
-      incomeCount: 1,
-    })
+    expect(showPopoverMock).toHaveBeenCalledWith(
+      expect.anything(),
+      { expenseCount: 2, incomeCount: 1 },
+      { timeout: 3000 },
+    )
   })
 
   it('shows only the expense count when only expense rows are pasted', async () => {
@@ -649,10 +650,11 @@ describe('paste summary popover', () => {
 
     firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
 
-    expect(showPopoverMock).toHaveBeenCalledWith(expect.anything(), {
-      expenseCount: 1,
-      incomeCount: 0,
-    })
+    expect(showPopoverMock).toHaveBeenCalledWith(
+      expect.anything(),
+      { expenseCount: 1, incomeCount: 0 },
+      { timeout: 3000 },
+    )
   })
 
   it('shows the popover for income-only pastes even while viewing the Expenses tab', async () => {
@@ -667,10 +669,11 @@ describe('paste summary popover', () => {
 
     firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
 
-    expect(showPopoverMock).toHaveBeenCalledWith(expect.anything(), {
-      expenseCount: 0,
-      incomeCount: 1,
-    })
+    expect(showPopoverMock).toHaveBeenCalledWith(
+      expect.anything(),
+      { expenseCount: 0, incomeCount: 1 },
+      { timeout: 3000 },
+    )
   })
 
   it('shows a zero-count summary when nothing could be extracted from the paste', async () => {
@@ -683,10 +686,11 @@ describe('paste summary popover', () => {
 
     firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), 'not a table')
 
-    expect(showPopoverMock).toHaveBeenCalledWith(expect.anything(), {
-      expenseCount: 0,
-      incomeCount: 0,
-    })
+    expect(showPopoverMock).toHaveBeenCalledWith(
+      expect.anything(),
+      { expenseCount: 0, incomeCount: 0 },
+      { timeout: 3000 },
+    )
   })
 
   it('still adds pasted rows to the draft store when no popover is provided', async () => {

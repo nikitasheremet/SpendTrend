@@ -125,10 +125,14 @@ function formatData(dataToFormat: string) {
     }))
   newIncomesToAdd.forEach((income) => store.addNewIncome(income))
 
-  popover?.value?.showPopover(PasteSummaryPopover, {
-    expenseCount: newExpensesToAdd.length,
-    incomeCount: newIncomesToAdd.length,
-  })
+  popover?.value?.showPopover(
+    PasteSummaryPopover,
+    {
+      expenseCount: newExpensesToAdd.length,
+      incomeCount: newIncomesToAdd.length,
+    },
+    { timeout: 3000 },
+  )
 }
 
 function moveToIncome(expense: NewExpense) {
