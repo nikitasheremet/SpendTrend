@@ -630,7 +630,7 @@ describe('paste summary popover', () => {
 
     firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
 
-    expect(showPopoverMock).toHaveBeenCalledOnce()
+    expect(showPopoverMock).toHaveBeenCalledTimes(1)
     expect(showPopoverMock).toHaveBeenCalledWith(
       expect.anything(),
       { expenseCount: 2, incomeCount: 1 },
