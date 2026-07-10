@@ -96,6 +96,7 @@ const error = deleteCategoryError || deleteSubCategoryError || updateCategoryErr
           <div
             v-if="isOptionsOpen"
             ref="optionsDivRef"
+            data-manage-categories-portal
             class="category-options fixed z-10000 bg-gray-50 flex flex-col gap-1 w-38 shadow-xs border"
             :style="{ top: optionsTop + 'px', left: optionsLeft + 'px' }"
           >
