@@ -53,6 +53,17 @@ export function useClickOutside(
     const target = event.target as Node
     if (container.contains(target)) return
     if (options?.ignoreSelector && (target as HTMLElement).closest?.(options.ignoreSelector)) return
+    console.warn('[useClickOutside DEBUG] firing onClickOutside', {
+      target,
+      targetTag: (target as HTMLElement)?.tagName,
+      targetId: (target as HTMLElement)?.id,
+      targetClass: (target as HTMLElement)?.className,
+      container,
+      ignoreSelector: options?.ignoreSelector,
+      closestMatch: options?.ignoreSelector
+        ? (target as HTMLElement)?.closest?.(options.ignoreSelector)
+        : null,
+    })
     onClickOutside()
   }
 
