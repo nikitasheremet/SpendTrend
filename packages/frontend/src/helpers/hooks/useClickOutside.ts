@@ -27,18 +27,28 @@ export interface UseClickOutsideOptions {
  * the time this listener runs — avoiding a close-then-reopen flicker that
  * `mousedown` (a separate, earlier event) would cause.
  *
+ * Uses `event.composedPath()` instead of `containerRef.value.contains(event.target)`
+ * deliberately: browsers run a microtask checkpoint after *each* bubbled listener,
+ * not just after the whole dispatch finishes. If a click's own handler (e.g. a
+ * modal's close button) synchronously changes state that causes Vue to unmount
+ * that element before the event finishes bubbling to `document`, `event.target`
+ * is already detached by the time this listener runs, and `.contains()` (a live
+ * DOM check) wrongly reports it as outside. `composedPath()` is captured at
+ * dispatch time and stays accurate regardless of DOM mutations that happen
+ * mid-bubble.
+ *
  * Pass `ignoreSelector` when the container has logical children that live
  * elsewhere in the DOM via `<Teleport>` — e.g. a dropdown or modal rendered
  * to `<body>`. Such elements aren't real DOM descendants of `containerRef`,
- * so `containerRef.value.contains(event.target)` returns false for them even
- * though a click on them shouldn't count as "outside." Mark the teleported
- * root with an attribute (e.g. `data-my-thing-portal`) and pass a matching
- * selector (e.g. `'[data-my-thing-portal]'`) to have clicks inside it ignored.
+ * so a plain containment check returns false for them even though a click on
+ * them shouldn't count as "outside." Mark the teleported root with an
+ * attribute (e.g. `data-my-thing-portal`) and pass a matching selector (e.g.
+ * `'[data-my-thing-portal]'`) to have clicks inside it ignored.
  *
- * @param containerRef - Ref to the element clicks are checked against; a click is "outside" if it (or its DOM ancestor chain) isn't this element or one of its descendants.
+ * @param containerRef - Ref to the element clicks are checked against; a click is "outside" if `containerRef.value` isn't in the click's composed path.
  * @param isActive - Called on every click; the click is ignored entirely when this returns false (e.g. pass `() => isOpen` so closed/unmounted-in-spirit containers don't react to clicks).
  * @param onClickOutside - Called once per outside click, e.g. `() => emit('close')`.
- * @param options.ignoreSelector - CSS selector; clicks landing inside a matching element are treated as "inside" even though they aren't DOM descendants of `containerRef` (for `<Teleport>`-rendered content).
+ * @param options.ignoreSelector - CSS selector; clicks whose composed path includes a matching element are treated as "inside" even though they aren't DOM descendants of `containerRef` (for `<Teleport>`-rendered content).
  */
 export function useClickOutside(
   containerRef: Ref<HTMLElement | null | undefined>,
@@ -50,20 +60,14 @@ export function useClickOutside(
     if (!isActive()) return
     const container = containerRef.value
     if (!container) return
-    const target = event.target as Node
-    if (container.contains(target)) return
-    if (options?.ignoreSelector && (target as HTMLElement).closest?.(options.ignoreSelector)) return
-    console.warn('[useClickOutside DEBUG] firing onClickOutside', {
-      target,
-      targetTag: (target as HTMLElement)?.tagName,
-      targetId: (target as HTMLElement)?.id,
-      targetClass: (target as HTMLElement)?.className,
-      container,
-      ignoreSelector: options?.ignoreSelector,
-      closestMatch: options?.ignoreSelector
-        ? (target as HTMLElement)?.closest?.(options.ignoreSelector)
-        : null,
-    })
+    const path = event.composedPath()
+    if (path.includes(container)) return
+    if (
+      options?.ignoreSelector &&
+      path.some((node) => node instanceof Element && node.matches(options.ignoreSelector!))
+    ) {
+      return
+    }
     onClickOutside()
   }
 

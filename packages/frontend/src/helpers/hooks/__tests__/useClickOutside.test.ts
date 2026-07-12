@@ -82,4 +82,24 @@ describe('when useClickOutside is used on a container', () => {
 
     expect(onClickOutside).not.toHaveBeenCalled()
   })
+
+  it('should not call the callback when the clicked element is removed from the DOM by its own click handler before the event finishes bubbling', async () => {
+    // Reproduces a real-browser race: a click handler on an inside element (e.g. a modal's
+    // close button) can synchronously trigger a state change whose DOM update (unmounting
+    // that element) flushes via a microtask checkpoint that runs *before* the same click
+    // event finishes bubbling to document. By the time useClickOutside's document listener
+    // runs, event.target is already detached, so a naive `container.contains(target)` check
+    // (a live DOM check) wrongly reports it as outside. composedPath() must be used instead,
+    // since it's captured at dispatch time and stays accurate regardless of DOM mutations that
+    // happen mid-bubble. jsdom does not reproduce this exact timing on its own, so it's
+    // simulated directly here by removing the element from the DOM inside its own listener.
+    const onClickOutside = vi.fn()
+    render(createClickOutsideHarness(onClickOutside, true))
+
+    const insideButton = screen.getByTestId('inside-button')
+    insideButton.addEventListener('click', () => insideButton.remove())
+    insideButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+    expect(onClickOutside).not.toHaveBeenCalled()
+  })
 })
