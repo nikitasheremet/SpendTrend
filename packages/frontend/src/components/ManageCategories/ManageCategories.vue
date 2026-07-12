@@ -8,7 +8,7 @@ import { useClickOutside } from '@/helpers/hooks/useClickOutside'
 
 const store = getStore()
 
-const { isOpen } = defineProps<{
+const props = defineProps<{
   isOpen: boolean
 }>()
 
@@ -20,13 +20,13 @@ const panelRef = ref<HTMLElement | null>(null)
 
 useClickOutside(
   panelRef,
-  () => isOpen,
+  () => props.isOpen,
   () => emit('closeManageCategories'),
-  { ignoreSelector: '[data-manage-categories-portal]' },
+  { ignoreSelector: '[data-manage-categories-portal], [data-manage-categories-toggle]' },
 )
 
 function handleKeydown(event: KeyboardEvent) {
-  if (!isOpen) return
+  if (!props.isOpen) return
   if (event.key !== 'Escape') return
   emit('closeManageCategories')
 }

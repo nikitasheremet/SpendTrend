@@ -61,24 +61,33 @@ describe('when the manage categories panel is open', () => {
   })
 })
 
-describe('when clicking the external toggle button that opened the panel', () => {
-  it('should stay closed instead of flickering back open', async () => {
-    const ToggleHarness = defineComponent({
-      components: { ManageCategories },
-      setup() {
-        const isOpen = ref(true)
-        function toggle() {
-          isOpen.value = !isOpen.value
-        }
-        return { isOpen, toggle }
-      },
-      template: `<div>
-        <button data-testid="toggle-button" @click="toggle">Manage Categories</button>
-        <ManageCategories :is-open="isOpen" @close-manage-categories="isOpen = false" />
-      </div>`,
-    })
+describe('when clicking the external toggle button that opens/closes the panel', () => {
+  const ToggleHarness = defineComponent({
+    components: { ManageCategories },
+    props: { initialIsOpen: { type: Boolean, default: false } },
+    setup(props) {
+      const isOpen = ref(props.initialIsOpen)
+      function toggle() {
+        isOpen.value = !isOpen.value
+      }
+      return { isOpen, toggle }
+    },
+    template: `<div>
+      <button data-testid="toggle-button" data-manage-categories-toggle @click="toggle">Manage Categories</button>
+      <ManageCategories :is-open="isOpen" @close-manage-categories="isOpen = false" />
+    </div>`,
+  })
 
-    render(ToggleHarness)
+  it('should open the panel and keep it open when clicking the toggle button while closed', async () => {
+    render(ToggleHarness, { props: { initialIsOpen: false } })
+
+    await userEvent.click(screen.getByTestId('toggle-button'))
+
+    expect(screen.getByText('Your Expense Categories').closest('#manage-categories')).toBeVisible()
+  })
+
+  it('should close the panel instead of flickering back open when clicking the toggle button while open', async () => {
+    render(ToggleHarness, { props: { initialIsOpen: true } })
 
     await userEvent.click(screen.getByTestId('toggle-button'))
 

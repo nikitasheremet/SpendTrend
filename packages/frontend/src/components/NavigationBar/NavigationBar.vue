@@ -52,6 +52,7 @@ const navigationLinks = [
     </div>
     <div class="flex gap-7.5">
       <Button
+        data-manage-categories-toggle
         class-to-add="bg-gray-200 px-3.5 py-1.5 rounded-md hover:bg-gray-200/50"
         @click="emit('manageCategoriesClicked')"
       >
