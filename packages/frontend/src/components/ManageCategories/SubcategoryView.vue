@@ -5,6 +5,7 @@ import Button from '../DesignSystem/Button/Button.vue'
 import UpdateNameModal from './UpdateNameModal.vue'
 import { useControlModal } from '../DesignSystem/Modal/useControlModal'
 import { useDropdownPosition } from '@/helpers/hooks/useDropdownPosition'
+import { useClickOutside } from '@/helpers/hooks/useClickOutside'
 
 const { subCategories, loading } = defineProps<{
   subCategories: ExpenseSubCategory[]
@@ -46,6 +47,8 @@ function toggleOptions(subCategoryId: string) {
 function closeOptions() {
   activeOptionsSubCategoryId.value = null
 }
+
+useClickOutside(optionsDivRef, () => !!activeOptionsSubCategoryId.value, closeOptions)
 
 function openUpdateModal(subCategory: ExpenseSubCategory) {
   selectedSubCategoryForUpdate.value = subCategory
