@@ -50,7 +50,13 @@ const optionsDivRef = ref<HTMLElement>()
 
 const { optionsTop, optionsLeft, positionDropdown } = useDropdownPosition(optionsRef, optionsDivRef)
 
-useClickOutside(optionsDivRef, () => isOptionsOpen.value, closeOptions)
+// ignoreSelector on the toggle button itself is required, not optional: the click that opens
+// the dropdown is dispatched from the toggle button, which is never a DOM descendant of the
+// (freshly created) dropdown container - so without excluding it, that same click's bubble to
+// document reads as "outside" and immediately closes the dropdown it just opened.
+useClickOutside(optionsDivRef, () => isOptionsOpen.value, closeOptions, {
+  ignoreSelector: '[data-category-options-toggle]',
+})
 
 async function toggleOptions() {
   originalToggleOptions()
@@ -97,7 +103,13 @@ const error = deleteCategoryError || deleteSubCategoryError || updateCategoryErr
             showSubCategories ? '▼' : '▶'
           }}</span>
         </p>
-        <Button type="secondary" class="text-xs p-1!" @click="toggleOptions">⋮</Button>
+        <Button
+          data-category-options-toggle
+          type="secondary"
+          class="text-xs p-1!"
+          @click="toggleOptions"
+          >⋮</Button
+        >
         <Teleport to="body">
           <div
             v-if="isOptionsOpen"
