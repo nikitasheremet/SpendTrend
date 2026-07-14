@@ -13,7 +13,7 @@ const ControlCategoryOptionsHarness = defineComponent({
   },
   template: `<div>
     <button data-testid="toggle" @click="toggleOptions" @blur="closeOptions">⋮</button>
-    <div v-if="isOptionsOpen" data-testid="options" :class="{ invisible: isOptionsClosing }">
+    <div v-if="isOptionsOpen" data-testid="options" :class="{ 'opacity-0': isOptionsClosing }">
       <button data-testid="option" @mousedown="hideOptionsImmediately">Update Category</button>
     </div>
   </div>`,
@@ -26,7 +26,7 @@ describe('when using the category options dropdown', () => {
     await userEvent.click(screen.getByTestId('toggle'))
 
     const options = screen.getByTestId('options')
-    expect(options).not.toHaveClass('invisible')
+    expect(options).not.toHaveClass('opacity-0')
   })
 
   it('should hide the dropdown immediately (before it is unmounted) when an option is selected', async () => {
@@ -37,7 +37,7 @@ describe('when using the category options dropdown', () => {
     await nextTick()
 
     const options = screen.getByTestId('options')
-    expect(options).toHaveClass('invisible')
+    expect(options).toHaveClass('opacity-0')
   })
 
   it('should reset the closing state when reopened', async () => {
@@ -46,12 +46,12 @@ describe('when using the category options dropdown', () => {
     await userEvent.click(screen.getByTestId('toggle'))
     screen.getByTestId('option').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
     await nextTick()
-    expect(screen.getByTestId('options')).toHaveClass('invisible')
+    expect(screen.getByTestId('options')).toHaveClass('opacity-0')
 
     await userEvent.click(screen.getByTestId('toggle'))
     expect(screen.queryByTestId('options')).not.toBeInTheDocument()
 
     await userEvent.click(screen.getByTestId('toggle'))
-    expect(screen.getByTestId('options')).not.toHaveClass('invisible')
+    expect(screen.getByTestId('options')).not.toHaveClass('opacity-0')
   })
 })

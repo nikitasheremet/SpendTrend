@@ -68,19 +68,6 @@ export function useClickOutside(
     ) {
       return
     }
-    console.warn('[useClickOutside DEBUG] firing onClickOutside', {
-      target: event.target,
-      targetTag: (event.target as HTMLElement)?.tagName,
-      targetId: (event.target as HTMLElement)?.id,
-      targetClass: (event.target as HTMLElement)?.className,
-      container,
-      ignoreSelector: options?.ignoreSelector,
-      path: path.map((node) =>
-        node instanceof Element
-          ? `${node.tagName}#${node.id}.${node.className}`
-          : String(node),
-      ),
-    })
     onClickOutside()
   }
 
