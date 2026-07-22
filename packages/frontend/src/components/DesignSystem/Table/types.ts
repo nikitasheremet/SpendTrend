@@ -17,7 +17,18 @@ export interface ColumnConfig<T extends TableRowData = TableRowData> {
   dropdownOptions?: string[] | ((row: T) => string[])
   format?: (value: unknown, row: T) => string
   calculate?: (row: T) => unknown
+  // Only honored for type: 'dropdown' | 'date'; other column types ignore this flag.
+  filterable?: boolean
 }
+
+export interface DateFilterValue {
+  from?: string
+  to?: string
+}
+
+export type FilterValue = string[] | DateFilterValue
+
+export type FilterState = Record<string, FilterValue>
 
 export interface RowAction<T extends TableRowData = TableRowData> {
   label: string
