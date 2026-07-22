@@ -5,3 +5,5 @@ export type {
   ProgressiveRowRenderOptions,
   ProgressiveRowRenderReturn,
 } from './useProgressiveRowRender'
+export { useTableFilters } from './useTableFilters'
+export type { TableFilterEntry, UseTableFiltersOptions, UseTableFiltersReturn } from './useTableFilters'
