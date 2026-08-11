@@ -169,7 +169,7 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       `column.onCreateOption` being passed through to `DropdownWithInput`, and for a create-flow
       result triggering `cell:changed`.
 
-- [ ] Step 11: Unit tests — add/extend a test for `ExpenseDataTable.vue`'s category/subCategory
+- [x] Step 11: Unit tests — add/extend a test for `ExpenseDataTable.vue`'s category/subCategory
       `onCreateOption` handlers (new categories append to the store and select the new value on
       the row; new subcategories are scoped to the row's current category). Follow existing
       colocated `__tests__` conventions and mock `service/categories/addNewCategories.ts` /
