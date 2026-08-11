@@ -146,6 +146,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     label: 'Date',
     type: 'date',
     customClass: 'w-1/7',
+    filterable: true,
   },
   {
     key: 'name',
@@ -182,6 +183,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     label: 'Category',
     type: 'dropdown',
     dropdownOptions: categoryNames.value,
+    filterable: true,
   },
   {
     key: 'subCategory',
@@ -191,6 +193,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
       const category = getCategory(row.category)
       return getSubcategories(category?.id)
     },
+    filterable: true,
     disabled: (row: DisplayExpense) => !row.category,
   },
 ])
