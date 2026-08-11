@@ -92,7 +92,7 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
 
 ## Checklist
 
-- [ ] Step 1: Add `dropdownSearchable?: boolean` and
+- [x] Step 1: Add `dropdownSearchable?: boolean` and
       `onCreateOption?: (searchText: string, row: T) => Promise<string | undefined | void>` to
       `ColumnConfig<T>` in `packages/frontend/src/components/DesignSystem/Table/types.ts`.
 
