@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { describe, expect, it } from 'vitest'
 import { useTableFilters } from '../hooks/useTableFilters'
+import { EMPTY_FILTER_VALUE } from '../types'
 import type { ColumnConfig } from '../types'
 
 interface FakeRow {
@@ -54,11 +55,11 @@ describe('useTableFilters', () => {
   })
 
   describe('when deriving dropdown filter options', () => {
-    it('should return deduped, sorted, non-empty distinct values from data', () => {
+    it('should return deduped, sorted, non-empty distinct values from data, with the empty sentinel last', () => {
       const { getDropdownOptions } = setupFilters()
       const categoryColumn = baseColumns[0]
 
-      expect(getDropdownOptions(categoryColumn)).toEqual(['Food', 'Travel'])
+      expect(getDropdownOptions(categoryColumn)).toEqual(['Food', 'Travel', EMPTY_FILTER_VALUE])
     })
 
     it('should derive filter options from data even when dropdownOptions is a row-dependent function', () => {
@@ -71,7 +72,19 @@ describe('useTableFilters', () => {
       }
       const { getDropdownOptions } = setupFilters(baseRows, [subCategoryColumn])
 
-      expect(getDropdownOptions(subCategoryColumn)).toEqual(['Flights', 'Groceries', 'Restaurants'])
+      expect(getDropdownOptions(subCategoryColumn)).toEqual([
+        'Flights',
+        'Groceries',
+        'Restaurants',
+        EMPTY_FILTER_VALUE,
+      ])
+    })
+
+    it('should not include the empty sentinel when no rows have an empty value', () => {
+      const { getDropdownOptions } = setupFilters(baseRows.slice(0, 3))
+      const categoryColumn = baseColumns[0]
+
+      expect(getDropdownOptions(categoryColumn)).toEqual(['Food', 'Travel'])
     })
   })
 
@@ -90,6 +103,24 @@ describe('useTableFilters', () => {
       setFilter('category', [])
 
       expect(filteredEntries.value).toHaveLength(baseRows.length)
+    })
+  })
+
+  describe('when filtering by the empty sentinel on a dropdown column', () => {
+    it('should keep only rows whose value is empty', () => {
+      const { setFilter, filteredEntries } = setupFilters()
+
+      setFilter('category', [EMPTY_FILTER_VALUE])
+
+      expect(filteredEntries.value).toEqual([{ row: baseRows[3], index: 3 }])
+    })
+
+    it('should combine with real values via OR, keeping rows matching either', () => {
+      const { setFilter, filteredEntries } = setupFilters()
+
+      setFilter('category', ['Travel', EMPTY_FILTER_VALUE])
+
+      expect(filteredEntries.value.map((entry) => entry.index)).toEqual([2, 3])
     })
   })
 

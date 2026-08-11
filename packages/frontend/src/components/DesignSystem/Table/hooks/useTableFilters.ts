@@ -1,7 +1,16 @@
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
-import type { ColumnConfig, DateFilterValue, FilterState, FilterValue, TableRowData } from '../types'
+import type {
+  ColumnConfig,
+  DateFilterValue,
+  FilterableColumnType,
+  FilterState,
+  FilterValue,
+  TableRowData,
+} from '../types'
+import { EMPTY_FILTER_VALUE, FILTER_TYPE_DATE, FILTER_TYPE_DROPDOWN } from '../types'
 
-const FILTERABLE_TYPES = new Set(['dropdown', 'date'])
+const FILTERABLE_COLUMN_TYPES: readonly FilterableColumnType[] = [FILTER_TYPE_DROPDOWN, FILTER_TYPE_DATE]
+const FILTERABLE_TYPES = new Set<string>(FILTERABLE_COLUMN_TYPES)
 
 export interface TableFilterEntry<T extends TableRowData> {
   row: T
@@ -28,11 +37,19 @@ function getRawValue<T extends TableRowData>(row: T, key: string): unknown {
   return (row as Record<string, unknown>)[key]
 }
 
+function isEmptyValue(value: unknown): boolean {
+  return value === undefined || value === null || value === ''
+}
+
 function matchesDropdownFilter<T extends TableRowData>(row: T, key: string, value: string[]): boolean {
   if (value.length === 0) {
     return true
   }
-  return value.includes(String(getRawValue(row, key)))
+  const rawValue = getRawValue(row, key)
+  if (isEmptyValue(rawValue)) {
+    return value.includes(EMPTY_FILTER_VALUE)
+  }
+  return value.includes(String(rawValue))
 }
 
 function matchesDateFilter<T extends TableRowData>(row: T, key: string, value: DateFilterValue): boolean {
@@ -74,12 +91,13 @@ export function useTableFilters<T extends TableRowData>(
   )
 
   function getDropdownOptions(column: ColumnConfig<T>): string[] {
-    const values = data.value
-      .map((row) => getRawValue(row, column.key))
-      .filter((value) => value !== undefined && value !== null && value !== '')
-      .map((value) => String(value))
+    const rawValues = data.value.map((row) => getRawValue(row, column.key))
+    const hasEmptyValue = rawValues.some((value) => isEmptyValue(value))
 
-    return Array.from(new Set(values)).sort()
+    const values = rawValues.filter((value) => !isEmptyValue(value)).map((value) => String(value))
+    const options = Array.from(new Set(values)).sort()
+
+    return hasEmptyValue ? [...options, EMPTY_FILTER_VALUE] : options
   }
 
   function columnMatches(row: T, column: ColumnConfig<T>): boolean {
@@ -88,11 +106,11 @@ export function useTableFilters<T extends TableRowData>(
       return true
     }
 
-    if (column.type === 'dropdown') {
+    if (column.type === FILTER_TYPE_DROPDOWN) {
       return matchesDropdownFilter(row, column.key, value as string[])
     }
 
-    if (column.type === 'date') {
+    if (column.type === FILTER_TYPE_DATE) {
       return matchesDateFilter(row, column.key, value as DateFilterValue)
     }
 

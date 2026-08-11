@@ -3,7 +3,8 @@ import { computed, ref } from 'vue'
 import { useDropdownPosition } from '@/helpers/hooks/useDropdownPosition'
 import { useClickOutside } from '@/helpers/hooks/useClickOutside'
 import Input from '../Input.vue'
-import type { DateFilterValue, FilterValue } from './types'
+import { EMPTY_FILTER_LABEL, EMPTY_FILTER_VALUE, FILTER_TYPE_DATE, FILTER_TYPE_DROPDOWN } from './types'
+import type { DateFilterValue, FilterableColumnType, FilterValue } from './types'
 
 const PORTAL_SELECTOR = '[data-table-column-filter-portal]'
 const EMPTY_SELECTION_COUNT = 0
@@ -11,7 +12,7 @@ const EMPTY_SELECTION_COUNT = 0
 const props = defineProps<{
   filterKey: string
   label: string
-  type: 'dropdown' | 'date'
+  type: FilterableColumnType
   options?: string[]
 }>()
 
@@ -20,6 +21,8 @@ const modelValue = defineModel<FilterValue | undefined>()
 const isOpen = ref(false)
 const triggerRef = ref<HTMLElement>()
 const panelRef = ref<HTMLElement>()
+
+useClickOutside(triggerRef, () => isOpen.value, close, { ignoreSelector: PORTAL_SELECTOR })
 
 const { optionsTop, optionsLeft, optionsWidth, positionDropdown } = useDropdownPosition(
   triggerRef,
@@ -32,13 +35,15 @@ const panelStyle = computed(() => ({
   minWidth: `${optionsWidth.value}px`,
 }))
 
-const selectedValues = computed<string[]>(() => (Array.isArray(modelValue.value) ? modelValue.value : []))
+const selectedValues = computed<string[]>(() =>
+  Array.isArray(modelValue.value) ? modelValue.value : [],
+)
 const dateValue = computed<DateFilterValue>(() =>
   !Array.isArray(modelValue.value) && modelValue.value ? modelValue.value : {},
 )
 
 const isActive = computed(() => {
-  if (props.type === 'dropdown') {
+  if (props.type === FILTER_TYPE_DROPDOWN) {
     return selectedValues.value.length > EMPTY_SELECTION_COUNT
   }
   return Boolean(dateValue.value.from || dateValue.value.to)
@@ -58,8 +63,6 @@ const dateTo = computed<string>({
   },
 })
 
-useClickOutside(triggerRef, () => isOpen.value, close, { ignoreSelector: PORTAL_SELECTOR })
-
 async function toggleOpen() {
   isOpen.value = !isOpen.value
   await positionDropdown(isOpen.value)
@@ -76,12 +79,16 @@ function toggleOption(option: string) {
     : [...selectedValues.value, option]
 }
 
+function getOptionLabel(option: string): string {
+  return option === EMPTY_FILTER_VALUE ? EMPTY_FILTER_LABEL : option
+}
+
 function selectAll() {
   modelValue.value = [...(props.options ?? [])]
 }
 
 function clearFilter() {
-  modelValue.value = props.type === 'dropdown' ? [] : {}
+  modelValue.value = props.type === FILTER_TYPE_DROPDOWN ? [] : {}
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -115,12 +122,12 @@ function handleKeydown(event: KeyboardEvent) {
         :style="panelStyle"
         @keydown="handleKeydown"
       >
-        <div v-if="type === 'dropdown'" class="flex flex-col gap-1">
+        <div v-if="type === FILTER_TYPE_DROPDOWN" class="flex flex-col gap-1">
           <div class="flex justify-between gap-2 mb-1 text-xs">
             <button type="button" class="underline" @click="selectAll">Select all</button>
             <button type="button" class="underline" @click="clearFilter">Clear</button>
           </div>
-          <div class="max-h-[200px] overflow-y-auto flex flex-col gap-1">
+          <div class="max-h-50 overflow-y-auto flex flex-col gap-1">
             <label
               v-for="option in options ?? []"
               :key="option"
@@ -131,12 +138,12 @@ function handleKeydown(event: KeyboardEvent) {
                 :checked="selectedValues.includes(option)"
                 @change="toggleOption(option)"
               />
-              <span>{{ option }}</span>
+              <span>{{ getOptionLabel(option) }}</span>
             </label>
           </div>
         </div>
 
-        <div v-else-if="type === 'date'" class="flex flex-col gap-2 min-w-[180px]">
+        <div v-else-if="type === FILTER_TYPE_DATE" class="flex flex-col gap-2 min-w-45">
           <label class="flex flex-col gap-1 text-xs">
             From
             <Input v-model="dateFrom" type="date" variant="input-border" />
@@ -145,7 +152,9 @@ function handleKeydown(event: KeyboardEvent) {
             To
             <Input v-model="dateTo" type="date" variant="input-border" />
           </label>
-          <button type="button" class="underline text-xs self-start" @click="clearFilter">Clear</button>
+          <button type="button" class="underline text-xs self-start" @click="clearFilter">
+            Clear
+          </button>
         </div>
       </div>
     </Teleport>

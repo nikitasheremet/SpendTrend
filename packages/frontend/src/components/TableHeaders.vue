@@ -3,21 +3,12 @@ import { computed, ref } from 'vue'
 import { useScrollPast } from '@/helpers/hooks/useScrollPast'
 import { getThemeSpacingPx } from '@/helpers/css/getThemeSpacingPx'
 import TableColumnFilter from '@/components/DesignSystem/Table/TableColumnFilter.vue'
-import type { FilterValue } from '@/components/DesignSystem/Table/types'
+import type { FilterValue, TableHeader } from '@/components/DesignSystem/Table/types'
 
 const theadRef = ref<HTMLElement | null>(null)
 
 const { headers, stickyTopOffsetPx } = defineProps<{
-  headers: {
-    label: string
-    required?: boolean
-    customClass?: string
-    filterable?: boolean
-    filterKey?: string
-    filterType?: 'dropdown' | 'date'
-    filterOptions?: string[]
-    filterValue?: FilterValue
-  }[]
+  headers: TableHeader[]
   stickyTopOffsetPx?: number
 }>()
 

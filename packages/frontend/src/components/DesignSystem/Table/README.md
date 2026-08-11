@@ -254,6 +254,11 @@ const columns = computed<ColumnConfig<Expense>[]>(() => [
   present in any row); the filter only ever offers values a user could
   actually match, the same way Excel/Sheets does. Callers never pass a
   separate list of filter options.
+- **Dropdown filters can match empty values.** If any row has `undefined`,
+  `null`, or `''` for a filterable dropdown column, the checklist gets an
+  extra `(Empty)` option (`EMPTY_FILTER_VALUE` in `types.ts`) that matches
+  those rows. It behaves like any other option — combinable with real values
+  via OR, included by "Select all", cleared by "Clear".
 - **Date columns filter by range.** Instead of a checklist, `date` columns
   get a `from`/`to` range panel (inclusive bounds).
 - Clicking the filter icon in a header cell opens a floating panel

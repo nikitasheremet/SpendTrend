@@ -1,6 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import TableColumnFilter from '../TableColumnFilter.vue'
+import { EMPTY_FILTER_VALUE } from '../types'
 import type { DateFilterValue } from '../types'
 
 // TableColumnFilter teleports its panel to document.body; without unmounting,
@@ -118,6 +119,29 @@ describe('TableColumnFilter', () => {
 
       const trigger = wrapper.find('button[aria-label="Filter by Category"]')
       expect(trigger.attributes('aria-pressed')).toBe('false')
+    })
+
+    it('should render the empty-value sentinel option as "(Empty)"', async () => {
+      const wrapper = mountFilter({ options: ['Food', EMPTY_FILTER_VALUE] })
+      await openPanel(wrapper)
+
+      const labels = Array.from(
+        document.querySelectorAll('[data-table-column-filter-portal] label span'),
+      ).map((span) => span.textContent)
+      expect(labels).toEqual(['Food', '(Empty)'])
+    })
+
+    it('should toggle the empty-value sentinel into the selection like any other option', async () => {
+      const wrapper = mountFilter({ options: ['Food', EMPTY_FILTER_VALUE], modelValue: [] })
+      await openPanel(wrapper)
+
+      const checkbox = document.querySelectorAll(
+        '[data-table-column-filter-portal] input[type="checkbox"]',
+      )[1] as HTMLInputElement
+      checkbox.dispatchEvent(new Event('change', { bubbles: true }))
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([[EMPTY_FILTER_VALUE]])
     })
   })
 
