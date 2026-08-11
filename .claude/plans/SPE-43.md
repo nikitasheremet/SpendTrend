@@ -96,7 +96,7 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       `onCreateOption?: (searchText: string, row: T) => Promise<string | undefined | void>` to
       `ColumnConfig<T>` in `packages/frontend/src/components/DesignSystem/Table/types.ts`.
 
-- [ ] Step 2: Extend `DropdownOptions.vue` (`packages/frontend/src/components/DropdownWithInput/DropdownOptions.vue`)
+- [x] Step 2: Extend `DropdownOptions.vue` (`packages/frontend/src/components/DropdownWithInput/DropdownOptions.vue`)
       to optionally render:
       - a search `<input>` above the options list (visible when a new `searchable` prop is true),
         filtering the rendered `options` by case-insensitive substring match (reuse the filtering
