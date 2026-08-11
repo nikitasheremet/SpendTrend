@@ -163,7 +163,7 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       add cases verifying `searchable`/`onCreateOption` props are forwarded to `Select`, and that a
       successful create result updates the model value and emits `onChange`.
 
-- [ ] Step 10: Unit tests — `TableCell.test.ts`
+- [x] Step 10: Unit tests — `TableCell.test.ts`
       (`packages/frontend/src/components/DesignSystem/Table/__tests__/TableCell.test.ts`): extend
       the existing "dropdown" describe block with cases for `column.dropdownSearchable` and
       `column.onCreateOption` being passed through to `DropdownWithInput`, and for a create-flow
