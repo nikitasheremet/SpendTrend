@@ -130,7 +130,7 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       `DropdownWithInput`, and on a successful create result, set `localValue` and call
       `emitCellChanged()` (mirroring `handleDropdownChange`).
 
-- [ ] Step 6: Wire up `ExpenseDataTable.vue`
+- [x] Step 6: Wire up `ExpenseDataTable.vue`
       (`packages/frontend/src/components/ExpenseDataTable/ExpenseDataTable.vue`): add
       `dropdownSearchable: true` and `onCreateOption` to the `category` column (calling
       `addNewCategory` + `getStore().addCategory`, reusing the logic in

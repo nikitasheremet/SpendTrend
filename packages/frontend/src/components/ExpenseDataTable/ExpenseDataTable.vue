@@ -10,6 +10,8 @@ import { POPOVER_SYMBOL } from '@/types/providedSymbols'
 import type { PopoverRef } from '@/types/designSystem'
 import RowNotificationPopover from './hooks/RowNotificationPopover.vue'
 import { getStore } from '@/store/store'
+import { addNewCategory } from '@/service/categories/addNewCategories'
+import { addNewSubcategory } from '@/service/categories/addNewSubCategory'
 
 type DisplayExpense = Omit<Expense, 'category' | 'subCategory'> & {
   category: string
@@ -127,6 +129,34 @@ async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, val
   }
 }
 
+// Create a new category from the dropdown search text
+async function handleCreateCategory(searchText: string): Promise<string | undefined> {
+  const name = searchText.trim()
+  if (!name) return undefined
+
+  const newCategory = await addNewCategory({ name })
+  store.addCategory(newCategory)
+  return newCategory.name
+}
+
+// Create a new subcategory scoped to the row's current category
+async function handleCreateSubCategory(
+  searchText: string,
+  row: DisplayExpense,
+): Promise<string | undefined> {
+  const name = searchText.trim()
+  if (!name) return undefined
+
+  const category = getCategory(row.category)
+  if (!category) {
+    throw new Error('Select a category before creating a subcategory')
+  }
+
+  const newSubCategory = await addNewSubcategory(category.id, name)
+  store.addSubCategory(category.id, newSubCategory)
+  return newSubCategory.name
+}
+
 // Handle row deletion
 async function handleDelete(row: DisplayExpense) {
   try {
@@ -182,6 +212,8 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     label: 'Category',
     type: 'dropdown',
     dropdownOptions: categoryNames.value,
+    dropdownSearchable: true,
+    onCreateOption: handleCreateCategory,
   },
   {
     key: 'subCategory',
@@ -192,6 +224,8 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
       return getSubcategories(category?.id)
     },
     disabled: (row: DisplayExpense) => !row.category,
+    dropdownSearchable: true,
+    onCreateOption: handleCreateSubCategory,
   },
 ])
 
