@@ -119,7 +119,7 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       `handleDropdownOptionsClick`) and close the panel; on failure keep the panel open and surface
       the error.
 
-- [ ] Step 4: Update `DropdownWithInput.vue`
+- [x] Step 4: Update `DropdownWithInput.vue`
       (`packages/frontend/src/components/DropdownWithInput/DropdownWithInput.vue`) to accept
       `searchable?: boolean` and `onCreateOption?: (...)` props and pass them through to `Select`.
 
