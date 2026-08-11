@@ -123,7 +123,7 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       (`packages/frontend/src/components/DropdownWithInput/DropdownWithInput.vue`) to accept
       `searchable?: boolean` and `onCreateOption?: (...)` props and pass them through to `Select`.
 
-- [ ] Step 5: Update `TableCell.vue`
+- [x] Step 5: Update `TableCell.vue`
       (`packages/frontend/src/components/DesignSystem/Table/TableCell.vue`) to pass
       `:searchable="column.dropdownSearchable"` and an `:on-create-option` binding
       `column.onCreateOption ? (text) => column.onCreateOption!(text, row) : undefined` to

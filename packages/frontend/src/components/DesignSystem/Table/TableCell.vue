@@ -114,6 +114,13 @@ const dropdownValue = computed<string | undefined>({
 
 const shouldIncludeUncategorizedOption = computed(() => columnKey === 'category')
 
+const onCreateOption = computed(() => {
+  if (!props.column.onCreateOption) return undefined
+
+  const createOption = props.column.onCreateOption
+  return (searchText: string) => createOption(searchText, props.row)
+})
+
 const isEditable = computed(() => {
   if (props.mode === 'view') return false
   if (props.column.calculate) return false
@@ -244,6 +251,8 @@ function handleDateChange() {
         :dropdown-options="dropdownOptions"
         :include-empty-option="shouldIncludeUncategorizedOption"
         empty-option-label="Uncategorized"
+        :searchable="column.dropdownSearchable"
+        :on-create-option="onCreateOption"
         @on-change="handleDropdownChange"
         @escape-key-pressed="handleDropdownEscape"
       />
