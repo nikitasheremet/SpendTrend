@@ -149,7 +149,7 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       `AddExpenseTable.vue` does declare `category`/`subCategory` dropdown columns and was
       updated the same way as `ExpenseDataTable.vue`.
 
-- [ ] Step 8: Unit tests — `DropdownOptions.test.ts`
+- [x] Step 8: Unit tests — `DropdownOptions.test.ts`
       (`packages/frontend/src/components/DropdownWithInput/__tests__/DropdownOptions.test.ts`):
       add cases for (a) search input filters visible options by substring, (b) create button
       renders only when both `searchable` is true and `onCreate` is passed, (c) create button does

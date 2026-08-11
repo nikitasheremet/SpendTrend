@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/vue'
+import { render, screen, waitFor } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import DropdownOptions from '../DropdownOptions.vue'
 
 describe('DropdownOptions', () => {
@@ -48,6 +49,166 @@ describe('DropdownOptions', () => {
       const dropdownOption = screen.getByText('optionA').parentElement as HTMLElement
       expect(dropdownOption.className).toContain('whitespace-normal')
       expect(dropdownOption.className).toContain('wrap-break-word')
+    })
+  })
+  describe('when searchable is false', () => {
+    it('should not render a search input', () => {
+      render(DropdownOptions, {
+        props: fakeProps,
+      })
+
+      expect(screen.queryByPlaceholderText('Search...')).toBeNull()
+    })
+
+    it('should not render a create button even if onCreateOption is provided', () => {
+      render(DropdownOptions, {
+        props: {
+          ...fakeProps,
+          onCreateOption: vi.fn(),
+        },
+      })
+
+      expect(screen.queryByRole('button')).toBeNull()
+    })
+  })
+  describe('when searchable is true', () => {
+    it('should render a search input and filter options by substring', async () => {
+      render(DropdownOptions, {
+        props: {
+          ...fakeProps,
+          searchable: true,
+        },
+      })
+
+      const searchInput = screen.getByPlaceholderText('Search...')
+      await userEvent.type(searchInput, 'A')
+
+      screen.getByText('optionA')
+      expect(screen.queryByText('optionB')).toBeNull()
+    })
+
+    it('should not render a create button when onCreateOption is not provided', () => {
+      render(DropdownOptions, {
+        props: {
+          ...fakeProps,
+          searchable: true,
+        },
+      })
+
+      expect(screen.queryByRole('button')).toBeNull()
+    })
+
+    describe('and onCreateOption is provided', () => {
+      it('should render a create button showing the current search text', async () => {
+        render(DropdownOptions, {
+          props: {
+            ...fakeProps,
+            searchable: true,
+            onCreateOption: vi.fn(),
+          },
+        })
+
+        const searchInput = screen.getByPlaceholderText('Search...')
+        await userEvent.type(searchInput, 'newOption')
+
+        screen.getByText('Create "newOption"')
+      })
+
+      it('should disable the create button when the search text is empty', () => {
+        render(DropdownOptions, {
+          props: {
+            ...fakeProps,
+            searchable: true,
+            onCreateOption: vi.fn(),
+          },
+        })
+
+        expect(screen.getByRole('button')).toBeDisabled()
+      })
+
+      it('should disable the create button when the search text matches an existing option (case-insensitive)', async () => {
+        render(DropdownOptions, {
+          props: {
+            ...fakeProps,
+            searchable: true,
+            onCreateOption: vi.fn(),
+          },
+        })
+
+        const searchInput = screen.getByPlaceholderText('Search...')
+        await userEvent.type(searchInput, 'optiona')
+
+        expect(screen.getByRole('button')).toBeDisabled()
+      })
+
+      it('should invoke the callback and emit optionCreated on success', async () => {
+        const onCreateOption = vi.fn().mockResolvedValue('newOption')
+        const { emitted } = render(DropdownOptions, {
+          props: {
+            ...fakeProps,
+            searchable: true,
+            onCreateOption,
+          },
+        })
+
+        const searchInput = screen.getByPlaceholderText('Search...')
+        await userEvent.type(searchInput, 'newOption')
+        await userEvent.click(screen.getByRole('button'))
+
+        expect(onCreateOption).toHaveBeenCalledWith('newOption')
+        await waitFor(() => {
+          expect(emitted().optionCreated).toEqual([['newOption']])
+        })
+      })
+
+      it('should show a loading state while creating and disable the button', async () => {
+        let resolveCreate!: (value: string) => void
+        const onCreateOption = vi.fn(
+          () =>
+            new Promise<string>((resolve) => {
+              resolveCreate = resolve
+            }),
+        )
+        render(DropdownOptions, {
+          props: {
+            ...fakeProps,
+            searchable: true,
+            onCreateOption,
+          },
+        })
+
+        const searchInput = screen.getByPlaceholderText('Search...')
+        await userEvent.type(searchInput, 'newOption')
+        await userEvent.click(screen.getByRole('button'))
+
+        screen.getByText('Creating...')
+        expect(screen.getByRole('button')).toBeDisabled()
+
+        resolveCreate('newOption')
+        await waitFor(() => {
+          screen.getByText('Create "newOption"')
+        })
+      })
+
+      it('should show an error message when creation fails and keep the panel usable', async () => {
+        const onCreateOption = vi.fn().mockRejectedValue(new Error('Category already exists'))
+        const { emitted } = render(DropdownOptions, {
+          props: {
+            ...fakeProps,
+            searchable: true,
+            onCreateOption,
+          },
+        })
+
+        const searchInput = screen.getByPlaceholderText('Search...')
+        await userEvent.type(searchInput, 'newOption')
+        await userEvent.click(screen.getByRole('button'))
+
+        await waitFor(() => {
+          screen.getByText('Category already exists')
+        })
+        expect(emitted().optionCreated).toBeUndefined()
+      })
     })
   })
 })
