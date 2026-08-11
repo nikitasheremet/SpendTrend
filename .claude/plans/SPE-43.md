@@ -73,11 +73,18 @@ export interface ColumnConfig<T extends TableRowData = TableRowData> {
 - `dropdownSearchable` (default `false`/undefined = "simple" list, current behavior unchanged)
   toggles rendering of the search input at the top of the options panel.
 - `onCreateOption` presence toggles rendering of the "Create '<text>'" button at the bottom of the
-  options panel. It's independent of `dropdownSearchable` so a column can opt into create-only or
-  search-only, but in practice `ExpenseDataTable.vue`/`IncomeDataTable.vue` will set both together
-  for `category`/`subCategory` columns. The callback returns the name to select (so the dropdown
-  can update `localValue` and emit `cell:changed`), or `undefined`/throws on failure (dropdown
-  stays open, an inline error is shown, no selection change).
+  options panel, **but only when `dropdownSearchable` is also `true`**. Search-without-create is a
+  valid combination (search text just filters); create-without-search is not, since there'd be no
+  text to create from — if `onCreateOption` is set but `dropdownSearchable` is falsy, the create
+  button is not rendered at all (treated as a misconfiguration, not silently upgraded). In practice
+  `ExpenseDataTable.vue`/`IncomeDataTable.vue` will set both together for `category`/`subCategory`
+  columns. The callback returns the name to select (so the dropdown can update `localValue` and
+  emit `cell:changed`), or `undefined`/throws on failure (dropdown stays open, an inline error is
+  shown, no selection change).
+- The create button is **disabled** whenever the current search text exactly matches an existing
+  option (case-insensitive), since creating a duplicate isn't allowed — the button becomes
+  effectively another way to select that existing option, but the safer, minimal behavior is just
+  to disable it rather than repurpose its click handler.
 
 This mirrors the existing `dropdownOptions?: string[] | ((row: T) => string[])` pattern of putting
 all dropdown behavior on `ColumnConfig`, keeps `GenericTable.vue`'s own prop surface untouched, and
@@ -95,9 +102,11 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
         filtering the rendered `options` by case-insensitive substring match (reuse the filtering
         logic from `useDropdownOptionHandlers.ts`, adapted to live inside this component or a
         small composable it calls).
-      - a "Create '<searchText>'" button pinned to the bottom of the panel (visible when a new
-        `onCreate` prop/callback is provided), disabled while empty or while a creation request is
-        in flight, showing a loading/error state.
+      - a "Create '<searchText>'" button pinned to the bottom of the panel, visible only when
+        `searchable` is true **and** an `onCreate` prop/callback is provided (create requires
+        search — if `onCreate` is set without `searchable`, render nothing). Disabled while the
+        search text is empty, while it exactly matches an existing option (case-insensitive — no
+        duplicate creation), or while a creation request is in flight; shows a loading/error state.
       Keep the panel's existing `Teleport`/positioning/`max-h-[200px] overflow-y-auto` container
       from `Select.vue` unchanged; the search input and create button live inside that same
       teleported panel (search pinned top, list scrolls, create button pinned bottom).
@@ -139,8 +148,11 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
 - [ ] Step 8: Unit tests — `DropdownOptions.test.ts`
       (`packages/frontend/src/components/DropdownWithInput/__tests__/DropdownOptions.test.ts`):
       add cases for (a) search input filters visible options by substring, (b) create button
-      renders only when `onCreate` prop is passed, (c) create button shows current search text,
-      (d) clicking create invokes the callback and shows loading/error states.
+      renders only when both `searchable` is true and `onCreate` is passed, (c) create button does
+      NOT render when `onCreate` is passed but `searchable` is false/undefined, (d) create button
+      shows current search text, (e) create button is disabled when search text exactly matches an
+      existing option (case-insensitive), (f) clicking create invokes the callback and shows
+      loading/error states.
 
 - [ ] Step 9: Unit tests — `DropdownWithInput.test.ts`
       (`packages/frontend/src/components/DropdownWithInput/__tests__/DropdownWithInput.test.ts`):
