@@ -3,12 +3,22 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useDropdownPosition } from '@/helpers/hooks/useDropdownPosition'
 import DropdownOptions from './DropdownOptions.vue'
 
-const { value, dropdownOptions, autofocus, includeEmptyOption, emptyOptionLabel } = defineProps<{
+const {
+  value,
+  dropdownOptions,
+  autofocus,
+  includeEmptyOption,
+  emptyOptionLabel,
+  searchable,
+  onCreateOption,
+} = defineProps<{
   value: string | undefined
   dropdownOptions: string[]
   autofocus?: boolean
   includeEmptyOption?: boolean
   emptyOptionLabel?: string
+  searchable?: boolean
+  onCreateOption?: (searchText: string) => Promise<string | undefined | void>
 }>()
 const emit = defineEmits<{
   onChange: [option: string]
@@ -40,8 +50,22 @@ const optionsWithEmptyOption = computed(() => {
   return [emptyOptionText.value, ...dropdownOptions]
 })
 
+function getOptionsPanelElement(): HTMLElement | undefined {
+  const optionsDiv = optionsDivRef.value
+  if (optionsDiv && '$el' in optionsDiv) {
+    return optionsDiv.$el
+  }
+
+  return optionsDiv as HTMLElement | undefined
+}
+
 defineExpose({
-  hideOptions: () => {
+  hideOptions: (relatedTarget?: EventTarget | null) => {
+    const panelElement = getOptionsPanelElement()
+    if (relatedTarget && panelElement?.contains(relatedTarget as Node)) {
+      return
+    }
+
     isOptionsVisible.value = false
   },
 })
@@ -61,6 +85,12 @@ async function handleDropdownOptionsClick(option: string) {
   }
 
   emit('onChange', option)
+}
+
+async function handleOptionCreated(createdValue: string) {
+  isOptionsVisible.value = false
+  await nextTick()
+  emit('onChange', createdValue)
 }
 
 async function toggleOptionsVisibility() {
@@ -84,7 +114,10 @@ async function toggleOptionsVisibility() {
       ref="optionsDivRef"
       :options="optionsWithEmptyOption"
       :options-style="dropdownOptionsStyle"
+      :searchable="searchable"
+      :on-create-option="onCreateOption"
       @dropdown-option-click="handleDropdownOptionsClick"
+      @option-created="handleOptionCreated"
     />
   </Teleport>
 </template>

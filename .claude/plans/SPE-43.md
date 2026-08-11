@@ -111,7 +111,7 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       from `Select.vue` unchanged; the search input and create button live inside that same
       teleported panel (search pinned top, list scrolls, create button pinned bottom).
 
-- [ ] Step 3: Update `Select.vue` (`packages/frontend/src/components/DropdownWithInput/Select.vue`)
+- [x] Step 3: Update `Select.vue` (`packages/frontend/src/components/DropdownWithInput/Select.vue`)
       to accept and forward new props `searchable?: boolean` and
       `onCreateOption?: (searchText: string) => Promise<string | undefined | void>` to
       `DropdownOptions.vue`, and to handle the create flow: on create-button click, call
