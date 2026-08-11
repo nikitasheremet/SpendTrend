@@ -175,6 +175,8 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       colocated `__tests__` conventions and mock `service/categories/addNewCategories.ts` /
       `addNewSubCategory.ts` + the store the way `ManageCategories/__tests__/` tests already do.
 
-- [ ] Step 12: Run the full frontend unit test suite (`vitest`) and confirm all new and existing
+- [x] Step 12: Run the full frontend unit test suite (`vitest`) and confirm all new and existing
       tests pass, with no behavior change for columns that don't set `dropdownSearchable`/
       `onCreateOption` (simple mode stays pixel-for-pixel identical to today).
+      Result: `npx vitest run` — 88 test files, 415 tests, all passing. `npx vue-tsc --noEmit`
+      and `npx eslint .` both clean (only 2 pre-existing unrelated warnings in `Modal.vue`).
