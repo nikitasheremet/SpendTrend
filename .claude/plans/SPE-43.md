@@ -140,10 +140,14 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       + `getStore().addSubCategory`, same reuse approach as `useAddSubCategory.ts`, guarding for
       the case where `row.category` isn't set yet).
 
-- [ ] Step 7: Repeat step 6 for `IncomeDataTable.vue`, `AddExpenseTable.vue`, `AddIncomeTable.vue`
+- [x] Step 7: Repeat step 6 for `IncomeDataTable.vue`, `AddExpenseTable.vue`, `AddIncomeTable.vue`
       wherever they declare `category`/`subCategory` dropdown columns, for consistency (confirm
       exact columns during implementation — noted as likely candidates from the codebase
       exploration but not yet fully inspected).
+      Result: `IncomeDataTable.vue` and `AddIncomeTable.vue` have no category/subCategory
+      dropdown columns (income rows are date/name/amount only) — nothing to change there.
+      `AddExpenseTable.vue` does declare `category`/`subCategory` dropdown columns and was
+      updated the same way as `ExpenseDataTable.vue`.
 
 - [ ] Step 8: Unit tests — `DropdownOptions.test.ts`
       (`packages/frontend/src/components/DropdownWithInput/__tests__/DropdownOptions.test.ts`):
