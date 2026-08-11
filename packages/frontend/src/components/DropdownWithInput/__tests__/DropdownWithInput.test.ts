@@ -134,6 +134,67 @@ describe('DropdownWithInput', () => {
       expect(emitted().escapeKeyPressed).toEqual([[]])
     })
   })
+  describe('when searchable and onCreateOption are provided', () => {
+    it('should forward search input and create button to the rendered options', async () => {
+      render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1', 'fakeOption2'],
+          searchable: true,
+          onCreateOption: vi.fn(),
+        },
+      })
+
+      await userEvent.click(getDropdownToggleElement())
+
+      screen.getByPlaceholderText('Search...')
+      expect(screen.queryByRole('button')).toBeTruthy()
+    })
+
+    it('should not render a create button when onCreateOption is omitted', async () => {
+      render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1', 'fakeOption2'],
+          searchable: true,
+        },
+      })
+
+      await userEvent.click(getDropdownToggleElement())
+
+      expect(screen.queryByRole('button')).toBeNull()
+    })
+
+    it('should not render a create button when searchable is omitted, even with onCreateOption set', async () => {
+      render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1', 'fakeOption2'],
+          onCreateOption: vi.fn(),
+        },
+      })
+
+      await userEvent.click(getDropdownToggleElement())
+
+      expect(screen.queryByRole('button')).toBeNull()
+    })
+
+    it('should update the model value and emit onChange when a new option is created', async () => {
+      const onCreateOption = vi.fn().mockResolvedValue('newOption')
+      const { emitted } = render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1', 'fakeOption2'],
+          searchable: true,
+          onCreateOption,
+        },
+      })
+
+      await userEvent.click(getDropdownToggleElement())
+      await userEvent.type(screen.getByPlaceholderText('Search...'), 'newOption')
+      await userEvent.click(screen.getByRole('button'))
+
+      expect(onCreateOption).toHaveBeenCalledWith('newOption')
+      expect(emitted().onChange).toEqual([['newOption']])
+      screen.getByText('newOption')
+    })
+  })
   describe('when dropdown opens near viewport boundaries', () => {
     it('should use minimum width fallback and top guard positioning', async () => {
       Object.defineProperty(window, 'innerHeight', {

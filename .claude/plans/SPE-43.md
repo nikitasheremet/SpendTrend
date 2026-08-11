@@ -158,7 +158,7 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       existing option (case-insensitive), (f) clicking create invokes the callback and shows
       loading/error states.
 
-- [ ] Step 9: Unit tests — `DropdownWithInput.test.ts`
+- [x] Step 9: Unit tests — `DropdownWithInput.test.ts`
       (`packages/frontend/src/components/DropdownWithInput/__tests__/DropdownWithInput.test.ts`):
       add cases verifying `searchable`/`onCreateOption` props are forwarded to `Select`, and that a
       successful create result updates the model value and emits `onChange`.
