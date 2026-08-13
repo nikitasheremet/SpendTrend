@@ -53,10 +53,6 @@ const optionsWithEmptyOption = computed(() => {
 
 const optionsPanelElement = computed(() => optionsDivRef.value?.$el)
 
-// ignoreSelector on the toggle itself is required, not optional: the click that opens the
-// dropdown is dispatched from the toggle div, which is never a DOM descendant of the (freshly
-// created, teleported) options panel - so without excluding it, that same click's bubble to
-// document reads as "outside" and immediately closes the dropdown it just opened.
 useClickOutside(
   optionsPanelElement,
   () => isOptionsVisible.value,
@@ -67,8 +63,8 @@ useClickOutside(
 )
 
 defineExpose({
-  hideOptions: (relatedTarget?: EventTarget | null) => {
-    if (relatedTarget && optionsPanelElement.value?.contains(relatedTarget as Node)) {
+  hideOptions: (elementToKeepOpenFor?: EventTarget | null) => {
+    if (elementToKeepOpenFor && optionsPanelElement.value?.contains(elementToKeepOpenFor as Node)) {
       return
     }
 
