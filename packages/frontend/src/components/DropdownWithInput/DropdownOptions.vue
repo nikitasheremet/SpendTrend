@@ -43,6 +43,12 @@ const canCreate = computed(
   () => showCreateButton.value && !isSearchTextEmpty.value && !hasExactMatch.value,
 )
 
+const createButtonLabel = computed(() => {
+  if (isCreating.value) return 'Creating...'
+  if (isSearchTextEmpty.value) return ''
+  return `Create "${trimmedSearchText.value}"`
+})
+
 function optionClicked(option: string) {
   emits('dropdownOptionClick', option)
 }
@@ -67,35 +73,37 @@ async function handleCreateClick() {
 
 <template>
   <div
-    class="dropdown-options fixed z-2000 bg-white border p-1 max-h-50 overflow-y-auto shadow-xs"
+    class="dropdown-options fixed z-2000 bg-white border p-1 max-h-50 shadow-xs flex flex-col"
     :style="optionsStyle"
   >
     <input
       v-if="searchable"
       v-model="searchText"
       type="text"
-      class="sticky top-0 w-full px-1 mb-1 border border-gray-300 rounded-sm bg-white"
+      class="shrink-0 w-full px-1 mb-1 border border-gray-300 rounded-sm bg-white"
       placeholder="Search..."
       @mousedown.stop
     />
-    <div
-      v-for="option of filteredOptions"
-      :key="option"
-      class="p-1 hover:bg-gray-100/50 whitespace-normal wrap-break-word"
-      @mousedown.stop="optionClicked(option)"
-    >
-      <span>{{ option }}</span>
+    <div class="flex-1 overflow-y-auto min-h-0">
+      <div
+        v-for="option of filteredOptions"
+        :key="option"
+        class="p-1 hover:bg-gray-100/50 whitespace-normal wrap-break-word"
+        @mousedown.stop="optionClicked(option)"
+      >
+        <span>{{ option }}</span>
+      </div>
     </div>
     <button
       v-if="showCreateButton"
       type="button"
-      class="sticky bottom-0 w-full mt-1 px-1 py-0.5 text-sm text-left bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100/50"
+      class="shrink-0 w-full mt-1 px-1 py-0.5 text-sm text-left bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100/50"
       :disabled="!canCreate || isCreating"
       @mousedown.stop="handleCreateClick"
     >
-      {{ isCreating ? 'Creating...' : `Create "${trimmedSearchText}"` }}
+      {{ createButtonLabel }}
     </button>
-    <p v-if="createError" class="text-red-500 text-xs mt-1">{{ createError }}</p>
+    <p v-if="createError" class="shrink-0 text-red-500 text-xs mt-1">{{ createError }}</p>
   </div>
 </template>
 

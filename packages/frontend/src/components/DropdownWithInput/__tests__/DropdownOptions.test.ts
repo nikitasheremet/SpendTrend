@@ -44,11 +44,13 @@ describe('DropdownOptions', () => {
       expect(dropdownOptionsContainer.style.left).toBe('20px')
       expect(dropdownOptionsContainer.style.width).toBe('160px')
       expect(dropdownOptionsContainer.className).toContain('max-h-50')
-      expect(dropdownOptionsContainer.className).toContain('overflow-y-auto')
 
       const dropdownOption = screen.getByText('optionA').parentElement as HTMLElement
       expect(dropdownOption.className).toContain('whitespace-normal')
       expect(dropdownOption.className).toContain('wrap-break-word')
+
+      const optionsListContainer = dropdownOption.parentElement as HTMLElement
+      expect(optionsListContainer.className).toContain('overflow-y-auto')
     })
   })
   describe('when searchable is false', () => {
@@ -114,7 +116,7 @@ describe('DropdownOptions', () => {
         screen.getByText('Create "newOption"')
       })
 
-      it('should disable the create button when the search text is empty', () => {
+      it('should disable the create button and render it empty when the search text is empty', () => {
         render(DropdownOptions, {
           props: {
             ...fakeProps,
@@ -123,7 +125,9 @@ describe('DropdownOptions', () => {
           },
         })
 
-        expect(screen.getByRole('button')).toBeDisabled()
+        const createButton = screen.getByRole('button')
+        expect(createButton).toBeDisabled()
+        expect(createButton.textContent).toBe('')
       })
 
       it('should disable the create button when the search text matches an existing option (case-insensitive)', async () => {
