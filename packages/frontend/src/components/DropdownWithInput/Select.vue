@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useDropdownPosition } from '@/helpers/hooks/useDropdownPosition'
+import { useClickOutside } from '@/helpers/hooks/useClickOutside'
 import DropdownOptions from './DropdownOptions.vue'
 
 const {
@@ -50,14 +51,24 @@ const optionsWithEmptyOption = computed(() => {
   return [emptyOptionText.value, ...dropdownOptions]
 })
 
-function getOptionsPanelElement(): HTMLElement | undefined {
-  return optionsDivRef.value?.$el
-}
+const optionsPanelElement = computed(() => optionsDivRef.value?.$el)
+
+// ignoreSelector on the toggle itself is required, not optional: the click that opens the
+// dropdown is dispatched from the toggle div, which is never a DOM descendant of the (freshly
+// created, teleported) options panel - so without excluding it, that same click's bubble to
+// document reads as "outside" and immediately closes the dropdown it just opened.
+useClickOutside(
+  optionsPanelElement,
+  () => isOptionsVisible.value,
+  () => {
+    isOptionsVisible.value = false
+  },
+  { ignoreSelector: '[data-dropdown-select-toggle]' },
+)
 
 defineExpose({
   hideOptions: (relatedTarget?: EventTarget | null) => {
-    const panelElement = getOptionsPanelElement()
-    if (relatedTarget && panelElement?.contains(relatedTarget as Node)) {
+    if (relatedTarget && optionsPanelElement.value?.contains(relatedTarget as Node)) {
       return
     }
 
@@ -97,6 +108,7 @@ async function toggleOptionsVisibility() {
 <template>
   <div
     ref="optionsRef"
+    data-dropdown-select-toggle
     class="flex justify-between items-center px-2 border border-gray-500 rounded-md min-h-6"
     @click="toggleOptionsVisibility"
   >

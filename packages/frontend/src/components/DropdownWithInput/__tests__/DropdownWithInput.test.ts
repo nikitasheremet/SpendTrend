@@ -52,6 +52,21 @@ describe('DropdownWithInput', () => {
       expect(screen.queryByText('fakeOption1')).toBeNull()
     })
   })
+  describe('when a click lands outside the dropdown', () => {
+    it('should hide dropdown options', async () => {
+      render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1'],
+        },
+      })
+      await userEvent.click(getDropdownToggleElement())
+      screen.getByText('fakeOption1')
+
+      await userEvent.click(document.body)
+
+      expect(screen.queryByText('fakeOption1')).toBeNull()
+    })
+  })
   describe('when autofocus is enabled', () => {
     it('should show dropdown options by default', () => {
       render(DropdownWithInput, {
