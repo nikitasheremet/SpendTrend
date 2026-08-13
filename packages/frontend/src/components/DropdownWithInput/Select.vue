@@ -27,7 +27,7 @@ const EMPTY_SELECTION_VALUE = ''
 const DEFAULT_EMPTY_OPTION_LABEL = 'Uncategorized'
 const isOptionsVisible = ref(Boolean(autofocus))
 const optionsRef = ref<HTMLElement>()
-const optionsDivRef = ref<HTMLElement | { $el?: HTMLElement }>()
+const optionsDivRef = ref<{ $el?: HTMLElement }>()
 
 const { optionsTop, optionsLeft, optionsWidth, positionDropdown } = useDropdownPosition(
   optionsRef,
@@ -51,12 +51,7 @@ const optionsWithEmptyOption = computed(() => {
 })
 
 function getOptionsPanelElement(): HTMLElement | undefined {
-  const optionsDiv = optionsDivRef.value
-  if (optionsDiv && '$el' in optionsDiv) {
-    return optionsDiv.$el
-  }
-
-  return optionsDiv as HTMLElement | undefined
+  return optionsDivRef.value?.$el
 }
 
 defineExpose({
