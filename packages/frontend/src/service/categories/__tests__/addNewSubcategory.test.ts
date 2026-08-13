@@ -32,6 +32,17 @@ describe('when addNewSubcategory is called', () => {
     expect(result).toEqual(fakeExpenseSubCategory)
   })
 
+  it('should title case the subcategory name before sending it to createExpenseSubCategory', async () => {
+    await addNewSubcategory(fakeCategoryId, 'coffee shop')
+
+    expect(mockCreateExpenseSubCategory).toHaveBeenCalledWith({
+      userId: fakeUserId,
+      accountId: fakeAccountId,
+      categoryId: fakeCategoryId,
+      name: 'Coffee Shop',
+    })
+  })
+
   it('should throw and log error if API call fails', async () => {
     const mockError = new Error('API failed')
 
