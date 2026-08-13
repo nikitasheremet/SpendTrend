@@ -20,16 +20,18 @@ const searchText = ref('')
 const isCreating = ref(false)
 const createError = ref<string>()
 
+const trimmedSearchText = computed(() => searchText.value.trim())
+
+const isSearchTextEmpty = computed(() => trimmedSearchText.value === '')
+
 const filteredOptions = computed(() => {
-  if (!searchable || !searchText.value.trim()) {
+  if (!searchable || isSearchTextEmpty.value) {
     return options
   }
 
-  const query = searchText.value.trim().toLowerCase()
+  const query = trimmedSearchText.value.toLowerCase()
   return options.filter((option) => option.toLowerCase().includes(query))
 })
-
-const trimmedSearchText = computed(() => searchText.value.trim())
 
 const hasExactMatch = computed(() =>
   options.some((option) => option.toLowerCase() === trimmedSearchText.value.toLowerCase()),
@@ -38,7 +40,7 @@ const hasExactMatch = computed(() =>
 const showCreateButton = computed(() => Boolean(searchable) && Boolean(onCreateOption))
 
 const canCreate = computed(
-  () => showCreateButton.value && trimmedSearchText.value !== '' && !hasExactMatch.value,
+  () => showCreateButton.value && !isSearchTextEmpty.value && !hasExactMatch.value,
 )
 
 function optionClicked(option: string) {
@@ -65,7 +67,7 @@ async function handleCreateClick() {
 
 <template>
   <div
-    class="dropdown-options fixed z-2000 bg-white border p-1 max-h-[200px] overflow-y-auto shadow-xs"
+    class="dropdown-options fixed z-2000 bg-white border p-1 max-h-50 overflow-y-auto shadow-xs"
     :style="optionsStyle"
   >
     <input

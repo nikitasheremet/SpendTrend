@@ -43,7 +43,7 @@ describe('DropdownOptions', () => {
       expect(dropdownOptionsContainer.style.top).toBe('10px')
       expect(dropdownOptionsContainer.style.left).toBe('20px')
       expect(dropdownOptionsContainer.style.width).toBe('160px')
-      expect(dropdownOptionsContainer.className).toContain('max-h-[200px]')
+      expect(dropdownOptionsContainer.className).toContain('max-h-50')
       expect(dropdownOptionsContainer.className).toContain('overflow-y-auto')
 
       const dropdownOption = screen.getByText('optionA').parentElement as HTMLElement
