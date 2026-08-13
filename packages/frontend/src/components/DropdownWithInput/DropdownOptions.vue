@@ -9,7 +9,7 @@ const { options, optionsStyle, searchable, onCreateOption } = defineProps<{
     width: string
   }
   searchable?: boolean
-  onCreateOption?: (searchText: string) => Promise<string | undefined | void>
+  onCreateOption?: (searchText: string) => Promise<string>
 }>()
 const emits = defineEmits<{
   dropdownOptionClick: [option: string]
@@ -54,9 +54,7 @@ async function handleCreateClick() {
   createError.value = undefined
   try {
     const createdValue = await onCreateOption(trimmedSearchText.value)
-    if (createdValue) {
-      emits('optionCreated', createdValue)
-    }
+    emits('optionCreated', createdValue)
   } catch (err) {
     createError.value = err instanceof Error ? err.message : 'Failed to create option'
   } finally {

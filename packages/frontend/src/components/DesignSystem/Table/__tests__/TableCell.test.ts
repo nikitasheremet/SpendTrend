@@ -222,7 +222,7 @@ describe('TableCell', () => {
 
       const boundCreate = wrapper.findComponent(DropdownWithInput).props('onCreateOption') as (
         searchText: string,
-      ) => Promise<string | undefined>
+      ) => Promise<string>
       await boundCreate('NewCategory')
 
       expect(onCreateOption).toHaveBeenCalledWith('NewCategory', fakeRow)

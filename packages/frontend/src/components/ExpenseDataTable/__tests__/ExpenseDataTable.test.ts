@@ -133,16 +133,6 @@ describe('ExpenseDataTable — create category/subcategory from dropdown', () =>
       expect(addCategoryMock).toHaveBeenCalledWith(newCategory)
       expect(result).toBe('Groceries')
     })
-
-    it('does not call the service for a blank search string', async () => {
-      const wrapper = mountTable()
-      const column = getColumn(wrapper, 'category')
-
-      const result = await column.onCreateOption!('   ', { category: '' } as DisplayExpense)
-
-      expect(addNewCategoryMock).not.toHaveBeenCalled()
-      expect(result).toBeUndefined()
-    })
   })
 
   describe('subCategory column', () => {

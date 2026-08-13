@@ -18,7 +18,7 @@ const {
   includeEmptyOption?: boolean
   emptyOptionLabel?: string
   searchable?: boolean
-  onCreateOption?: (searchText: string) => Promise<string | undefined | void>
+  onCreateOption?: (searchText: string) => Promise<string>
 }>()
 const emit = defineEmits<{
   onChange: [option: string]

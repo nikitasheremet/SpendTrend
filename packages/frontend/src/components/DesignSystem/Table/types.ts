@@ -16,7 +16,7 @@ export interface ColumnConfig<T extends TableRowData = TableRowData> {
   customClass?: string
   dropdownOptions?: string[] | ((row: T) => string[])
   dropdownSearchable?: boolean
-  onCreateOption?: (searchText: string, row: T) => Promise<string | undefined | void>
+  onCreateOption?: (searchText: string, row: T) => Promise<string>
   format?: (value: unknown, row: T) => string
   calculate?: (row: T) => unknown
 }

@@ -216,11 +216,8 @@ async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, val
 }
 
 // Create a new category from the dropdown search text
-async function handleCreateCategory(searchText: string): Promise<string | undefined> {
-  const name = searchText.trim()
-  if (!name) return undefined
-
-  const newCategory = await addNewCategory({ name })
+async function handleCreateCategory(searchText: string): Promise<string> {
+  const newCategory = await addNewCategory({ name: searchText })
   store.addCategory(newCategory)
   return newCategory.name
 }
@@ -229,16 +226,13 @@ async function handleCreateCategory(searchText: string): Promise<string | undefi
 async function handleCreateSubCategory(
   searchText: string,
   row: DisplayExpense,
-): Promise<string | undefined> {
-  const name = searchText.trim()
-  if (!name) return undefined
-
+): Promise<string> {
   const categoryId = getCategoryId(row.category)
   if (!categoryId) {
     throw new Error('Select a category before creating a subcategory')
   }
 
-  const newSubCategory = await addNewSubcategory(categoryId, name)
+  const newSubCategory = await addNewSubcategory(categoryId, searchText)
   store.addSubCategory(categoryId, newSubCategory)
   return newSubCategory.name
 }
