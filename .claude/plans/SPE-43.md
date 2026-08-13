@@ -35,7 +35,7 @@ free text.
 
 ### Recommendation: callback prop, not an emitted event
 
-Use a **callback prop** on `ColumnConfig` (e.g. `onCreateOption?: (searchText: string, row: T) => Promise<string | undefined>`)
+Use a **callback prop** on `ColumnConfig` (e.g. `onCreateOption?: (searchText: string, row: T) => Promise<string>`)
 rather than a DOM event emitted up through `TableCell` → `TableRow` → `GenericTable`.
 
 Reasons:
@@ -51,7 +51,7 @@ Reasons:
   (`@create-option="(key, row, text) => ..."`) to disambiguate `category` vs `subCategory` in the
   same table, adding a routing layer for no benefit since there's only ever one handler per column
   anyway.
-- **Type safety.** A callback prop is typed end-to-end (`(searchText: string, row: T) => Promise<string | undefined>`);
+- **Type safety.** A callback prop is typed end-to-end (`(searchText: string, row: T) => Promise<string>`);
   a generic `emit('cell:create-option', ...)` payload would need runtime narrowing at the call
   site.
 - The existing `cell:changed` emit stays as-is — it's genuinely a "something changed, tell the
@@ -66,7 +66,7 @@ Add two new optional fields to `ColumnConfig<T>` (`types.ts`):
 export interface ColumnConfig<T extends TableRowData = TableRowData> {
   // ...existing fields...
   dropdownSearchable?: boolean
-  onCreateOption?: (searchText: string, row: T) => Promise<string | undefined | void>
+  onCreateOption?: (searchText: string, row: T) => Promise<string>
 }
 ```
 
@@ -79,8 +79,12 @@ export interface ColumnConfig<T extends TableRowData = TableRowData> {
   button is not rendered at all (treated as a misconfiguration, not silently upgraded). In practice
   `ExpenseDataTable.vue`/`IncomeDataTable.vue` will set both together for `category`/`subCategory`
   columns. The callback returns the name to select (so the dropdown can update `localValue` and
-  emit `cell:changed`), or `undefined`/throws on failure (dropdown stays open, an inline error is
-  shown, no selection change).
+  emit `cell:changed`), or throws on failure (dropdown stays open, an inline error is shown, no
+  selection change). The signature is intentionally `Promise<string>` rather than
+  `Promise<string | undefined | void>` — the create button is only ever clickable when there's
+  non-empty, non-duplicate search text (`canCreate` in `DropdownOptions.vue`), so a "successfully
+  did nothing" return value is unreachable in practice; a genuine failure should throw instead of
+  resolving to a falsy value (see post-implementation revision below).
 - The create button is **disabled** whenever the current search text exactly matches an existing
   option (case-insensitive), since creating a duplicate isn't allowed — the button becomes
   effectively another way to select that existing option, but the safer, minimal behavior is just
@@ -93,8 +97,10 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
 ## Checklist
 
 - [x] Step 1: Add `dropdownSearchable?: boolean` and
-      `onCreateOption?: (searchText: string, row: T) => Promise<string | undefined | void>` to
+      `onCreateOption?: (searchText: string, row: T) => Promise<string>` to
       `ColumnConfig<T>` in `packages/frontend/src/components/DesignSystem/Table/types.ts`.
+      (Originally implemented as `Promise<string | undefined | void>`, narrowed to
+      `Promise<string>` in a follow-up revision — see note at end of file.)
 
 - [x] Step 2: Extend `DropdownOptions.vue` (`packages/frontend/src/components/DropdownWithInput/DropdownOptions.vue`)
       to optionally render:
@@ -113,7 +119,7 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
 
 - [x] Step 3: Update `Select.vue` (`packages/frontend/src/components/DropdownWithInput/Select.vue`)
       to accept and forward new props `searchable?: boolean` and
-      `onCreateOption?: (searchText: string) => Promise<string | undefined | void>` to
+      `onCreateOption?: (searchText: string) => Promise<string>` to
       `DropdownOptions.vue`, and to handle the create flow: on create-button click, call
       `onCreateOption`, and on success set the returned value as the selection (same path as
       `handleDropdownOptionsClick`) and close the panel; on failure keep the panel open and surface
@@ -180,3 +186,19 @@ requires no new events on `GenericTable`/`TableRow` (they already pass `column` 
       `onCreateOption` (simple mode stays pixel-for-pixel identical to today).
       Result: `npx vitest run` — 88 test files, 415 tests, all passing. `npx vue-tsc --noEmit`
       and `npx eslint .` both clean (only 2 pre-existing unrelated warnings in `Modal.vue`).
+
+## Post-implementation revision: `onCreateOption` return type narrowed to `Promise<string>`
+
+After the checklist above was completed, `onCreateOption` was narrowed from
+`Promise<string | undefined | void>` to `Promise<string>` across `types.ts`, `DropdownOptions.vue`,
+`Select.vue`, and `DropdownWithInput.vue`. Rationale: the create button is only ever enabled when
+`canCreate` is true (non-empty, non-duplicate search text), so callers never had a legitimate
+reason to resolve to `undefined`/`void` — a real failure should reject the promise (shown as an
+inline error, dropdown stays open) rather than silently resolving to nothing. This let
+`DropdownOptions.vue`'s `handleCreateClick` emit `optionCreated` unconditionally instead of
+guarding on truthiness, and removed now-dead blank-string guards (`if (!name) return undefined`)
+from `ExpenseDataTable.vue`'s and `AddExpenseTable.vue`'s `handleCreateCategory`/
+`handleCreateSubCategory`. Tests updated to match (dropped the "blank search string" test in
+`ExpenseDataTable.test.ts`; fixed a stale `Promise<string | undefined>` type annotation in
+`TableCell.test.ts`). Full suite re-verified: 88 files / 414 tests passing, typecheck and lint
+clean. Commit: `d39881b`.
