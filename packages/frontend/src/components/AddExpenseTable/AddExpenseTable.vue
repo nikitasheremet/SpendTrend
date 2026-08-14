@@ -13,6 +13,8 @@ import { addNewExpense } from '@/service/expenses/addNewExpense'
 import { DateFormat, formatDate } from '@/helpers/date/formatDate'
 import { useCategoriesInExpenseData } from '@/helpers/hooks/useGetCategories'
 import { watch } from 'vue'
+import { addNewCategory } from '@/service/categories/addNewCategories'
+import { addNewSubcategory } from '@/service/categories/addNewSubCategory'
 
 const newExpenses = defineModel<NewExpense[]>({ required: true })
 const props = defineProps<{
@@ -213,6 +215,25 @@ async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, val
   }
 }
 
+// Create a new category from the dropdown search text
+async function handleCreateCategory(searchText: string): Promise<string> {
+  const newCategory = await addNewCategory({ name: searchText })
+  store.addCategory(newCategory)
+  return newCategory.name
+}
+
+// Create a new subcategory scoped to the row's current category
+async function handleCreateSubCategory(searchText: string, row: DisplayExpense): Promise<string> {
+  const categoryId = getCategoryId(row.category)
+  if (!categoryId) {
+    throw new Error('Select a category before creating a subcategory')
+  }
+
+  const newSubCategory = await addNewSubcategory(categoryId, searchText)
+  store.addSubCategory(categoryId, newSubCategory)
+  return newSubCategory.name
+}
+
 // Move to income handler
 async function moveToIncome(row: DisplayExpense, index: number) {
   emit('moveToIncome', toModelExpense(row))
@@ -276,6 +297,8 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     type: 'dropdown',
     required: false,
     dropdownOptions: categoryNames.value,
+    dropdownSearchable: true,
+    onCreateOption: handleCreateCategory,
     filterable: true,
   },
   {
@@ -286,6 +309,8 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     dropdownOptions: (row: DisplayExpense) => getSubcategories(getCategoryId(row.category)),
     filterable: true,
     disabled: (row: DisplayExpense) => !row.category,
+    dropdownSearchable: true,
+    onCreateOption: handleCreateSubCategory,
   },
 ])
 
