@@ -15,7 +15,7 @@ import type {
   TableRowData,
 } from './types'
 import { FILTER_TYPE_DROPDOWN } from './types'
-import { useProgressiveRowRender, useTableFilters } from './hooks'
+import { useProgressiveRowRender, useTableFilters, useTableSort } from './hooks'
 
 const {
   data,
@@ -62,8 +62,14 @@ const { filterableColumns, filteredEntries, getDropdownOptions, activeFilters, s
     columns: computed(() => columns),
   })
 
+const { sortableColumns, sortedEntries, toggleSort, getSortDirection } = useTableSort<T>({
+  columns: computed(() => columns),
+})
+
+const sortedFilteredEntries = computed(() => sortedEntries(filteredEntries.value))
+
 const { visibleData } = useProgressiveRowRender({
-  data: filteredEntries,
+  data: sortedFilteredEntries,
   enabled: computed(() => progressiveRender),
   initialRowCount: computed(() => initialRowCount),
   rowChunkSize: computed(() => rowChunkSize),
@@ -72,8 +78,10 @@ const { visibleData } = useProgressiveRowRender({
 // Build headers from columns config and add empty headers for row actions
 const headers = computed(() => {
   const filterableKeys = new Set(filterableColumns.value.map((col) => col.key))
+  const sortableKeys = new Set(sortableColumns.value.map((col) => col.key))
   const columnHeaders = columns.map((col) => {
     const filterable = filterableKeys.has(col.key)
+    const sortable = sortableKeys.has(col.key)
     return {
       label: col.label,
       required: col.required,
@@ -83,6 +91,9 @@ const headers = computed(() => {
       filterType: filterable ? (col.type as FilterableColumnType) : undefined,
       filterOptions: filterable && col.type === FILTER_TYPE_DROPDOWN ? getDropdownOptions(col) : undefined,
       filterValue: activeFilters.value[col.key],
+      sortable,
+      sortKey: col.key,
+      sortDirection: sortable ? getSortDirection(col.key) : undefined,
     }
   })
   const actionHeaders = rowActions.map(() => ({
@@ -102,6 +113,10 @@ function handleCellUpdate(rowIndex: number, key: keyof T, value: unknown) {
 
 function handleFilterChange(key: string, value: FilterValue) {
   setFilter(key, value)
+}
+
+function handleSortChange(key: string) {
+  toggleSort(key)
 }
 
 function isRowInvalid(index: number): boolean {
@@ -147,6 +162,7 @@ function getRowKey(row: T, index: number): string | number {
         :headers="headers"
         :sticky-top-offset-px="stickyTopOffsetPx"
         @filter:changed="handleFilterChange"
+        @sort:changed="handleSortChange"
       />
       <tbody>
         <TableRow
