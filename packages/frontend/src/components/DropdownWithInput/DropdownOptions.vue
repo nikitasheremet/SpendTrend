@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, useTemplateRef } from 'vue'
 
 const { options, optionsStyle, searchable, onCreateOption } = defineProps<{
   options: string[]
@@ -19,6 +19,13 @@ const emits = defineEmits<{
 const searchText = ref('')
 const isCreating = ref(false)
 const createError = ref<string>()
+const searchInputRef = useTemplateRef<HTMLInputElement>('search-input-ref')
+
+onMounted(() => {
+  if (searchable) {
+    searchInputRef.value?.focus()
+  }
+})
 
 const trimmedSearchText = computed(() => searchText.value.trim())
 
@@ -78,6 +85,7 @@ async function handleCreateClick() {
   >
     <input
       v-if="searchable"
+      ref="search-input-ref"
       v-model="searchText"
       type="text"
       class="shrink-0 w-full px-1 mb-1 border border-gray-300 rounded-sm bg-white"

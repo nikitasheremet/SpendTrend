@@ -165,6 +165,19 @@ describe('DropdownWithInput', () => {
       expect(screen.queryByRole('button')).toBeTruthy()
     })
 
+    it('should autofocus the search input when the dropdown opens', async () => {
+      render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1', 'fakeOption2'],
+          searchable: true,
+        },
+      })
+
+      await userEvent.click(getDropdownToggleElement())
+
+      expect(screen.getByPlaceholderText('Search...')).toHaveFocus()
+    })
+
     it('should not render a create button when onCreateOption is omitted', async () => {
       render(DropdownWithInput, {
         props: {
