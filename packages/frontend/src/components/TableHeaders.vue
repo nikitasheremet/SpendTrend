@@ -14,6 +14,7 @@ const { headers, stickyTopOffsetPx } = defineProps<{
 
 const emit = defineEmits<{
   'filter:changed': [key: string, value: FilterValue]
+  'sort:changed': [key: string]
 }>()
 
 const stickyTopPx = computed(() => stickyTopOffsetPx ?? getThemeSpacingPx('nav'))
@@ -24,6 +25,33 @@ function handleFilterChange(key: string | undefined, value: FilterValue) {
     return
   }
   emit('filter:changed', key, value)
+}
+
+function handleSortChange(key: string | undefined) {
+  if (!key) {
+    return
+  }
+  emit('sort:changed', key)
+}
+
+function getSortGlyph(direction: TableHeader['sortDirection']): string {
+  if (direction === 'asc') {
+    return '↑'
+  }
+  if (direction === 'desc') {
+    return '↓'
+  }
+  return '↕'
+}
+
+function getAriaSort(direction: TableHeader['sortDirection']): 'ascending' | 'descending' | 'none' {
+  if (direction === 'asc') {
+    return 'ascending'
+  }
+  if (direction === 'desc') {
+    return 'descending'
+  }
+  return 'none'
 }
 </script>
 
@@ -41,9 +69,21 @@ function handleFilterChange(key: string | undefined, value: FilterValue) {
           },
         ]"
         :style="{ top: `${stickyTopPx}px` }"
+        :aria-sort="header.sortable ? getAriaSort(header.sortDirection) : undefined"
       >
         <span class="inline-flex items-center gap-1">
           {{ header.label }} <span v-if="header.required" class="text-red-700 text-2xl">*</span>
+          <button
+            v-if="header.sortable && header.sortKey"
+            type="button"
+            class="flex items-center justify-center w-5 h-5 rounded-sm hover:bg-gray-200"
+            :class="{ 'text-blue-600': header.sortDirection, 'text-gray-500': !header.sortDirection }"
+            :aria-label="`Sort by ${header.label}`"
+            :aria-pressed="Boolean(header.sortDirection)"
+            @click="handleSortChange(header.sortKey)"
+          >
+            <span class="text-xs leading-none">{{ getSortGlyph(header.sortDirection) }}</span>
+          </button>
           <TableColumnFilter
             v-if="header.filterable && header.filterKey && header.filterType"
             :filter-key="header.filterKey"
