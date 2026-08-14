@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick, VueElement } from 'vue'
 import GenericTable from '../GenericTable.vue'
@@ -7,6 +7,12 @@ import Button from '../../Button/Button.vue'
 import ErrorComponent from '../../Error.vue'
 import LoadingModal from '../../Modal/LoadingModal.vue'
 import type { ColumnConfig, RowAction, TableAction } from '../types'
+
+// TableColumnFilter teleports its panel to document.body; without cleanup,
+// a previous test's panel would linger and be picked up by document queries.
+afterEach(() => {
+  document.body.innerHTML = ''
+})
 
 const TableRowComponent = TableRow as unknown as VueElement
 
@@ -251,6 +257,122 @@ describe('GenericTable', () => {
 
       const rows = wrapper.findAllComponents(TableRowComponent)
       expect(rows).toHaveLength(10)
+    })
+  })
+
+  describe('when columns are filterable', () => {
+    const filterableColumns: ColumnConfig<FakeRow>[] = [
+      { key: 'name', label: 'Name', type: 'dropdown', filterable: true },
+      { key: 'amount', label: 'Amount', type: 'number' },
+    ]
+
+    function findFilterTrigger(wrapper: ReturnType<typeof mountGenericTable>, label: string) {
+      return wrapper.find(`button[aria-label="Filter by ${label}"]`)
+    }
+
+    it('should render a filter icon only for columns marked filterable', () => {
+      const wrapper = mountGenericTable({ columns: filterableColumns })
+
+      expect(findFilterTrigger(wrapper, 'Name').exists()).toBe(true)
+      expect(findFilterTrigger(wrapper, 'Amount').exists()).toBe(false)
+    })
+
+    it('should not render a filter icon for a filterable text/number/longtext column', () => {
+      const wrapper = mountGenericTable({
+        columns: [{ key: 'name', label: 'Name', type: 'text', filterable: true }],
+      })
+
+      expect(findFilterTrigger(wrapper, 'Name').exists()).toBe(false)
+    })
+
+    it('should hide non-matching rows once a dropdown filter is selected', async () => {
+      const fakeData: FakeRow[] = [
+        { name: 'Food', amount: 1 },
+        { name: 'Travel', amount: 2 },
+      ]
+      const wrapper = mountGenericTable({ data: fakeData, columns: filterableColumns })
+      await nextTick()
+
+      await findFilterTrigger(wrapper, 'Name').trigger('click')
+      const checkbox = document.querySelector(
+        '[data-table-column-filter-portal] input[type="checkbox"]',
+      ) as HTMLInputElement
+      checkbox.dispatchEvent(new Event('change', { bubbles: true }))
+      await nextTick()
+
+      const rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows).toHaveLength(1)
+      expect(rows[0].props('row')).toEqual({ name: 'Food', amount: 1 })
+    })
+
+    it('should preserve original row indices for cell:changed and row actions once filtered', async () => {
+      const fakeData: FakeRow[] = [
+        { name: 'Food', amount: 1 },
+        { name: 'Travel', amount: 2 },
+        { name: 'Food', amount: 3 },
+      ]
+      const rowActionHandler = vi.fn()
+      const wrapper = mountGenericTable({
+        data: fakeData,
+        columns: filterableColumns,
+        rowActions: [{ label: 'Delete', handler: rowActionHandler }],
+      })
+      await nextTick()
+
+      await findFilterTrigger(wrapper, 'Name').trigger('click')
+      const checkboxes = Array.from(
+        document.querySelectorAll('[data-table-column-filter-portal] input[type="checkbox"]'),
+      ) as HTMLInputElement[]
+      const foodCheckbox = checkboxes.find((checkbox) => {
+        const label = checkbox.closest('label')
+        return label?.textContent?.includes('Food')
+      })
+      foodCheckbox?.dispatchEvent(new Event('change', { bubbles: true }))
+      await nextTick()
+
+      const rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows).toHaveLength(2)
+
+      const secondRow = rows[1]
+      expect(secondRow.props('row')).toEqual({ name: 'Food', amount: 3 })
+      expect(secondRow.props('rowIndex')).toBe(2)
+
+      await secondRow.vm.$emit('cell:changed', 2, 'amount', 99)
+      expect(wrapper.emitted('cell:changed')?.at(-1)).toEqual([2, 'amount', 99])
+
+      const deleteButton = secondRow.findAllComponents(Button).find((b) => b.text() === 'Delete')
+      await deleteButton?.trigger('click')
+      expect(rowActionHandler).toHaveBeenCalledWith({ name: 'Food', amount: 3 }, 2)
+    })
+
+    it('should keep validationErrors targeting the original row index once earlier rows are filtered out', async () => {
+      const fakeData: FakeRow[] = [
+        { name: 'Food', amount: 1 },
+        { name: 'Travel', amount: 2 },
+        { name: 'Travel', amount: 3 },
+      ]
+      const wrapper = mountGenericTable({
+        data: fakeData,
+        columns: filterableColumns,
+        validationErrors: [2],
+      })
+      await nextTick()
+
+      await findFilterTrigger(wrapper, 'Name').trigger('click')
+      const checkboxes = Array.from(
+        document.querySelectorAll('[data-table-column-filter-portal] input[type="checkbox"]'),
+      ) as HTMLInputElement[]
+      const travelCheckbox = checkboxes.find((checkbox) => {
+        const label = checkbox.closest('label')
+        return label?.textContent?.includes('Travel')
+      })
+      travelCheckbox?.dispatchEvent(new Event('change', { bubbles: true }))
+      await nextTick()
+
+      const rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows).toHaveLength(2)
+      expect(rows[0].props('validationError')).toBe(false)
+      expect(rows[1].props('validationError')).toBe(true)
     })
   })
 })

@@ -223,10 +223,7 @@ async function handleCreateCategory(searchText: string): Promise<string> {
 }
 
 // Create a new subcategory scoped to the row's current category
-async function handleCreateSubCategory(
-  searchText: string,
-  row: DisplayExpense,
-): Promise<string> {
+async function handleCreateSubCategory(searchText: string, row: DisplayExpense): Promise<string> {
   const categoryId = getCategoryId(row.category)
   if (!categoryId) {
     throw new Error('Select a category before creating a subcategory')
@@ -258,6 +255,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     label: 'Date',
     type: 'date',
     required: true,
+    filterable: true,
   },
   {
     key: 'name',
@@ -301,6 +299,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     dropdownOptions: categoryNames.value,
     dropdownSearchable: true,
     onCreateOption: handleCreateCategory,
+    filterable: true,
   },
   {
     key: 'subCategory',
@@ -308,6 +307,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     type: 'dropdown',
     required: false,
     dropdownOptions: (row: DisplayExpense) => getSubcategories(getCategoryId(row.category)),
+    filterable: true,
     disabled: (row: DisplayExpense) => !row.category,
     dropdownSearchable: true,
     onCreateOption: handleCreateSubCategory,

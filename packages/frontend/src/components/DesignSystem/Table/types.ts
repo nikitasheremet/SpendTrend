@@ -19,6 +19,38 @@ export interface ColumnConfig<T extends TableRowData = TableRowData> {
   onCreateOption?: (searchText: string, row: T) => Promise<string>
   format?: (value: unknown, row: T) => string
   calculate?: (row: T) => unknown
+  filterable?: boolean
+}
+
+export interface DateFilterValue {
+  from?: string
+  to?: string
+}
+
+export type FilterValue = string[] | DateFilterValue
+
+export type FilterState = Record<string, FilterValue>
+
+// Column types that support filtering. Add new filter UIs (e.g. 'number') here only.
+export const FILTER_TYPE_DROPDOWN = 'dropdown'
+export const FILTER_TYPE_DATE = 'date'
+
+export type FilterableColumnType = typeof FILTER_TYPE_DROPDOWN | typeof FILTER_TYPE_DATE
+
+// Sentinel included in a dropdown filter's options/selection to represent
+// rows whose value is undefined, null, or ''. Never a real column value.
+export const EMPTY_FILTER_VALUE = '__EMPTY__'
+export const EMPTY_FILTER_LABEL = '(Empty)'
+
+export interface TableHeader {
+  label: string
+  required?: boolean
+  customClass?: string
+  filterable?: boolean
+  filterKey?: string
+  filterType?: FilterableColumnType
+  filterOptions?: string[]
+  filterValue?: FilterValue
 }
 
 export interface RowAction<T extends TableRowData = TableRowData> {
