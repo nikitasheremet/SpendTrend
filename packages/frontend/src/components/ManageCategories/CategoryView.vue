@@ -10,6 +10,7 @@ import { useManageSubCategories } from './hooks/useManageSubcategories'
 import { useControlModal } from '../DesignSystem/Modal/useControlModal'
 import { useControlCategoryOptions } from './hooks/useControlCategoryOptions'
 import { useDropdownPosition } from '@/helpers/hooks/useDropdownPosition'
+import { useClickOutside } from '@/helpers/hooks/useClickOutside'
 import Error from '../DesignSystem/Error.vue'
 import Button from '../DesignSystem/Button/Button.vue'
 
@@ -49,9 +50,22 @@ const optionsDivRef = ref<HTMLElement>()
 
 const { optionsTop, optionsLeft, positionDropdown } = useDropdownPosition(optionsRef, optionsDivRef)
 
+// ignoreSelector on the toggle button itself is required, not optional: the click that opens
+// the dropdown is dispatched from the toggle button, which is never a DOM descendant of the
+// (freshly created) dropdown container - so without excluding it, that same click's bubble to
+// document reads as "outside" and immediately closes the dropdown it just opened.
+useClickOutside(optionsDivRef, () => isOptionsOpen.value, closeOptions, {
+  ignoreSelector: '[data-category-options-toggle]',
+})
+
 async function toggleOptions() {
   originalToggleOptions()
   await positionDropdown(isOptionsOpen.value)
+}
+
+function selectOption(action: () => void) {
+  action()
+  closeOptions()
 }
 
 const showSubCategories = ref(false)
@@ -89,13 +103,18 @@ const error = deleteCategoryError || deleteSubCategoryError || updateCategoryErr
             showSubCategories ? '▼' : '▶'
           }}</span>
         </p>
-        <Button type="secondary" class="text-xs p-1!" @click="toggleOptions" @blur="closeOptions"
+        <Button
+          data-category-options-toggle
+          type="secondary"
+          class="text-xs p-1!"
+          @click="toggleOptions"
           >⋮</Button
         >
         <Teleport to="body">
           <div
             v-if="isOptionsOpen"
             ref="optionsDivRef"
+            data-manage-categories-portal
             class="category-options fixed z-10000 bg-gray-50 flex flex-col gap-1 w-38 shadow-xs border"
             :style="{ top: optionsTop + 'px', left: optionsLeft + 'px' }"
           >
@@ -104,7 +123,7 @@ const error = deleteCategoryError || deleteSubCategoryError || updateCategoryErr
               :key="option.name"
               class="hover:bg-gray-200 px-3.5 py-1.5 rounded-md"
             >
-              <Button :key="option.name" type="text" @mousedown="option.action">
+              <Button :key="option.name" type="text" @click="selectOption(option.action)">
                 {{ option.name }}
               </Button>
             </span>

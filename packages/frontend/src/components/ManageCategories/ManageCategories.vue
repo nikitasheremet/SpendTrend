@@ -1,18 +1,38 @@
 <script lang="ts" setup>
+import { onMounted, onUnmounted, ref } from 'vue'
 import CategoryView from './CategoryView.vue'
 import AddCategory from './AddCategory.vue'
 import Button from '@/components/DesignSystem/Button/Button.vue'
 import { getStore } from '@/store/store'
+import { useClickOutside } from '@/helpers/hooks/useClickOutside'
 
 const store = getStore()
 
-const { isOpen } = defineProps<{
+const props = defineProps<{
   isOpen: boolean
 }>()
 
 const emit = defineEmits<{
   closeManageCategories: []
 }>()
+
+const panelRef = ref<HTMLElement | null>(null)
+
+useClickOutside(
+  panelRef,
+  () => props.isOpen,
+  () => emit('closeManageCategories'),
+  { ignoreSelector: '[data-manage-categories-portal], [data-manage-categories-toggle]' },
+)
+
+function handleKeydown(event: KeyboardEvent) {
+  if (!props.isOpen) return
+  if (event.key !== 'Escape') return
+  emit('closeManageCategories')
+}
+
+onMounted(() => document.addEventListener('keydown', handleKeydown))
+onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
 </script>
 
 <template>
@@ -27,7 +47,8 @@ const emit = defineEmits<{
     <div
       v-show="isOpen"
       id="manage-categories"
-      class="flex flex-col fixed border bg-gray-50 z-2000 p-5 top-15 right-0 h-[calc(100vh-61px)] box-border min-w-[30vw] max-w-[50vw] shadow-xl"
+      ref="panelRef"
+      class="flex flex-col fixed border bg-gray-50 z-2000 p-5 top-nav right-0 h-[calc(100vh-61px)] box-border min-w-[30vw] max-w-[50vw] shadow-xl"
     >
       <div id="manage-categories-header" class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Your Expense Categories</h2>

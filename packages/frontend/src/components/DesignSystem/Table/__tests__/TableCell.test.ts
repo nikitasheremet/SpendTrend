@@ -175,6 +175,148 @@ describe('TableCell', () => {
     })
   })
 
+  describe('when column has dropdownSearchable and onCreateOption', () => {
+    it('should pass searchable through to DropdownWithInput', () => {
+      const wrapper = mountTableCell({
+        column: createColumn({
+          key: 'category',
+          label: 'Category',
+          type: 'dropdown',
+          dropdownOptions: ['Option1'],
+          dropdownSearchable: true,
+        }),
+        row: { category: 'Option1' },
+      })
+
+      expect(wrapper.findComponent(DropdownWithInput).props('searchable')).toBe(true)
+    })
+
+    it('should not pass searchable when dropdownSearchable is unset', () => {
+      const wrapper = mountTableCell({
+        column: createColumn({
+          key: 'category',
+          label: 'Category',
+          type: 'dropdown',
+          dropdownOptions: ['Option1'],
+        }),
+        row: { category: 'Option1' },
+      })
+
+      expect(wrapper.findComponent(DropdownWithInput).props('searchable')).toBeFalsy()
+    })
+
+    it('should bind onCreateOption with the current row', async () => {
+      const onCreateOption = vi.fn().mockResolvedValue('NewCategory')
+      const fakeRow = { category: 'Option1' }
+      const wrapper = mountTableCell({
+        column: createColumn({
+          key: 'category',
+          label: 'Category',
+          type: 'dropdown',
+          dropdownOptions: ['Option1'],
+          dropdownSearchable: true,
+          onCreateOption,
+        }),
+        row: fakeRow,
+      })
+
+      const boundCreate = wrapper.findComponent(DropdownWithInput).props('onCreateOption') as (
+        searchText: string,
+      ) => Promise<string>
+      await boundCreate('NewCategory')
+
+      expect(onCreateOption).toHaveBeenCalledWith('NewCategory', fakeRow)
+    })
+
+    it('should not pass onCreateOption when the column does not define one', () => {
+      const wrapper = mountTableCell({
+        column: createColumn({
+          key: 'category',
+          label: 'Category',
+          type: 'dropdown',
+          dropdownOptions: ['Option1'],
+          dropdownSearchable: true,
+        }),
+        row: { category: 'Option1' },
+      })
+
+      expect(wrapper.findComponent(DropdownWithInput).props('onCreateOption')).toBeUndefined()
+    })
+
+    it('should emit cell:changed when a new option is selected via create flow', async () => {
+      const wrapper = mountTableCell({
+        column: createColumn({
+          key: 'category',
+          label: 'Category',
+          type: 'dropdown',
+          dropdownOptions: ['Option1'],
+          dropdownSearchable: true,
+          onCreateOption: vi.fn().mockResolvedValue('NewCategory'),
+        }),
+        row: { category: 'Option1' },
+      })
+
+      const dropdown = wrapper.findComponent(DropdownWithInput)
+      await dropdown.vm.$emit('onChange', 'NewCategory')
+
+      expect(wrapper.emitted('cell:changed')).toBeTruthy()
+      expect(wrapper.emitted('cell:changed')![0]).toEqual(['category', 'NewCategory'])
+    })
+  })
+
+  describe('when column.disabled is set', () => {
+    it('should render as view mode when disabled is true', () => {
+      const wrapper = mountTableCell({
+        column: createColumn({ key: 'name', label: 'Name', disabled: true }),
+        row: { name: 'Frozen' },
+      })
+
+      expect(wrapper.find('p').exists()).toBe(true)
+      expect(wrapper.find('p').text()).toBe('Frozen')
+      expect(wrapper.findComponent(Input).exists()).toBe(false)
+    })
+
+    it('should remain editable when disabled is false', () => {
+      const wrapper = mountTableCell({
+        column: createColumn({ key: 'name', label: 'Name', disabled: false }),
+        row: { name: 'Editable' },
+      })
+
+      expect(wrapper.findComponent(Input).exists()).toBe(true)
+    })
+
+    it('should render as view mode when disabled function returns true', () => {
+      const wrapper = mountTableCell({
+        column: createColumn({
+          key: 'subCategory',
+          label: 'Subcategory',
+          type: 'dropdown',
+          dropdownOptions: [],
+          disabled: (row) => !row.category,
+        }),
+        row: { subCategory: '', category: '' },
+      })
+
+      expect(wrapper.find('p').exists()).toBe(true)
+      expect(wrapper.findComponent(DropdownWithInput).exists()).toBe(false)
+    })
+
+    it('should render dropdown when disabled function returns false', () => {
+      const wrapper = mountTableCell({
+        column: createColumn({
+          key: 'subCategory',
+          label: 'Subcategory',
+          type: 'dropdown',
+          dropdownOptions: ['Sub1'],
+          disabled: (row) => !row.category,
+        }),
+        row: { subCategory: 'Sub1', category: 'Food' },
+      })
+
+      expect(wrapper.findComponent(DropdownWithInput).exists()).toBe(true)
+    })
+  })
+
   describe('when column type is longtext', () => {
     it('should render Input component with textarea variant', () => {
       const wrapper = mountTableCell({

@@ -5,6 +5,7 @@ import Button from '../DesignSystem/Button/Button.vue'
 import UpdateNameModal from './UpdateNameModal.vue'
 import { useControlModal } from '../DesignSystem/Modal/useControlModal'
 import { useDropdownPosition } from '@/helpers/hooks/useDropdownPosition'
+import { useClickOutside } from '@/helpers/hooks/useClickOutside'
 
 const { subCategories, loading } = defineProps<{
   subCategories: ExpenseSubCategory[]
@@ -47,6 +48,14 @@ function closeOptions() {
   activeOptionsSubCategoryId.value = null
 }
 
+// ignoreSelector on the toggle buttons is required, not optional: see the matching comment in
+// CategoryView.vue - the click that opens the dropdown is dispatched from a toggle button,
+// which is never a DOM descendant of the (freshly created) dropdown container, so without
+// excluding it that same click immediately closes the dropdown it just opened.
+useClickOutside(optionsDivRef, () => !!activeOptionsSubCategoryId.value, closeOptions, {
+  ignoreSelector: '[data-subcategory-options-toggle]',
+})
+
 function openUpdateModal(subCategory: ExpenseSubCategory) {
   selectedSubCategoryForUpdate.value = subCategory
   openUpdateSubCategoryModal()
@@ -77,7 +86,11 @@ const subCategoryOptions = (subCategory: ExpenseSubCategory) => [
       <div class="my-2.5">
         <span ref="optionsRef" class="relative flex items-center">
           <p style="display: inline; margin-right: 10px">{{ subCategory.name }}</p>
-          <Button type="secondary" class="text-xs p-1!" @click="toggleOptions(subCategory.id)"
+          <Button
+            data-subcategory-options-toggle
+            type="secondary"
+            class="text-xs p-1!"
+            @click="toggleOptions(subCategory.id)"
             >⋮</Button
           >
         </span>
@@ -88,6 +101,7 @@ const subCategoryOptions = (subCategory: ExpenseSubCategory) => [
     <div
       v-if="activeOptionsSubCategoryId"
       ref="optionsDivRef"
+      data-manage-categories-portal
       class="subcategory-options fixed z-10000 bg-gray-50 flex flex-col gap-1 w-38 shadow-xs border"
       :style="{ top: optionsTop + 'px', left: optionsLeft + 'px' }"
     >

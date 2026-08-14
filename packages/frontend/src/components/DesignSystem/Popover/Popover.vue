@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { ref, markRaw, type Component } from 'vue'
-import type { PopoverMethods, PopoverOptions } from '@/types/designSystem'
+import type { PopoverMethods, PopoverOptions, PopoverType } from '@/types/designSystem'
+
+const typeClassMap: Record<PopoverType, string> = {
+  info: 'bg-blue-50 border border-blue-300',
+}
 
 const isVisible = ref(false)
 const component = ref<Component | null>(null)
 const componentProps = ref<Record<string, unknown>>({})
+const type = ref<PopoverType>('info')
 
 function hidePopover(timeout: number) {
   setTimeout(() => {
@@ -17,9 +22,10 @@ function showPopover(
   props: Record<string, unknown> = {},
   options: PopoverOptions = {},
 ) {
-  const { timeout = 1000 } = options
+  const { timeout = 1000, type: popoverType = 'info' } = options
   component.value = markRaw(vueComponent)
   componentProps.value = props
+  type.value = popoverType
 
   isVisible.value = true
   hidePopover(timeout)
@@ -41,7 +47,10 @@ defineExpose<PopoverMethods>({
   >
     <div
       v-if="isVisible"
-      class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white rounded-lg shadow-2xl/70 p-4 z-50 shadow-stone-600"
+      :class="[
+        'fixed bottom-4 left-1/2 -translate-x-1/2 rounded-lg shadow-2xl/70 p-4 z-50 shadow-stone-600',
+        typeClassMap[type],
+      ]"
     >
       <component :is="component" v-if="component" v-bind="componentProps" />
     </div>

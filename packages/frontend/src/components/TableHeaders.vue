@@ -2,20 +2,29 @@
 import { computed, ref } from 'vue'
 import { useScrollPast } from '@/helpers/hooks/useScrollPast'
 import { getThemeSpacingPx } from '@/helpers/css/getThemeSpacingPx'
+import TableColumnFilter from '@/components/DesignSystem/Table/TableColumnFilter.vue'
+import type { FilterValue, TableHeader } from '@/components/DesignSystem/Table/types'
 
 const theadRef = ref<HTMLElement | null>(null)
 
 const { headers, stickyTopOffsetPx } = defineProps<{
-  headers: {
-    label: string
-    required?: boolean
-    customClass?: string
-  }[]
+  headers: TableHeader[]
   stickyTopOffsetPx?: number
+}>()
+
+const emit = defineEmits<{
+  'filter:changed': [key: string, value: FilterValue]
 }>()
 
 const stickyTopPx = computed(() => stickyTopOffsetPx ?? getThemeSpacingPx('nav'))
 const { hasScrolledPast } = useScrollPast(theadRef, { triggerOffsetPx: stickyTopPx })
+
+function handleFilterChange(key: string | undefined, value: FilterValue) {
+  if (!key) {
+    return
+  }
+  emit('filter:changed', key, value)
+}
 </script>
 
 <template>
@@ -33,7 +42,18 @@ const { hasScrolledPast } = useScrollPast(theadRef, { triggerOffsetPx: stickyTop
         ]"
         :style="{ top: `${stickyTopPx}px` }"
       >
-        {{ header.label }} <span v-if="header.required" class="text-red-700 text-2xl">*</span>
+        <span class="inline-flex items-center gap-1">
+          {{ header.label }} <span v-if="header.required" class="text-red-700 text-2xl">*</span>
+          <TableColumnFilter
+            v-if="header.filterable && header.filterKey && header.filterType"
+            :filter-key="header.filterKey"
+            :label="header.label"
+            :type="header.filterType"
+            :options="header.filterOptions"
+            :model-value="header.filterValue"
+            @update:model-value="(value) => handleFilterChange(header.filterKey, value as FilterValue)"
+          />
+        </span>
       </th>
     </tr>
   </thead>

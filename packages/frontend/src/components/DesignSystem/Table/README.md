@@ -11,6 +11,7 @@ A flexible, reusable table component system built with Vue 3 and TypeScript, sup
 - **Validation**: Row-level validation with visual feedback
 - **Calculated Fields**: Support for computed/derived columns
 - **Dependent Dropdowns**: Dynamic dropdown options based on row data
+- **Column Filtering**: Excel/Sheets-style header filters for `dropdown` and `date` columns (see [Filtering](#filtering))
 - **Popover Notifications**: Success/error notifications via inject/provide
 - **Loading States**: Built-in loading modal support
 - **Error Handling**: Integrated error display
@@ -220,15 +221,67 @@ const columns: ColumnConfig<Expense>[] = [
 interface ColumnConfig<T = any> {
   key: string // Property key in data object
   label: string // Column header text
-  type?: 'text' | 'number' | 'date' | 'dropdown' // Cell input type
+  type?: 'text' | 'number' | 'date' | 'dropdown' | 'longtext' // Cell input type
   required?: boolean // Show asterisk in header
   editable?: boolean // Allow editing (default: true)
   customClass?: string // Tailwind classes for column
   dropdownOptions?: string[] | ((row: T) => string[]) // Static or dynamic options
   format?: (value: any, row: T) => string // Custom display formatter
   calculate?: (row: T) => any // Computed value function
+  filterable?: boolean // Show a header filter control (dropdown/date columns only, see Filtering)
 }
 ```
+
+## Filtering
+
+Columns of type `dropdown` or `date` can opt into a header filter by setting
+`filterable: true`. Filtering for other column types (`text`, `number`,
+`longtext`) is not implemented yet — `filterable` on those types is a no-op
+(no filter icon renders).
+
+```typescript
+const columns = computed<ColumnConfig<Expense>[]>(() => [
+  { key: 'date', label: 'Date', type: 'date', filterable: true },
+  { key: 'category', label: 'Category', type: 'dropdown', filterable: true, dropdownOptions: categoryNames },
+  { key: 'name', label: 'Name', type: 'longtext' }, // not filterable
+])
+```
+
+- **The table resolves filter options itself.** For `dropdown` columns, the
+  filter's checklist is built from the distinct values actually present in
+  `data` for that column — not from `dropdownOptions`. `dropdownOptions`
+  describes what's *editable* into a cell (which may include values not yet
+  present in any row); the filter only ever offers values a user could
+  actually match, the same way Excel/Sheets does. Callers never pass a
+  separate list of filter options.
+- **Dropdown filters can match empty values.** If any row has `undefined`,
+  `null`, or `''` for a filterable dropdown column, the checklist gets an
+  extra `(Empty)` option (`EMPTY_FILTER_VALUE` in `types.ts`) that matches
+  those rows. It behaves like any other option — combinable with real values
+  via OR, included by "Select all", cleared by "Clear".
+- **Date columns filter by range.** Instead of a checklist, `date` columns
+  get a `from`/`to` range panel (inclusive bounds).
+- Clicking the filter icon in a header cell opens a floating panel
+  (`TableColumnFilter.vue`), which teleports to `<body>` and positions
+  itself via the same `useDropdownPosition` hook used by
+  `DropdownWithInput`/`Select.vue`, so it isn't clipped by table scroll
+  containers.
+- Filtering is implemented as the `useTableFilters` composable
+  (`hooks/useTableFilters.ts`), which `GenericTable.vue` owns internally.
+  It takes `data` + `columns` and returns rows **paired with their original
+  index** (`{ row: T; index: number }[]`) rather than a plain filtered
+  array — `GenericTable` renders using that original index, not the row's
+  position among currently-visible rows. This matters because `rowActions`,
+  `validationErrors` (a `Set<number>`), and the `cell:changed` emit are all
+  addressed by index against the *full*, unfiltered `data` array; losing
+  the original index when filtering would silently break edits, row
+  actions, and validation highlighting on any filtered table.
+- **Pipeline shape for future search/sort tickets:** future `useTableSearch`
+  and `useTableSort` composables should follow the same `{ row, index }[]`
+  in/out shape as `useTableFilters`, so they can be composed into a
+  `search → filter → sort` pipeline without `GenericTable.vue` needing to
+  special-case all three at once. Extend this shape rather than inventing a
+  new one.
 
 ### Row Action Configuration
 
@@ -301,7 +354,9 @@ Comprehensive unit tests are available in `__tests__/`:
 
 - `TableCell.test.ts` - Cell rendering, editing, formatting
 - `TableRow.test.ts` - Row rendering, actions, validation
-- `GenericTable.test.ts` - Table structure, modes, events
+- `GenericTable.test.ts` - Table structure, modes, events, filtering
+- `TableColumnFilter.test.ts` - Filter panel rendering and interactions
+- `useTableFilters.test.ts` - Filter state, option derivation, index-preserving filtering
 - `useTableOperations.spec.ts` - Hook CRUD operations, validation
 
 Run tests:
@@ -322,16 +377,21 @@ Table/
 ├── GenericTable.vue          # Main table component
 ├── TableRow.vue              # Row wrapper with actions
 ├── TableCell.vue             # Individual cell with mode logic
+├── TableColumnFilter.vue     # Floating header filter panel (dropdown/date)
 ├── types.ts                  # TypeScript interfaces
 ├── index.ts                  # Public exports
 ├── hooks/
 │   ├── useTableOperations.ts # CRUD operations hook
 │   ├── useTableOperations.spec.ts
+│   ├── useTableFilters.ts    # Filtering composable ({ row, index }[] pipeline)
+│   ├── useProgressiveRowRender.ts
 │   └── index.ts
 └── __tests__/
     ├── TableCell.test.ts
     ├── TableRow.test.ts
-    └── GenericTable.test.ts
+    ├── GenericTable.test.ts
+    ├── TableColumnFilter.test.ts
+    └── useTableFilters.test.ts
 ```
 
 ## Best Practices
@@ -346,7 +406,8 @@ Table/
 
 ## Future Enhancements
 
-- Sorting and filtering support
+- Sorting and search (see [Filtering](#filtering) for the intended `{ row, index }[]` pipeline shape to extend)
+- `filterable` support for `text`/`number` columns
 - Pagination
 - Row selection with bulk actions
 - Column reordering

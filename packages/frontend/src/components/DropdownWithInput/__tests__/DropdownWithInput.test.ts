@@ -52,6 +52,21 @@ describe('DropdownWithInput', () => {
       expect(screen.queryByText('fakeOption1')).toBeNull()
     })
   })
+  describe('when a click lands outside the dropdown', () => {
+    it('should hide dropdown options', async () => {
+      render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1'],
+        },
+      })
+      await userEvent.click(getDropdownToggleElement())
+      screen.getByText('fakeOption1')
+
+      await userEvent.click(document.body)
+
+      expect(screen.queryByText('fakeOption1')).toBeNull()
+    })
+  })
   describe('when autofocus is enabled', () => {
     it('should show dropdown options by default', () => {
       render(DropdownWithInput, {
@@ -132,6 +147,80 @@ describe('DropdownWithInput', () => {
       await fireEvent.keyDown(getDropdownElement(), { key: 'Escape' })
 
       expect(emitted().escapeKeyPressed).toEqual([[]])
+    })
+  })
+  describe('when searchable and onCreateOption are provided', () => {
+    it('should forward search input and create button to the rendered options', async () => {
+      render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1', 'fakeOption2'],
+          searchable: true,
+          onCreateOption: vi.fn(),
+        },
+      })
+
+      await userEvent.click(getDropdownToggleElement())
+
+      screen.getByPlaceholderText('Search...')
+      expect(screen.queryByRole('button')).toBeTruthy()
+    })
+
+    it('should autofocus the search input when the dropdown opens', async () => {
+      render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1', 'fakeOption2'],
+          searchable: true,
+        },
+      })
+
+      await userEvent.click(getDropdownToggleElement())
+
+      expect(screen.getByPlaceholderText('Search...')).toHaveFocus()
+    })
+
+    it('should not render a create button when onCreateOption is omitted', async () => {
+      render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1', 'fakeOption2'],
+          searchable: true,
+        },
+      })
+
+      await userEvent.click(getDropdownToggleElement())
+
+      expect(screen.queryByRole('button')).toBeNull()
+    })
+
+    it('should not render a create button when searchable is omitted, even with onCreateOption set', async () => {
+      render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1', 'fakeOption2'],
+          onCreateOption: vi.fn(),
+        },
+      })
+
+      await userEvent.click(getDropdownToggleElement())
+
+      expect(screen.queryByRole('button')).toBeNull()
+    })
+
+    it('should update the model value and emit onChange when a new option is created', async () => {
+      const onCreateOption = vi.fn().mockResolvedValue('newOption')
+      const { emitted } = render(DropdownWithInput, {
+        props: {
+          dropdownOptions: ['fakeOption1', 'fakeOption2'],
+          searchable: true,
+          onCreateOption,
+        },
+      })
+
+      await userEvent.click(getDropdownToggleElement())
+      await userEvent.type(screen.getByPlaceholderText('Search...'), 'newOption')
+      await userEvent.click(screen.getByRole('button'))
+
+      expect(onCreateOption).toHaveBeenCalledWith('newOption')
+      expect(emitted().onChange).toEqual([['newOption']])
+      screen.getByText('newOption')
     })
   })
   describe('when dropdown opens near viewport boundaries', () => {

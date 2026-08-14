@@ -130,4 +130,30 @@ describe('when useProgressiveRowRender is used', () => {
 
     expect(wrapper.text()).toBe(String(EXPECTED_ROW_COUNT_AFTER_DELETE))
   })
+
+  it('should paginate {row, index} entry pairs the same as raw rows', async () => {
+    const EntryTestHost = defineComponent({
+      setup() {
+        const entries = ref(
+          Array.from({ length: BASE_ROW_COUNT }, (_, index) => ({ row: { id: index }, index })),
+        )
+        const { visibleData } = useProgressiveRowRender({
+          data: computed(() => entries.value),
+          enabled: computed(() => true),
+          initialRowCount: computed(() => INITIAL_ENABLED_ROW_COUNT),
+          rowChunkSize: computed(() => ENABLED_ROW_CHUNK_SIZE),
+        })
+        return { visibleData }
+      },
+      template: '<div>{{ visibleData.map((entry) => entry.index).join(",") }}</div>',
+    })
+
+    const wrapper = mount(EntryTestHost)
+    await flushPromises()
+    await flushPromises()
+
+    expect(wrapper.text()).toBe(
+      Array.from({ length: BASE_ROW_COUNT }, (_, index) => index).join(','),
+    )
+  })
 })

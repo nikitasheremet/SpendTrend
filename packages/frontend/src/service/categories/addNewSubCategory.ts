@@ -1,5 +1,6 @@
 import { createExpenseSubCategory } from '@/gateway/expenseSubCategory/createExpenseSubCategory'
 import { getStore } from '@/store/store'
+import { toTitleCase } from '@/helpers/textFormatting/toTitleCase'
 import type { ExpenseSubCategory } from '@/types/expenseData'
 
 export async function addNewSubcategory(
@@ -12,7 +13,7 @@ export async function addNewSubcategory(
       userId,
       accountId,
       categoryId,
-      name: subCategoryName,
+      name: toTitleCase(subCategoryName),
     }
     return await createExpenseSubCategory(request)
   } catch (error) {

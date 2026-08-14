@@ -10,6 +10,8 @@ import { POPOVER_SYMBOL } from '@/types/providedSymbols'
 import type { PopoverRef } from '@/types/designSystem'
 import RowNotificationPopover from './hooks/RowNotificationPopover.vue'
 import { getStore } from '@/store/store'
+import { addNewCategory } from '@/service/categories/addNewCategories'
+import { addNewSubcategory } from '@/service/categories/addNewSubCategory'
 
 type DisplayExpense = Omit<Expense, 'category' | 'subCategory'> & {
   category: string
@@ -92,14 +94,14 @@ async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, val
 
       // Clear subcategory when category changes
     } else if (key === 'subCategory') {
-      // Value is subcategory name string, need to find subcategory object for service
-      const categoryObj = updatedExpense.category
-      const subcategory = categoryObj?.subCategories?.find((sub) => sub.name === value)
-      if (subcategory) {
-        updatedExpense.subCategory = subcategory
-      } else {
-        updatedExpense.subCategory = undefined
-      }
+      // Look up the subcategory via the live categories store rather than
+      // updatedExpense.category (a snapshot from the last server response) -
+      // a subcategory just created from this same dropdown wouldn't be in
+      // that stale snapshot's subCategories list yet.
+      const categoryName = updatedExpense.category?.name
+      const category = categoryName ? getCategory(categoryName) : undefined
+      const subcategory = category?.subCategories.find((sub) => sub.name === value)
+      updatedExpense.subCategory = subcategory
     } else {
       updatedExpense = {
         ...updatedExpense,
@@ -127,6 +129,25 @@ async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, val
   }
 }
 
+// Create a new category from the dropdown search text
+async function handleCreateCategory(searchText: string): Promise<string> {
+  const newCategory = await addNewCategory({ name: searchText })
+  store.addCategory(newCategory)
+  return newCategory.name
+}
+
+// Create a new subcategory scoped to the row's current category
+async function handleCreateSubCategory(searchText: string, row: DisplayExpense): Promise<string> {
+  const category = getCategory(row.category)
+  if (!category) {
+    throw new Error('Select a category before creating a subcategory')
+  }
+
+  const newSubCategory = await addNewSubcategory(category.id, searchText)
+  store.addSubCategory(category.id, newSubCategory)
+  return newSubCategory.name
+}
+
 // Handle row deletion
 async function handleDelete(row: DisplayExpense) {
   try {
@@ -146,6 +167,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     label: 'Date',
     type: 'date',
     customClass: 'w-1/7',
+    filterable: true,
   },
   {
     key: 'name',
@@ -182,6 +204,9 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     label: 'Category',
     type: 'dropdown',
     dropdownOptions: categoryNames.value,
+    dropdownSearchable: true,
+    onCreateOption: handleCreateCategory,
+    filterable: true,
   },
   {
     key: 'subCategory',
@@ -191,6 +216,10 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
       const category = getCategory(row.category)
       return getSubcategories(category?.id)
     },
+    filterable: true,
+    disabled: (row: DisplayExpense) => !row.category,
+    dropdownSearchable: true,
+    onCreateOption: handleCreateSubCategory,
   },
 ])
 

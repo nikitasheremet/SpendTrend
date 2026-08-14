@@ -114,10 +114,23 @@ const dropdownValue = computed<string | undefined>({
 
 const shouldIncludeUncategorizedOption = computed(() => columnKey === 'category')
 
+const onCreateOption = computed(() => {
+  if (!props.column.onCreateOption) return undefined
+
+  const createOption = props.column.onCreateOption
+  return (searchText: string) => createOption(searchText, props.row)
+})
+
 const isEditable = computed(() => {
   if (props.mode === 'view') return false
-  if (props.column.calculate) return false // Calculated fields are never editable
-  return props.column.editable !== false
+  if (props.column.calculate) return false
+  if (props.column.editable === false) return false
+
+  const disabled = props.column.disabled
+  if (typeof disabled === 'function') {
+    return !disabled(props.row)
+  }
+  return !disabled
 })
 
 // Debounced emit with 1 second delay
@@ -238,6 +251,8 @@ function handleDateChange() {
         :dropdown-options="dropdownOptions"
         :include-empty-option="shouldIncludeUncategorizedOption"
         empty-option-label="Uncategorized"
+        :searchable="column.dropdownSearchable"
+        :on-create-option="onCreateOption"
         @on-change="handleDropdownChange"
         @escape-key-pressed="handleDropdownEscape"
       />

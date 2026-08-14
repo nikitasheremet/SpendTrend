@@ -1,7 +1,10 @@
 import type { Component, Ref } from 'vue'
 
+export type PopoverType = 'info'
+
 export interface PopoverOptions {
   timeout?: number
+  type?: PopoverType
 }
 
 export interface PopoverMethods {
