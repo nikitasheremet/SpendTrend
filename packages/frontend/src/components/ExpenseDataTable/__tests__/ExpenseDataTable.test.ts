@@ -66,6 +66,11 @@ vi.mock('@/service/categories/addNewSubCategory', () => ({
   addNewSubcategory: (...args: unknown[]) => addNewSubcategoryMock(...args),
 }))
 
+const updateExpenseMock = vi.fn()
+vi.mock('@/service/expenses/updateExpense', () => ({
+  updateExpense: (...args: unknown[]) => updateExpenseMock(...args),
+}))
+
 // -----------------------------------------------------------------------------
 
 type DisplayExpense = Omit<Expense, 'category' | 'subCategory'> & {
@@ -101,6 +106,7 @@ describe('ExpenseDataTable — create category/subcategory from dropdown', () =>
   beforeEach(() => {
     vi.clearAllMocks()
     expensesRef.value = []
+    foodCategory.subCategories = []
   })
 
   describe('category column', () => {
@@ -176,6 +182,51 @@ describe('ExpenseDataTable — create category/subcategory from dropdown', () =>
         column.onCreateOption!('Snacks', { category: '' } as DisplayExpense),
       ).rejects.toThrow()
       expect(addNewSubcategoryMock).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('subCategory cell update after creating a new subcategory', () => {
+    it('resolves the subcategory via the live categories store, not the stale expense.category snapshot', async () => {
+      const newSubCategory: ExpenseSubCategory = {
+        id: 'sub-snacks',
+        userId: 'u1',
+        accountId: 'a1',
+        name: 'Snacks',
+        categoryId: foodCategory.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      // The live categories store (getCategoryMock -> foodCategory) already has the
+      // subcategory that was just created via the dropdown...
+      foodCategory.subCategories = [newSubCategory]
+
+      // ...but the expense's own `.category` field is a snapshot from the last
+      // server response, taken before the subcategory existed.
+      const staleFoodCategorySnapshot: ExpenseCategory = { ...foodCategory, subCategories: [] }
+      const expense: Expense = {
+        id: 'exp-1',
+        userId: 'u1',
+        accountId: 'a1',
+        date: '2026-01-01',
+        name: 'Lunch',
+        amount: 10,
+        netAmount: 10,
+        category: staleFoodCategorySnapshot,
+        subCategory: undefined,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      expensesRef.value = [expense]
+      updateExpenseMock.mockResolvedValue({ ...expense, subCategory: newSubCategory })
+
+      const wrapper = mountTable()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const genericTable = wrapper.findComponent(GenericTable as any)
+      await genericTable.vm.$emit('cell:changed', 0, 'subCategory', 'Snacks')
+
+      expect(updateExpenseMock).toHaveBeenCalledWith(
+        expect.objectContaining({ subCategory: newSubCategory }),
+      )
     })
   })
 })

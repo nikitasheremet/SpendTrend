@@ -94,14 +94,14 @@ async function handleCellUpdate(rowIndex: number, key: keyof DisplayExpense, val
 
       // Clear subcategory when category changes
     } else if (key === 'subCategory') {
-      // Value is subcategory name string, need to find subcategory object for service
-      const categoryObj = updatedExpense.category
-      const subcategory = categoryObj?.subCategories?.find((sub) => sub.name === value)
-      if (subcategory) {
-        updatedExpense.subCategory = subcategory
-      } else {
-        updatedExpense.subCategory = undefined
-      }
+      // Look up the subcategory via the live categories store rather than
+      // updatedExpense.category (a snapshot from the last server response) -
+      // a subcategory just created from this same dropdown wouldn't be in
+      // that stale snapshot's subCategories list yet.
+      const categoryName = updatedExpense.category?.name
+      const category = categoryName ? getCategory(categoryName) : undefined
+      const subcategory = category?.subCategories.find((sub) => sub.name === value)
+      updatedExpense.subCategory = subcategory
     } else {
       updatedExpense = {
         ...updatedExpense,
