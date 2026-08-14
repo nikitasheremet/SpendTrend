@@ -29,18 +29,6 @@ function isEmptyValue(value: unknown): boolean {
 }
 
 function compareValues(a: unknown, b: unknown, type: ColumnConfig['type']): number {
-  const aEmpty = isEmptyValue(a)
-  const bEmpty = isEmptyValue(b)
-  if (aEmpty && bEmpty) {
-    return EQUAL
-  }
-  if (aEmpty) {
-    return AFTER
-  }
-  if (bEmpty) {
-    return BEFORE
-  }
-
   if (type === 'number') {
     const aNum = Number(a)
     const bNum = Number(b)
@@ -91,12 +79,24 @@ export function useTableSort<T extends TableRowData>(options: UseTableSortOption
 
     return [...entries].sort((entryA, entryB) => {
       for (const rule of sortState.value) {
+        const aValue = getRawValue(entryA.row, rule.key)
+        const bValue = getRawValue(entryB.row, rule.key)
+        const aEmpty = isEmptyValue(aValue)
+        const bEmpty = isEmptyValue(bValue)
+
+        // Empty values always sort last, regardless of sort direction.
+        if (aEmpty && bEmpty) {
+          continue
+        }
+        if (aEmpty) {
+          return AFTER
+        }
+        if (bEmpty) {
+          return BEFORE
+        }
+
         const columnType = columnsByKey.get(rule.key)?.type
-        const comparison = compareValues(
-          getRawValue(entryA.row, rule.key),
-          getRawValue(entryB.row, rule.key),
-          columnType,
-        )
+        const comparison = compareValues(aValue, bValue, columnType)
         if (comparison !== EQUAL) {
           return rule.direction === DESCENDING ? -comparison : comparison
         }
