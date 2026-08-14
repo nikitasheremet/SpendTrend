@@ -48,7 +48,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
       v-show="isOpen"
       id="manage-categories"
       ref="panelRef"
-      class="flex flex-col fixed border bg-gray-50 z-2000 p-5 top-15 right-0 h-[calc(100vh-61px)] box-border min-w-[30vw] max-w-[50vw] shadow-xl"
+      class="flex flex-col fixed border bg-gray-50 z-2000 p-5 top-nav right-0 h-[calc(100vh-61px)] box-border min-w-[30vw] max-w-[50vw] shadow-xl"
     >
       <div id="manage-categories-header" class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Your Expense Categories</h2>

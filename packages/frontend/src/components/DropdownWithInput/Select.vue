@@ -1,14 +1,25 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useDropdownPosition } from '@/helpers/hooks/useDropdownPosition'
+import { useClickOutside } from '@/helpers/hooks/useClickOutside'
 import DropdownOptions from './DropdownOptions.vue'
 
-const { value, dropdownOptions, autofocus, includeEmptyOption, emptyOptionLabel } = defineProps<{
+const {
+  value,
+  dropdownOptions,
+  autofocus,
+  includeEmptyOption,
+  emptyOptionLabel,
+  searchable,
+  onCreateOption,
+} = defineProps<{
   value: string | undefined
   dropdownOptions: string[]
   autofocus?: boolean
   includeEmptyOption?: boolean
   emptyOptionLabel?: string
+  searchable?: boolean
+  onCreateOption?: (searchText: string) => Promise<string>
 }>()
 const emit = defineEmits<{
   onChange: [option: string]
@@ -17,7 +28,7 @@ const EMPTY_SELECTION_VALUE = ''
 const DEFAULT_EMPTY_OPTION_LABEL = 'Uncategorized'
 const isOptionsVisible = ref(Boolean(autofocus))
 const optionsRef = ref<HTMLElement>()
-const optionsDivRef = ref<HTMLElement | { $el?: HTMLElement }>()
+const optionsDivRef = ref<{ $el?: HTMLElement }>()
 
 const { optionsTop, optionsLeft, optionsWidth, positionDropdown } = useDropdownPosition(
   optionsRef,
@@ -40,8 +51,23 @@ const optionsWithEmptyOption = computed(() => {
   return [emptyOptionText.value, ...dropdownOptions]
 })
 
+const optionsPanelElement = computed(() => optionsDivRef.value?.$el)
+
+useClickOutside(
+  optionsPanelElement,
+  () => isOptionsVisible.value,
+  () => {
+    isOptionsVisible.value = false
+  },
+  { ignoreSelector: '[data-dropdown-select-toggle]' },
+)
+
 defineExpose({
-  hideOptions: () => {
+  hideOptions: (elementToKeepOpenFor?: EventTarget | null) => {
+    if (elementToKeepOpenFor && optionsPanelElement.value?.contains(elementToKeepOpenFor as Node)) {
+      return
+    }
+
     isOptionsVisible.value = false
   },
 })
@@ -63,6 +89,12 @@ async function handleDropdownOptionsClick(option: string) {
   emit('onChange', option)
 }
 
+async function handleOptionCreated(createdValue: string) {
+  isOptionsVisible.value = false
+  await nextTick()
+  emit('onChange', createdValue)
+}
+
 async function toggleOptionsVisibility() {
   isOptionsVisible.value = !isOptionsVisible.value
   await positionDropdown(isOptionsVisible.value)
@@ -72,6 +104,7 @@ async function toggleOptionsVisibility() {
 <template>
   <div
     ref="optionsRef"
+    data-dropdown-select-toggle
     class="flex justify-between items-center px-2 border border-gray-500 rounded-md min-h-6"
     @click="toggleOptionsVisibility"
   >
@@ -84,7 +117,10 @@ async function toggleOptionsVisibility() {
       ref="optionsDivRef"
       :options="optionsWithEmptyOption"
       :options-style="dropdownOptionsStyle"
+      :searchable="searchable"
+      :on-create-option="onCreateOption"
       @dropdown-option-click="handleDropdownOptionsClick"
+      @option-created="handleOptionCreated"
     />
   </Teleport>
 </template>

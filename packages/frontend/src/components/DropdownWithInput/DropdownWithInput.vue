@@ -8,6 +8,8 @@ const props = defineProps<{
   autofocus?: boolean
   includeEmptyOption?: boolean
   emptyOptionLabel?: string
+  searchable?: boolean
+  onCreateOption?: (searchText: string) => Promise<string>
 }>()
 const emit = defineEmits<{
   onChange: [string]
@@ -44,8 +46,8 @@ function handleKey(keyboardEvent: KeyboardEvent) {
   }
 }
 
-function handleBlur() {
-  innerSelectRef.value?.hideOptions()
+function handleBlur(event: FocusEvent) {
+  innerSelectRef.value?.hideOptions(event.relatedTarget)
 }
 </script>
 
@@ -65,6 +67,8 @@ function handleBlur() {
       :dropdown-options="props.dropdownOptions"
       :include-empty-option="props.includeEmptyOption"
       :empty-option-label="props.emptyOptionLabel"
+      :searchable="props.searchable"
+      :on-create-option="props.onCreateOption"
       @on-change="handleInput"
     ></Select>
   </div>
