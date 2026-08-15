@@ -14,34 +14,6 @@ export interface UseTableSortReturn<T extends TableRowData> {
   getSortDirection: (key: string) => SortDirection | undefined
 }
 
-const BEFORE = -1
-const AFTER = 1
-const EQUAL = 0
-
-function getRawValue<T extends TableRowData>(row: T, key: string): unknown {
-  return (row as Record<string, unknown>)[key]
-}
-
-function isEmptyValue(value: unknown): boolean {
-  return value === undefined || value === null || value === ''
-}
-
-function compareValues(a: unknown, b: unknown, type: ColumnConfig['type']): number {
-  if (type === 'number') {
-    const aNum = Number(a)
-    const bNum = Number(b)
-    return aNum < bNum ? BEFORE : aNum > bNum ? AFTER : EQUAL
-  }
-
-  if (type === 'date') {
-    const aTime = new Date(a as string).getTime()
-    const bTime = new Date(b as string).getTime()
-    return aTime < bTime ? BEFORE : aTime > bTime ? AFTER : EQUAL
-  }
-
-  return String(a).localeCompare(String(b))
-}
-
 export function useTableSort<T extends TableRowData>(options: UseTableSortOptions<T>): UseTableSortReturn<T> {
   const { columns } = options
   const sortState = ref<SortState>([]) as Ref<SortState>
@@ -116,4 +88,32 @@ export function useTableSort<T extends TableRowData>(options: UseTableSortOption
     toggleSort,
     getSortDirection,
   }
+}
+
+const BEFORE = -1
+const AFTER = 1
+const EQUAL = 0
+
+function getRawValue<T extends TableRowData>(row: T, key: string): unknown {
+  return (row as Record<string, unknown>)[key]
+}
+
+function isEmptyValue(value: unknown): boolean {
+  return value === undefined || value === null || value === ''
+}
+
+function compareValues(a: unknown, b: unknown, type: ColumnConfig['type']): number {
+  if (type === 'number') {
+    const aNum = Number(a)
+    const bNum = Number(b)
+    return aNum < bNum ? BEFORE : aNum > bNum ? AFTER : EQUAL
+  }
+
+  if (type === 'date') {
+    const aTime = new Date(a as string).getTime()
+    const bTime = new Date(b as string).getTime()
+    return aTime < bTime ? BEFORE : aTime > bTime ? AFTER : EQUAL
+  }
+
+  return String(a).localeCompare(String(b))
 }
