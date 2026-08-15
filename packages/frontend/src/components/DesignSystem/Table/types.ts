@@ -43,7 +43,10 @@ export type FilterableColumnType = typeof FILTER_TYPE_DROPDOWN | typeof FILTER_T
 export const EMPTY_FILTER_VALUE = '__EMPTY__'
 export const EMPTY_FILTER_LABEL = '(Empty)'
 
-export type SortDirection = 'asc' | 'desc'
+export const SORT_ASCENDING = 'asc'
+export const SORT_DESCENDING = 'desc'
+
+export type SortDirection = typeof SORT_ASCENDING | typeof SORT_DESCENDING
 
 // A single column's sort rule. Modeled as an array (SortState) rather than a
 // single optional rule so a future multi-column sort ticket only needs to

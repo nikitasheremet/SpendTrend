@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { useScrollPast } from '@/helpers/hooks/useScrollPast'
 import { getThemeSpacingPx } from '@/helpers/css/getThemeSpacingPx'
 import TableColumnFilter from '@/components/DesignSystem/Table/TableColumnFilter.vue'
-import type { FilterValue, TableHeader } from '@/components/DesignSystem/Table/types'
+import { SORT_ASCENDING, SORT_DESCENDING, type FilterValue, type TableHeader } from '@/components/DesignSystem/Table/types'
 
 const theadRef = ref<HTMLElement | null>(null)
 
@@ -35,20 +35,20 @@ function handleSortChange(key: string | undefined) {
 }
 
 function getSortGlyph(direction: TableHeader['sortDirection']): string {
-  if (direction === 'asc') {
+  if (direction === SORT_ASCENDING) {
     return '↑'
   }
-  if (direction === 'desc') {
+  if (direction === SORT_DESCENDING) {
     return '↓'
   }
   return '↕'
 }
 
 function getAriaSort(direction: TableHeader['sortDirection']): 'ascending' | 'descending' | 'none' {
-  if (direction === 'asc') {
+  if (direction === SORT_ASCENDING) {
     return 'ascending'
   }
-  if (direction === 'desc') {
+  if (direction === SORT_DESCENDING) {
     return 'descending'
   }
   return 'none'

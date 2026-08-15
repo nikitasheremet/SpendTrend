@@ -1,5 +1,5 @@
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
-import type { ColumnConfig, SortDirection, SortState, TableRowData } from '../types'
+import { SORT_ASCENDING, SORT_DESCENDING, type ColumnConfig, type SortDirection, type SortState, type TableRowData } from '../types'
 import type { TableFilterEntry } from './useTableFilters'
 
 export interface UseTableSortOptions<T extends TableRowData> {
@@ -14,8 +14,6 @@ export interface UseTableSortReturn<T extends TableRowData> {
   getSortDirection: (key: string) => SortDirection | undefined
 }
 
-const ASCENDING = 'asc'
-const DESCENDING = 'desc'
 const BEFORE = -1
 const AFTER = 1
 const EQUAL = 0
@@ -58,12 +56,12 @@ export function useTableSort<T extends TableRowData>(options: UseTableSortOption
     const currentDirection = getSortDirection(key)
 
     if (currentDirection === undefined) {
-      sortState.value = [{ key, direction: ASCENDING }]
+      sortState.value = [{ key, direction: SORT_ASCENDING }]
       return
     }
 
-    if (currentDirection === ASCENDING) {
-      sortState.value = [{ key, direction: DESCENDING }]
+    if (currentDirection === SORT_ASCENDING) {
+      sortState.value = [{ key, direction: SORT_DESCENDING }]
       return
     }
 
@@ -98,7 +96,7 @@ export function useTableSort<T extends TableRowData>(options: UseTableSortOption
         const columnType = columnsByKey.get(rule.key)?.type
         const comparison = compareValues(aValue, bValue, columnType)
         if (comparison !== EQUAL) {
-          return rule.direction === DESCENDING ? -comparison : comparison
+          return rule.direction === SORT_DESCENDING ? -comparison : comparison
         }
       }
       return EQUAL
