@@ -47,12 +47,19 @@ export function useTableSort<T extends TableRowData>(options: UseTableSortOption
   const sortState = ref<SortState>([]) as Ref<SortState>
 
   const sortableColumns = computed(() => columns.value.filter((column) => column.sortable === true))
+  const sortableColumnsByKey = computed(
+    () => new Map<string, ColumnConfig<T>>(sortableColumns.value.map((column) => [column.key, column])),
+  )
 
   function getSortDirection(key: string): SortDirection | undefined {
     return sortState.value.find((rule) => rule.key === key)?.direction
   }
 
   function toggleSort(key: string): void {
+    if (!sortableColumnsByKey.value.has(key)) {
+      return
+    }
+
     const currentDirection = getSortDirection(key)
 
     if (currentDirection === undefined) {
@@ -69,14 +76,13 @@ export function useTableSort<T extends TableRowData>(options: UseTableSortOption
   }
 
   function sortedEntries(entries: TableFilterEntry<T>[]): TableFilterEntry<T>[] {
-    if (sortState.value.length === 0) {
+    const activeRules = sortState.value.filter((rule) => sortableColumnsByKey.value.has(rule.key))
+    if (activeRules.length === 0) {
       return entries
     }
 
-    const columnsByKey = new Map<string, ColumnConfig<T>>(columns.value.map((column) => [column.key, column]))
-
     return [...entries].sort((entryA, entryB) => {
-      for (const rule of sortState.value) {
+      for (const rule of activeRules) {
         const aValue = getRawValue(entryA.row, rule.key)
         const bValue = getRawValue(entryB.row, rule.key)
         const aEmpty = isEmptyValue(aValue)
@@ -93,7 +99,7 @@ export function useTableSort<T extends TableRowData>(options: UseTableSortOption
           return BEFORE
         }
 
-        const columnType = columnsByKey.get(rule.key)?.type
+        const columnType = sortableColumnsByKey.value.get(rule.key)?.type
         const comparison = compareValues(aValue, bValue, columnType)
         if (comparison !== EQUAL) {
           return rule.direction === SORT_DESCENDING ? -comparison : comparison

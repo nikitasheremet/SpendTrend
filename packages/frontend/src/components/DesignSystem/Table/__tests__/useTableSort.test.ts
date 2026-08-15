@@ -62,6 +62,17 @@ describe('useTableSort', () => {
     })
   })
 
+  describe('when toggling a column that is not sortable', () => {
+    it('should ignore the request and leave sort state unchanged', () => {
+      const { toggleSort, getSortDirection, sortState } = setupSort()
+
+      toggleSort('category')
+
+      expect(getSortDirection('category')).toBeUndefined()
+      expect(sortState.value).toEqual([])
+    })
+  })
+
   describe('when switching sort to a different column', () => {
     it('should clear the previous column and start the new one at asc', () => {
       const { toggleSort, getSortDirection } = setupSort()
@@ -91,6 +102,15 @@ describe('useTableSort', () => {
     it('should return entries unchanged when no sort is active', () => {
       const { sortedEntries } = setupSort()
       const entries = toEntries(baseRows)
+
+      expect(sortedEntries(entries)).toEqual(entries)
+    })
+
+    it('should ignore a sort rule for a non-sortable column even if forced directly into sortState', () => {
+      const { sortState, sortedEntries } = setupSort()
+      const entries = toEntries(baseRows)
+
+      sortState.value = [{ key: 'category', direction: 'asc' }]
 
       expect(sortedEntries(entries)).toEqual(entries)
     })
