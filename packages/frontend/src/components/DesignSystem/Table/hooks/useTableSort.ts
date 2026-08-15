@@ -14,6 +14,10 @@ export interface UseTableSortReturn<T extends TableRowData> {
   getSortDirection: (key: string) => SortDirection | undefined
 }
 
+const BEFORE = -1
+const AFTER = 1
+const EQUAL = 0
+
 export function useTableSort<T extends TableRowData>(options: UseTableSortOptions<T>): UseTableSortReturn<T> {
   const { columns } = options
   const sortState = ref<SortState>([]) as Ref<SortState>
@@ -89,10 +93,6 @@ export function useTableSort<T extends TableRowData>(options: UseTableSortOption
     getSortDirection,
   }
 }
-
-const BEFORE = -1
-const AFTER = 1
-const EQUAL = 0
 
 function getRawValue<T extends TableRowData>(row: T, key: string): unknown {
   return (row as Record<string, unknown>)[key]
