@@ -1,7 +1,10 @@
 <script lang="ts" setup generic="T extends TableRowData">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import TableHeaders from '@/components/TableHeaders.vue'
+import { getThemeSpacingPx } from '@/helpers/css/getThemeSpacingPx'
+import { useElementHeight } from '@/helpers/hooks/useElementHeight'
 import TableRow from './TableRow.vue'
+import TableSearchBar from './TableSearchBar.vue'
 import Button from '../Button/Button.vue'
 import Error from '../Error.vue'
 import LoadingModal from '../Modal/LoadingModal.vue'
@@ -56,11 +59,34 @@ const FALLBACK_ROW_KEY_INCREMENT = 1
 let fallbackRowKeySequence = ZERO_COUNT
 const fallbackRowKeys = new WeakMap<object, number>()
 
-const { filterableColumns, filteredEntries, getDropdownOptions, activeFilters, setFilter } =
-  useTableFilters<T>({
-    data: computed(() => data),
-    columns: computed(() => columns),
-  })
+const {
+  filterableColumns,
+  searchableColumns,
+  searchTerm,
+  filteredEntries,
+  getDropdownOptions,
+  activeFilters,
+  setFilter,
+  setSearchTerm,
+} = useTableFilters<T>({
+  data: computed(() => data),
+  columns: computed(() => columns),
+})
+
+const hasSearchBar = computed(() => searchableColumns.value.length > ZERO_COUNT)
+
+// Resolve the base sticky offset once so the search bar and the header row
+// share the same reference point (mirrors TableHeaders' standalone fallback).
+const baseStickyTopOffsetPx = computed(() => stickyTopOffsetPx ?? getThemeSpacingPx('nav'))
+
+// The search bar pins at the base offset; headers must then pin flush below it.
+const searchBarRef = ref<HTMLElement | null>(null)
+const searchBarHeight = useElementHeight(searchBarRef)
+const headerStickyTopOffsetPx = computed(() =>
+  hasSearchBar.value
+    ? baseStickyTopOffsetPx.value + searchBarHeight.value
+    : baseStickyTopOffsetPx.value,
+)
 
 const { visibleData } = useProgressiveRowRender({
   data: filteredEntries,
@@ -142,10 +168,17 @@ function getRowKey(row: T, index: number): string | number {
 
 <template>
   <div>
+    <div v-if="hasSearchBar" ref="searchBarRef">
+      <TableSearchBar
+        :model-value="searchTerm"
+        :sticky-top-offset-px="baseStickyTopOffsetPx"
+        @update:model-value="setSearchTerm"
+      />
+    </div>
     <table class="w-full table-fixed mb-5">
       <TableHeaders
         :headers="headers"
-        :sticky-top-offset-px="stickyTopOffsetPx"
+        :sticky-top-offset-px="headerStickyTopOffsetPx"
         @filter:changed="handleFilterChange"
       />
       <tbody>
