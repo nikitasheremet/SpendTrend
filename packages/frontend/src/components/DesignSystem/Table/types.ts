@@ -20,6 +20,7 @@ export interface ColumnConfig<T extends TableRowData = TableRowData> {
   format?: (value: unknown, row: T) => string
   calculate?: (row: T) => unknown
   filterable?: boolean
+  searchable?: boolean
 }
 
 export interface DateFilterValue {
