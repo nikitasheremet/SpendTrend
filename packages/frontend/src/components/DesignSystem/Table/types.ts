@@ -20,6 +20,7 @@ export interface ColumnConfig<T extends TableRowData = TableRowData> {
   format?: (value: unknown, row: T) => string
   calculate?: (row: T) => unknown
   filterable?: boolean
+  sortable?: boolean
 }
 
 export interface DateFilterValue {
@@ -42,6 +43,21 @@ export type FilterableColumnType = typeof FILTER_TYPE_DROPDOWN | typeof FILTER_T
 export const EMPTY_FILTER_VALUE = '__EMPTY__'
 export const EMPTY_FILTER_LABEL = '(Empty)'
 
+export const SORT_ASCENDING = 'asc'
+export const SORT_DESCENDING = 'desc'
+
+export type SortDirection = typeof SORT_ASCENDING | typeof SORT_DESCENDING
+
+// A single column's sort rule. Modeled as an array (SortState) rather than a
+// single optional rule so a future multi-column sort ticket only needs to
+// change the composable's internals, not this contract or its consumers.
+export interface SortRule {
+  key: string
+  direction: SortDirection
+}
+
+export type SortState = SortRule[]
+
 export interface TableHeader {
   label: string
   required?: boolean
@@ -51,6 +67,9 @@ export interface TableHeader {
   filterType?: FilterableColumnType
   filterOptions?: string[]
   filterValue?: FilterValue
+  sortable?: boolean
+  sortKey?: string
+  sortDirection?: SortDirection
 }
 
 export interface RowAction<T extends TableRowData = TableRowData> {

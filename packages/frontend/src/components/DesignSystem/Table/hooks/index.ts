@@ -7,3 +7,5 @@ export type {
 } from './useProgressiveRowRender'
 export { useTableFilters } from './useTableFilters'
 export type { TableFilterEntry, UseTableFiltersOptions, UseTableFiltersReturn } from './useTableFilters'
+export { useTableSort } from './useTableSort'
+export type { UseTableSortOptions, UseTableSortReturn } from './useTableSort'

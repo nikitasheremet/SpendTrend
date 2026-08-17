@@ -12,6 +12,7 @@ A flexible, reusable table component system built with Vue 3 and TypeScript, sup
 - **Calculated Fields**: Support for computed/derived columns
 - **Dependent Dropdowns**: Dynamic dropdown options based on row data
 - **Column Filtering**: Excel/Sheets-style header filters for `dropdown` and `date` columns (see [Filtering](#filtering))
+- **Column Sorting**: Single-column, 3-state header sort (unsorted → asc → desc) (see [Sorting](#sorting))
 - **Popover Notifications**: Success/error notifications via inject/provide
 - **Loading States**: Built-in loading modal support
 - **Error Handling**: Integrated error display
@@ -229,6 +230,7 @@ interface ColumnConfig<T = any> {
   format?: (value: any, row: T) => string // Custom display formatter
   calculate?: (row: T) => any // Computed value function
   filterable?: boolean // Show a header filter control (dropdown/date columns only, see Filtering)
+  sortable?: boolean // Show a header sort control (see Sorting)
 }
 ```
 
@@ -276,12 +278,56 @@ const columns = computed<ColumnConfig<Expense>[]>(() => [
   addressed by index against the *full*, unfiltered `data` array; losing
   the original index when filtering would silently break edits, row
   actions, and validation highlighting on any filtered table.
-- **Pipeline shape for future search/sort tickets:** future `useTableSearch`
-  and `useTableSort` composables should follow the same `{ row, index }[]`
-  in/out shape as `useTableFilters`, so they can be composed into a
+- **Pipeline shape for a future search ticket:** a future `useTableSearch`
+  composable should follow the same `{ row, index }[]` in/out shape as
+  `useTableFilters` and `useTableSort`, so it can be composed into a
   `search → filter → sort` pipeline without `GenericTable.vue` needing to
   special-case all three at once. Extend this shape rather than inventing a
   new one.
+
+## Sorting
+
+Any column can opt into a header sort control by setting `sortable: true`.
+Clicking it cycles the column through three states: **unsorted → ascending →
+descending → unsorted**.
+
+```typescript
+const columns = computed<ColumnConfig<Expense>[]>(() => [
+  { key: 'date', label: 'Date', type: 'date', sortable: true },
+  { key: 'amount', label: 'Amount', type: 'number', sortable: true },
+  { key: 'name', label: 'Name', type: 'text' }, // not sortable
+])
+```
+
+- **Only one column can be sorted at a time.** Clicking sort on a different
+  column replaces the active sort entirely — the previous column returns to
+  unsorted and the new column starts at ascending. This mirrors "sort from
+  the first column will be removed, and the sort will be applied to the
+  next" from the feature spec.
+- **Header glyph reflects state:** `↕` (unsorted, muted), `↑` (ascending),
+  `↓` (descending). These are plain line arrows, deliberately different
+  from the filter button's filled `▼` triangle, so the two controls aren't
+  confused for one another at a glance.
+- **Comparison is type-aware:** `number` columns compare numerically, `date`
+  columns parse and compare as dates, everything else falls back to
+  `localeCompare`. Rows with an empty value (`undefined`, `null`, or `''`)
+  always sort to the end, regardless of direction.
+- **Sorting composes with filtering.** `GenericTable.vue` chains
+  `filter → sort`: `useTableFilters` produces `filteredEntries`, which is
+  passed into `useTableSort`'s `sortedEntries()` before progressive
+  rendering. Sorting only ever reorders the currently-filtered rows; it
+  never changes which rows are visible.
+- **Original row index is preserved**, same as filtering — sorting only
+  reorders the `{ row, index }[]` array, so `rowActions`, `validationErrors`,
+  and `cell:changed` continue to address the *original*, unsorted/unfiltered
+  `data` array correctly.
+- Sorting is implemented as the `useTableSort` composable
+  (`hooks/useTableSort.ts`), which `GenericTable.vue` owns internally. Its
+  sort state (`SortState`) is modeled as an array of `{ key, direction }`
+  rules rather than a single optional rule — today the array only ever holds
+  0 or 1 entries (enforced by `useTableSort`, not the type), but this means a
+  future multi-column sort ticket only has to change `useTableSort`'s
+  internals, not this type contract or `GenericTable.vue`'s wiring.
 
 ### Row Action Configuration
 
@@ -354,9 +400,10 @@ Comprehensive unit tests are available in `__tests__/`:
 
 - `TableCell.test.ts` - Cell rendering, editing, formatting
 - `TableRow.test.ts` - Row rendering, actions, validation
-- `GenericTable.test.ts` - Table structure, modes, events, filtering
+- `GenericTable.test.ts` - Table structure, modes, events, filtering, sorting
 - `TableColumnFilter.test.ts` - Filter panel rendering and interactions
 - `useTableFilters.test.ts` - Filter state, option derivation, index-preserving filtering
+- `useTableSort.test.ts` - Sort cycle, single-column constraint, type-aware comparison, index-preserving sort
 - `useTableOperations.spec.ts` - Hook CRUD operations, validation
 
 Run tests:
@@ -384,6 +431,7 @@ Table/
 │   ├── useTableOperations.ts # CRUD operations hook
 │   ├── useTableOperations.spec.ts
 │   ├── useTableFilters.ts    # Filtering composable ({ row, index }[] pipeline)
+│   ├── useTableSort.ts       # Sorting composable ({ row, index }[] pipeline)
 │   ├── useProgressiveRowRender.ts
 │   └── index.ts
 └── __tests__/
@@ -391,7 +439,8 @@ Table/
     ├── TableRow.test.ts
     ├── GenericTable.test.ts
     ├── TableColumnFilter.test.ts
-    └── useTableFilters.test.ts
+    ├── useTableFilters.test.ts
+    └── useTableSort.test.ts
 ```
 
 ## Best Practices
@@ -406,7 +455,8 @@ Table/
 
 ## Future Enhancements
 
-- Sorting and search (see [Filtering](#filtering) for the intended `{ row, index }[]` pipeline shape to extend)
+- Search (see [Filtering](#filtering)/[Sorting](#sorting) for the `{ row, index }[]` pipeline shape to extend)
+- Multi-column sort (see [Sorting](#sorting) — `SortState` is already shaped as an array for this)
 - `filterable` support for `text`/`number` columns
 - Pagination
 - Row selection with bulk actions
