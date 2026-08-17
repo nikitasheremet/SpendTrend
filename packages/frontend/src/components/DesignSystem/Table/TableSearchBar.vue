@@ -14,17 +14,13 @@ const stickyTopPx = computed(() => stickyTopOffsetPx ?? getThemeSpacingPx('nav')
 
 <template>
   <div
+    role="search"
+    aria-label="Search table"
     class="sticky z-table-header bg-white py-2"
     :style="{ top: `${stickyTopPx}px` }"
   >
     <div class="w-64 max-w-full">
-      <Input
-        v-model="modelValue"
-        type="text"
-        variant="input-border"
-        placeholder="Search…"
-        aria-label="Search table"
-      />
+      <Input v-model="modelValue" type="text" variant="input-border" placeholder="Search…" />
     </div>
   </div>
 </template>
