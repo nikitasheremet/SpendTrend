@@ -173,18 +173,21 @@ const columns = computed<ColumnConfig<DisplayIncome>[]>(() => [
     label: 'Date',
     type: 'date',
     required: true,
+    sortable: true,
   },
   {
     key: 'name',
     label: 'Name',
     type: 'longtext',
     required: true,
+    sortable: true,
   },
   {
     key: 'amount',
     label: 'Amount ($)',
     type: 'number',
     required: true,
+    sortable: true,
   },
 ])
 

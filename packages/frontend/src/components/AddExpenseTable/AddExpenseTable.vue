@@ -256,6 +256,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     type: 'date',
     required: true,
     filterable: true,
+    sortable: true,
   },
   {
     key: 'name',
@@ -263,18 +264,21 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     type: 'longtext',
     required: true,
     customClass: 'w-1/4',
+    sortable: true,
   },
   {
     key: 'amount',
     label: 'Amount ($)',
     type: 'number',
     required: true,
+    sortable: true,
   },
   {
     key: 'paidBackAmount',
     label: 'Paid Back ($)',
     type: 'number',
     required: false,
+    sortable: true,
   },
   {
     key: 'netAmount',
@@ -282,6 +286,7 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     type: 'number',
     required: false,
     editable: false,
+    sortable: true,
     calculate: (row: DisplayExpense) => {
       return (
         Math.round(
