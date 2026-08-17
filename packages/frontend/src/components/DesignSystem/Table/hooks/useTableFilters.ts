@@ -25,9 +25,12 @@ export interface UseTableFiltersOptions<T extends TableRowData> {
 export interface UseTableFiltersReturn<T extends TableRowData> {
   activeFilters: Ref<FilterState>
   filterableColumns: ComputedRef<ColumnConfig<T>[]>
+  searchableColumns: ComputedRef<ColumnConfig<T>[]>
+  searchTerm: Ref<string>
   filteredEntries: ComputedRef<TableFilterEntry<T>[]>
   getDropdownOptions: (column: ColumnConfig<T>) => string[]
   setFilter: (key: string, value: FilterValue) => void
+  setSearchTerm: (value: string) => void
   clearFilter: (key: string) => void
   clearAllFilters: () => void
   isColumnFiltered: (key: string) => boolean
@@ -80,14 +83,27 @@ function matchesDateFilter<T extends TableRowData>(row: T, key: string, value: D
   return true
 }
 
+function getSearchableValue<T extends TableRowData>(row: T, column: ColumnConfig<T>): string {
+  const rawValue = column.calculate ? column.calculate(row) : getRawValue(row, column.key)
+  if (isEmptyValue(rawValue)) {
+    return ''
+  }
+  return String(rawValue)
+}
+
 export function useTableFilters<T extends TableRowData>(
   options: UseTableFiltersOptions<T>,
 ): UseTableFiltersReturn<T> {
   const { data, columns } = options
   const activeFilters = ref<FilterState>({}) as Ref<FilterState>
+  const searchTerm = ref('')
 
   const filterableColumns = computed(() =>
     columns.value.filter((column) => column.filterable === true && FILTERABLE_TYPES.has(column.type ?? '')),
+  )
+
+  const searchableColumns = computed(() =>
+    columns.value.filter((column) => column.searchable === true),
   )
 
   function getDropdownOptions(column: ColumnConfig<T>): string[] {
@@ -117,14 +133,32 @@ export function useTableFilters<T extends TableRowData>(
     return true
   }
 
+  function rowMatchesSearch(row: T): boolean {
+    const term = searchTerm.value.trim().toLowerCase()
+    if (term === '') {
+      return true
+    }
+    return searchableColumns.value.some((column) =>
+      getSearchableValue(row, column).toLowerCase().includes(term),
+    )
+  }
+
   const filteredEntries = computed<TableFilterEntry<T>[]>(() =>
     data.value
       .map((row, index) => ({ row, index }))
-      .filter(({ row }) => filterableColumns.value.every((column) => columnMatches(row, column))),
+      .filter(
+        ({ row }) =>
+          filterableColumns.value.every((column) => columnMatches(row, column)) &&
+          rowMatchesSearch(row),
+      ),
   )
 
   function setFilter(key: string, value: FilterValue): void {
     activeFilters.value = { ...activeFilters.value, [key]: value }
+  }
+
+  function setSearchTerm(value: string): void {
+    searchTerm.value = value
   }
 
   function clearFilter(key: string): void {
@@ -150,9 +184,12 @@ export function useTableFilters<T extends TableRowData>(
   return {
     activeFilters,
     filterableColumns,
+    searchableColumns,
+    searchTerm,
     filteredEntries,
     getDropdownOptions,
     setFilter,
+    setSearchTerm,
     clearFilter,
     clearAllFilters,
     isColumnFiltered,
