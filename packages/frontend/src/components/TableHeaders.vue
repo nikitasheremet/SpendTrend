@@ -79,7 +79,6 @@ function getAriaSort(direction: TableHeader['sortDirection']): 'ascending' | 'de
             class="flex items-center justify-center w-5 h-5 rounded-sm hover:bg-gray-200"
             :class="{ 'text-blue-600': header.sortDirection, 'text-gray-500': !header.sortDirection }"
             :aria-label="`Sort by ${header.label}`"
-            :aria-pressed="Boolean(header.sortDirection)"
             @click="handleSortChange(header.sortKey)"
           >
             <span class="text-xs leading-none">{{ getSortGlyph(header.sortDirection) }}</span>
