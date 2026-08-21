@@ -9,9 +9,6 @@ import type {
 } from '../types'
 import { EMPTY_FILTER_VALUE, FILTER_TYPE_DATE, FILTER_TYPE_DROPDOWN } from '../types'
 
-const FILTERABLE_COLUMN_TYPES: readonly FilterableColumnType[] = [FILTER_TYPE_DROPDOWN, FILTER_TYPE_DATE]
-const FILTERABLE_TYPES = new Set<string>(FILTERABLE_COLUMN_TYPES)
-
 export interface TableFilterEntry<T extends TableRowData> {
   row: T
   index: number
@@ -36,60 +33,8 @@ export interface UseTableFiltersReturn<T extends TableRowData> {
   isColumnFiltered: (key: string) => boolean
 }
 
-function getRawValue<T extends TableRowData>(row: T, key: string): unknown {
-  return (row as Record<string, unknown>)[key]
-}
-
-function isEmptyValue(value: unknown): boolean {
-  return value === undefined || value === null || value === ''
-}
-
-function matchesDropdownFilter<T extends TableRowData>(row: T, key: string, value: string[]): boolean {
-  if (value.length === 0) {
-    return true
-  }
-  const rawValue = getRawValue(row, key)
-  if (isEmptyValue(rawValue)) {
-    return value.includes(EMPTY_FILTER_VALUE)
-  }
-  return value.includes(String(rawValue))
-}
-
-function matchesDateFilter<T extends TableRowData>(row: T, key: string, value: DateFilterValue): boolean {
-  const rawValue = getRawValue(row, key)
-  if (typeof rawValue !== 'string' && !(rawValue instanceof Date)) {
-    return false
-  }
-
-  const rowDate = new Date(rawValue)
-  if (Number.isNaN(rowDate.getTime())) {
-    return false
-  }
-
-  if (value.from) {
-    const fromDate = new Date(value.from)
-    if (!Number.isNaN(fromDate.getTime()) && rowDate < fromDate) {
-      return false
-    }
-  }
-
-  if (value.to) {
-    const toDate = new Date(value.to)
-    if (!Number.isNaN(toDate.getTime()) && rowDate > toDate) {
-      return false
-    }
-  }
-
-  return true
-}
-
-function getSearchableValue<T extends TableRowData>(row: T, column: ColumnConfig<T>): string {
-  const rawValue = column.calculate ? column.calculate(row) : getRawValue(row, column.key)
-  if (isEmptyValue(rawValue)) {
-    return ''
-  }
-  return String(rawValue)
-}
+const FILTERABLE_COLUMN_TYPES: readonly FilterableColumnType[] = [FILTER_TYPE_DROPDOWN, FILTER_TYPE_DATE]
+const FILTERABLE_TYPES = new Set<string>(FILTERABLE_COLUMN_TYPES)
 
 export function useTableFilters<T extends TableRowData>(
   options: UseTableFiltersOptions<T>,
@@ -194,4 +139,59 @@ export function useTableFilters<T extends TableRowData>(
     clearAllFilters,
     isColumnFiltered,
   }
+}
+
+function getRawValue<T extends TableRowData>(row: T, key: string): unknown {
+  return (row as Record<string, unknown>)[key]
+}
+
+function isEmptyValue(value: unknown): boolean {
+  return value === undefined || value === null || value === ''
+}
+
+function matchesDropdownFilter<T extends TableRowData>(row: T, key: string, value: string[]): boolean {
+  if (value.length === 0) {
+    return true
+  }
+  const rawValue = getRawValue(row, key)
+  if (isEmptyValue(rawValue)) {
+    return value.includes(EMPTY_FILTER_VALUE)
+  }
+  return value.includes(String(rawValue))
+}
+
+function matchesDateFilter<T extends TableRowData>(row: T, key: string, value: DateFilterValue): boolean {
+  const rawValue = getRawValue(row, key)
+  if (typeof rawValue !== 'string' && !(rawValue instanceof Date)) {
+    return false
+  }
+
+  const rowDate = new Date(rawValue)
+  if (Number.isNaN(rowDate.getTime())) {
+    return false
+  }
+
+  if (value.from) {
+    const fromDate = new Date(value.from)
+    if (!Number.isNaN(fromDate.getTime()) && rowDate < fromDate) {
+      return false
+    }
+  }
+
+  if (value.to) {
+    const toDate = new Date(value.to)
+    if (!Number.isNaN(toDate.getTime()) && rowDate > toDate) {
+      return false
+    }
+  }
+
+  return true
+}
+
+function getSearchableValue<T extends TableRowData>(row: T, column: ColumnConfig<T>): string {
+  const rawValue = column.calculate ? column.calculate(row) : getRawValue(row, column.key)
+  if (isEmptyValue(rawValue)) {
+    return ''
+  }
+  return String(rawValue)
 }

@@ -480,4 +480,94 @@ describe('GenericTable', () => {
       expect(searchOffset).toBeGreaterThan(baseOffset)
     })
   })
+
+  describe('when columns are sortable', () => {
+    const sortableColumns: ColumnConfig<FakeRow>[] = [
+      { key: 'name', label: 'Name', type: 'text', sortable: true },
+      { key: 'amount', label: 'Amount', type: 'number' },
+    ]
+
+    function findSortTrigger(wrapper: ReturnType<typeof mountGenericTable>, label: string) {
+      return wrapper.find(`button[aria-label="Sort by ${label}"]`)
+    }
+
+    it('should render a sort button only for columns marked sortable', () => {
+      const wrapper = mountGenericTable({ columns: sortableColumns })
+
+      expect(findSortTrigger(wrapper, 'Name').exists()).toBe(true)
+      expect(findSortTrigger(wrapper, 'Amount').exists()).toBe(false)
+    })
+
+    it('should reorder rows asc, then desc, then back to original order on the third click', async () => {
+      const fakeData: FakeRow[] = [{ name: 'Charlie' }, { name: 'Alice' }, { name: 'Bob' }]
+      const wrapper = mountGenericTable({ data: fakeData, columns: sortableColumns })
+      await nextTick()
+
+      const trigger = findSortTrigger(wrapper, 'Name')
+
+      await trigger.trigger('click')
+      let rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows.map((row) => row.props('row').name)).toEqual(['Alice', 'Bob', 'Charlie'])
+
+      await trigger.trigger('click')
+      rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows.map((row) => row.props('row').name)).toEqual(['Charlie', 'Bob', 'Alice'])
+
+      await trigger.trigger('click')
+      rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows.map((row) => row.props('row').name)).toEqual(['Charlie', 'Alice', 'Bob'])
+    })
+
+    it('should undo the previous column sort when a different column is sorted', async () => {
+      const columns: ColumnConfig<FakeRow>[] = [
+        { key: 'name', label: 'Name', type: 'text', sortable: true },
+        { key: 'amount', label: 'Amount', type: 'number', sortable: true },
+      ]
+      const fakeData: FakeRow[] = [
+        { name: 'Charlie', amount: 2 },
+        { name: 'Alice', amount: 3 },
+        { name: 'Bob', amount: 1 },
+      ]
+      const wrapper = mountGenericTable({ data: fakeData, columns })
+      await nextTick()
+
+      await findSortTrigger(wrapper, 'Name').trigger('click')
+      let rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows.map((row) => row.props('row').name)).toEqual(['Alice', 'Bob', 'Charlie'])
+
+      await findSortTrigger(wrapper, 'Amount').trigger('click')
+      rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows.map((row) => row.props('row').amount)).toEqual([1, 2, 3])
+    })
+
+    it('should sort within the currently filtered subset', async () => {
+      const columns: ColumnConfig<FakeRow>[] = [
+        { key: 'name', label: 'Name', type: 'dropdown', filterable: true },
+        { key: 'amount', label: 'Amount', type: 'number', sortable: true },
+      ]
+      const fakeData: FakeRow[] = [
+        { name: 'Food', amount: 3 },
+        { name: 'Travel', amount: 2 },
+        { name: 'Food', amount: 1 },
+      ]
+      const wrapper = mountGenericTable({ data: fakeData, columns })
+      await nextTick()
+
+      await wrapper.find('button[aria-label="Filter by Name"]').trigger('click')
+      const checkboxes = Array.from(
+        document.querySelectorAll('[data-table-column-filter-portal] input[type="checkbox"]'),
+      ) as HTMLInputElement[]
+      const foodCheckbox = checkboxes.find((checkbox) => checkbox.closest('label')?.textContent?.includes('Food'))
+      foodCheckbox?.dispatchEvent(new Event('change', { bubbles: true }))
+      await nextTick()
+
+      await findSortTrigger(wrapper, 'Amount').trigger('click')
+
+      const rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows.map((row) => row.props('row'))).toEqual([
+        { name: 'Food', amount: 1 },
+        { name: 'Food', amount: 3 },
+      ])
+    })
+  })
 })
