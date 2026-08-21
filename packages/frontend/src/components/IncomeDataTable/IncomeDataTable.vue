@@ -74,12 +74,14 @@ const columns = computed<ColumnConfig<Income>[]>(() => [
     label: 'Name',
     type: 'longtext',
     sortable: true,
+    searchable: true,
   },
   {
     key: 'amount',
     label: 'Amount ($)',
     type: 'number',
     sortable: true,
+    searchable: true,
   },
 ])
 
