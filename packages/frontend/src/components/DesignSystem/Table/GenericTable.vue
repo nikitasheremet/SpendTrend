@@ -1,5 +1,5 @@
 <script lang="ts" setup generic="T extends TableRowData">
-import { computed, ref } from 'vue'
+import { computed, ref, type ComponentPublicInstance } from 'vue'
 import TableHeaders from '@/components/TableHeaders.vue'
 import { getThemeSpacingPx } from '@/helpers/css/getThemeSpacingPx'
 import { useElementHeight } from '@/helpers/hooks/useElementHeight'
@@ -80,8 +80,14 @@ const hasSearchBar = computed(() => searchableColumns.value.length > ZERO_COUNT)
 const baseStickyTopOffsetPx = computed(() => stickyTopOffsetPx ?? getThemeSpacingPx('nav'))
 
 // The search bar pins at the base offset; headers must then pin flush below it.
-const searchBarRef = ref<HTMLElement | null>(null)
-const searchBarHeight = useElementHeight(searchBarRef)
+// Ref the component (not a wrapper div) so the sticky element inside it stays a
+// direct child of this tall root <div> — its containing block — otherwise a
+// short wrapper would let it scroll away immediately. Measure via its $el.
+const searchBarRef = ref<ComponentPublicInstance | null>(null)
+const searchBarEl = computed<HTMLElement | null>(
+  () => (searchBarRef.value?.$el as HTMLElement | undefined) ?? null,
+)
+const searchBarHeight = useElementHeight(searchBarEl)
 const headerStickyTopOffsetPx = computed(() =>
   hasSearchBar.value
     ? baseStickyTopOffsetPx.value + searchBarHeight.value
@@ -183,13 +189,13 @@ function getRowKey(row: T, index: number): string | number {
 
 <template>
   <div>
-    <div v-if="hasSearchBar" ref="searchBarRef">
-      <TableSearchBar
-        :model-value="searchTerm"
-        :sticky-top-offset-px="baseStickyTopOffsetPx"
-        @update:model-value="setSearchTerm"
-      />
-    </div>
+    <TableSearchBar
+      v-if="hasSearchBar"
+      ref="searchBarRef"
+      :model-value="searchTerm"
+      :sticky-top-offset-px="baseStickyTopOffsetPx"
+      @update:model-value="setSearchTerm"
+    />
     <table class="w-full table-fixed mb-5">
       <TableHeaders
         :headers="headers"
