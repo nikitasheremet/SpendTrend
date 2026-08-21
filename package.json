@@ -15,6 +15,7 @@
   },
   "scripts": {
     "frontend:dev": "npm run dev --workspace packages/frontend",
+    "backend:local": "npm run local --workspace packages/backend",
     "frontend:build": "tsc -b ./contracts && npm run build --workspace packages/frontend",
     "frontend:build:dev": "tsc -b ./contracts && npm run build:dev --workspace packages/frontend"
   },

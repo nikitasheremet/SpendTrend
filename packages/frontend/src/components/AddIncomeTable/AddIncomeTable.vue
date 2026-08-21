@@ -181,6 +181,7 @@ const columns = computed<ColumnConfig<DisplayIncome>[]>(() => [
     type: 'longtext',
     required: true,
     sortable: true,
+    searchable: true,
   },
   {
     key: 'amount',
@@ -188,6 +189,7 @@ const columns = computed<ColumnConfig<DisplayIncome>[]>(() => [
     type: 'number',
     required: true,
     sortable: true,
+    searchable: true,
   },
 ])
 

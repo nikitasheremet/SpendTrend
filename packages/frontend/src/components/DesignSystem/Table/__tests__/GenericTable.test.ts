@@ -3,10 +3,19 @@ import { mount } from '@vue/test-utils'
 import { nextTick, VueElement } from 'vue'
 import GenericTable from '../GenericTable.vue'
 import TableRow from '../TableRow.vue'
+import TableHeaders from '@/components/TableHeaders.vue'
 import Button from '../../Button/Button.vue'
 import ErrorComponent from '../../Error.vue'
 import LoadingModal from '../../Modal/LoadingModal.vue'
 import type { ColumnConfig, RowAction, TableAction } from '../types'
+
+// jsdom reports offsetHeight as 0, so stub the measured search-bar height with a
+// fixed non-zero value to exercise the header sticky-offset stacking.
+const SEARCH_BAR_HEIGHT_PX = 40
+vi.mock('@/helpers/hooks/useElementHeight', async () => {
+  const { ref } = await import('vue')
+  return { useElementHeight: () => ref(SEARCH_BAR_HEIGHT_PX) }
+})
 
 // TableColumnFilter teleports its panel to document.body; without cleanup,
 // a previous test's panel would linger and be picked up by document queries.
@@ -373,6 +382,102 @@ describe('GenericTable', () => {
       expect(rows).toHaveLength(2)
       expect(rows[0].props('validationError')).toBe(false)
       expect(rows[1].props('validationError')).toBe(true)
+    })
+  })
+
+  describe('when columns are searchable', () => {
+    const searchableColumns: ColumnConfig<FakeRow>[] = [
+      { key: 'name', label: 'Name', type: 'text', searchable: true },
+      { key: 'amount', label: 'Amount', type: 'number' },
+    ]
+
+    function findSearchInput(wrapper: ReturnType<typeof mountGenericTable>) {
+      return wrapper.find('[role="search"] input')
+    }
+
+    it('should render the search bar only when a column is searchable', () => {
+      const withSearch = mountGenericTable({ columns: searchableColumns })
+      expect(findSearchInput(withSearch).exists()).toBe(true)
+
+      const withoutSearch = mountGenericTable({ columns: baseColumns })
+      expect(findSearchInput(withoutSearch).exists()).toBe(false)
+    })
+
+    it('should filter rows down to those matching the search term', async () => {
+      const fakeData: FakeRow[] = [
+        { name: 'Food', amount: 1 },
+        { name: 'Travel', amount: 2 },
+      ]
+      const wrapper = mountGenericTable({ data: fakeData, columns: searchableColumns })
+      await nextTick()
+
+      await findSearchInput(wrapper).setValue('food')
+      await nextTick()
+
+      const rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows).toHaveLength(1)
+      expect(rows[0].props('row')).toEqual({ name: 'Food', amount: 1 })
+    })
+
+    it('should preserve original row indices after a search filter', async () => {
+      const fakeData: FakeRow[] = [
+        { name: 'Food', amount: 1 },
+        { name: 'Travel', amount: 2 },
+        { name: 'Food', amount: 3 },
+      ]
+      const wrapper = mountGenericTable({ data: fakeData, columns: searchableColumns })
+      await nextTick()
+
+      await findSearchInput(wrapper).setValue('Travel')
+      await nextTick()
+
+      const rows = wrapper.findAllComponents(TableRowComponent)
+      expect(rows).toHaveLength(1)
+      expect(rows[0].props('row')).toEqual({ name: 'Travel', amount: 2 })
+      expect(rows[0].props('rowIndex')).toBe(1)
+    })
+
+    it('should combine search with a dropdown filter', async () => {
+      const columns: ColumnConfig<FakeRow>[] = [
+        { key: 'name', label: 'Name', type: 'dropdown', filterable: true, searchable: true },
+        { key: 'amount', label: 'Amount', type: 'number' },
+      ]
+      const fakeData: FakeRow[] = [
+        { name: 'Food', amount: 1 },
+        { name: 'Food', amount: 2 },
+        { name: 'Travel', amount: 3 },
+      ]
+      const wrapper = mountGenericTable({ data: fakeData, columns })
+      await nextTick()
+
+      // Search narrows to the two Food rows.
+      await findSearchInput(wrapper).setValue('Food')
+      await nextTick()
+      expect(wrapper.findAllComponents(TableRowComponent)).toHaveLength(2)
+
+      // Dropdown filter for Travel removes all Food rows -> nothing matches both.
+      await wrapper.find('button[aria-label="Filter by Name"]').trigger('click')
+      const checkboxes = Array.from(
+        document.querySelectorAll('[data-table-column-filter-portal] input[type="checkbox"]'),
+      ) as HTMLInputElement[]
+      const travelCheckbox = checkboxes.find((checkbox) =>
+        checkbox.closest('label')?.textContent?.includes('Travel'),
+      )
+      travelCheckbox?.dispatchEvent(new Event('change', { bubbles: true }))
+      await nextTick()
+
+      expect(wrapper.findAllComponents(TableRowComponent)).toHaveLength(0)
+    })
+
+    it('should offset the sticky headers below the search bar when present', () => {
+      const withSearch = mountGenericTable({ columns: searchableColumns })
+      const withoutSearch = mountGenericTable({ columns: baseColumns })
+
+      const searchOffset = withSearch.findComponent(TableHeaders).props('stickyTopOffsetPx') as number
+      const baseOffset = withoutSearch.findComponent(TableHeaders).props('stickyTopOffsetPx') as number
+
+      expect(searchOffset).toBe(baseOffset + SEARCH_BAR_HEIGHT_PX)
+      expect(searchOffset).toBeGreaterThan(baseOffset)
     })
   })
 
