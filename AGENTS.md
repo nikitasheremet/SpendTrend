@@ -48,3 +48,17 @@ Prefer type-checking and unit tests over starting a dev server or opening a
 browser to verify behavior, unless a task explicitly asks for browser-based
 verification. Some tickets explicitly forbid running the app locally — treat
 that as the default posture unless told otherwise.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in Linear (team **SpendTrend**, key `SPE`), accessed via the Linear MCP tools. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
