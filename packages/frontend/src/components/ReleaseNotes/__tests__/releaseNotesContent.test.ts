@@ -6,7 +6,7 @@ import {
   releaseNotesFiles,
   UNRELEASED_FILE_NAME,
 } from '../changelog'
-import { isValidVersion } from '../semver'
+import { SEMVER_PATTERN } from '../semver'
 
 // Checks the real Release Notes folder, loaded the same way the app loads it.
 describe('Release Notes folder content', () => {
@@ -31,6 +31,10 @@ describe('Release Notes folder content', () => {
     expect(() => loadChangelog()).not.toThrow()
   })
 })
+
+function isValidVersion(version: string): boolean {
+  return SEMVER_PATTERN.test(version)
+}
 
 function isReleaseNotesContent(content: unknown): content is ReleaseNotesContent {
   if (typeof content !== 'object' || content === null) return false

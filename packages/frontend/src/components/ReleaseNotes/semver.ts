@@ -1,4 +1,4 @@
-const SEMVER_PATTERN = /^(\d+)\.(\d+)\.(\d+)$/
+export const SEMVER_PATTERN = /^(\d+)\.(\d+)\.(\d+)$/
 
 export function compareVersions(a: string, b: string): number {
   const partsA = parseVersion(a)
@@ -7,10 +7,6 @@ export function compareVersions(a: string, b: string): number {
     if (partsA[i] !== partsB[i]) return partsA[i] - partsB[i]
   }
   return 0
-}
-
-export function isValidVersion(version: string): boolean {
-  return SEMVER_PATTERN.test(version)
 }
 
 function parseVersion(version: string): [number, number, number] {
