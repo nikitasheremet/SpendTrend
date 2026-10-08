@@ -94,15 +94,6 @@ describe('ReleaseNotes', () => {
     expect(screen.getByText('<b>Bold</b>')).toBeVisible()
   })
 
-  it('opens the Changelog from the footer when logged out', async () => {
-    const user = userEvent.setup()
-    renderReleaseNotes({ isLoggedIn: false })
-
-    await openChangelog(user)
-
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
-  })
-
   it('leaves localStorage untouched when opening the Changelog from the footer', async () => {
     const user = userEvent.setup()
     const getItem = vi.spyOn(Storage.prototype, 'getItem')
@@ -151,7 +142,7 @@ describe('ReleaseNotes', () => {
 
 function renderReleaseNotes(props: Partial<InstanceType<typeof ReleaseNotes>['$props']> = {}) {
   return render(ReleaseNotes, {
-    props: { appVersion: '1.3.0', isLoggedIn: true, changelog: CHANGELOG, ...props },
+    props: { appVersion: '1.3.0', changelog: CHANGELOG, ...props },
   })
 }
 

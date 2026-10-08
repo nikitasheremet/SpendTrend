@@ -3,11 +3,8 @@ import { ref } from 'vue'
 import Modal from '../DesignSystem/Modal/Modal.vue'
 import type { Changelog } from './changelog'
 
-// isLoggedIn is part of the input contract now; the automatic popup that
-// depends on it arrives in a follow-up ticket.
 const { appVersion, changelog } = defineProps<{
   appVersion: string
-  isLoggedIn: boolean
   changelog: Changelog
 }>()
 
