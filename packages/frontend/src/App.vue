@@ -9,11 +9,14 @@ import { isUserSessionActive } from './helpers/auth/isUserSessionActive'
 import { LOGIN_PATH } from './router/paths'
 import Popover from './components/DesignSystem/Popover/Popover.vue'
 import { useProvidePopover } from './components/DesignSystem/Popover/useProvidePopover'
+import ReleaseNotes from './components/ReleaseNotes/ReleaseNotes.vue'
+import { loadChangelog } from './components/ReleaseNotes/changelog'
 
 const isLoggedIn = ref(false)
 const isManageCategoriesOpen = ref(false)
 const popoverRef = useTemplateRef('popover-ref')
 const appVersion = __APP_VERSION__
+const changelog = loadChangelog()
 
 useProvidePopover(popoverRef)
 
@@ -55,6 +58,6 @@ function toggleManageCategories() {
     <div class="flex-1 p-5">
       <RouterView />
     </div>
-    <footer class="px-5 py-2 text-center text-xs text-gray-500">version: {{ appVersion }}</footer>
+    <ReleaseNotes :app-version="appVersion" :changelog="changelog" />
   </div>
 </template>
