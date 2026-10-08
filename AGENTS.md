@@ -32,8 +32,11 @@ detail after, the way a newspaper article leads with the headline:
 - Composables that transform table row data follow the
   `{ row: T; index: number }[]` in/out contract (see `useTableFilters` /
   `useTableSort`) so original row indices survive filter/sort pipelines.
-- Testing: Vitest + `@vue/test-utils` (`mount`). No Jest, no React Testing
-  Library.
+- Testing: Vitest + `@testing-library/vue` (`render`, `screen`) with
+  `@testing-library/user-event` for interactions. Query by what the user sees
+  (role, label, text) rather than CSS selectors or component internals. Older
+  tests use `@vue/test-utils` (`mount`); don't add new ones in that style. No
+  Jest.
 - Verify with `npm run type-check` (`vue-tsc --noEmit`) in
   `packages/frontend`, and `npx vitest run` for unit tests.
 
