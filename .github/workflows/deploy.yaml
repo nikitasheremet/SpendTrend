@@ -11,6 +11,11 @@ permissions:
   pages: write # Allows deploying to GitHub Pages
   id-token: write # Required for some deployment actions
 
+# Each run pushes a bump commit to main and dev, so runs must not overlap
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,12 +24,47 @@ jobs:
         working-directory: packages/frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          # MY_RELEASE_PAT must be allowed to push to main and dev past branch protection
+          token: ${{ secrets.MY_RELEASE_PAT }}
+          # Full history so main can be merged back into dev
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      # One App Version per deploy. See docs/adr/0001-release-notes-as-ci-stamped-json.md
+      - name: Bump App Version and stamp unreleased Release Notes
+        run: |
+          # Bump the tip of main, not the triggering commit: a run queued
+          # behind another deploy would otherwise push a non-fast-forward
+          git checkout -B main origin/main
+
+          # 1. Bump the version. Read it back from package.json, since in a
+          # workspace npm's output also holds the package name (and no "v")
+          npm version patch --no-git-tag-version --no-workspaces-update
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          git add package.json
+          # npm also rewrites the root lockfile; keep it out of the bump commit
+          git checkout -- ../../package-lock.json
+
+          # 2. Rename the shared Release Notes to the new version, e.g. 0.1.39.json
+          UNRELEASED=src/releaseNotes/unreleased.json
+          if [ -f "$UNRELEASED" ]; then
+            git mv "$UNRELEASED" "src/releaseNotes/$NEW_VERSION.json"
+          fi
+
+          # 3. [skip ci] stops this push from re-triggering the deploy
+          git commit -m "chore(frontend): bump version to v$NEW_VERSION [skip ci]"
+          git push origin HEAD:main
 
       - name: Install dependencies
         run: npm install
@@ -43,3 +83,13 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: packages/frontend/dist
+
+      # Last, in its own worktree, so a merge conflict doesn't block the deploy.
+      # It still fails the job, and then dev must be merged by hand
+      - name: Merge main back into dev
+        run: |
+          # Otherwise dev keeps a stale unreleased.json and the next deploy conflicts
+          git worktree add -B dev "$RUNNER_TEMP/dev" origin/dev
+          cd "$RUNNER_TEMP/dev"
+          git merge --no-edit main
+          git push origin dev
