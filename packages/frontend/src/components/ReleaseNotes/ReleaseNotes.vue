@@ -1,19 +1,39 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import Modal from '../DesignSystem/Modal/Modal.vue'
 import type { Changelog } from './changelog'
+import { takeUnseenReleaseNotes } from './lastSeenVersion'
 
-const { appVersion, changelog } = defineProps<{
+const { appVersion, changelog, isLoggedIn } = defineProps<{
   appVersion: string
   changelog: Changelog
+  isLoggedIn: boolean
 }>()
 
 const isModalOpen = ref(false)
+const shownReleaseNotes = ref<Changelog>([])
+let hasCheckedUnseen = false
+
+watch(
+  () => isLoggedIn,
+  (loggedIn) => {
+    if (!loggedIn || hasCheckedUnseen) return
+    hasCheckedUnseen = true
+    const unseen = takeUnseenReleaseNotes(changelog, appVersion)
+    if (unseen.length) openModal(unseen)
+  },
+  { immediate: true },
+)
+
+function openModal(releaseNotes: Changelog) {
+  shownReleaseNotes.value = releaseNotes
+  isModalOpen.value = true
+}
 </script>
 
 <template>
   <footer class="px-5 py-2 text-center text-xs text-gray-500">
-    <button type="button" class="cursor-pointer hover:underline" @click="isModalOpen = true">
+    <button type="button" class="cursor-pointer hover:underline" @click="openModal(changelog)">
       version: {{ appVersion }}
     </button>
   </footer>
@@ -26,7 +46,7 @@ const isModalOpen = ref(false)
   >
     <div class="min-h-0 flex-1 overflow-y-auto">
       <h2 class="mb-4 text-2xl font-bold">Release Notes:</h2>
-      <section v-for="releaseNotes in changelog" :key="releaseNotes.version" class="mb-6">
+      <section v-for="releaseNotes in shownReleaseNotes" :key="releaseNotes.version" class="mb-6">
         <h3 class="mb-2 text-xl font-semibold">{{ releaseNotes.version }}</h3>
         <h4 class="mt-2 font-semibold">Features</h4>
         <ul v-if="releaseNotes.features.length" class="list-disc pl-6">

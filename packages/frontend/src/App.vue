@@ -58,6 +58,6 @@ function toggleManageCategories() {
     <div class="flex-1 p-5">
       <RouterView />
     </div>
-    <ReleaseNotes :app-version="appVersion" :changelog="changelog" />
+    <ReleaseNotes :app-version="appVersion" :changelog="changelog" :is-logged-in="isLoggedIn" />
   </div>
 </template>
