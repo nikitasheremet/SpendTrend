@@ -5,6 +5,7 @@ import ReleaseNotes from '../ReleaseNotes.vue'
 import type { Changelog } from '../changelog'
 import { LAST_SEEN_VERSION_KEY } from '../lastSeenVersion'
 
+const UNRELEASED_RELEASE_NOTES = { version: 'unreleased', features: ['Coming soon'], bugFixes: [] }
 const CHANGELOG: Changelog = [
   { version: '1.3.0', features: ['Dark mode', 'CSV export'], bugFixes: ['Fixed totals'] },
   { version: '1.2.0', features: [], bugFixes: ['Fixed login redirect'] },
@@ -46,6 +47,15 @@ describe('ReleaseNotes', () => {
       '1.2.0',
       '1.1.0',
     ])
+  })
+
+  it('shows unreleased Release Notes first when opened from the footer', async () => {
+    const user = userEvent.setup()
+    renderReleaseNotes({ changelog: [UNRELEASED_RELEASE_NOTES, ...CHANGELOG] })
+
+    await openChangelog(user)
+
+    expect(versionHeadingTexts()).toEqual(['unreleased', '1.3.0', '1.2.0', '1.1.0'])
   })
 
   it('lists Features and Bug Fixes under each version', async () => {
@@ -126,6 +136,28 @@ describe('ReleaseNotes', () => {
         within(dialog).getByRole('heading', { level: 2, name: 'Release Notes:' }),
       ).toBeVisible()
       expect(versionHeadingTexts()).toEqual(['1.3.0'])
+    })
+
+    it('pops up unreleased Release Notes first when no Last Seen Version is stored', () => {
+      renderReleaseNotes({ isLoggedIn: true, changelog: [UNRELEASED_RELEASE_NOTES, ...CHANGELOG] })
+
+      expect(versionHeadingTexts()).toEqual(['unreleased', '1.3.0'])
+    })
+
+    it('pops up unreleased Release Notes ahead of those above the Last Seen Version', () => {
+      localStorage.setItem(LAST_SEEN_VERSION_KEY, '1.1.0')
+
+      renderReleaseNotes({ isLoggedIn: true, changelog: [UNRELEASED_RELEASE_NOTES, ...CHANGELOG] })
+
+      expect(versionHeadingTexts()).toEqual(['unreleased', '1.3.0', '1.2.0'])
+    })
+
+    it('pops up unreleased Release Notes on every load, since they have no version to mark as seen', () => {
+      localStorage.setItem(LAST_SEEN_VERSION_KEY, '1.3.0')
+
+      renderReleaseNotes({ isLoggedIn: true, changelog: [UNRELEASED_RELEASE_NOTES, ...CHANGELOG] })
+
+      expect(versionHeadingTexts()).toEqual(['unreleased'])
     })
 
     it('shows the newest Release Notes even when it is older than the App Version', () => {
