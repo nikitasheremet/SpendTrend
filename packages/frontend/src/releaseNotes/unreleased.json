@@ -1,7 +1,9 @@
 {
   "features": [
     "See what's new: when you come back after an update, a Release Notes window now shows you what changed since your last visit.",
-    "Click the version number at the bottom of any page to read the Release Notes for every past version."
+    "Click the version number at the bottom of any page to read the Release Notes for every past version.",
+    "Sort your expense and income tables by date, name or amount: click the arrow next to a column heading to sort from lowest to highest, click again to sort from highest to lowest, and click a third time to go back to the original order.",
+    "Search your expense and income tables: type in the search bar above a table to show only the rows whose name or amounts match what you typed."
   ],
   "bugFixes": []
 }
