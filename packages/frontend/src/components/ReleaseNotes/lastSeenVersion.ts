@@ -1,4 +1,4 @@
-import type { Changelog } from './changelog'
+import { type Changelog, UNRELEASED_FILE_NAME } from './changelog'
 import { compareVersions, SEMVER_PATTERN } from './semver'
 
 export const LAST_SEEN_VERSION_KEY = 'spendtrend_last_seen_version'
@@ -39,8 +39,20 @@ function unseenReleaseNotes(
   appVersion: string,
   lastSeenVersion: string | null,
 ): Changelog {
-  if (!lastSeenVersion) return changelog.slice(0, 1)
-  return changelog.filter(
+  // Unreleased Release Notes have no version to mark as seen, so they show on
+  // every load. Production never has them, since a deploy stamps them first.
+  const unreleased = changelog.filter(({ version }) => version === UNRELEASED_FILE_NAME)
+  const released = changelog.filter(({ version }) => version !== UNRELEASED_FILE_NAME)
+  return [...unreleased, ...unseenReleasedNotes(released, appVersion, lastSeenVersion)]
+}
+
+function unseenReleasedNotes(
+  released: Changelog,
+  appVersion: string,
+  lastSeenVersion: string | null,
+): Changelog {
+  if (!lastSeenVersion) return released.slice(0, 1)
+  return released.filter(
     ({ version }) =>
       compareVersions(version, lastSeenVersion) > 0 && compareVersions(version, appVersion) <= 0,
   )

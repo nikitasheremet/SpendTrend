@@ -32,8 +32,15 @@ export function buildChangelog(files: Record<string, unknown>): Changelog {
       const { features, bugFixes } = content as ReleaseNotesContent
       return { version: fileNameFromPath(path), features, bugFixes }
     })
-    .filter(({ version }) => version !== UNRELEASED_FILE_NAME)
-    .sort((a, b) => compareVersions(b.version, a.version))
+    .sort(newestFirst)
+}
+
+// Unreleased Release Notes only exist before a deploy stamps them with a
+// version (so never in production), and they are always the newest.
+function newestFirst(a: ReleaseNotes, b: ReleaseNotes): number {
+  if (a.version === UNRELEASED_FILE_NAME) return -1
+  if (b.version === UNRELEASED_FILE_NAME) return 1
+  return compareVersions(b.version, a.version)
 }
 
 export function fileNameFromPath(path: string): string {

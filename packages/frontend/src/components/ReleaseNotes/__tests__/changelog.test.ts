@@ -16,13 +16,18 @@ describe('buildChangelog', () => {
     ])
   })
 
-  it('leaves unreleased.json out of the Changelog', () => {
+  it('puts unreleased.json first, ahead of every version', () => {
     const changelog = buildChangelog({
-      '../../releaseNotes/unreleased.json': { features: ['wip'], bugFixes: [] },
       '../../releaseNotes/1.0.0.json': { features: ['done'], bugFixes: [] },
+      '../../releaseNotes/unreleased.json': { features: ['wip'], bugFixes: [] },
+      '../../releaseNotes/2.0.0.json': { features: ['newer'], bugFixes: [] },
     })
 
-    expect(changelog).toEqual([{ version: '1.0.0', features: ['done'], bugFixes: [] }])
+    expect(changelog).toEqual([
+      { version: 'unreleased', features: ['wip'], bugFixes: [] },
+      { version: '2.0.0', features: ['newer'], bugFixes: [] },
+      { version: '1.0.0', features: ['done'], bugFixes: [] },
+    ])
   })
 
   it('takes the version only from the filename, never from the file contents', () => {
