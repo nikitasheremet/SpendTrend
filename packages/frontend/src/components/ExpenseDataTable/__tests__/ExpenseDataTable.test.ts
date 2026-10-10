@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { render, screen, waitFor } from '@testing-library/vue'
+import userEvent from '@testing-library/user-event'
 import { ref } from 'vue'
 import type { Store } from '@/store/storeInterface'
 import type { Expense, ExpenseCategory, ExpenseSubCategory } from '@/types/expenseData'
@@ -69,6 +71,11 @@ vi.mock('@/service/categories/addNewSubCategory', () => ({
 const updateExpenseMock = vi.fn()
 vi.mock('@/service/expenses/updateExpense', () => ({
   updateExpense: (...args: unknown[]) => updateExpenseMock(...args),
+}))
+
+const deleteExpenseMock = vi.fn()
+vi.mock('@/service/expenses/deleteExpense', () => ({
+  deleteExpense: (...args: unknown[]) => deleteExpenseMock(...args),
 }))
 
 // -----------------------------------------------------------------------------
@@ -228,5 +235,48 @@ describe('ExpenseDataTable — create category/subcategory from dropdown', () =>
         expect.objectContaining({ subCategory: newSubCategory }),
       )
     })
+  })
+})
+
+describe('ExpenseDataTable — deleting a row', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    expensesRef.value = [
+      {
+        id: 'exp-1',
+        userId: 'u1',
+        accountId: 'a1',
+        date: '2026-01-01',
+        name: 'Lunch',
+        amount: 10,
+        netAmount: 10,
+        category: foodCategory,
+        subCategory: undefined,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]
+  })
+
+  it('keeps the Delete button locked until the expense has been deleted', async () => {
+    let finishDelete!: () => void
+    deleteExpenseMock.mockReturnValue(new Promise<void>((resolve) => (finishDelete = resolve)))
+    render(ExpenseDataTable, {
+      global: {
+        provide: {
+          [POPOVER_SYMBOL as unknown as string]: ref({ showPopover: vi.fn() }),
+        },
+      },
+    })
+    const user = userEvent.setup()
+
+    await user.dblClick(await screen.findByRole('button', { name: 'Delete' }))
+
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled()
+    expect(deleteExpenseMock).toHaveBeenCalledTimes(1)
+    expect(mockStore.deleteExpense).not.toHaveBeenCalled()
+
+    finishDelete()
+    await waitFor(() => expect(mockStore.deleteExpense).toHaveBeenCalledWith('exp-1'))
   })
 })
