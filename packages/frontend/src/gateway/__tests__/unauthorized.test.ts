@@ -1,18 +1,31 @@
 import { vi } from 'vitest'
 import router from '@/router'
-import { get } from '@gateway/get'
-import { post } from '@gateway/post'
-import { put } from '@gateway/put'
 
 vi.mock('@/router', () => ({
   default: { push: vi.fn() },
 }))
+
+let get: typeof import('@gateway/get').get
+let post: typeof import('@gateway/post').post
+let put: typeof import('@gateway/put').put
 
 describe('when a request returns 401 unauthorized', () => {
   const mockFetch = vi.fn()
   global.fetch = mockFetch
   vi.spyOn(console, 'error').mockImplementation(() => {})
   vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+  beforeAll(async () => {
+    // BASE_URL is read at module load, so stub it before importing the gateways
+    vi.stubEnv('VITE_BACKEND_URL', 'http://localhost:3000')
+    ;({ get } = await import('@gateway/get'))
+    ;({ post } = await import('@gateway/post'))
+    ;({ put } = await import('@gateway/put'))
+  })
+
+  afterAll(() => {
+    vi.unstubAllEnvs()
+  })
 
   beforeEach(() => {
     vi.mocked(router.push).mockReset()
