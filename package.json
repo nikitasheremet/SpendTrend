@@ -6,6 +6,7 @@
   "private": true,
   "devDependencies": {
     "@playwright/test": "^1.54.2",
+    "concurrently": "^10.0.6",
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.3.3",
@@ -14,7 +15,12 @@
     "vite": "^5.4.21"
   },
   "scripts": {
+    "dev": "npm run db:up && concurrently --names backend,frontend --prefix-colors blue,magenta --kill-others-on-fail \"npm:backend:local\" \"npm:frontend:dev\"",
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f db",
     "frontend:dev": "npm run dev --workspace packages/frontend",
+    "backend:local": "npm run local --workspace packages/backend",
     "frontend:build": "tsc -b ./contracts && npm run build --workspace packages/frontend",
     "frontend:build:dev": "tsc -b ./contracts && npm run build:dev --workspace packages/frontend"
   },

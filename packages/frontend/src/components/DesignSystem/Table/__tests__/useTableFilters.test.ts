@@ -182,6 +182,136 @@ describe('useTableFilters', () => {
     })
   })
 
+  describe('when searching', () => {
+    const searchableColumnsConfig: ColumnConfig<FakeRow>[] = [
+      { key: 'category', label: 'Category', type: 'dropdown', filterable: true, searchable: true },
+      { key: 'subCategory', label: 'Subcategory', type: 'dropdown', filterable: true },
+      { key: 'name', label: 'Name', type: 'longtext', searchable: true },
+    ]
+
+    it('should include only columns marked searchable in searchableColumns', () => {
+      const { searchableColumns } = setupFilters(baseRows, searchableColumnsConfig)
+
+      expect(searchableColumns.value.map((column) => column.key)).toEqual(['category', 'name'])
+    })
+
+    it('should return all rows when the search term is empty', () => {
+      const { setSearchTerm, filteredEntries } = setupFilters(baseRows, searchableColumnsConfig)
+
+      setSearchTerm('')
+
+      expect(filteredEntries.value).toHaveLength(baseRows.length)
+    })
+
+    it('should return all rows when the search term is only whitespace', () => {
+      const { setSearchTerm, filteredEntries } = setupFilters(baseRows, searchableColumnsConfig)
+
+      setSearchTerm('   ')
+
+      expect(filteredEntries.value).toHaveLength(baseRows.length)
+    })
+
+    it('should match a searchable column case-insensitively via contains', () => {
+      const { setSearchTerm, filteredEntries } = setupFilters(baseRows, searchableColumnsConfig)
+
+      setSearchTerm('food')
+
+      expect(filteredEntries.value.map((entry) => entry.index)).toEqual([0, 1])
+    })
+
+    it('should ignore matches in non-searchable columns', () => {
+      // 'Groceries' lives only in subCategory, which is not searchable here.
+      const { setSearchTerm, filteredEntries } = setupFilters(baseRows, searchableColumnsConfig)
+
+      setSearchTerm('Groceries')
+
+      expect(filteredEntries.value).toHaveLength(0)
+    })
+
+    it('should match against any searchable column', () => {
+      const { setSearchTerm, filteredEntries } = setupFilters(baseRows, searchableColumnsConfig)
+
+      setSearchTerm('Row 3')
+
+      expect(filteredEntries.value.map((entry) => entry.index)).toEqual([2])
+    })
+
+    it('should combine search with an active column filter using AND semantics', () => {
+      const { setFilter, setSearchTerm, filteredEntries } = setupFilters(
+        baseRows,
+        searchableColumnsConfig,
+      )
+
+      // Search keeps Food rows (0, 1); dropdown filter narrows to subCategory Restaurants (1).
+      setSearchTerm('Food')
+      setFilter('subCategory', ['Restaurants'])
+
+      expect(filteredEntries.value).toEqual([{ row: baseRows[1], index: 1 }])
+    })
+
+    it('should exclude a row that matches search but fails an active filter', () => {
+      const { setFilter, setSearchTerm, filteredEntries } = setupFilters(
+        baseRows,
+        searchableColumnsConfig,
+      )
+
+      setSearchTerm('Food')
+      setFilter('subCategory', ['Flights'])
+
+      expect(filteredEntries.value).toHaveLength(0)
+    })
+
+    it('should preserve original indices after search filtering', () => {
+      const { setSearchTerm, filteredEntries } = setupFilters(baseRows, searchableColumnsConfig)
+
+      setSearchTerm('Travel')
+
+      expect(filteredEntries.value).toEqual([{ row: baseRows[2], index: 2 }])
+    })
+
+    it('should not match rows whose searchable values are empty', () => {
+      const rowsWithEmpties: FakeRow[] = [
+        { id: 1, category: 'Food', subCategory: 'Groceries', date: '2026-01-05', name: 'Row 1' },
+        { id: 2, category: '', subCategory: '', date: '2026-02-10', name: '' },
+      ]
+      const { setSearchTerm, filteredEntries } = setupFilters(rowsWithEmpties, searchableColumnsConfig)
+
+      setSearchTerm('x')
+
+      expect(filteredEntries.value).toHaveLength(0)
+    })
+
+    it('should search against a calculate-derived value', () => {
+      interface CalcRow {
+        id: number
+        amount: number
+      }
+      const calcRows: CalcRow[] = [
+        { id: 1, amount: 10 },
+        { id: 2, amount: 20 },
+      ]
+      const calcColumns: ColumnConfig<CalcRow>[] = [
+        {
+          key: 'amount',
+          label: 'Formatted',
+          type: 'text',
+          searchable: true,
+          calculate: (row) => `$${row.amount}.00`,
+        },
+      ]
+      const data = ref(calcRows)
+      const columnsRef = ref(calcColumns)
+      const { setSearchTerm, filteredEntries } = useTableFilters({
+        data: computed(() => data.value),
+        columns: computed(() => columnsRef.value),
+      })
+
+      setSearchTerm('$20.00')
+
+      expect(filteredEntries.value).toEqual([{ row: calcRows[1], index: 1 }])
+    })
+  })
+
   describe('when checking isColumnFiltered', () => {
     it('should be false before any filter is set', () => {
       const { isColumnFiltered } = setupFilters()

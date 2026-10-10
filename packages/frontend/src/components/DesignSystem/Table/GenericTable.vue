@@ -1,7 +1,10 @@
 <script lang="ts" setup generic="T extends TableRowData">
-import { computed } from 'vue'
+import { computed, ref, type ComponentPublicInstance } from 'vue'
 import TableHeaders from '@/components/TableHeaders.vue'
+import { getThemeSpacingPx } from '@/helpers/css/getThemeSpacingPx'
+import { useElementHeight } from '@/helpers/hooks/useElementHeight'
 import TableRow from './TableRow.vue'
+import TableSearchBar from './TableSearchBar.vue'
 import Button from '../Button/Button.vue'
 import Error from '../Error.vue'
 import LoadingModal from '../Modal/LoadingModal.vue'
@@ -15,7 +18,7 @@ import type {
   TableRowData,
 } from './types'
 import { FILTER_TYPE_DROPDOWN } from './types'
-import { useProgressiveRowRender, useTableFilters } from './hooks'
+import { useProgressiveRowRender, useTableFilters, useTableSort } from './hooks'
 
 const {
   data,
@@ -56,14 +59,49 @@ const FALLBACK_ROW_KEY_INCREMENT = 1
 let fallbackRowKeySequence = ZERO_COUNT
 const fallbackRowKeys = new WeakMap<object, number>()
 
-const { filterableColumns, filteredEntries, getDropdownOptions, activeFilters, setFilter } =
-  useTableFilters<T>({
-    data: computed(() => data),
-    columns: computed(() => columns),
-  })
+const {
+  filterableColumns,
+  searchableColumns,
+  searchTerm,
+  filteredEntries,
+  getDropdownOptions,
+  activeFilters,
+  setFilter,
+  setSearchTerm,
+} = useTableFilters<T>({
+  data: computed(() => data),
+  columns: computed(() => columns),
+})
+
+const hasSearchBar = computed(() => searchableColumns.value.length > ZERO_COUNT)
+
+// Resolve the base sticky offset once so the search bar and the header row
+// share the same reference point (mirrors TableHeaders' standalone fallback).
+const baseStickyTopOffsetPx = computed(() => stickyTopOffsetPx ?? getThemeSpacingPx('nav'))
+
+// The search bar pins at the base offset; headers must then pin flush below it.
+// Ref the component (not a wrapper div) so the sticky element inside it stays a
+// direct child of this tall root <div> — its containing block — otherwise a
+// short wrapper would let it scroll away immediately. Measure via its $el.
+const searchBarRef = ref<ComponentPublicInstance | null>(null)
+const searchBarEl = computed<HTMLElement | null>(
+  () => (searchBarRef.value?.$el as HTMLElement | undefined) ?? null,
+)
+const searchBarHeight = useElementHeight(searchBarEl)
+const headerStickyTopOffsetPx = computed(() =>
+  hasSearchBar.value
+    ? baseStickyTopOffsetPx.value + searchBarHeight.value
+    : baseStickyTopOffsetPx.value,
+)
+
+const { sortableColumns, sortedEntries, toggleSort, getSortDirection } = useTableSort<T>({
+  columns: computed(() => columns),
+})
+
+const sortedFilteredEntries = computed(() => sortedEntries(filteredEntries.value))
 
 const { visibleData } = useProgressiveRowRender({
-  data: filteredEntries,
+  data: sortedFilteredEntries,
   enabled: computed(() => progressiveRender),
   initialRowCount: computed(() => initialRowCount),
   rowChunkSize: computed(() => rowChunkSize),
@@ -72,8 +110,10 @@ const { visibleData } = useProgressiveRowRender({
 // Build headers from columns config and add empty headers for row actions
 const headers = computed(() => {
   const filterableKeys = new Set(filterableColumns.value.map((col) => col.key))
+  const sortableKeys = new Set(sortableColumns.value.map((col) => col.key))
   const columnHeaders = columns.map((col) => {
     const filterable = filterableKeys.has(col.key)
+    const sortable = sortableKeys.has(col.key)
     return {
       label: col.label,
       required: col.required,
@@ -83,6 +123,9 @@ const headers = computed(() => {
       filterType: filterable ? (col.type as FilterableColumnType) : undefined,
       filterOptions: filterable && col.type === FILTER_TYPE_DROPDOWN ? getDropdownOptions(col) : undefined,
       filterValue: activeFilters.value[col.key],
+      sortable,
+      sortKey: col.key,
+      sortDirection: sortable ? getSortDirection(col.key) : undefined,
     }
   })
   const actionHeaders = rowActions.map(() => ({
@@ -102,6 +145,10 @@ function handleCellUpdate(rowIndex: number, key: keyof T, value: unknown) {
 
 function handleFilterChange(key: string, value: FilterValue) {
   setFilter(key, value)
+}
+
+function handleSortChange(key: string) {
+  toggleSort(key)
 }
 
 function isRowInvalid(index: number): boolean {
@@ -142,11 +189,19 @@ function getRowKey(row: T, index: number): string | number {
 
 <template>
   <div>
+    <TableSearchBar
+      v-if="hasSearchBar"
+      ref="searchBarRef"
+      :model-value="searchTerm"
+      :sticky-top-offset-px="baseStickyTopOffsetPx"
+      @update:model-value="setSearchTerm"
+    />
     <table class="w-full table-fixed mb-5">
       <TableHeaders
         :headers="headers"
-        :sticky-top-offset-px="stickyTopOffsetPx"
+        :sticky-top-offset-px="headerStickyTopOffsetPx"
         @filter:changed="handleFilterChange"
+        @sort:changed="handleSortChange"
       />
       <tbody>
         <TableRow

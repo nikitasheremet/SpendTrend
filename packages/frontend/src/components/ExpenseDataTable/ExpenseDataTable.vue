@@ -168,28 +168,37 @@ const columns = computed<ColumnConfig<DisplayExpense>[]>(() => [
     type: 'date',
     customClass: 'w-1/7',
     filterable: true,
+    sortable: true,
   },
   {
     key: 'name',
     label: 'Name',
     type: 'longtext',
     customClass: 'w-1/4',
+    sortable: true,
+    searchable: true,
   },
   {
     key: 'amount',
     label: 'Amount ($)',
     type: 'number',
+    sortable: true,
+    searchable: true,
   },
   {
     key: 'paidBackAmount',
     label: 'Paid Back ($)',
     type: 'number',
+    sortable: true,
+    searchable: true,
   },
   {
     key: 'netAmount',
     label: 'Net Amount ($)',
     type: 'number',
     editable: false,
+    sortable: true,
+    searchable: true,
     calculate: (row: DisplayExpense) => (row.amount || 0) - (row.paidBackAmount || 0),
     format: (value: unknown) => {
       if (typeof value === 'number') {
