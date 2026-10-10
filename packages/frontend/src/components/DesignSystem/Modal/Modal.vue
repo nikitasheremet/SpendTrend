@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watchEffect } from 'vue'
 import Button from '../Button/Button.vue'
+import { usePageScrollLock } from './usePageScrollLock'
 
 const {
   isModalOpen,
@@ -25,6 +26,8 @@ const emit = defineEmits<{
 // that begins inside the content (e.g. selecting text) and is released on the
 // backdrop doesn't count as a backdrop click.
 let pressStartedOnBackdrop = false
+
+usePageScrollLock(() => isModalOpen)
 
 watchEffect((onCleanup) => {
   if (!isModalOpen || !closeOnEsc) return
@@ -95,6 +98,8 @@ function handleBackdropClick(event: MouseEvent) {
 .modal-content {
   min-height: 0;
   overflow-y: auto;
+  /* Reaching the end of the content doesn't hand scrolling on to the page. */
+  overscroll-behavior: contain;
 }
 
 .modal-close-container {

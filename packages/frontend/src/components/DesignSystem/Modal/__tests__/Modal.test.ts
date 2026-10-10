@@ -128,7 +128,59 @@ describe('Modal', () => {
       expect(emitted().modalClosed).toBeUndefined()
     })
   })
+
+  describe('locking page scroll', () => {
+    it('stops the page behind from scrolling while open', () => {
+      const { unmount } = renderModal()
+
+      expect(isPageScrollLocked()).toBe(true)
+
+      unmount()
+    })
+
+    it('leaves the page scrollable while closed', () => {
+      const { unmount } = renderModal({ isModalOpen: false })
+
+      expect(isPageScrollLocked()).toBe(false)
+
+      unmount()
+    })
+
+    it('restores page scrolling once the modal closes', async () => {
+      const { rerender, unmount } = renderModal()
+
+      await rerender({ isModalOpen: false })
+
+      expect(isPageScrollLocked()).toBe(false)
+
+      unmount()
+    })
+
+    it('restores page scrolling once the modal unmounts', () => {
+      const { unmount } = renderModal()
+
+      unmount()
+
+      expect(isPageScrollLocked()).toBe(false)
+    })
+
+    it('keeps the page locked while another modal is still open', () => {
+      const first = renderModal()
+      const second = renderModal()
+
+      second.unmount()
+
+      expect(isPageScrollLocked()).toBe(true)
+
+      first.unmount()
+      expect(isPageScrollLocked()).toBe(false)
+    })
+  })
 })
+
+function isPageScrollLocked(): boolean {
+  return document.documentElement.style.overflow === 'hidden'
+}
 
 function renderModal(props: ModalTestProps = {}) {
   return render(Modal, {
