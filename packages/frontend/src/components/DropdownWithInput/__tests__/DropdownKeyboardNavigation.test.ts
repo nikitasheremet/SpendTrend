@@ -189,6 +189,24 @@ describe('DropdownWithInput keyboard navigation', () => {
     })
   })
 
+  describe('Escape inside a modal', () => {
+    it.each([false, true])(
+      'does not reach document listeners while closing the dropdown (searchable: %s)',
+      async (searchable) => {
+        const user = userEvent.setup()
+        const documentKeydown = vi.fn()
+        document.addEventListener('keydown', documentKeydown)
+        await renderOpenDropdown({ modelValue: 'Apple', searchable })
+
+        await user.keyboard('{Escape}')
+
+        document.removeEventListener('keydown', documentKeydown)
+        expect(screen.queryByRole('listbox')).toBeNull()
+        expect(documentKeydown).not.toHaveBeenCalled()
+      },
+    )
+  })
+
   describe('Tab', () => {
     it('closes the dropdown without selecting anything', async () => {
       const user = userEvent.setup()

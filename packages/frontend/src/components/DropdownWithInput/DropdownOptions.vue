@@ -64,6 +64,10 @@ const highlightedIndex = ref(
   selectedOption === undefined ? NO_HIGHLIGHT : options.indexOf(selectedOption),
 )
 
+const isCreateHighlighted = computed(
+  () => canCreate.value && highlightedIndex.value === createItemIndex.value,
+)
+
 watch(trimmedSearchText, () => {
   highlightedIndex.value = filteredOptions.value.length > 0 ? 0 : NO_HIGHLIGHT
 })
@@ -76,10 +80,6 @@ watchPostEffect(() => {
 
   panelRef.value?.querySelector('[data-highlighted]')?.scrollIntoView({ block: 'nearest' })
 })
-
-const isCreateHighlighted = computed(
-  () => canCreate.value && highlightedIndex.value === createItemIndex.value,
-)
 
 defineExpose({ handleKeydown })
 
@@ -115,7 +115,7 @@ function selectHighlightedItem() {
     return
   }
 
-  if (canCreate.value && highlightedIndex.value === createItemIndex.value) {
+  if (isCreateHighlighted.value) {
     handleCreateClick()
     return
   }

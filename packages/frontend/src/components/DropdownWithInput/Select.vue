@@ -100,6 +100,10 @@ function handleKeydown(event: KeyboardEvent) {
 
 function handleClosingKey(event: KeyboardEvent): boolean {
   if (event.key === 'Escape') {
+    if (isOptionsVisible.value) {
+      // Closing the dropdown consumes Escape, so an enclosing modal stays open.
+      event.stopPropagation()
+    }
     isOptionsVisible.value = false
     emit('escape')
     return true
@@ -159,5 +163,7 @@ async function toggleOptionsVisibility() {
       @option-created="handleOptionCreated"
       @keydown="handleClosingKey"
     />
+    <!-- @keydown falls through to the panel root (DropdownOptions doesn't declare it),
+         so Escape/Tab from the teleported search input reach handleClosingKey. -->
   </Teleport>
 </template>
