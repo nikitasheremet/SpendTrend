@@ -23,12 +23,13 @@ const {
 }>()
 const emit = defineEmits<{
   onChange: [option: string]
+  escape: []
 }>()
 const EMPTY_SELECTION_VALUE = ''
 const DEFAULT_EMPTY_OPTION_LABEL = 'Uncategorized'
 const isOptionsVisible = ref(Boolean(autofocus))
 const optionsRef = ref<HTMLElement>()
-const optionsDivRef = ref<{ $el?: HTMLElement }>()
+const optionsDivRef = ref<{ $el?: HTMLElement; handleKeydown: (event: KeyboardEvent) => void }>()
 
 const { optionsTop, optionsLeft, optionsWidth, positionDropdown } = useDropdownPosition(
   optionsRef,
@@ -51,6 +52,14 @@ const optionsWithEmptyOption = computed(() => {
   return [emptyOptionText.value, ...dropdownOptions]
 })
 
+const selectedOption = computed(() => {
+  if (includeEmptyOption && !value) {
+    return emptyOptionText.value
+  }
+
+  return value
+})
+
 const optionsPanelElement = computed(() => optionsDivRef.value?.$el)
 
 useClickOutside(
@@ -70,6 +79,7 @@ defineExpose({
 
     isOptionsVisible.value = false
   },
+  handleKeydown,
 })
 
 onMounted(async () => {
@@ -77,6 +87,31 @@ onMounted(async () => {
     await positionDropdown(true)
   }
 })
+
+// Keys from the trigger arrive here via the parent; keys from the teleported
+// search input arrive via handleClosingKey on the options panel.
+function handleKeydown(event: KeyboardEvent) {
+  if (handleClosingKey(event)) {
+    return
+  }
+
+  optionsDivRef.value?.handleKeydown(event)
+}
+
+function handleClosingKey(event: KeyboardEvent): boolean {
+  if (event.key === 'Escape') {
+    isOptionsVisible.value = false
+    emit('escape')
+    return true
+  }
+
+  if (event.key === 'Tab') {
+    isOptionsVisible.value = false
+    return true
+  }
+
+  return false
+}
 
 async function handleDropdownOptionsClick(option: string) {
   isOptionsVisible.value = false
@@ -116,11 +151,13 @@ async function toggleOptionsVisibility() {
       v-if="isOptionsVisible"
       ref="optionsDivRef"
       :options="optionsWithEmptyOption"
+      :selected-option="selectedOption"
       :options-style="dropdownOptionsStyle"
       :searchable="searchable"
       :on-create-option="onCreateOption"
       @dropdown-option-click="handleDropdownOptionsClick"
       @option-created="handleOptionCreated"
+      @keydown="handleClosingKey"
     />
   </Teleport>
 </template>

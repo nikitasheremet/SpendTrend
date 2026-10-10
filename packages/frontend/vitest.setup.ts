@@ -7,3 +7,6 @@ class ResizeObserverMock implements ResizeObserver {
 }
 
 globalThis.ResizeObserver ??= ResizeObserverMock
+
+// jsdom does not implement scrollIntoView
+Element.prototype.scrollIntoView ??= function scrollIntoView() {}
