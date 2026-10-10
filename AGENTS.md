@@ -9,6 +9,13 @@ npm workspaces monorepo:
 - `packages/backend` — Koa/Hono API, Drizzle ORM (Postgres)
 - `contracts` — shared TypeScript types built via `tsc -b`
 
+## Branching
+
+Start every change on a fresh branch cut from `dev` (naming in
+`docs/agents/issue-tracker.md`) and open the PR back into `dev`. This holds even
+when a skill or workflow says to commit to the current branch. Commit directly
+to `dev` only when the user explicitly asks for that.
+
 ## Code ordering: newspaper style
 
 Order declarations so a reader hits the important thing first and the supporting
