@@ -41,9 +41,7 @@ function handleInput(optionSelected: string) {
 }
 
 function handleKey(keyboardEvent: KeyboardEvent) {
-  if (keyboardEvent.key === 'Escape') {
-    emit('escapeKeyPressed')
-  }
+  innerSelectRef.value?.handleKeydown(keyboardEvent)
 }
 
 function handleBlur(event: FocusEvent) {
@@ -70,6 +68,7 @@ function handleBlur(event: FocusEvent) {
       :searchable="props.searchable"
       :on-create-option="props.onCreateOption"
       @on-change="handleInput"
+      @escape="emit('escapeKeyPressed')"
     ></Select>
   </div>
 </template>
