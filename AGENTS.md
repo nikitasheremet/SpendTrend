@@ -56,7 +56,7 @@ that as the default posture unless told otherwise.
 
 ### Issue tracker
 
-Issues live in Linear (team **SpendTrend**, key `SPE`), accessed via the Linear MCP tools. See `docs/agents/issue-tracker.md`.
+Issues live in GitHub Issues on `nikitasheremet/SpendTrend`, accessed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
