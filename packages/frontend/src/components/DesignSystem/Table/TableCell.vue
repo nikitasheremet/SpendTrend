@@ -207,7 +207,7 @@ function handleDateChange() {
 <template>
   <td class="border p-1" :class="column.customClass">
     <!-- View mode or calculated/non-editable cells -->
-    <p v-if="!isEditable" class="p-1">
+    <p v-if="!isEditable" class="p-1 wrap-break-word">
       {{ formattedValue }}
     </p>
 
