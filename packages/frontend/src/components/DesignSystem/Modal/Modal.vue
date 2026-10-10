@@ -60,28 +60,41 @@ function handleBackdropClick(event: MouseEvent) {
           closeText || 'Close'
         }}</Button>
       </div>
-      <slot></slot>
+      <div class="modal-content">
+        <slot></slot>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+/* Fixed to the viewport so the backdrop covers whatever part of the page is
+   scrolled into view, and padded so the dialog never touches the edges. */
 #modal-outer-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
+  position: fixed;
+  inset: 0;
+  padding: 16px;
   z-index: 2000;
   background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
 }
+/* Capped to the backdrop's height; tall content scrolls inside .modal-content
+   while the close button stays pinned at the top. */
 #modal-inner-container {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  max-height: 100%;
   padding: 16px;
   padding-bottom: 24px;
   background: white;
+}
+
+.modal-content {
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .modal-close-container {

@@ -14,6 +14,9 @@ import { computed } from 'vue'
 const EXPENSE_TAB = 'expense'
 const ZERO_COUNT = 0
 const MISSING_VALUE_FALLBACK = '-'
+// The modal body is its own scroll container, so the table header sticks to its
+// top rather than below the page nav bar.
+const MODAL_STICKY_TOP_OFFSET_PX = 0
 
 interface ExpenseDuplicateTableRow {
   rowKey: string
@@ -255,6 +258,7 @@ function requestIncomeDraftRowRemoval(draftIndex: number) {
         mode="view"
         row-key="rowKey"
         :progressive-render="false"
+        :sticky-top-offset-px="MODAL_STICKY_TOP_OFFSET_PX"
       />
     </div>
 
@@ -271,6 +275,7 @@ function requestIncomeDraftRowRemoval(draftIndex: number) {
         mode="view"
         row-key="rowKey"
         :progressive-render="false"
+        :sticky-top-offset-px="MODAL_STICKY_TOP_OFFSET_PX"
       />
     </div>
 
