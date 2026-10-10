@@ -1,5 +1,5 @@
 <script lang="ts" setup generic="T extends TableRowData">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import TableCell from './TableCell.vue'
 import Button from '../Button/Button.vue'
 import type { ColumnConfig, RowAction, TableRowData } from './types'
@@ -30,6 +30,10 @@ watch(
 function applyLocalEdit(key: keyof T, value: unknown) {
   localEdits.value[key] = value
 }
+
+// The row action whose handler is still running. While set, every action in
+// the row is locked so a double click can't fire a handler twice.
+const pendingAction = shallowRef<RowAction<T> | undefined>(undefined)
 
 const visibleRowActions = computed(() => {
   if (!props.rowActions || props.rowActions.length === 0) {
@@ -66,6 +70,19 @@ function handleCellUpdate(key: keyof T, value: unknown) {
 function handleLocalUpdate(key: keyof T, value: unknown) {
   applyLocalEdit(key, value)
 }
+
+async function runRowAction(action: RowAction<T>) {
+  if (pendingAction.value) {
+    return
+  }
+
+  pendingAction.value = action
+  try {
+    await action.handler(props.row, props.rowIndex)
+  } finally {
+    pendingAction.value = undefined
+  }
+}
 </script>
 
 <template>
@@ -92,7 +109,12 @@ function handleLocalUpdate(key: keyof T, value: unknown) {
       class="text-center p-1"
       :class="action.buttonClass"
     >
-      <Button class="w-8/10 text-sm" @click="action.handler(row, rowIndex)">
+      <Button
+        class="w-8/10 text-sm"
+        :loading="pendingAction === action"
+        :disabled="pendingAction !== undefined"
+        @click="runRowAction(action)"
+      >
         {{ action.label }}
       </Button>
     </td>

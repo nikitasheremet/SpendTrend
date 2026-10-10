@@ -23,14 +23,19 @@ const {
   type = 'primary',
   showIndicator = false,
   indicatorColor = 'yellow',
+  loading = false,
+  disabled = false,
 } = defineProps<{
   classToAdd?: string
   type?: keyof typeof classMap
   showIndicator?: boolean
   indicatorColor?: IndicatorColor
+  loading?: boolean
+  disabled?: boolean
 }>()
 
-const defaultClass = 'cursor-pointer relative group'
+const defaultClass =
+  'cursor-pointer relative group disabled:cursor-not-allowed disabled:opacity-60'
 const buttonClass = defaultClass + ' ' + (classToAdd || '') + ' ' + (classMap[type] || '')
 const indicatorClass =
   indicatorBaseClass +
@@ -38,7 +43,12 @@ const indicatorClass =
   (indicatorColorClassMap[indicatorColor] || indicatorColorClassMap.yellow)
 </script>
 <template>
-  <button :class="buttonClass">
+  <button :class="buttonClass" :disabled="disabled || loading" :aria-busy="loading || undefined">
+    <span
+      v-if="loading"
+      class="inline-block w-3 h-3 mr-1.5 align-[-0.125em] border-2 border-gray-300 border-t-gray-700 rounded-full animate-spin"
+      aria-hidden="true"
+    ></span>
     <slot></slot>
     <span v-if="showIndicator" :class="indicatorClass" aria-hidden="true"></span>
   </button>
