@@ -1,0 +1,13 @@
+{
+  "features": [
+    "Pick from table dropdowns with your keyboard: use the up and down arrows to move through the options, press Enter to choose one, and press Escape to close the dropdown without changing anything.",
+    "Delete buttons now show a loading spinner while a row is being deleted, so it's clear something is happening and a second click can't delete it twice."
+  ],
+  "bugFixes": [
+    "You can now save expenses without a category. Before, the app let you leave the category empty, but saving failed.",
+    "When your session expires, the app now takes you back to the login screen as soon as you try to do something. Before, edits, saves and deletes failed silently until you refreshed the page.",
+    "Expenses and incomes you've added but not saved yet are no longer lost when you log back in after your session expires.",
+    "Long lists in a pop-up window, such as the duplicates review, now scroll inside the window instead of stretching past the edge of the screen, and the page behind no longer scrolls.",
+    "Table headings inside a pop-up window now stay readable when you scroll, and long text without spaces wraps inside its cell instead of spilling into the next column."
+  ]
+}
