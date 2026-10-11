@@ -1,3 +1,5 @@
+import { throwIfNotOk } from './throwIfNotOk'
+
 const BASE_URL = import.meta.env.VITE_BACKEND_URL
 
 export async function post<T>(endpoint: string, payload: unknown): Promise<T> {
@@ -11,9 +13,7 @@ export async function post<T>(endpoint: string, payload: unknown): Promise<T> {
       credentials: 'include',
     })
 
-    if (!response.ok) {
-      throw new Error(`HTTP Error: Status: ${response.status}`)
-    }
+    throwIfNotOk(response)
 
     const data = await response.json()
     return data

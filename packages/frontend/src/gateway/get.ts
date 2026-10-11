@@ -1,4 +1,4 @@
-import { handleUnauthorized } from './handleUnathorized'
+import { throwIfNotOk } from './throwIfNotOk'
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL
 
@@ -17,13 +17,7 @@ export async function get<T>(endpoint: string, queryParams: Record<string, strin
       credentials: 'include',
     })
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        handleUnauthorized() // Handle unauthorized access
-      } else {
-        throw new Error(`HTTP Error: Status: ${response.status}`)
-      }
-    }
+    throwIfNotOk(response)
 
     const data = await response.json()
     return data

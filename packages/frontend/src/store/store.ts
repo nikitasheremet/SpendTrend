@@ -211,15 +211,17 @@ export async function createStore() {
     selectedMonth: summaryPeriodDomain.selectedMonth,
     selectedYear: summaryPeriodDomain.selectedYear,
   } as Store
+
+  // Load drafts before fetching so a failed fetch (e.g. expired session) can't leave
+  // them empty in memory, where the persistence watcher would overwrite localStorage
+  draftsDomain.newExpenses.value = loadExpensesFromStorage()
+  draftsDomain.newIncomes.value = loadIncomesFromStorage()
+
   try {
     const initialData = await fetchInitialStoreData()
     categoriesDomain.categories.value = initialData.categories
     expensesDomain.expenses.value = initialData.expenses
     incomesDomain.incomes.value = initialData.incomes
-
-    // Load expenses and incomes from localStorage
-    draftsDomain.newExpenses.value = loadExpensesFromStorage()
-    draftsDomain.newIncomes.value = loadIncomesFromStorage()
 
     expenseDuplicatesDomain.syncExistingExpenses(expensesDomain.expenses.value)
     incomeDuplicatesDomain.syncExistingIncomes(incomesDomain.incomes.value)

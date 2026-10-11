@@ -1,5 +1,7 @@
 import { onMounted, onUnmounted, ref, toValue, watch, type MaybeRefOrGetter, type Ref } from 'vue'
 
+const SCROLLABLE_OVERFLOW_VALUES = ['auto', 'scroll', 'overlay']
+
 type UseScrollPastOptions = {
   triggerOffsetPx?: MaybeRefOrGetter<number>
 }
@@ -10,6 +12,9 @@ export function useScrollPast(
 ) {
   const hasScrolledPast = ref(false)
   const initialOffsetTop = ref<number | null>(null)
+  // The nearest scrolling ancestor (e.g. a modal body), or null when the
+  // element scrolls with the window.
+  let scrollContainer: HTMLElement | null = null
 
   function checkScrollPosition() {
     if (!elementRef.value) {
@@ -17,10 +22,12 @@ export function useScrollPast(
     }
 
     if (initialOffsetTop.value === null) {
-      initialOffsetTop.value = elementRef.value.offsetTop
+      initialOffsetTop.value = getOffsetTopWithin(elementRef.value, scrollContainer)
     }
 
-    const scrollPosition = window.scrollY || window.pageYOffset
+    const scrollPosition = scrollContainer
+      ? scrollContainer.scrollTop
+      : window.scrollY || window.pageYOffset
     const scrollThreshold = initialOffsetTop.value - toValue(triggerOffsetPx)
 
     hasScrolledPast.value = scrollPosition > scrollThreshold
@@ -31,15 +38,43 @@ export function useScrollPast(
   watch(() => toValue(triggerOffsetPx), checkScrollPosition)
 
   onMounted(() => {
+    scrollContainer = findScrollContainer(elementRef.value)
     checkScrollPosition()
-    window.addEventListener('scroll', checkScrollPosition)
+    getScrollTarget().addEventListener('scroll', checkScrollPosition)
   })
 
   onUnmounted(() => {
-    window.removeEventListener('scroll', checkScrollPosition)
+    getScrollTarget().removeEventListener('scroll', checkScrollPosition)
   })
+
+  function getScrollTarget(): HTMLElement | Window {
+    return scrollContainer ?? window
+  }
 
   return {
     hasScrolledPast,
   }
+}
+
+function findScrollContainer(element: HTMLElement | null): HTMLElement | null {
+  let ancestor = element?.parentElement ?? null
+  while (ancestor) {
+    if (SCROLLABLE_OVERFLOW_VALUES.includes(getComputedStyle(ancestor).overflowY)) {
+      return ancestor
+    }
+    ancestor = ancestor.parentElement
+  }
+  return null
+}
+
+function getOffsetTopWithin(element: HTMLElement, scrollContainer: HTMLElement | null): number {
+  if (!scrollContainer) {
+    return element.offsetTop
+  }
+
+  return (
+    element.getBoundingClientRect().top -
+    scrollContainer.getBoundingClientRect().top +
+    scrollContainer.scrollTop
+  )
 }

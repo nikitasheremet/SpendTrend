@@ -1,4 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
+import { render, screen, waitFor, type RenderOptions } from '@testing-library/vue'
+import userEvent from '@testing-library/user-event'
 import { mount } from '@vue/test-utils'
 import TableRow from '../TableRow.vue'
 import TableCell from '../TableCell.vue'
@@ -193,4 +195,94 @@ describe('TableRow', () => {
       expect(updatedCell.props('row').name).toBe('Server Updated')
     })
   })
+})
+
+describe('TableRow row action loading state', () => {
+  const nameColumn: ColumnConfig<FakeRow>[] = [{ key: 'name', label: 'Name', type: 'text' }]
+
+  it('locks the clicked action button with a loading indicator until its handler settles', async () => {
+    const deferred = createDeferred()
+    renderRowWithActions([{ label: 'Delete', handler: () => deferred.promise }])
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+    const deleteButton = screen.getByRole('button', { name: 'Delete' })
+    expect(deleteButton).toBeDisabled()
+    expect(deleteButton).toHaveAttribute('aria-busy', 'true')
+
+    deferred.resolve()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled())
+    expect(screen.getByRole('button', { name: 'Delete' })).not.toHaveAttribute('aria-busy')
+  })
+
+  it('does not call the handler again when clicked while still pending', async () => {
+    const deferred = createDeferred()
+    const handler = vi.fn(() => deferred.promise)
+    renderRowWithActions([{ label: 'Delete', handler }])
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+    await user.dblClick(screen.getByRole('button', { name: 'Delete' }))
+
+    expect(handler).toHaveBeenCalledTimes(1)
+    deferred.resolve()
+  })
+
+  it('disables the row’s other actions while one is pending', async () => {
+    const deferred = createDeferred()
+    renderRowWithActions([
+      { label: 'Delete', handler: () => deferred.promise },
+      { label: '>> Income', handler: vi.fn() },
+    ])
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+    const otherButton = screen.getByRole('button', { name: '>> Income' })
+    expect(otherButton).toBeDisabled()
+    expect(otherButton).not.toHaveAttribute('aria-busy')
+    deferred.resolve()
+  })
+
+  it('unlocks the button when the handler fails so the user can retry', async () => {
+    const deleteError = new Error('delete failed')
+    const handler = vi.fn().mockRejectedValueOnce(deleteError).mockResolvedValueOnce(undefined)
+    const errorHandler = vi.fn()
+    renderRowWithActions([{ label: 'Delete', handler }], { config: { errorHandler } })
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+    await waitFor(() => expect(errorHandler).toHaveBeenCalled())
+    expect(errorHandler.mock.calls[0][0]).toBe(deleteError)
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled()
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+    expect(handler).toHaveBeenCalledTimes(2)
+  })
+
+  function renderRowWithActions(
+    rowActions: RowAction<FakeRow>[],
+    global: RenderOptions<typeof TableRow>['global'] = {},
+  ) {
+    return render(TableRow<FakeRow>, {
+      props: {
+        row: { name: 'Test' },
+        rowIndex: 0,
+        columns: nameColumn,
+        mode: 'editable',
+        rowActions,
+      },
+      global,
+    })
+  }
+
+  function createDeferred() {
+    let resolve!: () => void
+    const promise = new Promise<void>((res) => {
+      resolve = res
+    })
+    return { promise, resolve }
+  }
 })
