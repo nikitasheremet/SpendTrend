@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "vite build",
-    "build:dev": "vite build && NODE_ENV=dev drizzle-kit migrate",
+    "build": "npm run build:bundle && drizzle-kit migrate",
+    "build:bundle": "vite build",
     "start": "node dist/server.js",
     "start:dev": "NODE_ENV=dev node dist/server.js",
     "local": "NODE_ENV=local vite-node src/server.ts",
