@@ -24,6 +24,8 @@ import {
   getIncomesHandler,
   updateIncomeHandler,
 } from './income/handler'
+import { createFailedPasteReportHandler } from './failedPasteReport/handler/createFailedPasteReportHandler'
+import './models/sessionUser'
 
 export function createApp() {
   const app = new Hono()
@@ -56,6 +58,9 @@ export function createApp() {
       if (!session?.session || new Date() > new Date(session.session.expiresAt)) {
         return ctx.json({ error: 'Unauthorized' }, 401)
       }
+      // accountId is added by the customSession plugin, which the Auth type doesn't know about.
+      const sessionUser = session.user as typeof session.user & { accountId: string }
+      ctx.set('sessionUser', { id: sessionUser.id, accountId: sessionUser.accountId })
     }
     await next()
   })
@@ -79,6 +84,7 @@ export function createApp() {
   app.post('/deleteincome', deleteIncomeHandler)
   app.get('/incomes', getIncomesHandler)
   app.put('/updateincome', updateIncomeHandler)
+  app.post('/createfailedpastereport', createFailedPasteReportHandler)
 
   return app
 }

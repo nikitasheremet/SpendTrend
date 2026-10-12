@@ -1,4 +1,5 @@
 import { handleUnauthorized } from './handleUnathorized'
+import { HttpError } from './httpError'
 
 const UNAUTHORIZED_STATUS = 401
 
@@ -11,5 +12,5 @@ export function throwIfNotOk(response: Response) {
     handleUnauthorized()
   }
 
-  throw new Error(`HTTP Error: Status: ${response.status}`)
+  throw new HttpError(response.status)
 }

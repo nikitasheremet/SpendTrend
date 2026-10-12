@@ -5,6 +5,7 @@ import Button from '@/components/DesignSystem/Button/Button.vue'
 import TabViewNav from '@/components/DesignSystem/TabViewNav/TabViewNav.vue'
 import DuplicateReviewModal from '@/components/DuplicateReviewModal/DuplicateReviewModal.vue'
 import PasteSummaryPopover from '@/components/AddDataView/PasteSummaryPopover.vue'
+import FailedPasteReportModal from '@/components/FailedPasteReportModal/FailedPasteReportModal.vue'
 import { NewExpense } from '@/types/expenseData'
 import { NewIncome } from '@/types/income/income'
 import { computed, inject, ref } from 'vue'
@@ -17,6 +18,7 @@ import { useElementHeight } from '@/helpers/hooks/useElementHeight'
 import { getThemeSpacingPx } from '@/helpers/css/getThemeSpacingPx'
 import { POPOVER_SYMBOL } from '@/types/providedSymbols'
 import type { PopoverRef } from '@/types/designSystem'
+import type { LastAddDataPaste } from '@/types/lastAddDataPaste'
 
 const TAB_EXPENSE = 'expense'
 const TAB_INCOME = 'income'
@@ -31,10 +33,13 @@ const addDataTabs = [
 ]
 
 const duplicatesButtonLabel = 'Duplicates'
+const reportButtonLabel = 'Report a problem'
 const formatDataPlaceholder = 'Paste your bank data here. Copy it directly from your bank website'
 
 const store = getStore()
 const popover = inject<PopoverRef>(POPOVER_SYMBOL)
+const lastPaste = ref<LastAddDataPaste | null>(null)
+const isLastPasteReported = ref(false)
 const currentTab = ref<typeof TAB_EXPENSE | typeof TAB_INCOME>(TAB_EXPENSE)
 const tabsRowRef = ref<HTMLElement | null>(null)
 const navHeightPx = getThemeSpacingPx('nav')
@@ -49,6 +54,11 @@ const {
   closeModal: closeDuplicatesModal,
 } = useControlModal()
 const duplicateModalVisibleDataTab = ref<typeof TAB_EXPENSE | typeof TAB_INCOME>(TAB_EXPENSE)
+const {
+  isModalOpen: isReportModalOpen,
+  openModal: openReportModal,
+  closeModal: closeReportModal,
+} = useControlModal()
 const isExpenseSaveReviewPending = ref(false)
 const isIncomeSaveReviewPending = ref(false)
 
@@ -100,7 +110,9 @@ let resolvePendingExpenseSave: ((shouldContinueSaving: boolean) => void) | null 
 let pendingIncomeSavePromise: Promise<boolean> | null = null
 let resolvePendingIncomeSave: ((shouldContinueSaving: boolean) => void) | null = null
 
-function formatData(dataToFormat: string) {
+function formatData(
+  dataToFormat: string,
+): Pick<LastAddDataPaste, 'parsedRows' | 'expenseCount' | 'incomeCount'> {
   const createdData = formatPastedBankData(dataToFormat)
   console.log('Created data:', createdData)
   const newExpensesToAdd = createdData
@@ -133,6 +145,12 @@ function formatData(dataToFormat: string) {
     },
     { timeout: 5000 },
   )
+
+  return {
+    parsedRows: createdData,
+    expenseCount: newExpensesToAdd.length,
+    incomeCount: newIncomesToAdd.length,
+  }
 }
 
 function moveToIncome(expense: NewExpense) {
@@ -158,8 +176,22 @@ function moveToExpense(income: NewIncome) {
 function handlePaste(event: ClipboardEvent) {
   const clipboardData = event.clipboardData
   if (clipboardData) {
-    formatData(clipboardData.getData('text/html'))
+    const html = clipboardData.getData('text/html')
+    const pasteResult = formatData(html)
+    lastPaste.value = {
+      ...pasteResult,
+      html,
+      text: clipboardData.getData('text/plain'),
+      clipboardTypes: Array.from(clipboardData.types ?? []),
+      pastedAt: new Date().toISOString(),
+    }
+    isLastPasteReported.value = false
   }
+}
+
+function handleReportSent() {
+  isLastPasteReported.value = true
+  closeReportModal()
 }
 
 function handleMainTabClick(tabValue: string) {
@@ -287,6 +319,9 @@ function removeIncomeDuplicateDraftRow(draftIndex: number) {
       readonly
       @paste.prevent="handlePaste"
     />
+    <Button type="secondary" :disabled="!lastPaste || isLastPasteReported" @click="openReportModal">
+      {{ reportButtonLabel }}
+    </Button>
   </div>
   <div
     ref="tabsRowRef"
@@ -320,6 +355,14 @@ function removeIncomeDuplicateDraftRow(draftIndex: number) {
       @move-to-expense="moveToExpense"
     />
   </div>
+
+  <FailedPasteReportModal
+    v-if="lastPaste"
+    :is-modal-open="isReportModalOpen"
+    :last-paste="lastPaste"
+    @modal-closed="closeReportModal"
+    @report-sent="handleReportSent"
+  />
 
   <DuplicateReviewModal
     :is-modal-open="isDuplicatesModalOpen"

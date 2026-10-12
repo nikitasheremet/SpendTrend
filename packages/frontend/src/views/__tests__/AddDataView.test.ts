@@ -15,6 +15,8 @@ import {
 import { formatPastedBankData } from '@/helpers/bankInfoFormatting/formatPastedBankData'
 import { DataType } from '@/helpers/bankInfoFormatting/bankInfoTypes'
 import { POPOVER_SYMBOL } from '@/types/providedSymbols'
+import { createFailedPasteReport } from '@/gateway/failedPasteReport/createFailedPasteReport'
+import { HttpError } from '@/gateway/httpError'
 import AddDataView from '../AddDataView.vue'
 
 interface MockStoreContext {
@@ -99,6 +101,12 @@ vi.mock('@/helpers/bankInfoFormatting/formatPastedBankData', () => ({
 }))
 
 const mockFormatPastedBankData = vi.mocked(formatPastedBankData)
+
+vi.mock('@/gateway/failedPasteReport/createFailedPasteReport', () => ({
+  createFailedPasteReport: vi.fn(),
+}))
+
+const mockCreateFailedPasteReport = vi.mocked(createFailedPasteReport)
 
 vi.mock('@/components/AddExpenseTable/AddExpenseTable.vue', async () => {
   return {
@@ -609,7 +617,8 @@ describe('when AddDataView is rendered', () => {
   })
 })
 
-const pasteTextareaPlaceholder = 'Paste your bank data here. Copy it directly from your bank website'
+const pasteTextareaPlaceholder =
+  'Paste your bank data here. Copy it directly from your bank website'
 
 describe('paste summary popover', () => {
   beforeEach(() => {
@@ -706,5 +715,250 @@ describe('paste summary popover', () => {
 
     expect(mockStoreContext.newExpensesRef.value).toHaveLength(1)
     expect(mockStoreContext.newExpensesRef.value[0].name).toBe('Coffee')
+  })
+})
+
+function firePasteWithClipboard(
+  textarea: HTMLElement,
+  clipboard: { html: string; text: string; types: string[] },
+) {
+  const pasteEvent = new Event('paste', { bubbles: true, cancelable: true })
+  Object.defineProperty(pasteEvent, 'clipboardData', {
+    value: {
+      types: clipboard.types,
+      getData: (format: string) => (format === 'text/html' ? clipboard.html : clipboard.text),
+    },
+  })
+  textarea.dispatchEvent(pasteEvent)
+}
+
+describe('Failed Add Data Paste Report', () => {
+  const reportButtonName = 'Report a problem'
+
+  async function fillInValidReport() {
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Bank' }), 'CIBC')
+    await userEvent.type(screen.getByRole('textbox', { name: 'What went wrong?' }), 'No rows')
+  }
+
+  function renderWithPopover() {
+    const showPopoverMock = vi.fn()
+    render(AddDataView, {
+      global: { provide: { [POPOVER_SYMBOL]: ref({ showPopover: showPopoverMock }) } },
+    })
+    return showPopoverMock
+  }
+
+  async function pasteAndOpenReport() {
+    firePasteWithClipboard(screen.getByPlaceholderText(pasteTextareaPlaceholder), {
+      html: '<table><tr><td>Oct 3, 2026</td><td>COFFEE</td><td>$5.00</td></tr></table>',
+      text: 'Oct 3, 2026\tCOFFEE\t$5.00',
+      types: ['text/html', 'text/plain'],
+    })
+    await userEvent.click(await screen.findByRole('button', { name: reportButtonName }))
+  }
+
+  beforeEach(() => {
+    resetStoreState()
+    mockCreateFailedPasteReport.mockReset()
+    mockCreateFailedPasteReport.mockResolvedValue(undefined)
+  })
+
+  it('keeps the report button disabled until an Add Data Paste has happened', () => {
+    render(AddDataView)
+
+    expect(screen.getByRole('button', { name: reportButtonName })).toBeDisabled()
+
+    firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
+
+    return vi.waitFor(() =>
+      expect(screen.getByRole('button', { name: reportButtonName })).toBeEnabled(),
+    )
+  })
+
+  it('sends the bank, message and details of the last paste', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-10-12T09:30:00.000Z'))
+    mockFormatPastedBankData.mockReturnValue([
+      { type: DataType.EXPENSE, date: '2026-10-03', name: 'COFFEE', amount: 5 },
+      { type: DataType.EXPENSE, date: '2026-10-03', name: 'TAXI', amount: 20 },
+      { type: DataType.INCOME, date: '2026-10-03', name: 'PAYROLL', amount: 1000 },
+    ])
+    render(AddDataView)
+
+    await pasteAndOpenReport()
+    vi.useRealTimers()
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Bank' }), 'TD')
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'What went wrong?' }),
+      'Payroll should be income',
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Send report' }))
+
+    expect(mockCreateFailedPasteReport).toHaveBeenCalledWith({
+      bank: 'TD',
+      message: 'Payroll should be income',
+      appVersion: __APP_VERSION__,
+      userAgent: window.navigator.userAgent,
+      pastedAt: '2026-10-12T09:30:00.000Z',
+      clipboardTypes: ['text/html', 'text/plain'],
+      expenseCount: 2,
+      incomeCount: 1,
+    })
+  })
+
+  it('thanks the user, closes the modal and disables the button until the next paste', async () => {
+    const showPopoverMock = renderWithPopover()
+
+    await pasteAndOpenReport()
+    await fillInValidReport()
+    await userEvent.click(screen.getByRole('button', { name: 'Send report' }))
+
+    expect(showPopoverMock).toHaveBeenLastCalledWith(
+      expect.anything(),
+      { message: 'Thanks — your report was sent' },
+      { timeout: 5000 },
+    )
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(screen.getByRole('button', { name: reportButtonName })).toBeDisabled()
+
+    firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
+
+    await vi.waitFor(() =>
+      expect(screen.getByRole('button', { name: reportButtonName })).toBeEnabled(),
+    )
+  })
+
+  it('blocks sending and explains why when the bank and message are missing', async () => {
+    render(AddDataView)
+
+    await pasteAndOpenReport()
+    await userEvent.type(screen.getByRole('textbox', { name: 'What went wrong?' }), '   ')
+    await userEvent.click(screen.getByRole('button', { name: 'Send report' }))
+
+    screen.getByText('Choose your bank')
+    screen.getByText('Describe what went wrong, in up to 2000 characters')
+    expect(mockCreateFailedPasteReport).not.toHaveBeenCalled()
+  })
+
+  it('blocks sending a message over 2000 characters', async () => {
+    render(AddDataView)
+
+    await pasteAndOpenReport()
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Bank' }), 'CIBC')
+    await userEvent.click(screen.getByRole('textbox', { name: 'What went wrong?' }))
+    await userEvent.paste('x'.repeat(2001))
+    await userEvent.click(screen.getByRole('button', { name: 'Send report' }))
+
+    screen.getByText('Describe what went wrong, in up to 2000 characters')
+    expect(mockCreateFailedPasteReport).not.toHaveBeenCalled()
+  })
+
+  it('only asks which bank when Other is picked, and requires it', async () => {
+    render(AddDataView)
+
+    await pasteAndOpenReport()
+    expect(screen.queryByRole('textbox', { name: 'Which bank?' })).toBeNull()
+
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Bank' }), 'Other')
+    await userEvent.type(screen.getByRole('textbox', { name: 'What went wrong?' }), 'No rows')
+    await userEvent.click(screen.getByRole('button', { name: 'Send report' }))
+
+    screen.getByText("Enter your bank's name, in up to 100 characters")
+    expect(mockCreateFailedPasteReport).not.toHaveBeenCalled()
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'Which bank?' }), ' Tangerine ')
+    await userEvent.click(screen.getByRole('button', { name: 'Send report' }))
+
+    expect(mockCreateFailedPasteReport).toHaveBeenCalledWith(
+      expect.objectContaining({ bank: 'Other', otherBankName: 'Tangerine', message: 'No rows' }),
+    )
+  })
+
+  it('blocks a bank name over 100 characters', async () => {
+    render(AddDataView)
+
+    await pasteAndOpenReport()
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Bank' }), 'Other')
+    await userEvent.click(screen.getByRole('textbox', { name: 'Which bank?' }))
+    await userEvent.paste('x'.repeat(101))
+    await userEvent.type(screen.getByRole('textbox', { name: 'What went wrong?' }), 'No rows')
+    await userEvent.click(screen.getByRole('button', { name: 'Send report' }))
+
+    screen.getByText("Enter your bank's name, in up to 100 characters")
+    expect(mockCreateFailedPasteReport).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['the request fails', new HttpError(500), "Your report couldn't be sent. Please try again."],
+    [
+      "reporting isn't configured",
+      new HttpError(503),
+      "Reporting isn't available right now, so your report couldn't be sent.",
+    ],
+    [
+      'the network is down',
+      new TypeError('Failed to fetch'),
+      "Your report couldn't be sent. Please try again.",
+    ],
+  ])(
+    'shows an error and keeps the modal and input when %s',
+    async (_case, error, expectedMessage) => {
+      mockCreateFailedPasteReport.mockRejectedValue(error)
+      const showPopoverMock = renderWithPopover()
+
+      await pasteAndOpenReport()
+      await fillInValidReport()
+      await userEvent.click(screen.getByRole('button', { name: 'Send report' }))
+
+      expect(showPopoverMock).toHaveBeenLastCalledWith(
+        expect.anything(),
+        { message: expectedMessage },
+        { timeout: 5000, type: 'error' },
+      )
+      expect(screen.getByRole('combobox', { name: 'Bank' })).toHaveValue('CIBC')
+      expect(screen.getByRole('textbox', { name: 'What went wrong?' })).toHaveValue('No rows')
+      expect(screen.getByRole('button', { name: reportButtonName })).toBeEnabled()
+    },
+  )
+
+  it('tells the user what will be sent', async () => {
+    render(AddDataView)
+
+    await pasteAndOpenReport()
+
+    screen.getByText(
+      'We’ll send your bank, what went wrong, the app version, your browser, when you pasted, the clipboard formats and how many expenses and incomes were added, so we can fix the importer.',
+    )
+  })
+
+  it('starts the next report with an empty form', async () => {
+    render(AddDataView)
+
+    await pasteAndOpenReport()
+    await fillInValidReport()
+    await userEvent.click(screen.getByRole('button', { name: 'Send report' }))
+    await pasteAndOpenReport()
+
+    expect(screen.getByRole('combobox', { name: 'Bank' })).toHaveValue('')
+    expect(screen.getByRole('textbox', { name: 'What went wrong?' })).toHaveValue('')
+  })
+
+  it('disables sending while a report is on its way', async () => {
+    let finishSending: () => void = () => {}
+    mockCreateFailedPasteReport.mockReturnValue(
+      new Promise<void>((resolve) => {
+        finishSending = resolve
+      }),
+    )
+    render(AddDataView)
+
+    await pasteAndOpenReport()
+    await fillInValidReport()
+    await userEvent.click(screen.getByRole('button', { name: 'Send report' }))
+
+    expect(screen.getByRole('button', { name: 'Send report' })).toBeDisabled()
+    finishSending()
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(mockCreateFailedPasteReport).toHaveBeenCalledTimes(1)
   })
 })
