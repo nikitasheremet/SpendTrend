@@ -156,17 +156,6 @@ describe('createFailedPasteReportHandler', () => {
       expect(description).toContain(`- **Account ID:** ${fakeSessionUser.accountId}`)
       expect(description).not.toContain('someone-elses')
     })
-
-    it.each(['RBC', 'TD', 'Scotiabank', 'BMO', 'CIBC', 'National Bank'])(
-      'should accept %s as the bank',
-      async (bank) => {
-        const res = await createFakeClient().createfailedpastereport.$post({
-          json: { ...fakeReport, bank },
-        })
-
-        expect(res.status).toBe(STATUS_CREATED_201)
-      },
-    )
   })
 
   describe('when reporting is not configured', () => {

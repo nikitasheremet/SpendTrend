@@ -6,8 +6,10 @@ import { OTHER_BANK, type CreateFailedPasteReportInput } from '../validation/mod
 const REPORT_LABEL_NAMES = ['failed-paste-report', 'Bug']
 const TITLE_PREFIX = 'Failed Add Data Paste Report'
 const TITLE_MESSAGE_MAX_LENGTH = 60
-const PREFIXED_ENVIRONMENTS = ['dev', 'local']
-const PRODUCTION_ENVIRONMENT = 'production'
+const PREFIXED_ENVIRONMENTS: ReportEnvironment[] = ['dev', 'local']
+const PRODUCTION_ENVIRONMENT: ReportEnvironment = 'production'
+
+type ReportEnvironment = 'local' | 'dev' | 'production'
 
 export async function createFailedPasteReportService(
   report: CreateFailedPasteReportInput,
@@ -64,9 +66,11 @@ function buildDescription(report: CreateFailedPasteReportInput, sessionUser: Ses
 
 // Env vars are baked in at build time, so APP_ENV names the deployed environment;
 // NODE_ENV covers local runs. Anything unrecognised is treated as production.
-function getReportEnvironment(): string {
-  const environment = process.env.APP_ENV ?? process.env.NODE_ENV ?? PRODUCTION_ENVIRONMENT
-  return PREFIXED_ENVIRONMENTS.includes(environment) ? environment : PRODUCTION_ENVIRONMENT
+function getReportEnvironment(): ReportEnvironment {
+  const environment = process.env.APP_ENV ?? process.env.NODE_ENV
+  return (
+    PREFIXED_ENVIRONMENTS.find((prefixed) => prefixed === environment) ?? PRODUCTION_ENVIRONMENT
+  )
 }
 
 function describeBank(report: CreateFailedPasteReportInput): string {
@@ -83,8 +87,10 @@ function excerptMessage(message: string): string {
     return singleLineMessage
   }
 
-  const cut = singleLineMessage.slice(0, TITLE_MESSAGE_MAX_LENGTH + 1)
-  const lastSpaceIndex = cut.lastIndexOf(' ')
-  const wordBoundaryCut = lastSpaceIndex > 0 ? cut.slice(0, lastSpaceIndex) : cut.slice(0, -1)
+  // One extra character shows whether the last word runs past the limit.
+  const excerptCandidate = singleLineMessage.slice(0, TITLE_MESSAGE_MAX_LENGTH + 1)
+  const lastSpaceIndex = excerptCandidate.lastIndexOf(' ')
+  const wordBoundaryCut =
+    lastSpaceIndex > 0 ? excerptCandidate.slice(0, lastSpaceIndex) : excerptCandidate.slice(0, -1)
   return `${wordBoundaryCut.replace(/[\s,.;:]+$/, '')}…`
 }

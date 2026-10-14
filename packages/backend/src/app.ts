@@ -25,7 +25,13 @@ import {
   updateIncomeHandler,
 } from './income/handler'
 import { createFailedPasteReportHandler } from './failedPasteReport/handler/createFailedPasteReportHandler'
-import './models/sessionUser'
+import { type SessionUser } from './models/sessionUser'
+
+// e2e runs skip auth, so endpoints that read the session get this fixed user instead.
+const TEST_SESSION_USER: SessionUser = {
+  id: '00000000-0000-4000-8000-000000000001',
+  accountId: '00000000-0000-4000-8000-000000000002',
+}
 
 export function createApp() {
   const app = new Hono()
@@ -47,6 +53,7 @@ export function createApp() {
 
   app.use(async (ctx, next) => {
     if (process.env.NODE_ENV === 'test') {
+      ctx.set('sessionUser', TEST_SESSION_USER)
       await next()
       return
     }

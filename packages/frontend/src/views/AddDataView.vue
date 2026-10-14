@@ -33,7 +33,7 @@ const addDataTabs = [
 ]
 
 const duplicatesButtonLabel = 'Duplicates'
-const reportButtonLabel = 'Report a problem'
+const failedPasteReportButtonLabel = 'Report a problem'
 const formatDataPlaceholder = 'Paste your bank data here. Copy it directly from your bank website'
 
 const store = getStore()
@@ -110,7 +110,7 @@ let resolvePendingExpenseSave: ((shouldContinueSaving: boolean) => void) | null 
 let pendingIncomeSavePromise: Promise<boolean> | null = null
 let resolvePendingIncomeSave: ((shouldContinueSaving: boolean) => void) | null = null
 
-function formatData(
+function addPastedBankDataToDrafts(
   dataToFormat: string,
 ): Pick<LastAddDataPaste, 'parsedRows' | 'expenseCount' | 'incomeCount'> {
   const createdData = formatPastedBankData(dataToFormat)
@@ -177,7 +177,7 @@ function handlePaste(event: ClipboardEvent) {
   const clipboardData = event.clipboardData
   if (clipboardData) {
     const html = clipboardData.getData('text/html')
-    const pasteResult = formatData(html)
+    const pasteResult = addPastedBankDataToDrafts(html)
     lastPaste.value = {
       ...pasteResult,
       html,
@@ -320,7 +320,7 @@ function removeIncomeDuplicateDraftRow(draftIndex: number) {
       @paste.prevent="handlePaste"
     />
     <Button type="secondary" :disabled="!lastPaste || isLastPasteReported" @click="openReportModal">
-      {{ reportButtonLabel }}
+      {{ failedPasteReportButtonLabel }}
     </Button>
   </div>
   <div

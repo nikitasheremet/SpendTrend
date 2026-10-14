@@ -307,9 +307,19 @@ function resetStoreState() {
 }
 
 function firePaste(textarea: HTMLElement, html: string) {
+  firePasteWithClipboard(textarea, { html, text: '', types: ['text/html'] })
+}
+
+function firePasteWithClipboard(
+  textarea: HTMLElement,
+  clipboard: { html: string; text: string; types: string[] },
+) {
   const pasteEvent = new Event('paste', { bubbles: true, cancelable: true })
   Object.defineProperty(pasteEvent, 'clipboardData', {
-    value: { getData: () => html },
+    value: {
+      types: clipboard.types,
+      getData: (format: string) => (format === 'text/html' ? clipboard.html : clipboard.text),
+    },
   })
   textarea.dispatchEvent(pasteEvent)
 }
@@ -718,27 +728,8 @@ describe('paste summary popover', () => {
   })
 })
 
-function firePasteWithClipboard(
-  textarea: HTMLElement,
-  clipboard: { html: string; text: string; types: string[] },
-) {
-  const pasteEvent = new Event('paste', { bubbles: true, cancelable: true })
-  Object.defineProperty(pasteEvent, 'clipboardData', {
-    value: {
-      types: clipboard.types,
-      getData: (format: string) => (format === 'text/html' ? clipboard.html : clipboard.text),
-    },
-  })
-  textarea.dispatchEvent(pasteEvent)
-}
-
 describe('Failed Add Data Paste Report', () => {
-  const reportButtonName = 'Report a problem'
-
-  async function fillInValidReport() {
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Bank' }), 'CIBC')
-    await userEvent.type(screen.getByRole('textbox', { name: 'What went wrong?' }), 'No rows')
-  }
+  const failedPasteReportButtonName = 'Report a problem'
 
   function renderWithPopover() {
     const showPopoverMock = vi.fn()
@@ -754,7 +745,12 @@ describe('Failed Add Data Paste Report', () => {
       text: 'Oct 3, 2026\tCOFFEE\t$5.00',
       types: ['text/html', 'text/plain'],
     })
-    await userEvent.click(await screen.findByRole('button', { name: reportButtonName }))
+    await userEvent.click(await screen.findByRole('button', { name: failedPasteReportButtonName }))
+  }
+
+  async function fillInValidReport() {
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Bank' }), 'CIBC')
+    await userEvent.type(screen.getByRole('textbox', { name: 'What went wrong?' }), 'No rows')
   }
 
   beforeEach(() => {
@@ -766,12 +762,12 @@ describe('Failed Add Data Paste Report', () => {
   it('keeps the report button disabled until an Add Data Paste has happened', () => {
     render(AddDataView)
 
-    expect(screen.getByRole('button', { name: reportButtonName })).toBeDisabled()
+    expect(screen.getByRole('button', { name: failedPasteReportButtonName })).toBeDisabled()
 
     firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
 
     return vi.waitFor(() =>
-      expect(screen.getByRole('button', { name: reportButtonName })).toBeEnabled(),
+      expect(screen.getByRole('button', { name: failedPasteReportButtonName })).toBeEnabled(),
     )
   })
 
@@ -819,12 +815,12 @@ describe('Failed Add Data Paste Report', () => {
       { timeout: 5000 },
     )
     expect(screen.queryByRole('dialog')).toBeNull()
-    expect(screen.getByRole('button', { name: reportButtonName })).toBeDisabled()
+    expect(screen.getByRole('button', { name: failedPasteReportButtonName })).toBeDisabled()
 
     firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
 
     await vi.waitFor(() =>
-      expect(screen.getByRole('button', { name: reportButtonName })).toBeEnabled(),
+      expect(screen.getByRole('button', { name: failedPasteReportButtonName })).toBeEnabled(),
     )
   })
 
@@ -917,7 +913,7 @@ describe('Failed Add Data Paste Report', () => {
       )
       expect(screen.getByRole('combobox', { name: 'Bank' })).toHaveValue('CIBC')
       expect(screen.getByRole('textbox', { name: 'What went wrong?' })).toHaveValue('No rows')
-      expect(screen.getByRole('button', { name: reportButtonName })).toBeEnabled()
+      expect(screen.getByRole('button', { name: failedPasteReportButtonName })).toBeEnabled()
     },
   )
 
