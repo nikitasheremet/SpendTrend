@@ -13,7 +13,8 @@ export interface CreatedLinearIssue {
   identifier: string
 }
 
-// Files an issue in the SpendTrend team's Backlog, assigned to the owner of the API key.
+// Files an issue in the SpendTrend team's Backlog (or its default status if there's no Backlog),
+// assigned to the owner of the API key.
 export async function createLinearIssue({
   apiKey,
   title,
@@ -33,7 +34,7 @@ export async function createLinearIssue({
     {
       input: {
         teamId,
-        stateId: backlogStateId,
+        ...(backlogStateId && { stateId: backlogStateId }),
         assigneeId: viewerId,
         labelIds,
         title,
@@ -51,7 +52,7 @@ export async function createLinearIssue({
 
 async function fetchTeamDetails(
   apiKey: string,
-): Promise<{ teamId: string; backlogStateId: string; viewerId: string }> {
+): Promise<{ teamId: string; backlogStateId: string | undefined; viewerId: string }> {
   const data = await linearRequest<{
     viewer: { id: string }
     teams: { nodes: Array<{ id: string; states: { nodes: Array<{ id: string; name: string }> } }> }
@@ -71,12 +72,10 @@ async function fetchTeamDetails(
     throw new Error(`Linear team ${SPENDTREND_TEAM_KEY} not found`)
   }
 
+  // Without a Backlog state, issueCreate falls back to the team's default status.
   const backlogState = team.states.nodes.find((state) => state.name === BACKLOG_STATE_NAME)
-  if (!backlogState) {
-    throw new Error(`Linear state ${BACKLOG_STATE_NAME} not found`)
-  }
 
-  return { teamId: team.id, backlogStateId: backlogState.id, viewerId: data.viewer.id }
+  return { teamId: team.id, backlogStateId: backlogState?.id, viewerId: data.viewer.id }
 }
 
 // Labels can belong to the team or to the whole workspace.
