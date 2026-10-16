@@ -133,6 +133,7 @@ describe('scramblePaste', () => {
       'Sept. 3, 2026',
       'December 172025',
       '15 Jan 2026',
+      '15-Jan-2026',
       '2026-01-15',
       '01/15/2026',
     ])('should keep %s as it is', (date) => {

@@ -49,7 +49,7 @@ const DATE_SHAPES = [
   /^\d{4}\/\d{1,2}\/\d{1,2}$/,
   /^\d{1,2}\/\d{1,2}\/\d{2,4}$/,
   new RegExp(`^${MONTH_PATTERN}\\s+\\d{1,2},?\\s*\\d{4}$`, 'i'),
-  new RegExp(`^\\d{1,2}\\s+${MONTH_PATTERN},?\\s+\\d{4}$`, 'i'),
+  new RegExp(`^\\d{1,2}[\\s-]+${MONTH_PATTERN},?[\\s-]+\\d{4}$`, 'i'),
 ]
 
 // Scrambles an Add Data Paste so no real amounts, names or other text leave the browser,
