@@ -4,6 +4,7 @@ import type { PopoverMethods, PopoverOptions, PopoverType } from '@/types/design
 
 const typeClassMap: Record<PopoverType, string> = {
   info: 'bg-blue-50 border border-blue-300',
+  error: 'bg-red-50 border border-red-300',
 }
 
 const isVisible = ref(false)

@@ -24,6 +24,14 @@ import {
   getIncomesHandler,
   updateIncomeHandler,
 } from './income/handler'
+import { createFailedPasteReportHandler } from './failedPasteReport/handler/createFailedPasteReportHandler'
+import { type SessionUser } from './models/sessionUser'
+
+// e2e runs skip auth, so endpoints that read the session get this fixed user instead.
+const TEST_SESSION_USER: SessionUser = {
+  id: '00000000-0000-4000-8000-000000000001',
+  accountId: '00000000-0000-4000-8000-000000000002',
+}
 
 export function createApp() {
   const app = new Hono()
@@ -45,6 +53,7 @@ export function createApp() {
 
   app.use(async (ctx, next) => {
     if (process.env.NODE_ENV === 'test') {
+      ctx.set('sessionUser', TEST_SESSION_USER)
       await next()
       return
     }
@@ -56,6 +65,9 @@ export function createApp() {
       if (!session?.session || new Date() > new Date(session.session.expiresAt)) {
         return ctx.json({ error: 'Unauthorized' }, 401)
       }
+      // accountId is added by the customSession plugin, which the Auth type doesn't know about.
+      const sessionUser = session.user as typeof session.user & { accountId: string }
+      ctx.set('sessionUser', { id: sessionUser.id, accountId: sessionUser.accountId })
     }
     await next()
   })
@@ -79,6 +91,7 @@ export function createApp() {
   app.post('/deleteincome', deleteIncomeHandler)
   app.get('/incomes', getIncomesHandler)
   app.put('/updateincome', updateIncomeHandler)
+  app.post('/createfailedpastereport', createFailedPasteReportHandler)
 
   return app
 }
