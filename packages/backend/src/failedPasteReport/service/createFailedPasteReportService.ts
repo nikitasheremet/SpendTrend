@@ -15,7 +15,7 @@ const FIDELITY_MATCH_LINE = 'The scrambled paste parses the same way as the orig
 const FIDELITY_MISMATCH_LINE =
   '⚠️ Scrambling changed how the paste parses, so this report may not reproduce the problem.'
 const MISSING_DATE = '—'
-const FIDELITY_ROWS: Array<[string, keyof PasteFidelity['original']]> = [
+const FIDELITY_ROWS: Array<[string, keyof ReportFidelity['original']]> = [
   ['Rows', 'rowCount'],
   ['Expenses', 'expenseCount'],
   ['Incomes', 'incomeCount'],
@@ -23,8 +23,8 @@ const FIDELITY_ROWS: Array<[string, keyof PasteFidelity['original']]> = [
 ]
 
 type ReportEnvironment = 'local' | 'dev' | 'production'
-type PasteFidelity = CreateFailedPasteReportInput['fidelity']
-type ParsedRow = CreateFailedPasteReportInput['parsedRows'][number]
+type ReportFidelity = CreateFailedPasteReportInput['fidelity']
+type ReportParsedRow = CreateFailedPasteReportInput['parsedRows'][number]
 
 export async function createFailedPasteReportService(
   report: CreateFailedPasteReportInput,
@@ -109,7 +109,7 @@ function buildDescription(report: CreateFailedPasteReportInput, sessionUser: Ses
   ].join('\n')
 }
 
-function describeFidelity(fidelity: PasteFidelity): string[] {
+function describeFidelity(fidelity: ReportFidelity): string[] {
   return [
     fidelity.matches ? FIDELITY_MATCH_LINE : FIDELITY_MISMATCH_LINE,
     '',
@@ -121,7 +121,7 @@ function describeFidelity(fidelity: PasteFidelity): string[] {
   ]
 }
 
-function describeParsedRows(parsedRows: ParsedRow[]): string[] {
+function describeParsedRows(parsedRows: ReportParsedRow[]): string[] {
   if (parsedRows.length === 0) {
     return ['No rows were parsed from the scrambled HTML.']
   }
@@ -133,7 +133,7 @@ function describeParsedRows(parsedRows: ParsedRow[]): string[] {
     '| --- | --- | --- | --- | --- |',
     ...parsedRows.map(
       (row, index) =>
-        `| ${index + 1} | ${row.date || MISSING_DATE} | ${escapeTableCell(row.name)} | ${row.type} | ${row.amount} |`,
+        `| ${index + 1} | ${row.date ? escapeTableCell(row.date) : MISSING_DATE} | ${escapeTableCell(row.name)} | ${row.type} | ${row.amount} |`,
     ),
   ]
 }

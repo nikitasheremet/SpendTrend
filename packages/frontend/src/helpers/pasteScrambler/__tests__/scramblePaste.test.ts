@@ -97,6 +97,12 @@ describe('scramblePaste', () => {
     })
   })
 
+  it('should scramble digits from other scripts and drop combining accent marks', () => {
+    const { scrambledText } = scramble('', lowestRandom, '４５٣ Cafe\u0301 0')
+
+    expect(scrambledText).toBe('111 Aaaa 0')
+  })
+
   describe('allowlist', () => {
     it('should keep column words', () => {
       const columnWords = 'Date Description Debit Credit Withdrawal Deposit Balance Amount'

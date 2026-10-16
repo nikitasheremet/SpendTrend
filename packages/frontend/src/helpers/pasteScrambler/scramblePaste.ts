@@ -26,7 +26,11 @@ const KEPT_ATTRIBUTES = ['colspan', 'rowspan']
 const DIGITS = '123456789'
 const LOWERCASE_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
 const UPPERCASE_LETTERS = LOWERCASE_LETTERS.toUpperCase()
-const SCRAMBLED_CHARACTER_PATTERN = /[1-9]|\p{L}/gu
+// Every digit but 0, in any script, every letter, and the combining marks accents are
+// made of, which would otherwise outlive the letter they sat on.
+const SCRAMBLED_CHARACTER_PATTERN = /[^\P{N}0]|\p{L}|\p{M}/gu
+const COMBINING_MARK_PATTERN = /\p{M}/u
+const DIGIT_PATTERN = /\p{N}/u
 // Each cell and line is checked for a date on its own, as the parser reads cells.
 const CELL_BREAK_PATTERN = /([\t\r\n]+)/
 const ALLOWLIST_PATTERN = new RegExp(
@@ -63,16 +67,6 @@ export function scramblePaste(
   }
 }
 
-// Truncation can cut a row short in a way the parser throws on. The report should still
-// send, and the fidelity check then shows the rows went missing.
-function parseScrambledHtml(scrambledHtml: string): FormattedBankData[] {
-  try {
-    return formatPastedBankData(scrambledHtml)
-  } catch {
-    return []
-  }
-}
-
 function scrambleHtml(html: string, random: RandomSource): string {
   if (!html) {
     return ''
@@ -81,8 +75,8 @@ function scrambleHtml(html: string, random: RandomSource): string {
   const document = new DOMParser().parseFromString(html, 'text/html')
   // Template contents sit outside the tree, so they'd be skipped rather than scrambled.
   document.querySelectorAll('template').forEach((template) => template.remove())
-  document.querySelectorAll('*').forEach(removeAttributesExceptSpans)
-  for (const node of collectTextAndCommentNodes(document)) {
+  document.querySelectorAll('*').forEach(removeAttributesExceptColspanAndRowspan)
+  for (const node of collectCharacterDataNodes(document)) {
     if (node.nodeType === Node.COMMENT_NODE) {
       node.remove()
     } else {
@@ -92,7 +86,7 @@ function scrambleHtml(html: string, random: RandomSource): string {
   return document.documentElement.outerHTML
 }
 
-function removeAttributesExceptSpans(element: Element) {
+function removeAttributesExceptColspanAndRowspan(element: Element) {
   for (const attributeName of element.getAttributeNames()) {
     if (!KEPT_ATTRIBUTES.includes(attributeName)) {
       element.removeAttribute(attributeName)
@@ -100,10 +94,10 @@ function removeAttributesExceptSpans(element: Element) {
   }
 }
 
-function collectTextAndCommentNodes(document: Document): CharacterData[] {
+function collectCharacterDataNodes(document: Document): CharacterData[] {
   const walker = document.createTreeWalker(
     document.documentElement,
-    NodeFilter.SHOW_TEXT | NodeFilter.SHOW_COMMENT,
+    NodeFilter.SHOW_TEXT | NodeFilter.SHOW_CDATA_SECTION | NodeFilter.SHOW_COMMENT,
   )
   const nodes: CharacterData[] = []
   while (walker.nextNode()) {
@@ -142,7 +136,10 @@ function scrambleWords(text: string, random: RandomSource): string {
 
 function scrambleCharacters(text: string, random: RandomSource): string {
   return text.replace(SCRAMBLED_CHARACTER_PATTERN, (character) => {
-    if (DIGITS.includes(character)) {
+    if (COMBINING_MARK_PATTERN.test(character)) {
+      return ''
+    }
+    if (DIGIT_PATTERN.test(character)) {
       return pickOne(DIGITS, random)
     }
     const isUppercase = character !== character.toLowerCase()
@@ -163,6 +160,16 @@ function truncateToBytes(value: string, maxBytes: number): { value: string; isTr
   // A character cut in half decodes as a trailing replacement character, so drop it.
   const truncatedValue = new TextDecoder().decode(bytes.subarray(0, maxBytes))
   return { value: truncatedValue.replace(/�$/, ''), isTruncated: true }
+}
+
+// Truncation can cut a row short in a way the parser throws on. The report should still
+// send, and the fidelity check then shows the rows went missing.
+function parseScrambledHtml(scrambledHtml: string): FormattedBankData[] {
+  try {
+    return formatPastedBankData(scrambledHtml)
+  } catch {
+    return []
+  }
 }
 
 function compareParses(
