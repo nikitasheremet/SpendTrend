@@ -19,9 +19,13 @@ export interface ScrambledPaste {
   parsedRows: FormattedBankData[]
   fidelity: PasteFidelity
   isTruncated: boolean
+  areParsedRowsTruncated: boolean
 }
 
 const MAX_PASTE_BYTES = 2 * 1024 * 1024
+// Keeps the report's size bounded however many rows a paste has, or however long they are.
+const MAX_PARSED_ROWS = 500
+const MAX_PARSED_ROW_NAME_LENGTH = 200
 const KEPT_ATTRIBUTES = ['colspan', 'rowspan']
 const DIGITS = '123456789'
 const LOWERCASE_LETTERS = 'abcdefghijklmnopqrstuvwxyz'
@@ -56,14 +60,17 @@ export function scramblePaste(
 ): ScrambledPaste {
   const scrambledHtml = truncateToBytes(scrambleHtml(html, random), MAX_PASTE_BYTES)
   const scrambledText = truncateToBytes(scrambleText(text, random), MAX_PASTE_BYTES)
-  const parsedRows = parseScrambledHtml(scrambledHtml.value)
+  const scrambledRows = parseScrambledHtml(scrambledHtml.value)
+  const parsedRows = capParsedRows(scrambledRows)
 
   return {
     scrambledHtml: scrambledHtml.value,
     scrambledText: scrambledText.value,
-    parsedRows,
-    fidelity: compareParses(originalRows, parsedRows),
+    parsedRows: parsedRows.rows,
+    // Compares every scrambled row, not just the ones that are sent.
+    fidelity: compareParses(originalRows, scrambledRows),
     isTruncated: scrambledHtml.isTruncated || scrambledText.isTruncated,
+    areParsedRowsTruncated: parsedRows.isTruncated,
   }
 }
 
@@ -169,6 +176,19 @@ function parseScrambledHtml(scrambledHtml: string): FormattedBankData[] {
     return formatPastedBankData(scrambledHtml)
   } catch {
     return []
+  }
+}
+
+function capParsedRows(rows: FormattedBankData[]): {
+  rows: FormattedBankData[]
+  isTruncated: boolean
+} {
+  const isAnyNameTooLong = rows.some((row) => row.name.length > MAX_PARSED_ROW_NAME_LENGTH)
+  return {
+    rows: rows
+      .slice(0, MAX_PARSED_ROWS)
+      .map((row) => ({ ...row, name: row.name.slice(0, MAX_PARSED_ROW_NAME_LENGTH) })),
+    isTruncated: rows.length > MAX_PARSED_ROWS || isAnyNameTooLong,
   }
 }
 

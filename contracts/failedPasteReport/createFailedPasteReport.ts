@@ -44,10 +44,12 @@ export type CreateFailedPasteReportRequest = {
   incomeCount: number
   scrambledHtml: string
   scrambledText: string
-  // From parsing scrambledHtml, so they match the HTML that's sent.
+  // From parsing scrambledHtml, so they match the HTML that's sent. Cut down to at
+  // most 500 rows with names up to 200 characters, flagged by areParsedRowsTruncated.
   parsedRows: FailedPasteReportParsedRow[]
   fidelity: PasteFidelity
   isTruncated: boolean
+  areParsedRowsTruncated: boolean
 }
 
 export type CreateFailedPasteReportResponse = Record<string, never>

@@ -813,6 +813,7 @@ describe('Failed Add Data Paste Report', () => {
         matches: true,
       },
       isTruncated: false,
+      areParsedRowsTruncated: false,
     })
     expect(mockFormatPastedBankData).toHaveBeenLastCalledWith(
       expect.stringContaining('<td>AAAAAA</td><td>$1.00</td>'),

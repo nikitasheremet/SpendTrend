@@ -40,6 +40,7 @@ const fakeReport = {
     matches: true,
   },
   isTruncated: false,
+  areParsedRowsTruncated: false,
 }
 
 const MAX_SCRAMBLED_PASTE_LENGTH = 2 * 1024 * 1024
@@ -207,6 +208,29 @@ describe('createFailedPasteReportHandler', () => {
       )
     })
 
+    it('should say when the parsed rows were cut down', async () => {
+      await createFakeClient().createfailedpastereport.$post({
+        json: {
+          ...fakeReport,
+          fidelity: {
+            ...fakeReport.fidelity,
+            scrambled: { rowCount: 900, expenseCount: 400, incomeCount: 500, rowsWithoutDate: 0 },
+          },
+          areParsedRowsTruncated: true,
+        },
+      })
+
+      expect(mockCreateLinearIssue.mock.calls[0][0].description).toContain(
+        [
+          'From parsing the scrambled HTML.',
+          '',
+          '⚠️ Cut down to at most 500 rows, with names up to 200 characters. The scrambled HTML parses to 900 rows.',
+          '',
+          '| # | Date | Name | Type | Amount |',
+        ].join('\n'),
+      )
+    })
+
     it('should say when no rows were parsed', async () => {
       await createFakeClient().createfailedpastereport.$post({
         json: { ...fakeReport, parsedRows: [] },
@@ -344,6 +368,15 @@ describe('createFailedPasteReportHandler', () => {
         },
       ],
       ['a missing truncated flag', { isTruncated: undefined }],
+      ['a missing parsed rows truncated flag', { areParsedRowsTruncated: undefined }],
+      [
+        'more than 500 parsed rows',
+        { parsedRows: Array(501).fill({ type: 'expense', name: 'Aaa', amount: 1 }) },
+      ],
+      [
+        'a parsed row name over 200 characters',
+        { parsedRows: [{ type: 'expense', name: 'A'.repeat(201), amount: 1 }] },
+      ],
     ])('should return 422 and file nothing for %s', async (_case, override) => {
       const res = await createFakeClient().createfailedpastereport.$post({
         json: { ...fakeReport, ...override },

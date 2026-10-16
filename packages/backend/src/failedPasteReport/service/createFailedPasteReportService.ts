@@ -1,7 +1,12 @@
 import { createLinearIssue, type CreateLinearIssueInput } from '../../lib/linearClient'
 import type { SessionUser } from '../../models/sessionUser'
 import { ReportingNotConfiguredError } from '../../models/errors/reportingNotConfiguredError'
-import { OTHER_BANK, type CreateFailedPasteReportInput } from '../validation/models'
+import {
+  OTHER_BANK,
+  PARSED_ROWS_MAX_COUNT,
+  PARSED_ROW_NAME_MAX_LENGTH,
+  type CreateFailedPasteReportInput,
+} from '../validation/models'
 
 const REPORT_LABEL_NAMES = ['failed-paste-report', 'Bug']
 // Outside production, setting LINEAR_API_KEY to this logs the issue instead of filing it.
@@ -24,7 +29,6 @@ const FIDELITY_ROWS: Array<[string, keyof ReportFidelity['original']]> = [
 
 type ReportEnvironment = 'local' | 'dev' | 'production'
 type ReportFidelity = CreateFailedPasteReportInput['fidelity']
-type ReportParsedRow = CreateFailedPasteReportInput['parsedRows'][number]
 
 export async function createFailedPasteReportService(
   report: CreateFailedPasteReportInput,
@@ -105,7 +109,7 @@ function buildDescription(report: CreateFailedPasteReportInput, sessionUser: Ses
     '',
     '## Parsed rows',
     '',
-    ...describeParsedRows(report.parsedRows),
+    ...describeParsedRows(report),
   ].join('\n')
 }
 
@@ -121,14 +125,25 @@ function describeFidelity(fidelity: ReportFidelity): string[] {
   ]
 }
 
-function describeParsedRows(parsedRows: ReportParsedRow[]): string[] {
+function describeParsedRows({
+  parsedRows,
+  areParsedRowsTruncated,
+  fidelity,
+}: CreateFailedPasteReportInput): string[] {
   if (parsedRows.length === 0) {
     return ['No rows were parsed from the scrambled HTML.']
   }
 
+  const truncationNotice = areParsedRowsTruncated
+    ? [
+        `⚠️ Cut down to at most ${PARSED_ROWS_MAX_COUNT} rows, with names up to ${PARSED_ROW_NAME_MAX_LENGTH} characters. The scrambled HTML parses to ${fidelity.scrambled.rowCount} rows.`,
+        '',
+      ]
+    : []
   return [
     'From parsing the scrambled HTML.',
     '',
+    ...truncationNotice,
     '| # | Date | Name | Type | Amount |',
     '| --- | --- | --- | --- | --- |',
     ...parsedRows.map(

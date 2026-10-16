@@ -261,7 +261,31 @@ describe('scramblePaste', () => {
 
   describe('truncation', () => {
     it('should not be truncated for a typical paste', () => {
-      expect(scramble(DEBIT_CREDIT_TABLE_PASTE, lowestRandom, 'Coffee').isTruncated).toBe(false)
+      const result = scramble(DEBIT_CREDIT_TABLE_PASTE, lowestRandom, 'Coffee')
+
+      expect(result.isTruncated).toBe(false)
+      expect(result.areParsedRowsTruncated).toBe(false)
+    })
+
+    it('should send at most 500 parsed rows while the fidelity check counts them all', () => {
+      const html = `<table>${'<tr><td>Jan 15, 2026</td><td>Coffee</td><td>$5.00</td></tr>'.repeat(501)}</table>`
+
+      const { parsedRows, areParsedRowsTruncated, fidelity, isTruncated } = scramble(html)
+
+      expect(parsedRows).toHaveLength(500)
+      expect(areParsedRowsTruncated).toBe(true)
+      expect(fidelity.scrambled.rowCount).toBe(501)
+      expect(fidelity.matches).toBe(true)
+      expect(isTruncated).toBe(false)
+    })
+
+    it('should cut parsed row names down to 200 characters', () => {
+      const { parsedRows, areParsedRowsTruncated } = scramble(
+        `<table><tr><td>Jan 15, 2026</td><td>${'Coffee '.repeat(100)}</td><td>$5.00</td></tr></table>`,
+      )
+
+      expect(parsedRows[0].name).toBe('Aaaaaa '.repeat(100).trim().slice(0, 200))
+      expect(areParsedRowsTruncated).toBe(true)
     })
 
     it('should cut HTML down to 2 MB and say it was truncated', () => {
