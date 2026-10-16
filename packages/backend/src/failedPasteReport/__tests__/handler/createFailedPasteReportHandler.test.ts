@@ -170,6 +170,25 @@ describe('createFailedPasteReportHandler', () => {
     })
   })
 
+  describe('when the Linear API key is debug_only_print', () => {
+    it('should return 201 and log the issue it would have filed instead of sending it', async () => {
+      vi.stubEnv('LINEAR_API_KEY', 'debug_only_print')
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+      const res = await createFakeClient().createfailedpastereport.$post({ json: fakeReport })
+
+      expect(res.status).toBe(STATUS_CREATED_201)
+      expect(mockCreateLinearIssue).not.toHaveBeenCalled()
+      const loggedOutput = consoleLogSpy.mock.calls.flat().join('\n')
+      expect(loggedOutput).toContain(
+        'Failed Add Data Paste Report: CIBC – The amounts came through as income instead of expenses',
+      )
+      expect(loggedOutput).toContain('- **Account ID:** 123e4567-e89b-12d3-a456-426614174001')
+      expect(loggedOutput).toContain('failed-paste-report, Bug')
+      consoleLogSpy.mockRestore()
+    })
+  })
+
   describe('when Linear fails', () => {
     it('should return 500 with the error message', async () => {
       mockCreateLinearIssue.mockRejectedValue(new Error('Linear request failed (500)'))

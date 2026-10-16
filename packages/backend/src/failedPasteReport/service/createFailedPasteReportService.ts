@@ -1,9 +1,11 @@
-import { createLinearIssue } from '../../lib/linearClient'
+import { createLinearIssue, type CreateLinearIssueInput } from '../../lib/linearClient'
 import type { SessionUser } from '../../models/sessionUser'
 import { ReportingNotConfiguredError } from '../../models/errors/reportingNotConfiguredError'
 import { OTHER_BANK, type CreateFailedPasteReportInput } from '../validation/models'
 
 const REPORT_LABEL_NAMES = ['failed-paste-report', 'Bug']
+// Setting LINEAR_API_KEY to this logs the issue instead of filing it, for trying reports locally.
+const DEBUG_ONLY_PRINT_API_KEY = 'debug_only_print'
 const TITLE_PREFIX = 'Failed Add Data Paste Report'
 const TITLE_MESSAGE_MAX_LENGTH = 60
 const PREFIXED_ENVIRONMENTS: ReportEnvironment[] = ['dev', 'local']
@@ -20,12 +22,32 @@ export async function createFailedPasteReportService(
     throw new ReportingNotConfiguredError()
   }
 
-  await createLinearIssue({
-    apiKey,
+  const issue = {
     title: buildTitle(report),
     description: buildDescription(report, sessionUser),
     labelNames: REPORT_LABEL_NAMES,
-  })
+  }
+  if (apiKey === DEBUG_ONLY_PRINT_API_KEY) {
+    printIssue(issue)
+    return
+  }
+
+  await createLinearIssue({ apiKey, ...issue })
+}
+
+function printIssue({
+  title,
+  description,
+  labelNames,
+}: Omit<CreateLinearIssueInput, 'apiKey'>): void {
+  console.log(
+    [
+      'Failed Add Data Paste Report not sent to Linear (debug_only_print):',
+      `Title: ${title}`,
+      `Labels: ${labelNames.join(', ')}`,
+      description,
+    ].join('\n\n'),
+  )
 }
 
 function buildTitle(report: CreateFailedPasteReportInput): string {
