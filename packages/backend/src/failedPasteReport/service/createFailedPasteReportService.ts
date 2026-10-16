@@ -4,7 +4,8 @@ import { ReportingNotConfiguredError } from '../../models/errors/reportingNotCon
 import { OTHER_BANK, type CreateFailedPasteReportInput } from '../validation/models'
 
 const REPORT_LABEL_NAMES = ['failed-paste-report', 'Bug']
-// Setting LINEAR_API_KEY to this logs the issue instead of filing it, for trying reports locally.
+// Outside production, setting LINEAR_API_KEY to this logs the issue instead of filing it.
+// In production it counts as not configured, so reports can't silently go nowhere.
 const DEBUG_ONLY_PRINT_API_KEY = 'debug_only_print'
 const TITLE_PREFIX = 'Failed Add Data Paste Report'
 const TITLE_MESSAGE_MAX_LENGTH = 60
@@ -18,7 +19,8 @@ export async function createFailedPasteReportService(
   sessionUser: SessionUser,
 ): Promise<void> {
   const apiKey = process.env.LINEAR_API_KEY
-  if (!apiKey) {
+  const isDebugOnlyPrint = apiKey === DEBUG_ONLY_PRINT_API_KEY
+  if (!apiKey || (isDebugOnlyPrint && getReportEnvironment() === PRODUCTION_ENVIRONMENT)) {
     throw new ReportingNotConfiguredError()
   }
 
@@ -27,7 +29,7 @@ export async function createFailedPasteReportService(
     description: buildDescription(report, sessionUser),
     labelNames: REPORT_LABEL_NAMES,
   }
-  if (apiKey === DEBUG_ONLY_PRINT_API_KEY) {
+  if (isDebugOnlyPrint) {
     printIssue(issue)
     return
   }
