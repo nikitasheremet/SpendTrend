@@ -11,8 +11,20 @@ const TITLE_PREFIX = 'Failed Add Data Paste Report'
 const TITLE_MESSAGE_MAX_LENGTH = 60
 const PREFIXED_ENVIRONMENTS: ReportEnvironment[] = ['dev', 'local']
 const PRODUCTION_ENVIRONMENT: ReportEnvironment = 'production'
+const FIDELITY_MATCH_LINE = 'The scrambled paste parses the same way as the original.'
+const FIDELITY_MISMATCH_LINE =
+  '⚠️ Scrambling changed how the paste parses, so this report may not reproduce the problem.'
+const MISSING_DATE = '—'
+const FIDELITY_ROWS: Array<[string, keyof PasteFidelity['original']]> = [
+  ['Rows', 'rowCount'],
+  ['Expenses', 'expenseCount'],
+  ['Incomes', 'incomeCount'],
+  ['Rows with no date', 'rowsWithoutDate'],
+]
 
 type ReportEnvironment = 'local' | 'dev' | 'production'
+type PasteFidelity = CreateFailedPasteReportInput['fidelity']
+type ParsedRow = CreateFailedPasteReportInput['parsedRows'][number]
 
 export async function createFailedPasteReportService(
   report: CreateFailedPasteReportInput,
@@ -75,6 +87,7 @@ function buildDescription(report: CreateFailedPasteReportInput, sessionUser: Ses
     ['Clipboard formats', report.clipboardTypes.join(', ')],
     ['Expenses added', report.expenseCount],
     ['Incomes added', report.incomeCount],
+    ['Paste truncated', report.isTruncated ? 'Yes' : 'No'],
   ]
 
   return [
@@ -85,7 +98,50 @@ function buildDescription(report: CreateFailedPasteReportInput, sessionUser: Ses
     '## Report details',
     '',
     ...details.map(([label, value]) => `- **${label}:** ${value}`),
+    '',
+    '## Fidelity check',
+    '',
+    ...describeFidelity(report.fidelity),
+    '',
+    '## Parsed rows',
+    '',
+    ...describeParsedRows(report.parsedRows),
   ].join('\n')
+}
+
+function describeFidelity(fidelity: PasteFidelity): string[] {
+  return [
+    fidelity.matches ? FIDELITY_MATCH_LINE : FIDELITY_MISMATCH_LINE,
+    '',
+    '| | Original | Scrambled |',
+    '| --- | --- | --- |',
+    ...FIDELITY_ROWS.map(
+      ([label, key]) => `| ${label} | ${fidelity.original[key]} | ${fidelity.scrambled[key]} |`,
+    ),
+  ]
+}
+
+function describeParsedRows(parsedRows: ParsedRow[]): string[] {
+  if (parsedRows.length === 0) {
+    return ['No rows were parsed from the scrambled HTML.']
+  }
+
+  return [
+    'From parsing the scrambled HTML.',
+    '',
+    '| # | Date | Name | Type | Amount |',
+    '| --- | --- | --- | --- | --- |',
+    ...parsedRows.map(
+      (row, index) =>
+        `| ${index + 1} | ${row.date || MISSING_DATE} | ${escapeTableCell(row.name)} | ${row.type} | ${row.amount} |`,
+    ),
+  ]
+}
+
+// A pipe would end the cell and a line break would end the row. Backslashes are
+// escaped too, so one before a pipe can't undo the pipe's escape.
+function escapeTableCell(text: string): string {
+  return text.replace(/\s+/g, ' ').replace(/[\\|]/g, '\\$&')
 }
 
 // Env vars are baked in at build time, so APP_ENV names the deployed environment;

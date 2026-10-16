@@ -771,14 +771,18 @@ describe('Failed Add Data Paste Report', () => {
     )
   })
 
-  it('sends the bank, message and details of the last paste', async () => {
+  it('sends the bank, the unscrambled message and the scrambled last paste', async () => {
+    // Every scrambled digit becomes 1 and every scrambled letter a or A.
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0)
+    onTestFinished(() => randomSpy.mockRestore())
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date('2026-10-12T09:30:00.000Z'))
-    mockFormatPastedBankData.mockReturnValue([
+    const parsedRows = [
       { type: DataType.EXPENSE, date: '2026-10-03', name: 'COFFEE', amount: 5 },
       { type: DataType.EXPENSE, date: '2026-10-03', name: 'TAXI', amount: 20 },
       { type: DataType.INCOME, date: '2026-10-03', name: 'PAYROLL', amount: 1000 },
-    ])
+    ]
+    mockFormatPastedBankData.mockReturnValue(parsedRows)
     render(AddDataView)
 
     await pasteAndOpenReport()
@@ -799,7 +803,20 @@ describe('Failed Add Data Paste Report', () => {
       clipboardTypes: ['text/html', 'text/plain'],
       expenseCount: 2,
       incomeCount: 1,
+      scrambledHtml:
+        '<html><head></head><body><table><tbody><tr><td>Oct 3, 2026</td><td>AAAAAA</td><td>$1.00</td></tr></tbody></table></body></html>',
+      scrambledText: 'Oct 3, 2026\tAAAAAA\t$1.00',
+      parsedRows,
+      fidelity: {
+        original: { rowCount: 3, expenseCount: 2, incomeCount: 1, rowsWithoutDate: 0 },
+        scrambled: { rowCount: 3, expenseCount: 2, incomeCount: 1, rowsWithoutDate: 0 },
+        matches: true,
+      },
+      isTruncated: false,
     })
+    expect(mockFormatPastedBankData).toHaveBeenLastCalledWith(
+      expect.stringContaining('<td>AAAAAA</td><td>$1.00</td>'),
+    )
   })
 
   it('thanks the user, closes the modal and disables the button until the next paste', async () => {
@@ -917,13 +934,16 @@ describe('Failed Add Data Paste Report', () => {
     },
   )
 
-  it('tells the user what will be sent', async () => {
+  it('tells the user what will be sent and that their pasted data is scrambled', async () => {
     render(AddDataView)
 
     await pasteAndOpenReport()
 
     screen.getByText(
-      'We’ll send your bank, what went wrong, the app version, your browser, when you pasted, the clipboard formats and how many expenses and incomes were added, so we can fix the importer.',
+      'We’ll send your bank, what went wrong, the app version, your browser, when you pasted, the clipboard formats, how many expenses and incomes were added, and a copy of what you pasted with the rows we found in it, so we can fix the importer.',
+    )
+    screen.getByText(
+      'Your pasted data is scrambled before it’s sent, so no real amounts, names or other text leave your browser. What you write in “What went wrong?” is sent as you wrote it.',
     )
   })
 

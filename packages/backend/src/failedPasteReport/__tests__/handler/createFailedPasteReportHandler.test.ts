@@ -25,9 +25,24 @@ const fakeReport = {
   userAgent: 'Mozilla/5.0 (X11; Linux x86_64) Firefox/131.0',
   pastedAt: '2026-10-12T09:30:00.000Z',
   clipboardTypes: ['text/html', 'text/plain'],
-  expenseCount: 0,
-  incomeCount: 4,
+  expenseCount: 1,
+  incomeCount: 1,
+  scrambledHtml:
+    '<html><head></head><body><table><tbody><tr><td>Jan 15, 2026</td></tr></tbody></table></body></html>',
+  scrambledText: 'Jan 15, 2026\tAaaaaa\t$1.00',
+  parsedRows: [
+    { type: 'expense', date: '2026-01-15', name: 'Aaaaaa Aaaa', amount: 1.1 },
+    { type: 'income', name: 'Aaaaaa', amount: 1100 },
+  ],
+  fidelity: {
+    original: { rowCount: 2, expenseCount: 1, incomeCount: 1, rowsWithoutDate: 1 },
+    scrambled: { rowCount: 2, expenseCount: 1, incomeCount: 1, rowsWithoutDate: 1 },
+    matches: true,
+  },
+  isTruncated: false,
 }
+
+const MAX_SCRAMBLED_PASTE_LENGTH = 2 * 1024 * 1024
 
 function createFakeClient() {
   const fakeApp = new Hono()
@@ -94,7 +109,7 @@ describe('createFailedPasteReportHandler', () => {
       )
     })
 
-    it('should describe the report, quoting the message and stamping when it was reported', async () => {
+    it('should describe the report, quoting the message, stamping when it was reported and listing the parsed rows', async () => {
       vi.useFakeTimers({ toFake: ['Date'] })
       vi.setSystemTime(new Date('2026-10-12T09:35:00.000Z'))
 
@@ -121,9 +136,84 @@ describe('createFailedPasteReportHandler', () => {
           '- **Pasted at:** 2026-10-12T09:30:00.000Z',
           '- **Reported at:** 2026-10-12T09:35:00.000Z',
           '- **Clipboard formats:** text/html, text/plain',
-          '- **Expenses added:** 0',
-          '- **Incomes added:** 4',
+          '- **Expenses added:** 1',
+          '- **Incomes added:** 1',
+          '- **Paste truncated:** No',
+          '',
+          '## Fidelity check',
+          '',
+          'The scrambled paste parses the same way as the original.',
+          '',
+          '| | Original | Scrambled |',
+          '| --- | --- | --- |',
+          '| Rows | 2 | 2 |',
+          '| Expenses | 1 | 1 |',
+          '| Incomes | 1 | 1 |',
+          '| Rows with no date | 1 | 1 |',
+          '',
+          '## Parsed rows',
+          '',
+          'From parsing the scrambled HTML.',
+          '',
+          '| # | Date | Name | Type | Amount |',
+          '| --- | --- | --- | --- | --- |',
+          '| 1 | 2026-01-15 | Aaaaaa Aaaa | expense | 1.1 |',
+          '| 2 | — | Aaaaaa | income | 1100 |',
         ].join('\n'),
+      )
+    })
+
+    it('should warn when scrambling changed how the paste parses', async () => {
+      await createFakeClient().createfailedpastereport.$post({
+        json: {
+          ...fakeReport,
+          fidelity: {
+            ...fakeReport.fidelity,
+            scrambled: { rowCount: 1, expenseCount: 1, incomeCount: 0, rowsWithoutDate: 0 },
+            matches: false,
+          },
+        },
+      })
+
+      const { description } = mockCreateLinearIssue.mock.calls[0][0]
+      expect(description).toContain(
+        '⚠️ Scrambling changed how the paste parses, so this report may not reproduce the problem.',
+      )
+      expect(description).toContain('| Rows | 2 | 1 |')
+      expect(description).toContain('| Incomes | 1 | 0 |')
+      expect(description).not.toContain('parses the same way')
+    })
+
+    it('should say when the paste was truncated', async () => {
+      await createFakeClient().createfailedpastereport.$post({
+        json: { ...fakeReport, isTruncated: true },
+      })
+
+      expect(mockCreateLinearIssue.mock.calls[0][0].description).toContain(
+        '- **Paste truncated:** Yes',
+      )
+    })
+
+    it('should keep row names from breaking the parsed rows table', async () => {
+      await createFakeClient().createfailedpastereport.$post({
+        json: {
+          ...fakeReport,
+          parsedRows: [{ type: 'expense', name: 'Aaaa | Aaa\nAaaa \\', amount: 1 }],
+        },
+      })
+
+      expect(mockCreateLinearIssue.mock.calls[0][0].description).toContain(
+        '| 1 | — | Aaaa \\| Aaa Aaaa \\\\ | expense | 1 |',
+      )
+    })
+
+    it('should say when no rows were parsed', async () => {
+      await createFakeClient().createfailedpastereport.$post({
+        json: { ...fakeReport, parsedRows: [] },
+      })
+
+      expect(mockCreateLinearIssue.mock.calls[0][0].description).toMatch(
+        /## Parsed rows\n\nNo rows were parsed from the scrambled HTML\.$/,
       )
     })
 
@@ -229,6 +319,31 @@ describe('createFailedPasteReportHandler', () => {
       ['a message over 2000 characters', { message: 'x'.repeat(2001) }],
       ['a missing App Version', { appVersion: undefined }],
       ['a negative expense count', { expenseCount: -1 }],
+      ['missing scrambled HTML', { scrambledHtml: undefined }],
+      ['missing scrambled text', { scrambledText: undefined }],
+      ['scrambled HTML over 2 MB', { scrambledHtml: 'x'.repeat(MAX_SCRAMBLED_PASTE_LENGTH + 1) }],
+      ['scrambled text over 2 MB', { scrambledText: 'x'.repeat(MAX_SCRAMBLED_PASTE_LENGTH + 1) }],
+      ['parsed rows that are not a list', { parsedRows: 'none' }],
+      [
+        'a parsed row with an unknown type',
+        { parsedRows: [{ type: 'transfer', name: 'Aaa', amount: 1 }] },
+      ],
+      ['a parsed row without an amount', { parsedRows: [{ type: 'expense', name: 'Aaa' }] }],
+      ['a missing fidelity check', { fidelity: undefined }],
+      [
+        'a fidelity check without matches',
+        { fidelity: { ...fakeReport.fidelity, matches: undefined } },
+      ],
+      [
+        'a fidelity check with a negative count',
+        {
+          fidelity: {
+            ...fakeReport.fidelity,
+            original: { ...fakeReport.fidelity.original, rowsWithoutDate: -1 },
+          },
+        },
+      ],
+      ['a missing truncated flag', { isTruncated: undefined }],
     ])('should return 422 and file nothing for %s', async (_case, override) => {
       const res = await createFakeClient().createfailedpastereport.$post({
         json: { ...fakeReport, ...override },

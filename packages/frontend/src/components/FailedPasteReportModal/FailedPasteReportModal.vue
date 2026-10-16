@@ -6,6 +6,7 @@ import Input from '@/components/DesignSystem/Input.vue'
 import { createFailedPasteReport } from '@/gateway/failedPasteReport/createFailedPasteReport'
 import { REPORT_BANKS, type ReportBank } from '@contracts/failedPasteReport/createFailedPasteReport'
 import { HttpError } from '@/gateway/httpError'
+import { scramblePaste } from '@/helpers/pasteScrambler/scramblePaste'
 import MessagePopover from '@/components/DesignSystem/Popover/MessagePopover.vue'
 import type { LastAddDataPaste } from '@/types/lastAddDataPaste'
 import type { PopoverOptions, PopoverRef } from '@/types/designSystem'
@@ -18,7 +19,9 @@ const REPORTING_UNAVAILABLE_MESSAGE =
   "Reporting isn't available right now, so your report couldn't be sent."
 const STATUS_SERVICE_UNAVAILABLE = 503
 const WHAT_WILL_BE_SENT_NOTICE =
-  'We’ll send your bank, what went wrong, the app version, your browser, when you pasted, the clipboard formats and how many expenses and incomes were added, so we can fix the importer.'
+  'We’ll send your bank, what went wrong, the app version, your browser, when you pasted, the clipboard formats, how many expenses and incomes were added, and a copy of what you pasted with the rows we found in it, so we can fix the importer.'
+const SCRAMBLED_NOTICE =
+  'Your pasted data is scrambled before it’s sent, so no real amounts, names or other text leave your browser. What you write in “What went wrong?” is sent as you wrote it.'
 const OTHER_BANK = 'Other'
 const OTHER_BANK_NAME_MAX_LENGTH = 100
 const MESSAGE_MAX_LENGTH = 2000
@@ -68,6 +71,7 @@ async function sendReport() {
       clipboardTypes: lastPaste.clipboardTypes,
       expenseCount: lastPaste.expenseCount,
       incomeCount: lastPaste.incomeCount,
+      ...scramblePaste(lastPaste),
     })
   } catch (error) {
     showToast(describeSendFailure(error), { type: 'error' })
@@ -113,6 +117,7 @@ function isWithinLength(value: string, maxLength: number): boolean {
     <form class="flex flex-col gap-4 w-[min(32rem,80vw)]" novalidate @submit.prevent="sendReport">
       <h2 class="text-lg font-semibold">Report a failed paste</h2>
       <p class="text-sm text-gray-700">{{ WHAT_WILL_BE_SENT_NOTICE }}</p>
+      <p class="text-sm text-gray-700">{{ SCRAMBLED_NOTICE }}</p>
       <label class="flex flex-col gap-1">
         Bank
         <select v-model="bank" class="border border-gray-500 rounded-sm px-2 py-1">

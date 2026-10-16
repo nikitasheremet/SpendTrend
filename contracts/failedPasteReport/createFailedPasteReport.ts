@@ -10,6 +10,27 @@ export const REPORT_BANKS = [
 
 export type ReportBank = (typeof REPORT_BANKS)[number]
 
+export type FailedPasteReportParsedRow = {
+  type: 'expense' | 'income'
+  date?: string
+  name: string
+  amount: number
+}
+
+// Counts only, so the fidelity check never holds real values.
+export type PasteParseSummary = {
+  rowCount: number
+  expenseCount: number
+  incomeCount: number
+  rowsWithoutDate: number
+}
+
+export type PasteFidelity = {
+  original: PasteParseSummary
+  scrambled: PasteParseSummary
+  matches: boolean
+}
+
 // User and account come from the session on the server, so they're never sent.
 export type CreateFailedPasteReportRequest = {
   bank: ReportBank
@@ -21,6 +42,12 @@ export type CreateFailedPasteReportRequest = {
   clipboardTypes: string[]
   expenseCount: number
   incomeCount: number
+  scrambledHtml: string
+  scrambledText: string
+  // From parsing scrambledHtml, so they match the HTML that's sent.
+  parsedRows: FailedPasteReportParsedRow[]
+  fidelity: PasteFidelity
+  isTruncated: boolean
 }
 
 export type CreateFailedPasteReportResponse = Record<string, never>
