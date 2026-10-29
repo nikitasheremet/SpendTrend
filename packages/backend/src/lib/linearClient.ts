@@ -1,12 +1,21 @@
 const LINEAR_GRAPHQL_URL = 'https://api.linear.app/graphql'
 const SPENDTREND_TEAM_KEY = 'SPE'
 const BACKLOG_STATE_NAME = 'Backlog'
+// Linear's own uploader sends this alongside the headers fileUpload returns.
+const UPLOAD_CACHE_CONTROL = 'public, max-age=31536000'
 
 export interface CreateLinearIssueInput {
   apiKey: string
   title: string
   description: string
   labelNames: string[]
+  attachments: LinearAttachmentFile[]
+}
+
+export interface LinearAttachmentFile {
+  filename: string
+  contentType: string
+  content: string
 }
 
 export interface CreatedLinearIssue {
@@ -14,22 +23,30 @@ export interface CreatedLinearIssue {
 }
 
 // Files an issue in the SpendTrend team's Backlog (or its default status if there's no Backlog),
-// assigned to the owner of the API key.
+// assigned to the owner of the API key, with the files attached. Files are uploaded before
+// the issue exists, and an issue whose attachments fail is deleted, so it's all or nothing.
 export async function createLinearIssue({
   apiKey,
   title,
   description,
   labelNames,
+  attachments,
 }: CreateLinearIssueInput): Promise<CreatedLinearIssue> {
   const { teamId, backlogStateId, viewerId } = await fetchTeamDetails(apiKey)
   const labelIds = await fetchLabelIds(apiKey, teamId, labelNames)
+  const uploadedFiles = await Promise.all(
+    attachments.map(async (file) => ({
+      filename: file.filename,
+      assetUrl: await uploadFile(apiKey, file),
+    })),
+  )
 
   const data = await linearRequest<{
-    issueCreate: { success: boolean; issue: { identifier: string } | null }
+    issueCreate: { success: boolean; issue: { id: string; identifier: string } | null }
   }>(
     apiKey,
     `mutation CreateIssue($input: IssueCreateInput!) {
-      issueCreate(input: $input) { success issue { identifier } }
+      issueCreate(input: $input) { success issue { id identifier } }
     }`,
     {
       input: {
@@ -47,7 +64,17 @@ export async function createLinearIssue({
     throw new Error('Linear did not create the issue')
   }
 
-  return { identifier: data.issueCreate.issue.identifier }
+  const { id: issueId, identifier } = data.issueCreate.issue
+  try {
+    for (const uploadedFile of uploadedFiles) {
+      await attachFile(apiKey, issueId, uploadedFile)
+    }
+  } catch (error) {
+    await deleteIssue(apiKey, issueId)
+    throw error
+  }
+
+  return { identifier }
 }
 
 async function fetchTeamDetails(
@@ -103,6 +130,84 @@ async function fetchLabelIds(
     }
     return label.id
   })
+}
+
+// Asks Linear for a signed upload URL, then PUTs the file there. Returns the file's Linear URL.
+async function uploadFile(
+  apiKey: string,
+  { filename, contentType, content }: LinearAttachmentFile,
+): Promise<string> {
+  const body = Buffer.from(content, 'utf8')
+  const data = await linearRequest<{
+    fileUpload: {
+      success: boolean
+      uploadFile: {
+        uploadUrl: string
+        assetUrl: string
+        headers: Array<{ key: string; value: string }>
+      } | null
+    }
+  }>(
+    apiKey,
+    `mutation FileUpload($contentType: String!, $filename: String!, $size: Int!) {
+      fileUpload(contentType: $contentType, filename: $filename, size: $size) {
+        success
+        uploadFile { uploadUrl assetUrl headers { key value } }
+      }
+    }`,
+    { contentType, filename, size: body.byteLength },
+  )
+
+  const signedUpload = data.fileUpload.uploadFile
+  if (!data.fileUpload.success || !signedUpload) {
+    throw new Error(`Linear did not accept the upload of ${filename}`)
+  }
+
+  const response = await fetch(signedUpload.uploadUrl, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': contentType,
+      'Cache-Control': UPLOAD_CACHE_CONTROL,
+      ...Object.fromEntries(signedUpload.headers.map(({ key, value }) => [key, value])),
+    },
+    body,
+  })
+  if (!response.ok) {
+    throw new Error(`Linear upload of ${filename} failed (${response.status})`)
+  }
+
+  return signedUpload.assetUrl
+}
+
+async function attachFile(
+  apiKey: string,
+  issueId: string,
+  { filename, assetUrl }: { filename: string; assetUrl: string },
+): Promise<void> {
+  const data = await linearRequest<{ attachmentCreate: { success: boolean } }>(
+    apiKey,
+    `mutation AttachFile($input: AttachmentCreateInput!) {
+      attachmentCreate(input: $input) { success }
+    }`,
+    { input: { issueId, url: assetUrl, title: filename } },
+  )
+
+  if (!data.attachmentCreate.success) {
+    throw new Error(`Linear did not attach ${filename}`)
+  }
+}
+
+// Best effort: the attachment error is the one worth reporting, not a failed cleanup.
+async function deleteIssue(apiKey: string, issueId: string): Promise<void> {
+  try {
+    await linearRequest(
+      apiKey,
+      `mutation DeleteIssue($id: String!) { issueDelete(id: $id) { success } }`,
+      { id: issueId },
+    )
+  } catch (error) {
+    console.error(`Could not delete half-attached Linear issue ${issueId}`, error)
+  }
 }
 
 async function linearRequest<T>(
