@@ -17,6 +17,7 @@ import { DataType } from '@/helpers/bankInfoFormatting/bankInfoTypes'
 import { POPOVER_SYMBOL } from '@/types/providedSymbols'
 import { createFailedPasteReport } from '@/gateway/failedPasteReport/createFailedPasteReport'
 import { HttpError } from '@/gateway/httpError'
+import { TooManyRequestsError } from '@/gateway/tooManyRequestsError'
 import AddDataView from '../AddDataView.vue'
 
 interface MockStoreContext {
@@ -913,6 +914,26 @@ describe('Failed Add Data Paste Report', () => {
       'the network is down',
       new TypeError('Failed to fetch'),
       "Your report couldn't be sent. Please try again.",
+    ],
+    [
+      'the user has sent 5 reports in the last hour',
+      new TooManyRequestsError(40 * 60),
+      "You've sent 5 reports in the last hour. You can send another in 40 minutes.",
+    ],
+    [
+      'the next report slot opens partway through a minute',
+      new TooManyRequestsError(61),
+      "You've sent 5 reports in the last hour. You can send another in 2 minutes.",
+    ],
+    [
+      'the next report slot opens in under a minute',
+      new TooManyRequestsError(30),
+      "You've sent 5 reports in the last hour. You can send another in 1 minute.",
+    ],
+    [
+      'the user is rate limited without a retry time',
+      new TooManyRequestsError(),
+      "You've sent 5 reports in the last hour. Please try again later.",
     ],
   ])(
     'shows an error and keeps the modal and input when %s',
