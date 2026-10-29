@@ -1,7 +1,12 @@
 import { createLinearIssue, type CreateLinearIssueInput } from '../../lib/linearClient'
 import type { SessionUser } from '../../models/sessionUser'
 import { ReportingNotConfiguredError } from '../../models/errors/reportingNotConfiguredError'
-import { OTHER_BANK, type CreateFailedPasteReportInput } from '../validation/models'
+import {
+  OTHER_BANK,
+  PARSED_ROWS_MAX_COUNT,
+  PARSED_ROW_NAME_MAX_LENGTH,
+  type CreateFailedPasteReportInput,
+} from '../validation/models'
 
 const REPORT_LABEL_NAMES = ['failed-paste-report', 'Bug']
 // Outside production, setting LINEAR_API_KEY to this logs the issue instead of filing it.
@@ -11,8 +16,19 @@ const TITLE_PREFIX = 'Failed Add Data Paste Report'
 const TITLE_MESSAGE_MAX_LENGTH = 60
 const PREFIXED_ENVIRONMENTS: ReportEnvironment[] = ['dev', 'local']
 const PRODUCTION_ENVIRONMENT: ReportEnvironment = 'production'
+const FIDELITY_MATCH_LINE = 'The scrambled paste parses the same way as the original.'
+const FIDELITY_MISMATCH_LINE =
+  '⚠️ Scrambling changed how the paste parses, so this report may not reproduce the problem.'
+const MISSING_DATE = '—'
+const FIDELITY_ROWS: Array<[string, keyof ReportFidelity['original']]> = [
+  ['Rows', 'rowCount'],
+  ['Expenses', 'expenseCount'],
+  ['Incomes', 'incomeCount'],
+  ['Rows with no date', 'rowsWithoutDate'],
+]
 
 type ReportEnvironment = 'local' | 'dev' | 'production'
+type ReportFidelity = CreateFailedPasteReportInput['fidelity']
 
 export async function createFailedPasteReportService(
   report: CreateFailedPasteReportInput,
@@ -75,6 +91,7 @@ function buildDescription(report: CreateFailedPasteReportInput, sessionUser: Ses
     ['Clipboard formats', report.clipboardTypes.join(', ')],
     ['Expenses added', report.expenseCount],
     ['Incomes added', report.incomeCount],
+    ['Paste truncated', report.isTruncated ? 'Yes' : 'No'],
   ]
 
   return [
@@ -85,7 +102,61 @@ function buildDescription(report: CreateFailedPasteReportInput, sessionUser: Ses
     '## Report details',
     '',
     ...details.map(([label, value]) => `- **${label}:** ${value}`),
+    '',
+    '## Fidelity check',
+    '',
+    ...describeFidelity(report.fidelity),
+    '',
+    '## Parsed rows',
+    '',
+    ...describeParsedRows(report),
   ].join('\n')
+}
+
+function describeFidelity(fidelity: ReportFidelity): string[] {
+  return [
+    fidelity.matches ? FIDELITY_MATCH_LINE : FIDELITY_MISMATCH_LINE,
+    '',
+    '| | Original | Scrambled |',
+    '| --- | --- | --- |',
+    ...FIDELITY_ROWS.map(
+      ([label, key]) => `| ${label} | ${fidelity.original[key]} | ${fidelity.scrambled[key]} |`,
+    ),
+  ]
+}
+
+function describeParsedRows({
+  parsedRows,
+  areParsedRowsTruncated,
+  fidelity,
+}: CreateFailedPasteReportInput): string[] {
+  if (parsedRows.length === 0) {
+    return ['No rows were parsed from the scrambled HTML.']
+  }
+
+  const truncationNotice = areParsedRowsTruncated
+    ? [
+        `⚠️ Cut down to at most ${PARSED_ROWS_MAX_COUNT} rows, with names up to ${PARSED_ROW_NAME_MAX_LENGTH} characters. The scrambled HTML parses to ${fidelity.scrambled.rowCount} rows.`,
+        '',
+      ]
+    : []
+  return [
+    'From parsing the scrambled HTML.',
+    '',
+    ...truncationNotice,
+    '| # | Date | Name | Type | Amount |',
+    '| --- | --- | --- | --- | --- |',
+    ...parsedRows.map(
+      (row, index) =>
+        `| ${index + 1} | ${row.date ? escapeTableCell(row.date) : MISSING_DATE} | ${escapeTableCell(row.name)} | ${row.type} | ${row.amount} |`,
+    ),
+  ]
+}
+
+// A pipe would end the cell and a line break would end the row. Backslashes are
+// escaped too, so one before a pipe can't undo the pipe's escape.
+function escapeTableCell(text: string): string {
+  return text.replace(/\s+/g, ' ').replace(/[\\|]/g, '\\$&')
 }
 
 // Env vars are baked in at build time, so APP_ENV names the deployed environment;

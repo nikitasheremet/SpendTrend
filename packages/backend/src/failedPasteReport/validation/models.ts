@@ -12,10 +12,23 @@ export const REPORT_BANKS = [
 export const OTHER_BANK = 'Other'
 const OTHER_BANK_NAME_MAX_LENGTH = 100
 const MESSAGE_MAX_LENGTH = 2000
+// The frontend cuts each to 2 MB, and a string can't have more characters than bytes.
+const SCRAMBLED_PASTE_MAX_LENGTH = 2 * 1024 * 1024
+// The frontend cuts the parsed rows down to these, flagged by areParsedRowsTruncated.
+export const PARSED_ROWS_MAX_COUNT = 500
+export const PARSED_ROW_NAME_MAX_LENGTH = 200
+export const PARSED_ROW_TYPES = ['expense', 'income'] as const
 
 export const VALIDATION_ERROR_BANK = `Bank must be one of: ${REPORT_BANKS.join(', ')}`
 export const VALIDATION_ERROR_OTHER_BANK_NAME = `Bank name is required when the bank is Other, up to ${OTHER_BANK_NAME_MAX_LENGTH} characters`
 export const VALIDATION_ERROR_MESSAGE = `What went wrong must be 1 to ${MESSAGE_MAX_LENGTH} characters`
+
+const pasteParseSummarySchema = z.object({
+  rowCount: z.int().nonnegative(),
+  expenseCount: z.int().nonnegative(),
+  incomeCount: z.int().nonnegative(),
+  rowsWithoutDate: z.int().nonnegative(),
+})
 
 export const createFailedPasteReportInputSchema = z
   .object({
@@ -32,6 +45,25 @@ export const createFailedPasteReportInputSchema = z
     clipboardTypes: z.array(z.string()),
     expenseCount: z.int().nonnegative(),
     incomeCount: z.int().nonnegative(),
+    scrambledHtml: z.string().max(SCRAMBLED_PASTE_MAX_LENGTH),
+    scrambledText: z.string().max(SCRAMBLED_PASTE_MAX_LENGTH),
+    parsedRows: z
+      .array(
+        z.object({
+          type: z.enum(PARSED_ROW_TYPES),
+          date: z.string().optional(),
+          name: z.string().max(PARSED_ROW_NAME_MAX_LENGTH),
+          amount: z.number(),
+        }),
+      )
+      .max(PARSED_ROWS_MAX_COUNT),
+    fidelity: z.object({
+      original: pasteParseSummarySchema,
+      scrambled: pasteParseSummarySchema,
+      matches: z.boolean(),
+    }),
+    isTruncated: z.boolean(),
+    areParsedRowsTruncated: z.boolean(),
   })
   .refine((report) => report.bank !== OTHER_BANK || Boolean(report.otherBankName), {
     error: VALIDATION_ERROR_OTHER_BANK_NAME,
