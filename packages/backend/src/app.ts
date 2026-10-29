@@ -24,7 +24,7 @@ import {
   getIncomesHandler,
   updateIncomeHandler,
 } from './income/handler'
-import { createFailedPasteReportHandler } from './failedPasteReport/handler/createFailedPasteReportHandler'
+import { createFailedPasteReportHandlers } from './failedPasteReport/handler/createFailedPasteReportHandler'
 import { type SessionUser } from './models/sessionUser'
 
 // e2e runs skip auth, so endpoints that read the session get this fixed user instead.
@@ -46,6 +46,8 @@ export function createApp() {
         'https://dev-spendtrend-frontend.onrender.com',
       ],
       credentials: true,
+      // So the frontend can tell a rate-limited user how long to wait.
+      exposeHeaders: ['Retry-After'],
     }),
   )
 
@@ -91,7 +93,7 @@ export function createApp() {
   app.post('/deleteincome', deleteIncomeHandler)
   app.get('/incomes', getIncomesHandler)
   app.put('/updateincome', updateIncomeHandler)
-  app.post('/createfailedpastereport', createFailedPasteReportHandler)
+  app.post('/createfailedpastereport', ...createFailedPasteReportHandlers)
 
   return app
 }
