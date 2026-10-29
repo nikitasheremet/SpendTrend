@@ -256,6 +256,55 @@ describe('createFailedPasteReportHandler', () => {
       )
     })
 
+    it('should attach exactly the scrambled HTML, the scrambled text and the report, with the paste exactly as sent', async () => {
+      await createFakeClient().createfailedpastereport.$post({ json: fakeReport })
+
+      const { attachments } = mockCreateLinearIssue.mock.calls[0][0]
+      expect(attachments.map((file) => file.filename)).toEqual([
+        'pasted.scrambled.html',
+        'pasted.scrambled.txt',
+        'report.json',
+      ])
+      expect(attachments).toContainEqual({
+        filename: 'pasted.scrambled.html',
+        contentType: 'text/html',
+        content: fakeReport.scrambledHtml,
+      })
+      expect(attachments).toContainEqual({
+        filename: 'pasted.scrambled.txt',
+        contentType: 'text/plain',
+        content: fakeReport.scrambledText,
+      })
+    })
+
+    it('should attach the validated report as JSON, stamped with who reported it, where and when', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-10-12T09:35:00.000Z'))
+
+      await createFakeClient().createfailedpastereport.$post({
+        json: {
+          ...fakeReport,
+          message: '  Nothing added  ',
+          userId: 'someone-elses-user-id',
+          unexpectedField: 'dropped',
+        },
+      })
+      vi.useRealTimers()
+
+      const reportFile = mockCreateLinearIssue.mock.calls[0][0].attachments.find(
+        (file) => file.filename === 'report.json',
+      )
+      expect(reportFile?.contentType).toBe('application/json')
+      expect(JSON.parse(reportFile?.content ?? '')).toEqual({
+        ...fakeReport,
+        message: 'Nothing added',
+        userId: fakeSessionUser.id,
+        accountId: fakeSessionUser.accountId,
+        environment: 'production',
+        reportedAt: '2026-10-12T09:35:00.000Z',
+      })
+    })
+
     it('should take the user and account from the session, ignoring any IDs in the body', async () => {
       await createFakeClient().createfailedpastereport.$post({
         json: {

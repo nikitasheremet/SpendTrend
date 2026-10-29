@@ -1,4 +1,8 @@
-import { createLinearIssue, type CreateLinearIssueInput } from '../../lib/linearClient'
+import {
+  createLinearIssue,
+  type CreateLinearIssueInput,
+  type LinearAttachmentFile,
+} from '../../lib/linearClient'
 import type { SessionUser } from '../../models/sessionUser'
 import { ReportingNotConfiguredError } from '../../models/errors/reportingNotConfiguredError'
 import {
@@ -40,10 +44,12 @@ export async function createFailedPasteReportService(
     throw new ReportingNotConfiguredError()
   }
 
+  const reportedAt = new Date().toISOString()
   const issue = {
     title: buildTitle(report),
-    description: buildDescription(report, sessionUser),
+    description: buildDescription(report, sessionUser, reportedAt),
     labelNames: REPORT_LABEL_NAMES,
+    attachments: buildAttachments(report, sessionUser, reportedAt),
   }
   if (isDebugOnlyPrint) {
     printIssue(issue)
@@ -74,7 +80,11 @@ function buildTitle(report: CreateFailedPasteReportInput): string {
   return `${environmentPrefix}${TITLE_PREFIX}: ${describeBank(report)} – ${excerptMessage(report.message)}`
 }
 
-function buildDescription(report: CreateFailedPasteReportInput, sessionUser: SessionUser): string {
+function buildDescription(
+  report: CreateFailedPasteReportInput,
+  sessionUser: SessionUser,
+  reportedAt: string,
+): string {
   const quotedMessage = report.message
     .trim()
     .split('\n')
@@ -87,7 +97,7 @@ function buildDescription(report: CreateFailedPasteReportInput, sessionUser: Ses
     ['Account ID', sessionUser.accountId],
     ['User agent', report.userAgent],
     ['Pasted at', report.pastedAt],
-    ['Reported at', new Date().toISOString()],
+    ['Reported at', reportedAt],
     ['Clipboard formats', report.clipboardTypes.join(', ')],
     ['Expenses added', report.expenseCount],
     ['Incomes added', report.incomeCount],
@@ -157,6 +167,30 @@ function describeParsedRows({
 // escaped too, so one before a pipe can't undo the pipe's escape.
 function escapeTableCell(text: string): string {
   return text.replace(/\s+/g, ' ').replace(/[\\|]/g, '\\$&')
+}
+
+// Files an agent can feed straight back into the parser, without copying out of the description.
+function buildAttachments(
+  report: CreateFailedPasteReportInput,
+  sessionUser: SessionUser,
+  reportedAt: string,
+): LinearAttachmentFile[] {
+  const reportJson = {
+    ...report,
+    userId: sessionUser.id,
+    accountId: sessionUser.accountId,
+    environment: getReportEnvironment(),
+    reportedAt,
+  }
+  return [
+    { filename: 'pasted.scrambled.html', contentType: 'text/html', content: report.scrambledHtml },
+    { filename: 'pasted.scrambled.txt', contentType: 'text/plain', content: report.scrambledText },
+    {
+      filename: 'report.json',
+      contentType: 'application/json',
+      content: JSON.stringify(reportJson, null, 2),
+    },
+  ]
 }
 
 // Env vars are baked in at build time, so APP_ENV names the deployed environment;
