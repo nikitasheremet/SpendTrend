@@ -916,6 +916,11 @@ describe('Failed Add Data Paste Report', () => {
       "Your report couldn't be sent. Please try again.",
     ],
     [
+      'the paste is too large to send',
+      new HttpError(413),
+      "This paste is too large to report. Paste just the rows that went wrong, then send the report again. Pasting adds those rows to your tables too, so remove any you don't need.",
+    ],
+    [
       'the user has sent 5 reports in the last hour',
       new TooManyRequestsError(40 * 60),
       "You've sent 5 reports in the last hour. You can send another in 40 minutes.",

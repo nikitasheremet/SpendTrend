@@ -21,7 +21,10 @@ const REPORTING_UNAVAILABLE_MESSAGE =
 const RATE_LIMITED_MESSAGE = "You've sent 5 reports in the last hour."
 const RATE_LIMITED_RETRY_LATER = 'Please try again later.'
 const SECONDS_PER_MINUTE = 60
+const PASTE_TOO_LARGE_MESSAGE =
+  "This paste is too large to report. Paste just the rows that went wrong, then send the report again. Pasting adds those rows to your tables too, so remove any you don't need."
 const STATUS_SERVICE_UNAVAILABLE = 503
+const STATUS_PAYLOAD_TOO_LARGE = 413
 const WHAT_WILL_BE_SENT_NOTICE =
   'We’ll send your bank, what went wrong, the app version, your browser, when you pasted, the clipboard formats, how many expenses and incomes were added, and a copy of what you pasted with the rows we found in it, so we can fix the importer.'
 const SCRAMBLED_NOTICE =
@@ -103,6 +106,9 @@ function describeSendFailure(error: unknown): string {
   }
   if (error instanceof HttpError && error.status === STATUS_SERVICE_UNAVAILABLE) {
     return REPORTING_UNAVAILABLE_MESSAGE
+  }
+  if (error instanceof HttpError && error.status === STATUS_PAYLOAD_TOO_LARGE) {
+    return PASTE_TOO_LARGE_MESSAGE
   }
   return REPORT_FAILED_MESSAGE
 }
