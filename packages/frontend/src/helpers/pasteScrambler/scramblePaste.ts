@@ -22,7 +22,11 @@ export interface ScrambledPaste {
   areParsedRowsTruncated: boolean
 }
 
+// Measured as sent, escaped inside the JSON body, so the whole report stays under the
+// 5 MB the server accepts.
 const MAX_PASTE_BYTES = 2 * 1024 * 1024
+// JSON.stringify wraps a string in two quotes that aren't part of the paste.
+const JSON_STRING_QUOTES_BYTES = 2
 // Keeps the report's size bounded however many rows a paste has, or however long they are.
 const MAX_PARSED_ROWS = 500
 const MAX_PARSED_ROW_NAME_LENGTH = 200
@@ -58,8 +62,8 @@ export function scramblePaste(
   { html, text, parsedRows: originalRows }: PasteToScramble,
   random: RandomSource = Math.random,
 ): ScrambledPaste {
-  const scrambledHtml = truncateToBytes(scrambleHtml(html, random), MAX_PASTE_BYTES)
-  const scrambledText = truncateToBytes(scrambleText(text, random), MAX_PASTE_BYTES)
+  const scrambledHtml = truncateToSentBytes(scrambleHtml(html, random), MAX_PASTE_BYTES)
+  const scrambledText = truncateToSentBytes(scrambleText(text, random), MAX_PASTE_BYTES)
   const scrambledRows = parseScrambledHtml(scrambledHtml.value)
   const parsedRows = capParsedRows(scrambledRows)
 
@@ -158,15 +162,33 @@ function pickOne(options: string, random: RandomSource): string {
   return options[Math.floor(random() * options.length)]
 }
 
-function truncateToBytes(value: string, maxBytes: number): { value: string; isTruncated: boolean } {
-  const bytes = new TextEncoder().encode(value)
-  if (bytes.length <= maxBytes) {
+// A tab, line break or quote takes two bytes once escaped, so a paste can grow by half or
+// more on the way out. Searches for the longest start of the paste that fits as sent.
+function truncateToSentBytes(
+  value: string,
+  maxBytes: number,
+): { value: string; isTruncated: boolean } {
+  if (measureSentBytes(value) <= maxBytes) {
     return { value, isTruncated: false }
   }
 
-  // A character cut in half decodes as a trailing replacement character, so drop it.
-  const truncatedValue = new TextDecoder().decode(bytes.subarray(0, maxBytes))
-  return { value: truncatedValue.replace(/�$/, ''), isTruncated: true }
+  let longestFittingLength = 0
+  let shortestTooLongLength = value.length
+  while (shortestTooLongLength - longestFittingLength > 1) {
+    const candidateLength = Math.floor((longestFittingLength + shortestTooLongLength) / 2)
+    if (measureSentBytes(value.slice(0, candidateLength)) <= maxBytes) {
+      longestFittingLength = candidateLength
+    } else {
+      shortestTooLongLength = candidateLength
+    }
+  }
+  // Never ends in half an emoji: JSON escapes a lone half as six bytes, more than the whole
+  // emoji's four, so a cut that fits there would also fit one character later.
+  return { value: value.slice(0, longestFittingLength), isTruncated: true }
+}
+
+function measureSentBytes(value: string): number {
+  return new TextEncoder().encode(JSON.stringify(value)).length - JSON_STRING_QUOTES_BYTES
 }
 
 // Truncation can cut a row short in a way the parser throws on. The report should still

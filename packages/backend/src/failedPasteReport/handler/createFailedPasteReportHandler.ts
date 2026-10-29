@@ -10,7 +10,8 @@ import { errorStatusMapper } from '../../utilities/errorStatusMapper'
 import { jsonResponse } from '../../utilities/jsonResponse'
 import { STATUS_CREATED_201, STATUS_PAYLOAD_TOO_LARGE_413 } from '../../models/statusCodes'
 
-// The scrambled HTML and text are each capped at 2 MB, so this leaves room for the rest of the report.
+// The frontend caps the scrambled HTML and text at 2 MB each as sent, escaped inside the JSON,
+// so this leaves room for the rest of the report.
 const MAX_BODY_BYTES = 5 * 1024 * 1024
 const BODY_TOO_LARGE_ERROR = 'The report is too large to send'
 // Hono doesn't export the error bodyLimit raises when a body with no Content-Length runs over.
