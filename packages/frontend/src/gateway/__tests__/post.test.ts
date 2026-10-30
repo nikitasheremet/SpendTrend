@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { post } from '@gateway/post'
+import { TooManyRequestsError } from '@gateway/tooManyRequestsError'
 
 describe('post function', () => {
   const mockFetch = vi.fn()
@@ -34,6 +35,28 @@ describe('post function', () => {
       mockFetch.mockResolvedValue(fakeResponse)
 
       await expect(post('/test', {})).rejects.toThrow('HTTP Error: Status: 404')
+    })
+  })
+
+  describe('when the response is 429', () => {
+    it('should throw a too many requests error with the seconds from Retry-After', async () => {
+      mockFetch.mockResolvedValue(
+        new Response(null, { status: 429, headers: { 'Retry-After': '2400' } }),
+      )
+
+      const error = await post('/test', {}).catch((thrown) => thrown)
+
+      expect(error).toBeInstanceOf(TooManyRequestsError)
+      expect(error).toMatchObject({ status: 429, retryAfterSeconds: 2400 })
+    })
+
+    it('should leave the retry time out when Retry-After is missing', async () => {
+      mockFetch.mockResolvedValue(new Response(null, { status: 429 }))
+
+      const error = await post('/test', {}).catch((thrown) => thrown)
+
+      expect(error).toBeInstanceOf(TooManyRequestsError)
+      expect(error).toMatchObject({ retryAfterSeconds: undefined })
     })
   })
 

@@ -13,6 +13,11 @@ const lowestRandom = () => 0
 // Always picks the last option: digits become 9, letters become z/Z.
 const highestRandom = () => 0.99
 const TWO_MB = 2 * 1024 * 1024
+const FIVE_MB = 5 * 1024 * 1024
+
+function jsonByteLength(value: unknown): number {
+  return new TextEncoder().encode(JSON.stringify(value)).length
+}
 
 // jsdom doesn't implement innerText, which the parser reads from every cell.
 const originalInnerText = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'innerText')
@@ -308,6 +313,36 @@ describe('scramblePaste', () => {
       expect(new TextEncoder().encode(scrambledText).length).toBeLessThanOrEqual(TWO_MB)
       expect(scrambledText).toMatch(/^−+$/)
       expect(isTruncated).toBe(true)
+    })
+
+    it('should not leave half an emoji when the cut falls inside one', () => {
+      const { scrambledText, isTruncated } = scramble('', lowestRandom, `a${'😀'.repeat(TWO_MB / 4)}`)
+
+      expect(new TextEncoder().encode(scrambledText).length).toBeLessThanOrEqual(TWO_MB)
+      expect(scrambledText).toMatch(/^a(😀)+$/u)
+      expect(isTruncated).toBe(true)
+    })
+
+    it('should cut plain text down to 2 MB once it is escaped for sending', () => {
+      // Under 2 MB as it is, but every tab and line break doubles when escaped as JSON.
+      const tabSeparatedText = '1\t2\n'.repeat(TWO_MB / 4)
+
+      const { scrambledText, isTruncated } = scramble('', lowestRandom, tabSeparatedText)
+
+      // The two quotes around a JSON string aren't part of the paste.
+      expect(jsonByteLength(scrambledText) - 2).toBeLessThanOrEqual(TWO_MB)
+      expect(jsonByteLength(scrambledText) - 2).toBeGreaterThan(TWO_MB - 100)
+      expect(scrambledText).toMatch(/^(\d\t\d\n)*(\d(\t(\d)?)?)?$/)
+      expect(isTruncated).toBe(true)
+    })
+
+    it('should keep a report of the largest pastes under the 5 MB the server accepts', () => {
+      const lineBreakHeavyHtml = `<table><tr><td>Jan 15, 2026</td><td>${'"\n'.repeat(TWO_MB / 2)}</td><td>$5.00</td></tr></table>`
+      const tabSeparatedText = '"\t\n'.repeat(TWO_MB / 2)
+
+      const scrambledPaste = scramble(lineBreakHeavyHtml, lowestRandom, tabSeparatedText)
+
+      expect(jsonByteLength(scrambledPaste)).toBeLessThan(FIVE_MB)
     })
   })
 })

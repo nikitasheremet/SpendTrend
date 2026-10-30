@@ -1,12 +1,15 @@
 import { Hono } from 'hono'
 import { testClient } from 'hono/testing'
 import { createLinearIssue } from '../../../lib/linearClient'
-import { createFailedPasteReportHandler } from '../../handler/createFailedPasteReportHandler'
+import { createFailedPasteReportHandlers } from '../../handler/createFailedPasteReportHandler'
+import { resetFailedPasteReportRateLimit } from '../../rateLimit/failedPasteReportRateLimit'
 import {
   STATUS_CREATED_201,
   STATUS_UNPROCESSABLE_ENTITY_422,
   STATUS_SERVICE_UNAVAILABLE_503,
   STATUS_INTERNAL_SERVER_ERROR_500,
+  STATUS_TOO_MANY_REQUESTS_429,
+  STATUS_PAYLOAD_TOO_LARGE_413,
 } from '../../../models/statusCodes'
 
 vi.mock('../../../lib/linearClient')
@@ -45,19 +48,27 @@ const fakeReport = {
 
 const MAX_SCRAMBLED_PASTE_LENGTH = 2 * 1024 * 1024
 
-function createFakeClient() {
+function createFakeClient(sessionUser = fakeSessionUser) {
   const fakeApp = new Hono()
     .use(async (ctx, next) => {
-      ctx.set('sessionUser', fakeSessionUser)
+      ctx.set('sessionUser', sessionUser)
       await next()
     })
-    .post('/createfailedpastereport', createFailedPasteReportHandler)
+    .post('/createfailedpastereport', ...createFailedPasteReportHandlers)
   return testClient(fakeApp)
+}
+
+async function sendReports(client: ReturnType<typeof createFakeClient>, count: number) {
+  for (let sent = 0; sent < count; sent++) {
+    const res = await client.createfailedpastereport.$post({ json: fakeReport })
+    expect(res.status).toBe(STATUS_CREATED_201)
+  }
 }
 
 describe('createFailedPasteReportHandler', () => {
   beforeEach(() => {
     mockCreateLinearIssue.mockReset()
+    resetFailedPasteReportRateLimit()
     mockCreateLinearIssue.mockResolvedValue({ identifier: 'SPE-200' })
     vi.stubEnv('LINEAR_API_KEY', 'fake-linear-key')
     vi.stubEnv('APP_ENV', 'production')
@@ -318,6 +329,106 @@ describe('createFailedPasteReportHandler', () => {
       expect(description).toContain(`- **User ID:** ${fakeSessionUser.id}`)
       expect(description).toContain(`- **Account ID:** ${fakeSessionUser.accountId}`)
       expect(description).not.toContain('someone-elses')
+    })
+  })
+
+  describe('when the user has sent 5 reports in the last hour', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-10-12T09:00:00.000Z'))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('should return 429 with the seconds until the oldest report leaves the hour, and file nothing', async () => {
+      const client = createFakeClient()
+      await sendReports(client, 1)
+      vi.setSystemTime(new Date('2026-10-12T09:20:00.000Z'))
+      await sendReports(client, 4)
+      mockCreateLinearIssue.mockClear()
+
+      const res = await client.createfailedpastereport.$post({ json: fakeReport })
+
+      expect(res.status).toBe(STATUS_TOO_MANY_REQUESTS_429)
+      expect(res.headers.get('Retry-After')).toBe(String(40 * 60))
+      expect(await res.json()).toEqual({ error: "You've sent 5 reports in the last hour" })
+      expect(mockCreateLinearIssue).not.toHaveBeenCalled()
+    })
+
+    it('should accept a report again once the oldest one is an hour old', async () => {
+      const client = createFakeClient()
+      await sendReports(client, 5)
+      vi.setSystemTime(new Date('2026-10-12T10:00:00.000Z'))
+
+      const res = await client.createfailedpastereport.$post({ json: fakeReport })
+
+      expect(res.status).toBe(STATUS_CREATED_201)
+    })
+
+    it('should count each user separately', async () => {
+      await sendReports(createFakeClient(), 5)
+      const otherUserClient = createFakeClient({ ...fakeSessionUser, id: 'another-user-id' })
+
+      const res = await otherUserClient.createfailedpastereport.$post({ json: fakeReport })
+
+      expect(res.status).toBe(STATUS_CREATED_201)
+    })
+
+    it.each([
+      ['Linear fails', () => mockCreateLinearIssue.mockRejectedValueOnce(new Error('Linear down'))],
+      ["reporting isn't configured", () => vi.stubEnv('LINEAR_API_KEY', '')],
+    ])("should not count a report that wasn't filed because %s", async (_case, failNextReport) => {
+      const client = createFakeClient()
+      await sendReports(client, 4)
+      failNextReport()
+      await client.createfailedpastereport.$post({ json: fakeReport })
+      vi.stubEnv('LINEAR_API_KEY', 'fake-linear-key')
+
+      const res = await client.createfailedpastereport.$post({ json: fakeReport })
+
+      expect(res.status).toBe(STATUS_CREATED_201)
+    })
+
+    it('should not count a report that failed validation', async () => {
+      const client = createFakeClient()
+      await sendReports(client, 4)
+      await client.createfailedpastereport.$post({ json: { ...fakeReport, message: ' ' } })
+
+      const res = await client.createfailedpastereport.$post({ json: fakeReport })
+
+      expect(res.status).toBe(STATUS_CREATED_201)
+    })
+  })
+
+  describe('when the request body is over 5 MB', () => {
+    it('should return 413 from the Content-Length alone', async () => {
+      const app = new Hono().post('/createfailedpastereport', ...createFailedPasteReportHandlers)
+
+      const res = await app.request('/createfailedpastereport', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'content-length': String(6 * 1024 * 1024) },
+        body: JSON.stringify(fakeReport),
+      })
+
+      expect(res.status).toBe(STATUS_PAYLOAD_TOO_LARGE_413)
+      expect(await res.json()).toEqual({ error: 'The report is too large to send' })
+      expect(mockCreateLinearIssue).not.toHaveBeenCalled()
+    })
+
+    it('should return 413 and file nothing when the streamed body runs over', async () => {
+      // Hono logs the body limit error on its way back to bodyLimit.
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      const res = await createFakeClient().createfailedpastereport.$post({
+        json: { ...fakeReport, scrambledHtml: 'x'.repeat(5 * 1024 * 1024) },
+      })
+      consoleErrorSpy.mockRestore()
+
+      expect(res.status).toBe(STATUS_PAYLOAD_TOO_LARGE_413)
+      expect(await res.json()).toEqual({ error: 'The report is too large to send' })
+      expect(mockCreateLinearIssue).not.toHaveBeenCalled()
     })
   })
 

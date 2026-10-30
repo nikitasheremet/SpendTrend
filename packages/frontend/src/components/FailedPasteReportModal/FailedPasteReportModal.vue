@@ -6,6 +6,7 @@ import Input from '@/components/DesignSystem/Input.vue'
 import { createFailedPasteReport } from '@/gateway/failedPasteReport/createFailedPasteReport'
 import { REPORT_BANKS, type ReportBank } from '@contracts/failedPasteReport/createFailedPasteReport'
 import { HttpError } from '@/gateway/httpError'
+import { TooManyRequestsError } from '@/gateway/tooManyRequestsError'
 import { scramblePaste } from '@/helpers/pasteScrambler/scramblePaste'
 import MessagePopover from '@/components/DesignSystem/Popover/MessagePopover.vue'
 import type { LastAddDataPaste } from '@/types/lastAddDataPaste'
@@ -17,7 +18,13 @@ const REPORT_SENT_MESSAGE = 'Thanks — your report was sent'
 const REPORT_FAILED_MESSAGE = "Your report couldn't be sent. Please try again."
 const REPORTING_UNAVAILABLE_MESSAGE =
   "Reporting isn't available right now, so your report couldn't be sent."
+const RATE_LIMITED_MESSAGE = "You've sent 5 reports in the last hour."
+const RATE_LIMITED_RETRY_LATER = 'Please try again later.'
+const SECONDS_PER_MINUTE = 60
+const PASTE_TOO_LARGE_MESSAGE =
+  "This paste is too large to report. Paste just the rows that went wrong, then send the report again. Pasting adds those rows to your tables too, so remove any you don't need."
 const STATUS_SERVICE_UNAVAILABLE = 503
+const STATUS_PAYLOAD_TOO_LARGE = 413
 const WHAT_WILL_BE_SENT_NOTICE =
   'We’ll send your bank, what went wrong, the app version, your browser, when you pasted, the clipboard formats, how many expenses and incomes were added, and a copy of what you pasted with the rows we found in it, so we can fix the importer.'
 const SCRAMBLED_NOTICE =
@@ -94,10 +101,25 @@ function showToast(toastMessage: string, options: PopoverOptions = {}) {
 }
 
 function describeSendFailure(error: unknown): string {
+  if (error instanceof TooManyRequestsError) {
+    return `${RATE_LIMITED_MESSAGE} ${describeWhenToRetry(error.retryAfterSeconds)}`
+  }
   if (error instanceof HttpError && error.status === STATUS_SERVICE_UNAVAILABLE) {
     return REPORTING_UNAVAILABLE_MESSAGE
   }
+  if (error instanceof HttpError && error.status === STATUS_PAYLOAD_TOO_LARGE) {
+    return PASTE_TOO_LARGE_MESSAGE
+  }
   return REPORT_FAILED_MESSAGE
+}
+
+// Rounds up, so the user is never told to come back before the next slot opens.
+function describeWhenToRetry(retryAfterSeconds: number | undefined): string {
+  if (retryAfterSeconds === undefined) {
+    return RATE_LIMITED_RETRY_LATER
+  }
+  const minutes = Math.max(1, Math.ceil(retryAfterSeconds / SECONDS_PER_MINUTE))
+  return `You can send another in ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}.`
 }
 
 function resetForm() {
