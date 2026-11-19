@@ -26,7 +26,7 @@ Paths below are relative to the vault root.
 - **Start**: set `status: doing` and add a Log line.
 - **Close**: set `status: done` and `done: <date>`, and add a final Log line. Set `release` once it reaches production.
 - **Specs**: PRDs go in `docs/PRD - <title>.md` and ADR copies go in `docs/ADR-NNNN <title>.md`. Link them from the work item's Context.
-- **Branches**: `w/<NNNN>`, the work item's number (e.g. `w/0026` for W-0026). Always cut from `dev`. Older branches were `issue/<n>` and `linear/SPE-<n>`.
+- **Branches**: `w/<NNNN>`, the work item's number (e.g. `w/0026` for W-0026). Always cut from `dev`, in its own worktree at `.claude/worktrees/w-<NNNN>` (see `AGENTS.md` → Branching). Older branches were `issue/<n>` and `linear/SPE-<n>`.
 - **Commits**: name the item in the subject, e.g. `fix(frontend): … (W-0026)`.
 - **PRs**: open with `--base dev` and put the work item ID in the title or body. Merging does not close anything, so close the item in the vault by hand.
 - **Validate**: run `python3 tools/tree.py --check` after editing the vault. Commit vault changes in the vault repo, with a message that names the W-ids touched.

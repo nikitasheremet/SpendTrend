@@ -16,6 +16,20 @@ Start every change on a fresh branch cut from `dev` (naming in
 when a skill or workflow says to commit to the current branch. Commit directly
 to `dev` only when the user explicitly asks for that.
 
+Do every piece of new work in its own git worktree, not in the main checkout.
+Other agents and the user may have uncommitted changes there. Create the
+worktree and branch together from the latest `dev`:
+
+```sh
+git fetch origin
+git worktree add -b w/<NNNN> .claude/worktrees/w-<NNNN> origin/dev
+cd .claude/worktrees/w-<NNNN> && npm install
+```
+
+Run every command for that work from inside the worktree. Never switch
+branches, stash or reset in the main checkout. After the PR merges, remove the
+worktree with `git worktree remove .claude/worktrees/w-<NNNN>`.
+
 ## Code ordering: newspaper style
 
 Order declarations so a reader hits the important thing first and the supporting
