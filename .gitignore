@@ -33,3 +33,6 @@ test-results/
 playwright-report/
 
 .vite
+
+# Agent git worktrees
+.claude/worktrees/
