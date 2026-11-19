@@ -8,7 +8,7 @@ Older trackers are history only:
 - GitHub Issues `#1`–`#141` (2025), `#284`–`#357` (2025-11 → 2026-11)
 - Linear `SPE-<n>` (2025-11 → 2026-10), referenced in git history and `.claude/plans/`
 
-Every vault work item lists its old IDs in the `source` property, so search the vault for `SPE-127` or `#318` to find one.
+Every Linear and GitHub issue was migrated into the vault (W-0063); each work item lists its old IDs in the `source` property, so search the vault for `SPE-127` or `#318` to find one (`grep -l 'SPE-127' work/*.md`). Small closed tickets were folded into their theme item's Steps.
 
 Linear still receives **Failed Add Data Paste Reports** (see `docs/adr/0002-failed-paste-reports-scrambled-and-filed-in-linear.md`). That is a product feature, not where work is tracked: don't plan or track work there.
 
@@ -18,13 +18,15 @@ Paths below are relative to the vault root.
 
 - **Work item**: one file `work/W-NNNN <Title>.md`, copied from `templates/Work item.md`. Take the next free `W-NNNN`. The hierarchy comes from the `parent` property, not from folders.
 - **Create an issue**: create a work item. Set `parent` to the closest theme (see `python3 tools/tree.py`), and set `status: todo`, `kind` and a clear Goal.
+- **Labels**: there are no labels. Old GitHub labels map to properties: `bug` / `Feature` / `Improvement` / `refactor` / `Infra` → `kind`; `frontend` / `backend` → `scope` (comma separated, also `contracts`). Triage roles go in `triage` (see `docs/agents/triage-labels.md`).
+- **Make an issue a sub-issue of a parent**: set the child's `parent` to the parent work item's wikilink, e.g. `parent: "[[W-0011 Failed Add Data Paste Report]]"`. Use `order` to sequence siblings.
 - **Read an issue**: read the work item top to bottom (including its Log), every note linked under Context, and the ancestors' Goals.
-- **List issues**: `python3 tools/tree.py --open` lists open work. Add `--root W-NNNN` for one subtree.
+- **List issues**: `python3 tools/tree.py --open` lists open work, with each item's `triage` value in braces. Add `--root W-NNNN` for one subtree.
 - **Comment on an issue**: add a dated line to the item's `## Log`, as `- YYYY-MM-DD: …`.
 - **Start**: set `status: doing` and add a Log line.
 - **Close**: set `status: done` and `done: <date>`, and add a final Log line. Set `release` once it reaches production.
 - **Specs**: PRDs go in `docs/PRD - <title>.md` and ADR copies go in `docs/ADR-NNNN <title>.md`. Link them from the work item's Context.
-- **Branches**: `w/<NNNN>` (e.g. `w/0026`). Older branches were `issue/<n>` and `linear/SPE-<n>`.
+- **Branches**: `w/<NNNN>`, the work item's number (e.g. `w/0026` for W-0026). Always cut from `dev`. Older branches were `issue/<n>` and `linear/SPE-<n>`.
 - **Commits**: name the item in the subject, e.g. `fix(frontend): … (W-0026)`.
 - **PRs**: open with `--base dev` and put the work item ID in the title or body. Merging does not close anything, so close the item in the vault by hand.
 - **Validate**: run `python3 tools/tree.py --check` after editing the vault. Commit vault changes in the vault repo, with a message that names the W-ids touched.

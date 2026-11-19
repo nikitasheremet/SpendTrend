@@ -67,8 +67,8 @@ Work is planned and tracked in the spend_trend Obsidian vault (`~/Documents/vaul
 
 ### Triage labels
 
-The five triage roles map to vault work-item statuses and `Inbox.md`. See `docs/agents/triage-labels.md`.
+The five triage roles map to the vault work item `triage` property (`wontfix` is `status: dropped`). See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
-Single-context: one root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
+Single-context: one root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
