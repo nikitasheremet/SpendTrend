@@ -1,49 +1,55 @@
-# Issue tracker: GitHub
+# Issue tracker: the spend_trend vault
 
-Issues and specs for this repo live as GitHub issues on `nikitasheremet/SpendTrend`. Use the `gh` CLI for all operations.
-Older issues used Linear identifiers (`SPE-<n>`); those references in git history and `.claude/plans/` point at Linear and are historical.
+Work for this repo is planned and tracked in the **spend_trend Obsidian vault** at `~/Documents/vaults/spend_trend`, as plain Markdown files. It is a separate git repo, not part of this one.
+
+Before touching the vault, read its `AGENTS.md`. It is the authority on the schema, status rules and what needs the user's OK. This file only maps tracker operations onto it.
+
+Older trackers are history only:
+- GitHub Issues `#1`–`#141` (2025), `#284`–`#357` (2025-11 → 2026-11)
+- Linear `SPE-<n>` (2025-11 → 2026-10), referenced in git history and `.claude/plans/`
+
+Every Linear and GitHub issue was migrated into the vault (W-0063); each work item lists its old IDs in the `source` property, so search the vault for `SPE-127` or `#318` to find one (`grep -l 'SPE-127' work/*.md`). Small closed tickets were folded into their theme item's Steps.
+
+Linear still receives **Failed Add Data Paste Reports** (see `docs/adr/0002-failed-paste-reports-scrambled-and-filed-in-linear.md`). That is a product feature, not where work is tracked: don't plan or track work there.
 
 ## Conventions
 
-- **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.
-- **Read an issue**: `gh issue view <number> --comments`, filtering comments by `jq` and also fetching labels.
-- **List issues**: `gh issue list --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
-- **Comment on an issue**: `gh issue comment <number> --body "..."`
-- **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
-- **Close**: `gh issue close <number> --comment "..."`
-- **Labels**: add area/type labels where they fit: `frontend` / `backend` / `Infra`, and `bug` / `Feature` / `Improvement` / `refactor`.
-- **Branches**: name branches `issue/<n>` and reference `(#<n>)` in commit subjects.
-- **PRs**: open with `--base dev`; put `Closes #<n>` in the body so merging closes the issue.
+Paths below are relative to the vault root.
 
-Infer the repo from `git remote -v`; `gh` does this automatically when run inside a clone.
+- **Work item**: one file `work/W-NNNN <Title>.md`, copied from `templates/Work item.md`. Take the next free `W-NNNN`. The hierarchy comes from the `parent` property, not from folders.
+- **Create an issue**: create a work item. Set `parent` to the closest theme (see `python3 tools/tree.py`), and set `status: todo`, `kind` and a clear Goal.
+- **Labels**: there are no labels. Old GitHub labels map to properties: `bug` / `Feature` / `Improvement` / `refactor` / `Infra` → `kind`; `frontend` / `backend` → `scope` (comma separated, also `contracts`). Triage roles go in `triage` (see `docs/agents/triage-labels.md`).
+- **Make an issue a sub-issue of a parent**: set the child's `parent` to the parent work item's wikilink, e.g. `parent: "[[W-0011 Failed Add Data Paste Report]]"`. Use `order` to sequence siblings.
+- **Read an issue**: read the work item top to bottom (including its Log), every note linked under Context, and the ancestors' Goals.
+- **List issues**: `python3 tools/tree.py --open` lists open work, with each item's `triage` value in braces. Add `--root W-NNNN` for one subtree.
+- **Comment on an issue**: add a dated line to the item's `## Log`, as `- YYYY-MM-DD: …`.
+- **Start**: set `status: doing` and add a Log line.
+- **Close**: set `status: done` and `done: <date>`, and add a final Log line. Set `release` once it reaches production.
+- **Specs**: PRDs go in `docs/PRD - <title>.md` and ADR copies go in `docs/ADR-NNNN <title>.md`. Link them from the work item's Context.
+- **Branches**: `w/<NNNN>`, the work item's number (e.g. `w/0026` for W-0026). Always cut from `dev`. Older branches were `issue/<n>` and `linear/SPE-<n>`.
+- **Commits**: name the item in the subject, e.g. `fix(frontend): … (W-0026)`.
+- **PRs**: open with `--base dev` and put the work item ID in the title or body. Merging does not close anything, so close the item in the vault by hand.
+- **Validate**: run `python3 tools/tree.py --check` after editing the vault. Commit vault changes in the vault repo, with a message that names the W-ids touched.
 
 ## Pull requests as a triage surface
 
-**PRs as a request surface: no.** _(Set to `yes` if this repo treats external PRs as feature requests; `/triage` reads this flag.)_
-
-When set to `yes`, PRs run through the same labels and states as issues, using the `gh pr` equivalents:
-
-- **Read a PR**: `gh pr view <number> --comments` and `gh pr diff <number>` for the diff.
-- **List external PRs for triage**: `gh pr list --state open --json number,title,body,labels,author,authorAssociation,comments` then keep only `authorAssociation` of `CONTRIBUTOR`, `FIRST_TIME_CONTRIBUTOR`, or `NONE` (drop `OWNER`/`MEMBER`/`COLLABORATOR`).
-- **Comment / label / close**: `gh pr comment`, `gh pr edit --add-label`/`--remove-label`, `gh pr close`.
-
-GitHub shares one number space across issues and PRs, so a bare `#42` may be either: resolve with `gh pr view 42` and fall back to `gh issue view 42`.
+**PRs as a request surface: no.** External PRs are not triaged as feature requests.
 
 ## When a skill says "publish to the issue tracker"
 
-Create a GitHub issue.
+Create a work item in the vault (or a PRD in `docs/` for a spec, with a work item that links it).
 
 ## When a skill says "fetch the relevant ticket"
 
-Run `gh issue view <number> --comments`.
+Read the work item `work/W-NNNN *.md`. Given an old `SPE-<n>` or `#<n>`, find it by its `source` property.
 
 ## Wayfinding operations
 
-Used by `/wayfinder`. The **map** is a single issue with **child** issues as tickets.
+Used by `/wayfinder`. The **map** is a root (or parent) work item, and its **child** work items are the tickets.
 
-- **Map**: a single issue labelled `wayfinder:map`, holding the Notes / Decisions-so-far / Fog body. `gh issue create --label wayfinder:map`.
-- **Child ticket**: an issue linked to the map as a GitHub sub-issue (`gh api` on the sub-issues endpoint). Where sub-issues aren't enabled, add the child to a task list in the map body and put `Part of #<map>` at the top of the child body. Labels: `wayfinder:<type>` (`research`/`prototype`/`grilling`/`task`). Once claimed, the ticket is assigned to the driving dev.
-- **Blocking**: GitHub's **native issue dependencies**, the canonical, UI-visible representation. Add an edge with `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>`, where `<blocker-db-id>` is the blocker's numeric **database id** (`gh api repos/<owner>/<repo>/issues/<n> --jq .id`, _not_ the `#number` or `node_id`). GitHub reports `issue_dependencies_summary.blocked_by` (open blockers only, the live gate). Where dependencies aren't available, fall back to a `Blocked by: #<n>, #<n>` line at the top of the child body. A ticket is unblocked when every blocker is closed.
-- **Frontier query**: list the map's open children (`gh issue list --state open`, scoped to the map's sub-issues / task list), drop any with an open blocker (`issue_dependencies_summary.blocked_by > 0`, or an open issue in the `Blocked by` line) or an assignee; first in map order wins.
-- **Claim**: `gh issue edit <n> --add-assignee @me`, the session's first write.
-- **Resolve**: `gh issue comment <n> --body "<answer>"`, then `gh issue close <n>`, then append a context pointer (gist + link) to the map's Decisions-so-far.
+- **Map**: a work item whose Goal and Log hold the Notes, Decisions-so-far and Fog.
+- **Child ticket**: a work item with `parent` set to the map. Use `order` for map order.
+- **Blocking**: set the child's `status: blocked`, with a last Log line `Blocked by [[W-NNNN …]]`. A ticket is unblocked when every blocker it names is `done` or `dropped`. Then set it back to `todo`.
+- **Frontier query**: `python3 tools/tree.py --open --root W-NNNN`. Skip `blocked` and `doing` children. The first `todo` child in `order` wins.
+- **Claim**: set the child to `doing` and add a Log line. This is the session's first write.
+- **Resolve**: add the answer to the child's Log, close it, then add a pointer (gist + `[[link]]`) to the map's Log under Decisions-so-far.

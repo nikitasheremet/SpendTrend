@@ -63,12 +63,12 @@ that as the default posture unless told otherwise.
 
 ### Issue tracker
 
-Issues live in GitHub Issues on `nikitasheremet/SpendTrend`, accessed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+Work is planned and tracked in the spend_trend Obsidian vault (`~/Documents/vaults/spend_trend`) as `W-NNNN` work items, not in GitHub Issues or Linear. Read the vault's `AGENTS.md` before editing it. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
-Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+The five triage roles map to the vault work item `triage` property (`wontfix` is `status: dropped`). See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
-Single-context: one root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
+Single-context: one root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
