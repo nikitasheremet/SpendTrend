@@ -8,7 +8,7 @@ Older trackers are history only:
 - GitHub Issues `#1`–`#141` (2025), `#284`–`#357` (2025-11 → 2026-11)
 - Linear `SPE-<n>` (2025-11 → 2026-10), referenced in git history and `.claude/plans/`
 
-Every Linear and GitHub issue was migrated into the vault (W-0063); each work item lists its old IDs in the `source` property, so search the vault for `SPE-127` or `#318` to find one (`grep -l 'SPE-127' work/*.md`). Small closed tickets were folded into their theme item's Steps.
+Every Linear and GitHub issue was migrated into the vault (W-0063); each work item lists its old IDs in the `source` property, so search the vault for `SPE-127` or `#318` to find one (`grep -rl 'SPE-127' work/`). Small closed tickets were folded into their theme item's Steps.
 
 Linear still receives **Failed Add Data Paste Reports** (see `docs/adr/0002-failed-paste-reports-scrambled-and-filed-in-linear.md`). That is a product feature, not where work is tracked: don't plan or track work there.
 
@@ -16,10 +16,10 @@ Linear still receives **Failed Add Data Paste Reports** (see `docs/adr/0002-fail
 
 Paths below are relative to the vault root.
 
-- **Work item**: one file `work/W-NNNN <Title>.md`, copied from `templates/Work item.md`. Take the next free `W-NNNN`. The hierarchy comes from the `parent` property, not from folders.
+- **Work item**: one file `W-NNNN <Title>.md` under `work/`, copied from `templates/Work item.md`. Take the next free `W-NNNN`. The hierarchy comes from the `parent` property, and the folders under `work/` mirror it: an item with children is a folder of the same name holding its own note and its children, and an item without children is a plain file in its parent's folder. Don't place or move files by hand. Set `parent`, then run `python3 tools/tree.py --fix-layout` (see the vault's `AGENTS.md` → Work item layout).
 - **Create an issue**: create a work item. Set `parent` to the closest theme (see `python3 tools/tree.py`), and set `status: todo`, `kind` and a clear Goal.
 - **Labels**: there are no labels. Old GitHub labels map to properties: `bug` / `Feature` / `Improvement` / `refactor` / `Infra` → `kind`; `frontend` / `backend` → `scope` (comma separated, also `contracts`). Triage roles go in `triage` (see `docs/agents/triage-labels.md`).
-- **Make an issue a sub-issue of a parent**: set the child's `parent` to the parent work item's wikilink, e.g. `parent: "[[W-0011 Failed Add Data Paste Report]]"`. Use `order` to sequence siblings.
+- **Make an issue a sub-issue of a parent**: set the child's `parent` to the parent work item's wikilink, e.g. `parent: "[[W-0011 Failed Add Data Paste Report]]"`. Use `order` to sequence siblings, then run `python3 tools/tree.py --fix-layout` to move the files.
 - **Read an issue**: read the work item top to bottom (including its Log), every note linked under Context, and the ancestors' Goals.
 - **List issues**: `python3 tools/tree.py --open` lists open work, with each item's `triage` value in braces. Add `--root W-NNNN` for one subtree.
 - **Comment on an issue**: add a dated line to the item's `## Log`, as `- YYYY-MM-DD: …`.
@@ -41,7 +41,7 @@ Create a work item in the vault (or a PRD in `docs/` for a spec, with a work ite
 
 ## When a skill says "fetch the relevant ticket"
 
-Read the work item `work/W-NNNN *.md`. Given an old `SPE-<n>` or `#<n>`, find it by its `source` property.
+Read the work item (`find work -name 'W-NNNN *.md'`). Given an old `SPE-<n>` or `#<n>`, find it by its `source` property.
 
 ## Wayfinding operations
 
