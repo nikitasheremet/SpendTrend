@@ -5,6 +5,7 @@ import { user, session, account, verification } from '../db/schema'
 import { customSession } from 'better-auth/plugins'
 import { eq } from 'drizzle-orm'
 import { createDefaultExpenseCategoriesDatabaseHook } from './databaseHooks'
+import { isLocalPasswordSignInEnabled } from './localPasswordSignIn'
 
 export let auth: Auth
 
@@ -31,6 +32,11 @@ export function createAuth() {
       'https://spendtrend-mz44.onrender.com',
       'https://dev-spendtrend-frontend.onrender.com',
     ],
+    // Local only, for agents (ADR-0004). Throws, stopping startup, if NODE_ENV is local
+    // but DATABASE_URL isn't on localhost.
+    emailAndPassword: {
+      enabled: isLocalPasswordSignInEnabled(process.env),
+    },
     socialProviders: {
       google: {
         clientId: process.env.GOOGLE_CLIENT_ID!,
