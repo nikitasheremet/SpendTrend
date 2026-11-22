@@ -36,3 +36,6 @@ playwright-report/
 
 # Agent git worktrees
 .claude/worktrees/
+
+# Local agent sign-in sessions (npm run local:signin)
+.agent-auth/

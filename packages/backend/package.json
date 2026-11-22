@@ -8,6 +8,8 @@
     "start": "node dist/server.js",
     "start:dev": "NODE_ENV=dev node dist/server.js",
     "local": "NODE_ENV=local vite-node src/server.ts",
+    "local:user": "NODE_ENV=local vite-node src/scripts/createLocalUser.ts",
+    "local:signin": "vite-node src/scripts/localSignIn/signIn.ts",
     "test:e2e": "NODE_ENV=test npx playwright test e2e",
     "test:unit": "vitest run src --passWithNoTests",
     "test:all": "npm run test:unit && npm run test:e2e",
