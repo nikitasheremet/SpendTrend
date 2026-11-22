@@ -1,8 +1,7 @@
 // Email and password sign-in exists only so agents can sign in to a locally running
 // backend without Google (ADR-0004). This guard is security-critical: if it lets a
 // deployed environment through, that environment accepts password sign-ins.
-
-const LOCAL_DATABASE_HOSTS = ['localhost', '127.0.0.1']
+import { isLocalDatabaseUrl } from './localDatabaseUrl'
 
 /**
  * True only when NODE_ENV is exactly `local`. Throws when NODE_ENV is `local` but
@@ -19,11 +18,4 @@ export function isLocalPasswordSignInEnabled(env: NodeJS.ProcessEnv): boolean {
     )
   }
   return true
-}
-
-function isLocalDatabaseUrl(databaseUrl: string | undefined): boolean {
-  if (!databaseUrl || !URL.canParse(databaseUrl)) {
-    return false
-  }
-  return LOCAL_DATABASE_HOSTS.includes(new URL(databaseUrl).hostname)
 }

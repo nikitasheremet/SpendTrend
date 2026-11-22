@@ -7,7 +7,8 @@ import { createApp } from './app'
 connectToDb()
 createAuth()
 
-const PORT = 3000
+// agent:up gives each worktree its own port (W-0090). Not PORT: Render sets that.
+const PORT = Number(process.env.BACKEND_PORT ?? 3000)
 
 // Create app and start server
 const server = serve({

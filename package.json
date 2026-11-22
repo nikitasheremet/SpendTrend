@@ -22,7 +22,11 @@
     "frontend:dev": "npm run dev --workspace packages/frontend",
     "backend:local": "npm run local --workspace packages/backend",
     "frontend:build": "tsc -b ./contracts && npm run build --workspace packages/frontend",
-    "frontend:build:dev": "tsc -b ./contracts && npm run build:dev --workspace packages/frontend"
+    "frontend:build:dev": "tsc -b ./contracts && npm run build:dev --workspace packages/frontend",
+    "agent:up": "tsx packages/backend/src/scripts/worktree/agentUp.ts",
+    "agent:down": "tsx packages/backend/src/scripts/worktree/agentDown.ts",
+    "worktree:remove": "tsx packages/backend/src/scripts/worktree/removeWorktree.ts",
+    "db:prune": "tsx packages/backend/src/scripts/worktree/pruneDatabases.ts"
   },
   "version": "0.0.1"
 }

@@ -26,6 +26,7 @@ import {
 } from './income/handler'
 import { createFailedPasteReportHandlers } from './failedPasteReport/handler/createFailedPasteReportHandler'
 import { type SessionUser } from './models/sessionUser'
+import { isAllowedOrigin } from './lib/allowedOrigins'
 
 // e2e runs skip auth, so endpoints that read the session get this fixed user instead.
 const TEST_SESSION_USER: SessionUser = {
@@ -38,13 +39,7 @@ export function createApp() {
 
   app.use(
     cors({
-      origin: [
-        'http://localhost:5173',
-        'https://nikitasheremet.github.io',
-        'https://spendtrend-9fwf.onrender.com',
-        'https://spendtrend-mz44.onrender.com',
-        'https://dev-spendtrend-frontend.onrender.com',
-      ],
+      origin: (origin) => (isAllowedOrigin(origin, process.env) ? origin : null),
       credentials: true,
       // So the frontend can tell a rate-limited user how long to wait.
       exposeHeaders: ['Retry-After'],
