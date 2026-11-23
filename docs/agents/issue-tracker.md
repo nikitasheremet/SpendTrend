@@ -24,7 +24,7 @@ Paths below are relative to the vault root.
 - **List issues**: `python3 tools/tree.py --open` lists open work, with each item's `triage` value in braces. Add `--root W-NNNN` for one subtree.
 - **Comment on an issue**: add a dated line to the item's `## Log`, as `- YYYY-MM-DD: …`.
 - **Start**: set `status: doing` and add a Log line.
-- **Close**: set `status: done` and `done: <date>`, and add a final Log line. Set `release` once it reaches production.
+- **Close**: set `status: done` and `done: <date>`, add a final Log line, then run `python3 tools/tree.py --fix-layout`. It adds ` ✅` to the item's name and rewrites the links to it (see the vault's `AGENTS.md` → Work item names). Set `release` once it reaches production.
 - **Specs**: PRDs go in `docs/PRD - <title>.md` and ADR copies go in `docs/ADR-NNNN <title>.md`. Link them from the work item's Context.
 - **Branches**: `w/<NNNN>`, the work item's number (e.g. `w/0026` for W-0026). Always cut from `dev`, in its own worktree at `.claude/worktrees/w-<NNNN>` (see `AGENTS.md` → Branching). Older branches were `issue/<n>` and `linear/SPE-<n>`.
 - **Commits**: name the item in the subject, e.g. `fix(frontend): … (W-0026)`.
