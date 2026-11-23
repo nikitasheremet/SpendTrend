@@ -60,7 +60,7 @@ function printUrls(checkout: Checkout) {
       `Backend:  ${backendUrl(environment)}`,
       `Database: ${environment.databaseName}`,
       `Logs:     ${logPath(checkout.root, 'backend')}, ${logPath(checkout.root, 'frontend')}`,
-      'Sign in:  npm run local:signin',
+      'Sign in:  npm run local:signin -w packages/backend',
     ].join('\n'),
   )
 }

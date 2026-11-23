@@ -42,3 +42,6 @@ playwright-report/
 
 # Per-checkout server pids and logs (npm run agent:up)
 .agent-env/
+
+# Ad-hoc local verification scripts and screenshots (docs/agents/local-verification.md)
+.agent-scratch/

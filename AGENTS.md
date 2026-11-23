@@ -28,7 +28,8 @@ cd .claude/worktrees/w-<NNNN> && npm install
 
 Run every command for that work from inside the worktree. Never switch
 branches, stash or reset in the main checkout. After the PR merges, remove the
-worktree with `git worktree remove .claude/worktrees/w-<NNNN>`.
+worktree from the main checkout with `npm run worktree:remove -- <NNNN>`, which
+also stops its servers and drops its local database.
 
 ## Code ordering: newspaper style
 
@@ -68,10 +69,29 @@ detail after, the way a newspaper article leads with the headline:
 
 ## Verification defaults
 
-Prefer type-checking and unit tests over starting a dev server or opening a
-browser to verify behavior, unless a task explicitly asks for browser-based
-verification. Some tickets explicitly forbid running the app locally — treat
-that as the default posture unless told otherwise.
+Every change gets type-check and unit tests. Two kinds of change also get
+**local verification** against the running app:
+
+- **User-facing frontend changes**: click through the changed flows in a
+  headless browser.
+- **New or changed endpoints**: call them with curl against the real local DB.
+
+Pure refactors stop at type-check and unit tests, and so does
+any work item that says not to run the app.
+
+The local verification flow, run from the worktree (details, an example script
+and gotchas in `docs/agents/local-verification.md`):
+
+1. `npm run agent:up` starts this worktree's DB, backend and frontend on its own
+   ports and prints the URLs.
+2. `npm run local:signin -w packages/backend` signs in as the local user and
+   writes a Playwright storage state and a curl cookie jar.
+3. Drive the frontend with an ad-hoc headless Playwright script in
+   `.agent-scratch/` (gitignored), and call endpoints with
+   `curl -b packages/backend/.agent-auth/cookies.txt`.
+4. `npm run agent:down` stops the servers.
+5. Add a **Verified locally** section to the PR body listing each flow clicked
+   and endpoint called, with its result.
 
 ## Agent skills
 
