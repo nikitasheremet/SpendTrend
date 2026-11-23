@@ -39,3 +39,6 @@ playwright-report/
 
 # Local agent sign-in sessions (npm run local:signin)
 .agent-auth/
+
+# Per-checkout server pids and logs (npm run agent:up)
+.agent-env/

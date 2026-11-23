@@ -6,6 +6,7 @@ import { customSession } from 'better-auth/plugins'
 import { eq } from 'drizzle-orm'
 import { createDefaultExpenseCategoriesDatabaseHook } from './databaseHooks'
 import { isLocalPasswordSignInEnabled } from './localPasswordSignIn'
+import { trustedOrigins } from './allowedOrigins'
 
 export let auth: Auth
 
@@ -26,12 +27,7 @@ export function createAuth() {
         generateId: false,
       },
     },
-    trustedOrigins: [
-      'http://localhost:5173',
-      'https://nikitasheremet.github.io',
-      'https://spendtrend-mz44.onrender.com',
-      'https://dev-spendtrend-frontend.onrender.com',
-    ],
+    trustedOrigins: trustedOrigins(process.env),
     // Local only, for agents (ADR-0004). Throws, stopping startup, if NODE_ENV is local
     // but DATABASE_URL isn't on localhost.
     emailAndPassword: {

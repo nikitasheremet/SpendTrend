@@ -4,18 +4,24 @@
 //   <outDir>/cookies.txt         curl cookie jar: curl -b <outDir>/cookies.txt ...
 //
 // Usage: npm run local:signin [-- <outDir>]   (default outDir: packages/backend/.agent-auth)
-// The backend must be running with NODE_ENV=local. BACKEND_URL (default http://localhost:3000)
-// picks the backend and FRONTEND_URL (default http://localhost:5173) the Origin header.
+// The backend must be running with NODE_ENV=local. BACKEND_URL picks the backend and
+// FRONTEND_URL the Origin header. Both default to this checkout's ports from agent:up
+// (3000 and 5173 in the main checkout, 30000+N and 20000+N in worktree w-NNNN).
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { LOCAL_USER } from '../localUser'
 import { toCurlCookieJar, toPlaywrightStorageState } from './sessionFiles'
+import { localEnvironmentFor } from '../worktree/localEnvironment'
+import { backendUrl, frontendUrl } from '../worktree/servers'
 
 const DEFAULT_OUT_DIR = path.resolve(import.meta.dirname, '../../../.agent-auth')
+const CHECKOUT_ENVIRONMENT = localEnvironmentFor(
+  path.resolve(import.meta.dirname, '../../../../..'),
+)
 
 await signInAsLocalUser({
-  backendUrl: process.env.BACKEND_URL ?? 'http://localhost:3000',
-  frontendUrl: process.env.FRONTEND_URL ?? 'http://localhost:5173',
+  backendUrl: process.env.BACKEND_URL ?? backendUrl(CHECKOUT_ENVIRONMENT),
+  frontendUrl: process.env.FRONTEND_URL ?? frontendUrl(CHECKOUT_ENVIRONMENT),
   outDir: path.resolve(process.argv[2] ?? DEFAULT_OUT_DIR),
 })
 

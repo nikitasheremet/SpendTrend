@@ -1,3 +1,6 @@
+# One Postgres container shared by the main checkout and every worktree (W-0090).
+name: spendtrend
+
 services:
   db:
     image: postgres:16
