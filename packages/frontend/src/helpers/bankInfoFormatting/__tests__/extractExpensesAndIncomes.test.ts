@@ -230,4 +230,16 @@ describe('extractExpensesAndIncomes', () => {
       expect(result?.amount).toBe(0)
     })
   })
+
+  describe('when the row has no cells after the description', () => {
+    it('should return an income with amount 0', () => {
+      const fakeRow = createFakeRow(['2024-01-15', 'Coffee Shop'])
+
+      const result = extractExpensesAndIncomes(fakeRow)
+
+      expect(result?.name).toBe('Coffee Shop')
+      expect(result?.type).toBe(DataType.INCOME)
+      expect(result?.amount).toBe(0)
+    })
+  })
 })

@@ -772,6 +772,21 @@ describe('Failed Add Data Paste Report', () => {
     )
   })
 
+  it('enables the report button when the paste could not be parsed at all', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    mockFormatPastedBankData.mockImplementationOnce(() => {
+      throw new TypeError('parser blew up')
+    })
+    render(AddDataView)
+
+    firePaste(screen.getByPlaceholderText(pasteTextareaPlaceholder), '<table></table>')
+
+    await vi.waitFor(() =>
+      expect(screen.getByRole('button', { name: failedPasteReportButtonName })).toBeEnabled(),
+    )
+    consoleErrorSpy.mockRestore()
+  })
+
   it('sends the bank, the unscrambled message and the scrambled last paste', async () => {
     // Every scrambled digit becomes 1 and every scrambled letter a or A.
     const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0)

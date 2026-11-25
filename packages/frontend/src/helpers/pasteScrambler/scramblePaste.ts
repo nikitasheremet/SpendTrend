@@ -191,8 +191,8 @@ function measureSentBytes(value: string): number {
   return new TextEncoder().encode(JSON.stringify(value)).length - JSON_STRING_QUOTES_BYTES
 }
 
-// Truncation can cut a row short in a way the parser throws on. The report should still
-// send, and the fidelity check then shows the rows went missing.
+// The report should still send if the scrambled or truncated HTML trips up the parser,
+// and the fidelity check then shows the rows went missing.
 function parseScrambledHtml(scrambledHtml: string): FormattedBankData[] {
   try {
     return formatPastedBankData(scrambledHtml)

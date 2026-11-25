@@ -63,4 +63,10 @@ describe('cleanNumber', () => {
       expect(cleanNumber('Infinity')).toBe(Infinity)
     })
   })
+
+  describe('when value is undefined', () => {
+    it('should return undefined', () => {
+      expect(cleanNumber(undefined)).toBeUndefined()
+    })
+  })
 })
