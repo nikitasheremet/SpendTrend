@@ -11,7 +11,7 @@ import { NewIncome } from '@/types/income/income'
 import { computed, inject, ref } from 'vue'
 import { getStore } from '@/store/store'
 import { formatPastedBankData } from '@/helpers/bankInfoFormatting/formatPastedBankData'
-import { DataType } from '@/helpers/bankInfoFormatting/bankInfoTypes'
+import { DataType, type FormattedBankData } from '@/helpers/bankInfoFormatting/bankInfoTypes'
 import { useControlModal } from '@/components/DesignSystem/Modal/useControlModal'
 import { useScrollPast } from '@/helpers/hooks/useScrollPast'
 import { useElementHeight } from '@/helpers/hooks/useElementHeight'
@@ -113,7 +113,7 @@ let resolvePendingIncomeSave: ((shouldContinueSaving: boolean) => void) | null =
 function addPastedBankDataToDrafts(
   dataToFormat: string,
 ): Pick<LastAddDataPaste, 'parsedRows' | 'expenseCount' | 'incomeCount'> {
-  const createdData = formatPastedBankData(dataToFormat)
+  const createdData = formatPastedBankDataSafely(dataToFormat)
   console.log('Created data:', createdData)
   const newExpensesToAdd = createdData
     .filter((data) => data.type === DataType.EXPENSE)
@@ -150,6 +150,16 @@ function addPastedBankDataToDrafts(
     parsedRows: createdData,
     expenseCount: newExpensesToAdd.length,
     incomeCount: newIncomesToAdd.length,
+  }
+}
+
+// A parser crash must not stop the paste being recorded, or it can't be reported
+function formatPastedBankDataSafely(dataToFormat: string): FormattedBankData[] {
+  try {
+    return formatPastedBankData(dataToFormat)
+  } catch (error) {
+    console.error('Failed to format pasted bank data:', error)
+    return []
   }
 }
 

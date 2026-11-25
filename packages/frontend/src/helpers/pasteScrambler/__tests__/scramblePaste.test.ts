@@ -302,9 +302,10 @@ describe('scramblePaste', () => {
       expect(new TextEncoder().encode(scrambledHtml).length).toBeLessThanOrEqual(TWO_MB)
       expect(new TextEncoder().encode(scrambledHtml).length).toBeGreaterThan(TWO_MB - 100)
       expect(isTruncated).toBe(true)
-      // The cut row is one the parser can't read, which the fidelity check shows.
-      expect(parsedRows).toEqual([])
-      expect(fidelity.matches).toBe(false)
+      // The cut row loses the end of its name but still parses as the same row.
+      expect(parsedRows).toHaveLength(1)
+      expect(parsedRows[0].type).toBe(DataType.INCOME)
+      expect(fidelity.matches).toBe(true)
     })
 
     it('should cut plain text down to 2 MB without splitting a character', () => {
