@@ -1,0 +1,18 @@
+# Render Blueprint for the dev database (W-0096).
+# Free Postgres expires 30 days after creation, so this lets us recreate it with
+# one Blueprint sync. Only one free database can be active per workspace.
+#
+# It sits at the root rather than under `projects:` so a sync never creates a
+# second "SpendTrend Finance App" project. Move it into the Dev environment once
+# after the first sync; root-level resources keep their environment on later syncs.
+#
+# After a recreate, point dev-spendtrend-server's DATABASE_URL at the new
+# database's internal URL and redeploy. The server build runs the migrations.
+
+databases:
+  - name: dev-spend-trend-db
+    plan: free
+    region: oregon
+    postgresMajorVersion: '16'
+    databaseName: spend_trend
+    user: spend_trend_user
