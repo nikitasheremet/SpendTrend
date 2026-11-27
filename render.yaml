@@ -27,7 +27,7 @@ services:
           name: dev-spend-trend-db
           property: connectionString
       - key: APP_ENV
-        value: dev
+        sync: false
       - key: NODE_ENV
         sync: false
       - key: BETTER_AUTH_SECRET
@@ -39,12 +39,6 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: LINEAR_API_KEY
-        sync: false
-      - key: FRONTEND_URL
-        sync: false
-      - key: BACKEND_URL
-        sync: false
-      - key: TZ
         sync: false
 
 databases:
