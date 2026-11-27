@@ -1,13 +1,51 @@
-# Render Blueprint for the dev database (W-0096).
-# Free Postgres expires 30 days after creation, so this lets us recreate it with
-# one Blueprint sync. Only one free database can be active per workspace.
+# Render Blueprint for the dev database and dev server (W-0096).
+# Free Postgres expires 30 days after creation. To recreate it, delete the
+# expired database in Render and sync this Blueprint: the sync creates a new
+# database, points the server's DATABASE_URL at it and redeploys the server,
+# whose build runs the migrations. Only one free database can be active per workspace.
 #
-# It sits at the root rather than under `projects:` so a sync never creates a
-# second "SpendTrend Finance App" project. Move it into the Dev environment once
-# after the first sync; root-level resources keep their environment on later syncs.
+# Both sit at the root rather than under `projects:` so a sync never creates a
+# second "SpendTrend Finance App" project. They already live in the Dev
+# environment (move the database there once after its first sync); root-level
+# resources keep their environment on later syncs.
 #
-# After a recreate, point dev-spendtrend-server's DATABASE_URL at the new
-# database's internal URL and redeploy. The server build runs the migrations.
+# `sync: false` env vars are set in the Render dashboard, never here. Render asks
+# for them when it first creates the service and leaves them alone on later syncs.
+
+services:
+  - type: web
+    name: dev-spendtrend-server
+    runtime: node
+    plan: free
+    region: oregon
+    branch: dev
+    buildCommand: npm install --include=dev && npm run build --workspace packages/backend && npm run db:mig --workspace packages/backend
+    startCommand: npm run start:dev --workspace packages/backend
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dev-spend-trend-db
+          property: connectionString
+      - key: APP_ENV
+        value: dev
+      - key: NODE_ENV
+        sync: false
+      - key: BETTER_AUTH_SECRET
+        sync: false
+      - key: BETTER_AUTH_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: LINEAR_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: BACKEND_URL
+        sync: false
+      - key: TZ
+        sync: false
 
 databases:
   - name: dev-spend-trend-db
