@@ -1,0 +1,6 @@
+{
+  "features": [
+    "If pasting your bank data on the Add Data page didn't work as expected, such as rows missing or a wrong date, name or amount, click \"Report a problem\" to tell us. Pick your bank and describe what went wrong. Your pasted data is scrambled before it's sent, so no real amounts, names or other details leave your browser."
+  ],
+  "bugFixes": []
+}
